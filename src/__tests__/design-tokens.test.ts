@@ -89,12 +89,12 @@ describe("mzizi doctrine 4.2.0 washed refresh", () => {
   });
 
   it("paints the event-themed page ground with the wash", () => {
-    expect(css).toMatch(/\.event-themed-page\s*\{[^}]*background:\s*var\(--wash\)/s);
+    expect(css).toMatch(/\.event-themed-page\s*\{[^}]*background:\s*var\(--wash\)/);
   });
 
   it("selects the active event palette from the wrapper's light/dark vars", () => {
     expect(css).toMatch(/--event-primary:\s*var\(--ev-accent-d/);
-    expect(css).toMatch(/\.light \.event-themed-page[^}]*--event-primary:\s*var\(--ev-accent-l/s);
+    expect(css).toMatch(/\.light \.event-themed-page[^}]*--event-primary:\s*var\(--ev-accent-l/);
   });
 
   it("still keeps tanzanite as the brand primary after the refresh", () => {

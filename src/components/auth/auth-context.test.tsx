@@ -70,6 +70,7 @@ function appUser(overrides: Partial<AppUser> & { id: string; workosUserId: strin
     onboardingCompleted: false,
     suspended: false,
     ...overrides,
+    locale: overrides.locale ?? "en",
     personId: overrides.personId ?? overrides.id,
   };
 }
