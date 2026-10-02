@@ -101,46 +101,6 @@ jobs:
   # Events Admin app (nyuchi/mukoko-events-admin) are now separate repos with
   # their own CI. This workflow covers the public Nhimbe app only.
 
-  # ============================================
-  # CODE REVIEW — Claude on pull requests
-  # ============================================
-
-  claude-code-review:
-    name: Claude Code Review
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      id-token: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Claude Code Review
-        # Advisory check — the bot posts review comments via the Claude API
-        # and can fail for reasons outside the PR's quality (large diffs that
-        # bust the action's prompt window, API quota, beta-tag regressions).
-        # step-level continue-on-error lets the job (and the check listed in
-        # branch protection) report success even when the bot itself errored;
-        # the failure still surfaces as an annotation on the step for humans
-        # to investigate. Job-level continue-on-error wouldn't help here — it
-        # only stops the workflow from failing overall, the check still shows
-        # red and blocks branch-protection gates that require this check name.
-        continue-on-error: true
-        uses: anthropics/claude-code-action@beta
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          direct_prompt: |
-            Review this PR for:
-            1. Security vulnerabilities (XSS, injection, auth bypass, insecure randomness)
-            2. Performance issues
-            3. Code quality and adherence to project conventions (see AGENTS.md)
-            4. Potential bugs or edge cases
-            Be concise. Only flag real issues, not style preferences.
-
   # NOTE: The "Run D1 Migrations" job was removed when the database moved to
   # MongoDB (the Mukoko v3.1 cluster). Collections, validators, and indexes are
   # owned by the nyuchi_platform_db project — this repo is a read/write consumer
