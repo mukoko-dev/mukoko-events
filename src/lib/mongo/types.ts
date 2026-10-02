@@ -160,7 +160,10 @@ export interface CalendarFollowDoc extends BaseDoc {
   unfollowedAt?: Date | null;
 }
 
-export type RsvpResponse = "RsvpResponseYes" | "RsvpResponseNo" | "RsvpResponseMaybe";
+export type RsvpResponse =
+  | "RsvpResponseYes"
+  | "RsvpResponseNo"
+  | "RsvpResponseMaybe";
 
 export interface RsvpDoc extends BaseDoc {
   eventId: string;
@@ -309,11 +312,20 @@ export interface PersonDoc extends BaseDoc {
 
 // ───────────────────────── entity database ─────────────────────────
 
-export type EntityType = "family" | "organization" | "community" | "place_owner";
+export type EntityType =
+  | "family"
+  | "organization"
+  | "community"
+  | "place_owner";
 
 export interface EntityDoc extends BaseDoc {
   entityType: EntityType;
-  ecosystemRole: "foundation" | "pillar" | "initiative" | "product" | "external";
+  ecosystemRole:
+    | "foundation"
+    | "pillar"
+    | "initiative"
+    | "product"
+    | "external";
   schemaOrgType: string;
   slug: string;
   name: string;
@@ -404,7 +416,11 @@ export interface PlaceDoc extends BaseDoc {
   plusCode?: string | null;
   what3words?: string | null;
   elevationMeters?: number | null;
-  media?: { image?: string[]; logo?: string | null; coverImage?: string | null } | null;
+  media?: {
+    image?: string[];
+    logo?: string | null;
+    coverImage?: string | null;
+  } | null;
   translations?: Record<string, unknown>;
   discovery?: {
     featured?: boolean | null;
@@ -423,7 +439,15 @@ export interface PlaceDoc extends BaseDoc {
 export interface PlacesGeoDoc extends BaseDoc {
   name: string;
   slug: string;
-  geoType: "continent" | "country" | "province" | "city" | "town" | "village" | "district" | "region";
+  geoType:
+    | "continent"
+    | "country"
+    | "province"
+    | "city"
+    | "town"
+    | "village"
+    | "district"
+    | "region";
   geo: Record<string, unknown>;
   parentPlaceId?: string | null;
   isoCode?: string | null;
@@ -471,7 +495,13 @@ export interface CircleMembershipDoc extends BaseDoc {
   memberPersonId: string;
   memberEntityId: string;
   role: "owner" | "admin" | "moderator" | "member" | "guest";
-  membershipStatus: "active" | "pending_approval" | "invited" | "banned" | "left" | "removed";
+  membershipStatus:
+    | "active"
+    | "pending_approval"
+    | "invited"
+    | "banned"
+    | "left"
+    | "removed";
   isActive: boolean;
   joinedAt: Date;
   invitedByPersonId?: string | null;
@@ -554,7 +584,12 @@ export interface EngagementInteractionDoc extends BaseDoc {
  * uses the reactions enum (`events_event`, `news_article`, …).
  */
 export interface EngagementReactionDoc extends BaseDoc {
-  schemaOrgType: "LikeAction" | "EndorseAction" | "AgreeAction" | "DisagreeAction" | "ReactAction";
+  schemaOrgType:
+    | "LikeAction"
+    | "EndorseAction"
+    | "AgreeAction"
+    | "DisagreeAction"
+    | "ReactAction";
   targetId: string;
   targetReferenceType: string;
   reactorPersonId: string;
@@ -582,7 +617,11 @@ export interface ReviewDoc extends BaseDoc {
   reviewReply?: string | null;
   helpfulCount?: number;
   visibility: "private" | "public" | "circle_members" | "self_only";
-  reviewRating: { ratingValue: number; bestRating?: number; worstRating?: number };
+  reviewRating: {
+    ratingValue: number;
+    bestRating?: number;
+    worstRating?: number;
+  };
   moderationStatus: string;
   isActive: boolean;
   verifiedPurchase: boolean;

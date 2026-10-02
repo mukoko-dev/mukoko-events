@@ -45,7 +45,8 @@ const listingCardVariants = cva(
     variants: {
       variant: {
         row: "flex items-center gap-3 rounded-[var(--radius-card,14px)] border-l-4 py-3 pr-4 pl-3",
-        compact: "flex flex-col overflow-hidden rounded-[var(--radius-card,14px)]",
+        compact:
+          "flex flex-col overflow-hidden rounded-[var(--radius-card,14px)]",
         hero: "relative flex flex-col justify-end overflow-hidden rounded-[var(--radius-card,14px)] min-h-[200px] p-5",
       },
     },
@@ -59,7 +60,9 @@ interface NyuchiListingMeta {
   value: string;
 }
 
-interface NyuchiListingCardProps extends VariantProps<typeof listingCardVariants> {
+interface NyuchiListingCardProps extends VariantProps<
+  typeof listingCardVariants
+> {
   /** When true, renders a skeleton matching the card variant proportions. */
   loading?: boolean;
   title: string;
@@ -107,7 +110,11 @@ function NyuchiListingCard({
         role="article"
         data-loading
         aria-busy="true"
-        className={cn(listingCardVariants({ variant }), "animate-pulse", className)}
+        className={cn(
+          listingCardVariants({ variant }),
+          "animate-pulse",
+          className,
+        )}
       >
         {variant === "hero" ? (
           <div className="space-y-3 p-4">
@@ -138,7 +145,9 @@ function NyuchiListingCard({
   }
 
   // Entry animation with stagger for lists — reduced-motion-safe via the harness.
-  const style = animStyle(index != null ? { delay: motion.staggerDelay(index) } : undefined);
+  const style = animStyle(
+    index != null ? { delay: motion.staggerDelay(index) } : undefined,
+  );
 
   const isHero = variant === "hero";
   const isRow = variant === "row";
@@ -146,7 +155,10 @@ function NyuchiListingCard({
 
   const formattedPrice =
     typeof price === "number"
-      ? new Intl.NumberFormat(undefined, { style: "currency", currency }).format(price)
+      ? new Intl.NumberFormat(undefined, {
+          style: "currency",
+          currency,
+        }).format(price)
       : price;
 
   // Cover fallback for events with no uploaded image: a mineral-accented gradient
@@ -173,7 +185,11 @@ function NyuchiListingCard({
             />
           </div>
         ) : (
-          <div className="aspect-video overflow-hidden" style={{ background: fallbackCover }} aria-hidden />
+          <div
+            className="aspect-video overflow-hidden"
+            style={{ background: fallbackCover }}
+            aria-hidden
+          />
         ))}
 
       {isHero && (
@@ -194,7 +210,11 @@ function NyuchiListingCard({
           />
           {image && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="" className="size-full object-cover opacity-30 mix-blend-overlay" />
+            <img
+              src={image}
+              alt=""
+              className="size-full object-cover opacity-30 mix-blend-overlay"
+            />
           )}
         </div>
       )}
@@ -213,7 +233,13 @@ function NyuchiListingCard({
           />
         ))}
 
-      <div className={cn("relative flex min-w-0 flex-1 flex-col gap-1.5", isCompact && "p-4", isHero && "z-10")}>
+      <div
+        className={cn(
+          "relative flex min-w-0 flex-1 flex-col gap-1.5",
+          isCompact && "p-4",
+          isHero && "z-10",
+        )}
+      >
         {category && (
           <span
             className={cn(
@@ -234,7 +260,12 @@ function NyuchiListingCard({
           {title}
         </h3>
         {description && (
-          <p className={cn("line-clamp-2 text-xs leading-relaxed", isHero ? "text-white/70" : "text-muted-foreground")}>
+          <p
+            className={cn(
+              "line-clamp-2 text-xs leading-relaxed",
+              isHero ? "text-white/70" : "text-muted-foreground",
+            )}
+          >
             {description}
           </p>
         )}
@@ -261,7 +292,9 @@ function NyuchiListingCard({
             <span
               className={cn(
                 "text-sm font-semibold",
-                formattedPrice === "Free" || price === 0 ? "text-[var(--color-malachite)]" : "text-foreground",
+                formattedPrice === "Free" || price === 0
+                  ? "text-[var(--color-malachite)]"
+                  : "text-foreground",
               )}
             >
               {price === 0 ? "Free" : formattedPrice}
@@ -273,7 +306,9 @@ function NyuchiListingCard({
 
       {formattedPrice && isCompact && (
         <div className="px-4 pb-3">
-          <span className="text-sm font-semibold text-foreground">{price === 0 ? "Free" : formattedPrice}</span>
+          <span className="text-sm font-semibold text-foreground">
+            {price === 0 ? "Free" : formattedPrice}
+          </span>
         </div>
       )}
     </>

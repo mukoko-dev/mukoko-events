@@ -9,7 +9,7 @@
  * - Media URL construction
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   getEvents,
   getEventById,
@@ -34,11 +34,11 @@ import {
   getTrendingEvents,
   getHostReputation,
   getUserReferralCode,
-} from './api';
+} from "./api";
 
 // Mirror the production default in src/lib/api.ts: same-origin (Vercel route
 // handlers) when NEXT_PUBLIC_API_URL is unset — the Cloudflare Worker is retired.
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -49,7 +49,7 @@ function mockFetch(body: unknown, status = 200) {
   (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
     ok: status >= 200 && status < 300,
     status,
-    statusText: status === 200 ? 'OK' : 'Error',
+    statusText: status === 200 ? "OK" : "Error",
     json: () => Promise.resolve(body),
   });
 }
@@ -58,8 +58,8 @@ function mockFetchError(status = 500) {
   (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
     ok: false,
     status,
-    statusText: 'Internal Server Error',
-    json: () => Promise.resolve({ error: 'Server error' }),
+    statusText: "Internal Server Error",
+    json: () => Promise.resolve({ error: "Server error" }),
   });
 }
 
@@ -67,53 +67,58 @@ function mockFetchError(status = 500) {
 // getEvents
 // ============================================
 
-describe('getEvents', () => {
-  it('fetches events without params', async () => {
+describe("getEvents", () => {
+  it("fetches events without params", async () => {
     mockFetch({ events: [], pagination: { limit: 20, offset: 0, total: 0 } });
 
     const result = await getEvents();
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events`,
-      expect.objectContaining({ headers: expect.objectContaining({ 'Content-Type': 'application/json' }) })
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          "Content-Type": "application/json",
+        }),
+      }),
     );
     expect(result.events).toEqual([]);
   });
 
-  it('builds query params for city filter', async () => {
+  it("builds query params for city filter", async () => {
     mockFetch({ events: [], pagination: { limit: 20, offset: 0, total: 0 } });
 
-    await getEvents({ city: 'Harare' });
+    await getEvents({ city: "Harare" });
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('city=Harare'),
-      expect.anything()
+      expect.stringContaining("city=Harare"),
+      expect.anything(),
     );
   });
 
-  it('builds query params for category filter', async () => {
+  it("builds query params for category filter", async () => {
     mockFetch({ events: [], pagination: { limit: 20, offset: 0, total: 0 } });
 
-    await getEvents({ category: 'Tech' });
+    await getEvents({ category: "Tech" });
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('category=Tech'),
-      expect.anything()
+      expect.stringContaining("category=Tech"),
+      expect.anything(),
     );
   });
 
-  it('builds query params for pagination', async () => {
+  it("builds query params for pagination", async () => {
     mockFetch({ events: [], pagination: { limit: 10, offset: 20, total: 50 } });
 
     await getEvents({ limit: 10, offset: 20 });
-    const url = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
-    expect(url).toContain('limit=10');
-    expect(url).toContain('offset=20');
+    const url = (global.fetch as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as string;
+    expect(url).toContain("limit=10");
+    expect(url).toContain("offset=20");
   });
 
-  it('throws on API error', async () => {
+  it("throws on API error", async () => {
     mockFetchError(500);
     // apiFetch surfaces the response body's `error` field when present, else
     // the HTTP status line. mockFetchError returns no JSON body so the
     // status line is used.
-    await expect(getEvents()).rejects.toThrow('500 Internal Server Error');
+    await expect(getEvents()).rejects.toThrow("500 Internal Server Error");
   });
 });
 
@@ -121,18 +126,18 @@ describe('getEvents', () => {
 // getEventById
 // ============================================
 
-describe('getEventById', () => {
-  it('returns event data on success', async () => {
-    const event = { id: 'evt-1', title: 'Test' };
+describe("getEventById", () => {
+  it("returns event data on success", async () => {
+    const event = { id: "evt-1", title: "Test" };
     mockFetch({ event });
 
-    const result = await getEventById('evt-1');
+    const result = await getEventById("evt-1");
     expect(result).toEqual({ event });
   });
 
-  it('returns null on error (silent failure)', async () => {
+  it("returns null on error (silent failure)", async () => {
     mockFetchError(404);
-    const result = await getEventById('nonexistent');
+    const result = await getEventById("nonexistent");
     expect(result).toBeNull();
   });
 });
@@ -141,18 +146,18 @@ describe('getEventById', () => {
 // findEvent
 // ============================================
 
-describe('findEvent', () => {
-  it('returns event from getEventById', async () => {
-    const event = { id: 'evt-1', title: 'Test' };
+describe("findEvent", () => {
+  it("returns event from getEventById", async () => {
+    const event = { id: "evt-1", title: "Test" };
     mockFetch({ event });
 
-    const result = await findEvent('evt-1');
+    const result = await findEvent("evt-1");
     expect(result).toEqual(event);
   });
 
-  it('returns null when event not found', async () => {
+  it("returns null when event not found", async () => {
     mockFetchError(404);
-    const result = await findEvent('nonexistent');
+    const result = await findEvent("nonexistent");
     expect(result).toBeNull();
   });
 });
@@ -161,19 +166,23 @@ describe('findEvent', () => {
 // getCategories / getCities
 // ============================================
 
-describe('getCategories', () => {
-  it('returns categories array', async () => {
-    mockFetch({ categories: [{ id: '1', name: 'Tech', group: 'Technology' }] });
+describe("getCategories", () => {
+  it("returns categories array", async () => {
+    mockFetch({ categories: [{ id: "1", name: "Tech", group: "Technology" }] });
     const result = await getCategories();
-    expect(result).toEqual([{ id: '1', name: 'Tech', group: 'Technology' }]);
+    expect(result).toEqual([{ id: "1", name: "Tech", group: "Technology" }]);
   });
 });
 
-describe('getCities', () => {
-  it('returns cities array', async () => {
-    mockFetch({ cities: [{ addressLocality: 'Harare', addressCountry: 'Zimbabwe' }] });
+describe("getCities", () => {
+  it("returns cities array", async () => {
+    mockFetch({
+      cities: [{ addressLocality: "Harare", addressCountry: "Zimbabwe" }],
+    });
     const result = await getCities();
-    expect(result).toEqual([{ addressLocality: 'Harare', addressCountry: 'Zimbabwe' }]);
+    expect(result).toEqual([
+      { addressLocality: "Harare", addressCountry: "Zimbabwe" },
+    ]);
   });
 });
 
@@ -181,49 +190,59 @@ describe('getCities', () => {
 // CRUD Operations
 // ============================================
 
-describe('createEvent', () => {
-  it('sends POST with event data', async () => {
-    mockFetch({ event: { id: 'new-1' }, message: 'Created' });
+describe("createEvent", () => {
+  it("sends POST with event data", async () => {
+    mockFetch({ event: { id: "new-1" }, message: "Created" });
 
     const input = {
-      name: 'New Event',
-      description: 'Test',
-      startDate: '2026-01-01T10:00:00Z',
-      date: { day: '1', month: 'Jan', full: 'Jan 1', time: '10:00' },
-      location: { name: 'V', streetAddress: 'A', addressLocality: 'Harare', addressCountry: 'Zimbabwe' },
-      category: 'Tech',
-      keywords: ['test'],
-      organizer: { name: 'Host', identifier: 'h', initials: 'H', eventCount: 0 },
+      name: "New Event",
+      description: "Test",
+      startDate: "2026-01-01T10:00:00Z",
+      date: { day: "1", month: "Jan", full: "Jan 1", time: "10:00" },
+      location: {
+        name: "V",
+        streetAddress: "A",
+        addressLocality: "Harare",
+        addressCountry: "Zimbabwe",
+      },
+      category: "Tech",
+      keywords: ["test"],
+      organizer: {
+        name: "Host",
+        identifier: "h",
+        initials: "H",
+        eventCount: 0,
+      },
     };
 
-    await createEvent(input, 'test-jwt');
+    await createEvent(input, "test-jwt");
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events`,
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({ method: "POST" }),
     );
   });
 });
 
-describe('updateEvent', () => {
-  it('sends PUT with partial update', async () => {
-    mockFetch({ message: 'Updated' });
+describe("updateEvent", () => {
+  it("sends PUT with partial update", async () => {
+    mockFetch({ message: "Updated" });
 
-    await updateEvent('evt-1', { name: 'Updated Title' }, 'test-jwt');
+    await updateEvent("evt-1", { name: "Updated Title" }, "test-jwt");
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events/evt-1`,
-      expect.objectContaining({ method: 'PUT' })
+      expect.objectContaining({ method: "PUT" }),
     );
   });
 });
 
-describe('deleteEvent', () => {
-  it('sends DELETE request', async () => {
-    mockFetch({ message: 'Deleted' });
+describe("deleteEvent", () => {
+  it("sends DELETE request", async () => {
+    mockFetch({ message: "Deleted" });
 
-    await deleteEvent('evt-1', 'test-jwt');
+    await deleteEvent("evt-1", "test-jwt");
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events/evt-1`,
-      expect.objectContaining({ method: 'DELETE' })
+      expect.objectContaining({ method: "DELETE" }),
     );
   });
 });
@@ -232,40 +251,40 @@ describe('deleteEvent', () => {
 // Registrations
 // ============================================
 
-describe('Registrations', () => {
-  it('getEventRegistrations fetches by eventId', async () => {
+describe("Registrations", () => {
+  it("getEventRegistrations fetches by eventId", async () => {
     mockFetch({ registrations: [] });
-    await getEventRegistrations('evt-1');
+    await getEventRegistrations("evt-1");
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('eventId=evt-1'),
-      expect.anything()
+      expect.stringContaining("eventId=evt-1"),
+      expect.anything(),
     );
   });
 
-  it('getUserRegistrations fetches by userId', async () => {
+  it("getUserRegistrations fetches by userId", async () => {
     mockFetch({ registrations: [] });
-    await getUserRegistrations('usr-1');
+    await getUserRegistrations("usr-1");
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('userId=usr-1'),
-      expect.anything()
+      expect.stringContaining("userId=usr-1"),
+      expect.anything(),
     );
   });
 
-  it('registerForEvent sends POST', async () => {
-    mockFetch({ id: 'reg-1', message: 'Registered' });
-    await registerForEvent({ eventId: 'evt-1', userId: 'usr-1' }, 'test-jwt');
+  it("registerForEvent sends POST", async () => {
+    mockFetch({ id: "reg-1", message: "Registered" });
+    await registerForEvent({ eventId: "evt-1", userId: "usr-1" }, "test-jwt");
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/registrations`,
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({ method: "POST" }),
     );
   });
 
-  it('cancelRegistration sends DELETE', async () => {
-    mockFetch({ message: 'Cancelled' });
-    await cancelRegistration('reg-1', 'test-jwt');
+  it("cancelRegistration sends DELETE", async () => {
+    mockFetch({ message: "Cancelled" });
+    await cancelRegistration("reg-1", "test-jwt");
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/registrations/reg-1`,
-      expect.objectContaining({ method: 'DELETE' })
+      expect.objectContaining({ method: "DELETE" }),
     );
   });
 });
@@ -274,17 +293,17 @@ describe('Registrations', () => {
 // Users
 // ============================================
 
-describe('getUser', () => {
-  it('returns user on success', async () => {
-    const user = { id: 'usr-1', name: 'Test' };
+describe("getUser", () => {
+  it("returns user on success", async () => {
+    const user = { id: "usr-1", name: "Test" };
     mockFetch({ user });
-    const result = await getUser('usr-1');
+    const result = await getUser("usr-1");
     expect(result).toEqual(user);
   });
 
-  it('returns null on error (silent failure)', async () => {
+  it("returns null on error (silent failure)", async () => {
     mockFetchError(404);
-    const result = await getUser('nonexistent');
+    const result = await getUser("nonexistent");
     expect(result).toBeNull();
   });
 });
@@ -293,19 +312,19 @@ describe('getUser', () => {
 // Analytics
 // ============================================
 
-describe('trackEventView', () => {
-  it('silently swallows errors', async () => {
+describe("trackEventView", () => {
+  it("silently swallows errors", async () => {
     mockFetchError(500);
     // Should not throw
-    await expect(trackEventView('evt-1')).resolves.toBeUndefined();
+    await expect(trackEventView("evt-1")).resolves.toBeUndefined();
   });
 
-  it('sends POST with event ID', async () => {
+  it("sends POST with event ID", async () => {
     mockFetch({});
-    await trackEventView('evt-1', 'usr-1');
+    await trackEventView("evt-1", "usr-1");
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events/evt-1/view`,
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({ method: "POST" }),
     );
   });
 });
@@ -314,37 +333,41 @@ describe('trackEventView', () => {
 // Media
 // ============================================
 
-describe('getMediaUrl', () => {
-  it('returns the assets-bucket URL without options', () => {
-    const url = getMediaUrl('my-image.jpg');
-    expect(url).toBe('https://assets-s001.mukoko.com/my-image.jpg');
+describe("getMediaUrl", () => {
+  it("returns the assets-bucket URL without options", () => {
+    const url = getMediaUrl("my-image.jpg");
+    expect(url).toBe("https://assets-s001.mukoko.com/my-image.jpg");
   });
 
-  it('adds width parameter', () => {
-    const url = getMediaUrl('img.jpg', { width: 800 });
-    expect(url).toContain('w=800');
+  it("adds width parameter", () => {
+    const url = getMediaUrl("img.jpg", { width: 800 });
+    expect(url).toContain("w=800");
   });
 
-  it('adds height parameter', () => {
-    const url = getMediaUrl('img.jpg', { height: 600 });
-    expect(url).toContain('h=600');
+  it("adds height parameter", () => {
+    const url = getMediaUrl("img.jpg", { height: 600 });
+    expect(url).toContain("h=600");
   });
 
-  it('adds format parameter', () => {
-    const url = getMediaUrl('img.jpg', { format: 'webp' });
-    expect(url).toContain('format=webp');
+  it("adds format parameter", () => {
+    const url = getMediaUrl("img.jpg", { format: "webp" });
+    expect(url).toContain("format=webp");
   });
 
-  it('combines all options', () => {
-    const url = getMediaUrl('img.jpg', { width: 800, height: 600, format: 'avif' });
-    expect(url).toContain('w=800');
-    expect(url).toContain('h=600');
-    expect(url).toContain('format=avif');
+  it("combines all options", () => {
+    const url = getMediaUrl("img.jpg", {
+      width: 800,
+      height: 600,
+      format: "avif",
+    });
+    expect(url).toContain("w=800");
+    expect(url).toContain("h=600");
+    expect(url).toContain("format=avif");
   });
 
-  it('omits query string when options are empty', () => {
-    const url = getMediaUrl('img.jpg', {});
-    expect(url).toBe('https://assets-s001.mukoko.com/img.jpg');
+  it("omits query string when options are empty", () => {
+    const url = getMediaUrl("img.jpg", {});
+    expect(url).toBe("https://assets-s001.mukoko.com/img.jpg");
   });
 });
 
@@ -352,22 +375,29 @@ describe('getMediaUrl', () => {
 // Reviews
 // ============================================
 
-describe('Reviews', () => {
-  it('getEventReviews fetches by event ID', async () => {
-    mockFetch({ reviews: [], stats: { averageRating: 0, totalReviews: 0, distribution: {} } });
-    await getEventReviews('evt-1');
+describe("Reviews", () => {
+  it("getEventReviews fetches by event ID", async () => {
+    mockFetch({
+      reviews: [],
+      stats: { averageRating: 0, totalReviews: 0, distribution: {} },
+    });
+    await getEventReviews("evt-1");
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events/evt-1/reviews`,
-      expect.anything()
+      expect.anything(),
     );
   });
 
-  it('submitEventReview sends POST', async () => {
-    mockFetch({ id: 'rev-1', message: 'Submitted' });
-    await submitEventReview('evt-1', { userId: 'usr-1', rating: 5, reviewBody: 'Great!' }, 'test-jwt');
+  it("submitEventReview sends POST", async () => {
+    mockFetch({ id: "rev-1", message: "Submitted" });
+    await submitEventReview(
+      "evt-1",
+      { userId: "usr-1", rating: 5, reviewBody: "Great!" },
+      "test-jwt",
+    );
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events/evt-1/reviews`,
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({ method: "POST" }),
     );
   });
 });
@@ -376,37 +406,38 @@ describe('Reviews', () => {
 // Stats & Community
 // ============================================
 
-describe('Stats', () => {
-  it('getEventStats fetches stats', async () => {
+describe("Stats", () => {
+  it("getEventStats fetches stats", async () => {
     mockFetch({ stats: { views: 100 } });
-    const result = await getEventStats('evt-1');
+    const result = await getEventStats("evt-1");
     expect(result).toEqual({ views: 100 });
   });
 
-  it('getCommunityStats fetches without city', async () => {
+  it("getCommunityStats fetches without city", async () => {
     mockFetch({ stats: { totalEvents: 50 } });
     await getCommunityStats();
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/community/stats`,
-      expect.anything()
+      expect.anything(),
     );
   });
 
-  it('getCommunityStats encodes city parameter', async () => {
+  it("getCommunityStats encodes city parameter", async () => {
     mockFetch({ stats: { totalEvents: 10 } });
-    await getCommunityStats('Cape Town');
+    await getCommunityStats("Cape Town");
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('city=Cape%20Town'),
-      expect.anything()
+      expect.stringContaining("city=Cape%20Town"),
+      expect.anything(),
     );
   });
 
-  it('getTrendingEvents builds query params', async () => {
+  it("getTrendingEvents builds query params", async () => {
     mockFetch({ events: [] });
-    await getTrendingEvents({ city: 'Harare', limit: 5 });
-    const url = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
-    expect(url).toContain('city=Harare');
-    expect(url).toContain('limit=5');
+    await getTrendingEvents({ city: "Harare", limit: 5 });
+    const url = (global.fetch as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as string;
+    expect(url).toContain("city=Harare");
+    expect(url).toContain("limit=5");
   });
 });
 
@@ -414,30 +445,34 @@ describe('Stats', () => {
 // Host Reputation & Referrals
 // ============================================
 
-describe('Host Reputation', () => {
-  it('returns host stats on success', async () => {
-    mockFetch({ host: { userId: 'usr-1', rating: 4.5 } });
-    const result = await getHostReputation('usr-1');
-    expect(result).toEqual({ userId: 'usr-1', rating: 4.5 });
+describe("Host Reputation", () => {
+  it("returns host stats on success", async () => {
+    mockFetch({ host: { userId: "usr-1", rating: 4.5 } });
+    const result = await getHostReputation("usr-1");
+    expect(result).toEqual({ userId: "usr-1", rating: 4.5 });
   });
 
-  it('returns null on error', async () => {
+  it("returns null on error", async () => {
     mockFetchError(404);
-    const result = await getHostReputation('nonexistent');
+    const result = await getHostReputation("nonexistent");
     expect(result).toBeNull();
   });
 });
 
-describe('Referral Code', () => {
-  it('returns referral code on success', async () => {
-    mockFetch({ code: 'ABC12345', totalReferrals: 10, totalConversions: 5 });
-    const result = await getUserReferralCode('usr-1');
-    expect(result).toEqual({ code: 'ABC12345', totalReferrals: 10, totalConversions: 5 });
+describe("Referral Code", () => {
+  it("returns referral code on success", async () => {
+    mockFetch({ code: "ABC12345", totalReferrals: 10, totalConversions: 5 });
+    const result = await getUserReferralCode("usr-1");
+    expect(result).toEqual({
+      code: "ABC12345",
+      totalReferrals: 10,
+      totalConversions: 5,
+    });
   });
 
-  it('returns null on error', async () => {
+  it("returns null on error", async () => {
     mockFetchError(404);
-    const result = await getUserReferralCode('nonexistent');
+    const result = await getUserReferralCode("nonexistent");
     expect(result).toBeNull();
   });
 });

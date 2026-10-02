@@ -3,7 +3,9 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const getMongoClient = vi.fn();
-vi.mock("@/lib/mongo/client", () => ({ getMongoClient: () => getMongoClient() }));
+vi.mock("@/lib/mongo/client", () => ({
+  getMongoClient: () => getMongoClient(),
+}));
 
 /** A client whose admin ping resolves. */
 function healthyClient() {

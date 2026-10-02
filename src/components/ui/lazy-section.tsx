@@ -72,7 +72,7 @@ function LazySection({
           releaseMount();
         }
       },
-      { rootMargin, threshold }
+      { rootMargin, threshold },
     );
 
     observer.observe(el);
@@ -93,7 +93,7 @@ function LazySection({
     >
       {showContent
         ? children
-        : fallback ?? <Skeleton className="h-48 w-full rounded-2xl" />}
+        : (fallback ?? <Skeleton className="h-48 w-full rounded-2xl" />)}
     </div>
   );
 }

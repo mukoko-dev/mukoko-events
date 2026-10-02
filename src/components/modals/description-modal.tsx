@@ -25,7 +25,13 @@ export function DescriptionModal({
   isOnline,
 }: DescriptionModalProps) {
   return (
-    <ResponsiveModal open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }} title="Description">
+    <ResponsiveModal
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+      title="Description"
+    >
       <div className="flex items-center gap-3 mb-4">
         <AIDescriptionBadge
           eventName={eventName}
@@ -43,7 +49,8 @@ export function DescriptionModal({
           className="w-full px-4 py-3 bg-surface text-foreground placeholder:text-text-tertiary rounded-xl border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring/50 resize-none text-base"
         />
         <p className="text-xs text-text-tertiary">
-          Tip: Click &quot;Ask Shamwari&quot; to let our AI friend help write your description
+          Tip: Click &quot;Ask Shamwari&quot; to let our AI friend help write
+          your description
         </p>
         <div className="pt-2">
           <Button

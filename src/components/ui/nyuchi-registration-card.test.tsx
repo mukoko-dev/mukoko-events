@@ -1,10 +1,17 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
-import { NyuchiRegistrationCard, type RegistrationTier } from "./nyuchi-registration-card";
+import {
+  NyuchiRegistrationCard,
+  type RegistrationTier,
+} from "./nyuchi-registration-card";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 const tiers: RegistrationTier[] = [
@@ -14,8 +21,12 @@ const tiers: RegistrationTier[] = [
 
 describe("NyuchiRegistrationCard", () => {
   it("renders tiers with radio semantics and formatted prices", () => {
-    const { getByText, getByRole } = render(<NyuchiRegistrationCard tiers={tiers} />);
-    expect(document.querySelector('[data-slot="nyuchi-registration-card"]')).toBeTruthy();
+    const { getByText, getByRole } = render(
+      <NyuchiRegistrationCard tiers={tiers} />,
+    );
+    expect(
+      document.querySelector('[data-slot="nyuchi-registration-card"]'),
+    ).toBeTruthy();
     expect(getByRole("radiogroup", { name: "Ticket tiers" })).toBeTruthy();
     expect(getByText("General")).toBeTruthy();
     expect(getByText("VIP")).toBeTruthy();
@@ -24,7 +35,9 @@ describe("NyuchiRegistrationCard", () => {
   });
 
   it("increments quantity when the + control is clicked", () => {
-    const { getByLabelText, getByText } = render(<NyuchiRegistrationCard tiers={tiers} min={1} max={5} />);
+    const { getByLabelText, getByText } = render(
+      <NyuchiRegistrationCard tiers={tiers} min={1} max={5} />,
+    );
     expect(getByText("1")).toBeTruthy();
     fireEvent.click(getByLabelText("Increase quantity"));
     expect(getByText("2")).toBeTruthy();

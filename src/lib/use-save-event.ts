@@ -29,7 +29,9 @@ import { isEventSaved, saveEvent, unsaveEvent } from "@/app/actions/saves";
 export function useSaveEvent(eventId: string) {
   const { user, isAuthenticated } = useAuth();
   const personId = user?.personId ?? null;
-  const [saved, setSaved] = useState<boolean | null>(isAuthenticated ? null : false);
+  const [saved, setSaved] = useState<boolean | null>(
+    isAuthenticated ? null : false,
+  );
   const [busy, setBusy] = useState(false);
 
   // Initial read — is there a saved-event row for (person, event)?

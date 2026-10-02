@@ -32,9 +32,24 @@ describe("fallbackChain (async)", () => {
   });
 
   it("treats falsy-but-defined values as valid results", async () => {
-    expect(await fallbackChain(() => 0, () => 1)).toBe(0);
-    expect(await fallbackChain(() => "", () => "x")).toBe("");
-    expect(await fallbackChain(() => false, () => true)).toBe(false);
+    expect(
+      await fallbackChain(
+        () => 0,
+        () => 1,
+      ),
+    ).toBe(0);
+    expect(
+      await fallbackChain(
+        () => "",
+        () => "x",
+      ),
+    ).toBe("");
+    expect(
+      await fallbackChain(
+        () => false,
+        () => true,
+      ),
+    ).toBe(false);
   });
 
   it("swallows a thrown provider and moves to the next", async () => {
@@ -72,13 +87,18 @@ describe("fallbackChain (async)", () => {
   });
 
   it("throws a generic error when all providers yield null/undefined", async () => {
-    await expect(fallbackChain(() => null, () => undefined)).rejects.toThrow(
-      "All fallback providers failed",
-    );
+    await expect(
+      fallbackChain(
+        () => null,
+        () => undefined,
+      ),
+    ).rejects.toThrow("All fallback providers failed");
   });
 
   it("throws the generic error when called with no providers", async () => {
-    await expect(fallbackChain()).rejects.toThrow("All fallback providers failed");
+    await expect(fallbackChain()).rejects.toThrow(
+      "All fallback providers failed",
+    );
   });
 });
 
@@ -115,8 +135,11 @@ describe("fallbackChainSync", () => {
   });
 
   it("throws the generic error when all providers yield nullish", () => {
-    expect(() => fallbackChainSync(() => null, () => undefined)).toThrow(
-      "All fallback providers failed",
-    );
+    expect(() =>
+      fallbackChainSync(
+        () => null,
+        () => undefined,
+      ),
+    ).toThrow("All fallback providers failed");
   });
 });

@@ -1,5 +1,8 @@
 import { redirect, notFound } from "next/navigation";
-import { getActiveTrackedLinkBySlug, recordTrackedLinkClick } from "@/lib/mongo/tracked-links";
+import {
+  getActiveTrackedLinkBySlug,
+  recordTrackedLinkClick,
+} from "@/lib/mongo/tracked-links";
 
 interface RedirectPageProps {
   params: Promise<{ code: string }>;
@@ -16,7 +19,9 @@ interface RedirectPageProps {
  * try/catch — otherwise the catch swallows the redirect (the bug in the old
  * fetch-based version).
  */
-export default async function TrackedRedirectPage({ params }: RedirectPageProps) {
+export default async function TrackedRedirectPage({
+  params,
+}: RedirectPageProps) {
   const { code } = await params;
 
   let destination: string | null = null;

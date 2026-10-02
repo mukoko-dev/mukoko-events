@@ -42,7 +42,11 @@ export async function getCircleSummary(
 ): Promise<{ id: string; name: string } | null> {
   const col = await circlesCollection();
   const doc = await col.findOne(
-    { _id: circleId, isActive: true, circleType: { $in: ["public", "private", "broadcast"] } },
+    {
+      _id: circleId,
+      isActive: true,
+      circleType: { $in: ["public", "private", "broadcast"] },
+    },
     { projection: { name: 1 } },
   );
   return doc ? { id: doc._id, name: doc.name } : null;
@@ -60,7 +64,9 @@ export interface OwnedCircle {
  * creator owns). Includes secret circles since this is an owner-scoped read,
  * not a discovery surface.
  */
-export async function listCirclesByOwner(ownerPersonId: string): Promise<OwnedCircle[]> {
+export async function listCirclesByOwner(
+  ownerPersonId: string,
+): Promise<OwnedCircle[]> {
   const col = await circlesCollection();
   const docs = await col
     .find({ ownerPersonId, isActive: true })
@@ -74,10 +80,15 @@ export async function listCirclesByOwner(ownerPersonId: string): Promise<OwnedCi
  * The most active discoverable circles (by members, then posts). Secret
  * circles are excluded at the query, never just at the mapper.
  */
-export async function listFeaturedCircles(limit = 6): Promise<FeaturedCircle[]> {
+export async function listFeaturedCircles(
+  limit = 6,
+): Promise<FeaturedCircle[]> {
   const col = await circlesCollection();
   const docs = await col
-    .find({ isActive: true, circleType: { $in: ["public", "private", "broadcast"] } })
+    .find({
+      isActive: true,
+      circleType: { $in: ["public", "private", "broadcast"] },
+    })
     .sort({ memberCount: -1, postCount: -1 })
     .limit(limit)
     .toArray();

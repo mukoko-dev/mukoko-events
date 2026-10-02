@@ -6,7 +6,10 @@ import { ArrowRight, Clock, MapPin } from "lucide-react";
 import { type Event, type Category, getMediaUrl } from "@/lib/api";
 import { getEventsAction, getCategoriesAction } from "@/app/actions/discovery";
 import { searchEventsAction } from "@/app/actions/search";
-import { NyuchiSearchView, type SearchResultItem } from "@/components/ui/nyuchi-search-view";
+import {
+  NyuchiSearchView,
+  type SearchResultItem,
+} from "@/components/ui/nyuchi-search-view";
 import { categoryToMineral } from "@/lib/category-mineral";
 
 export default function SearchPage() {
@@ -79,7 +82,7 @@ export default function SearchPage() {
         e.category.toLowerCase().includes(query) ||
         e.location.addressLocality.toLowerCase().includes(query) ||
         e.location.name.toLowerCase().includes(query) ||
-        (e.keywords || []).some((tag) => tag.toLowerCase().includes(query))
+        (e.keywords || []).some((tag) => tag.toLowerCase().includes(query)),
     );
   }, [events, searchQuery]);
 
@@ -101,8 +104,13 @@ export default function SearchPage() {
         // Push a single active category into the server query so filtering
         // happens in the index, not only in the client refinement below.
         // (Multi-select still narrows client-side.)
-        const category = activeCategories.length === 1 ? activeCategories[0] : undefined;
-        const result = await searchEventsAction({ query: q, limit: 30, category });
+        const category =
+          activeCategories.length === 1 ? activeCategories[0] : undefined;
+        const result = await searchEventsAction({
+          query: q,
+          limit: 30,
+          category,
+        });
         if (cancelled) return;
         setSemanticEvents(result.events);
         setAiSummary(result.events.length > 0 ? result.aiSummary : "");
@@ -152,18 +160,25 @@ export default function SearchPage() {
         attendeeCount: event.attendeeCount,
         meta: [
           { icon: Clock, label: "date", value: event.date.full },
-          { icon: MapPin, label: "venue", value: event.location.addressLocality },
+          {
+            icon: MapPin,
+            label: "venue",
+            value: event.location.addressLocality,
+          },
         ],
       })),
-    [filteredEvents]
+    [filteredEvents],
   );
 
   const filterOptions = useMemo(
     () => categories.map((c) => ({ id: c.name, label: c.name })),
-    [categories]
+    [categories],
   );
 
-  const trending = useMemo(() => categories.slice(0, 6).map((c) => c.name), [categories]);
+  const trending = useMemo(
+    () => categories.slice(0, 6).map((c) => c.name),
+    [categories],
+  );
 
   return (
     <div className="mx-auto max-w-200 px-6 py-8">
@@ -187,19 +202,25 @@ export default function SearchPage() {
       />
 
       {/* Persist a recent search once the query settles with matches. */}
-      <RecentSearchSaver query={searchQuery} count={results.length} onSave={saveSearch} />
+      <RecentSearchSaver
+        query={searchQuery}
+        count={results.length}
+        onSave={saveSearch}
+      />
 
-      {events.length > 0 && !searchQuery.trim() && activeCategories.length === 0 && (
-        <div className="mt-8">
-          <Link
-            href="/events"
-            className="flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary transition-colors hover:text-primary/80"
-          >
-            Browse all events
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      )}
+      {events.length > 0 &&
+        !searchQuery.trim() &&
+        activeCategories.length === 0 && (
+          <div className="mt-8">
+            <Link
+              href="/events"
+              className="flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+            >
+              Browse all events
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        )}
     </div>
   );
 }

@@ -31,7 +31,10 @@ export default function CirclesIndexClient() {
         if (!cancelled) setCircles(rows);
       })
       .catch((e: unknown) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load your circles");
+        if (!cancelled)
+          setError(
+            e instanceof Error ? e.message : "Failed to load your circles",
+          );
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -53,7 +56,9 @@ export default function CirclesIndexClient() {
               "radial-gradient(700px 350px at 0% 100%, color-mix(in srgb, var(--heritage-savanna) 50%, transparent) 0%, transparent 60%), radial-gradient(600px 300px at 100% 0%, color-mix(in srgb, var(--heritage-baobab) 40%, transparent) 0%, transparent 60%), var(--surface)",
           }}
         />
-        <p className="font-serif italic text-text-secondary mb-2">{t("brand.tagline")}</p>
+        <p className="font-serif italic text-text-secondary mb-2">
+          {t("brand.tagline")}
+        </p>
         <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight mb-3">
           {t("circle.title")}
         </h1>
@@ -63,10 +68,16 @@ export default function CirclesIndexClient() {
       {!isAuthenticated && (
         <Card className="border-0 bg-surface">
           <CardContent className="p-8 text-center">
-            <Flame className="w-10 h-10 mx-auto mb-3 text-primary" aria-hidden />
-            <h2 className="font-serif text-xl font-semibold mb-2">Sign in to see your circles</h2>
+            <Flame
+              className="w-10 h-10 mx-auto mb-3 text-primary"
+              aria-hidden
+            />
+            <h2 className="font-serif text-xl font-semibold mb-2">
+              Sign in to see your circles
+            </h2>
             <p className="text-text-secondary mb-5">
-              Your circles are private to the people in them. Sign in and we&apos;ll bring you back here.
+              Your circles are private to the people in them. Sign in and
+              we&apos;ll bring you back here.
             </p>
             <Link
               href="/auth/hosted?return_to=%2Fcircles"

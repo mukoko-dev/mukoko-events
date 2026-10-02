@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Star, Award, Users, Calendar, TrendingUp, CheckCircle, Shield, Loader2 } from "lucide-react";
+import {
+  Star,
+  Award,
+  Users,
+  Calendar,
+  TrendingUp,
+  CheckCircle,
+  Shield,
+  Loader2,
+} from "lucide-react";
 import { Rating } from "@/components/ui/rating";
 import { Badge } from "@/components/ui/badge";
 import { type HostStats as ApiHostStats } from "@/lib/api";
@@ -29,11 +38,27 @@ interface HostReputationProps {
 
 // Badge definitions
 const BADGES = {
-  "trusted-host": { label: "Trusted Host", icon: Shield, color: "text-primary" },
-  "community-builder": { label: "Community Builder", icon: Users, color: "text-secondary" },
-  "consistent": { label: "Consistent", icon: CheckCircle, color: "text-green-400" },
-  "rising-star": { label: "Rising Star", icon: TrendingUp, color: "text-accent" },
-  "veteran": { label: "Veteran Host", icon: Award, color: "text-purple-400" },
+  "trusted-host": {
+    label: "Trusted Host",
+    icon: Shield,
+    color: "text-primary",
+  },
+  "community-builder": {
+    label: "Community Builder",
+    icon: Users,
+    color: "text-secondary",
+  },
+  consistent: {
+    label: "Consistent",
+    icon: CheckCircle,
+    color: "text-green-400",
+  },
+  "rising-star": {
+    label: "Rising Star",
+    icon: TrendingUp,
+    color: "text-accent",
+  },
+  veteran: { label: "Veteran Host", icon: Award, color: "text-purple-400" },
 };
 
 export function HostReputation({
@@ -55,13 +80,13 @@ export function HostReputation({
           {showRating && host.rating !== undefined && host.rating > 0 && (
             <div className="flex items-center gap-1">
               <Star className="w-3.5 h-3.5 text-accent fill-accent" />
-              <span className="text-sm text-text-secondary">{host.rating.toFixed(1)}</span>
+              <span className="text-sm text-text-secondary">
+                {host.rating.toFixed(1)}
+              </span>
             </div>
           )}
           {host.eventsHosted > 5 && (
-            <Badge variant="default">
-              Trusted Host
-            </Badge>
+            <Badge variant="default">Trusted Host</Badge>
           )}
         </div>
       </div>
@@ -231,7 +256,9 @@ export function HostReputationFetch({
 
   if (loading) {
     return (
-      <div className={`bg-surface rounded-xl p-6 flex items-center justify-center ${className}`}>
+      <div
+        className={`bg-surface rounded-xl p-6 flex items-center justify-center ${className}`}
+      >
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );

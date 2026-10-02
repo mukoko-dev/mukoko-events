@@ -42,7 +42,10 @@ describe("parseBoundedInt", () => {
 });
 
 describe("readJsonBody", () => {
-  function jsonRequest(body: string, headers: Record<string, string> = {}): Request {
+  function jsonRequest(
+    body: string,
+    headers: Record<string, string> = {},
+  ): Request {
     return new Request("https://x.test/api", {
       method: "POST",
       headers: { "content-type": "application/json", ...headers },
@@ -67,7 +70,9 @@ describe("readJsonBody", () => {
 
   it("rejects an over-cap declared Content-Length with 413 before reading", async () => {
     const res = await readJsonBody(
-      jsonRequest('{"a":1}', { "content-length": String(DEFAULT_JSON_BODY_LIMIT + 1) }),
+      jsonRequest('{"a":1}', {
+        "content-length": String(DEFAULT_JSON_BODY_LIMIT + 1),
+      }),
       DEFAULT_JSON_BODY_LIMIT,
     );
     expect(res).toMatchObject({ ok: false, status: 413 });
@@ -113,11 +118,19 @@ describe("clampStringArray", () => {
   });
 
   it("keeps only strings", () => {
-    expect(clampStringArray(["a", 1, "b", null, "c"], opts)).toEqual(["a", "b", "c"]);
+    expect(clampStringArray(["a", 1, "b", null, "c"], opts)).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
   });
 
   it("caps the number of items", () => {
-    expect(clampStringArray(["a", "b", "c", "d", "e"], opts)).toEqual(["a", "b", "c"]);
+    expect(clampStringArray(["a", "b", "c", "d", "e"], opts)).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
   });
 
   it("caps the length of each item", () => {

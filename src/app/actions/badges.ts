@@ -89,7 +89,9 @@ const MAX_LOCKED_SHOWN = 4;
  * (or the dev bypass) so unauthenticated traffic can't enumerate badges, but the
  * profile surface itself is allowed to read any person's public badges.
  */
-export async function getProfileBadges(personId: string): Promise<ProfileBadgesResult> {
+export async function getProfileBadges(
+  personId: string,
+): Promise<ProfileBadgesResult> {
   if (!personId) return { badges: [] };
 
   // Gate on an acting identity. The profile page only renders this for a
@@ -105,7 +107,9 @@ export async function getProfileBadges(personId: string): Promise<ProfileBadgesR
   // Confirm both collections exist before querying. They live on the cluster in
   // the v3.1 model but may be absent in a partially-seeded environment.
   const present = new Set(
-    (await db.listCollections({}, { nameOnly: true }).toArray()).map((c) => c.name),
+    (await db.listCollections({}, { nameOnly: true }).toArray()).map(
+      (c) => c.name,
+    ),
   );
   if (!present.has(BADGES_COLLECTION) || !present.has(AWARDS_COLLECTION)) {
     return {
@@ -119,13 +123,20 @@ export async function getProfileBadges(personId: string): Promise<ProfileBadgesR
 
   // Earned, non-revoked, visible awards for this person.
   const awards = await awardsCol
-    .find({ holderPersonId: personId, isVisible: { $ne: false }, revokedAt: null })
+    .find({
+      holderPersonId: personId,
+      isVisible: { $ne: false },
+      revokedAt: null,
+    })
     .toArray();
   const earnedIds = new Set(awards.map((a) => a.badgeId));
 
   // Pull the matching definitions plus a tail of active, not-yet-earned badges
   // so the surface always says "there's more to earn".
-  const defs = await badgesCol.find({ isActive: { $ne: false } }).limit(80).toArray();
+  const defs = await badgesCol
+    .find({ isActive: { $ne: false } })
+    .limit(80)
+    .toArray();
   const defById = new Map(defs.map((d) => [d._id, d] as const));
 
   const toApi = (def: BadgeDoc, award?: BadgeAwardDoc): ProfileBadge => ({
@@ -143,7 +154,9 @@ export async function getProfileBadges(personId: string): Promise<ProfileBadgesR
     return def ? [toApi(def, a)] : [];
   });
   // Shiniest (most recent) first.
-  earned.sort((a, b) => +new Date(b.earned!.awardedAt) - +new Date(a.earned!.awardedAt));
+  earned.sort(
+    (a, b) => +new Date(b.earned!.awardedAt) - +new Date(a.earned!.awardedAt),
+  );
 
   const locked: ProfileBadge[] = defs
     .filter((d) => !earnedIds.has(d._id))

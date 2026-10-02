@@ -60,7 +60,10 @@ export function NyuchiOnboardingStep({
       data-slot="nyuchi-onboarding-step"
       role="region"
       aria-label="Onboarding"
-      className={cn("flex flex-col items-center justify-center px-6 py-12 text-center", className)}
+      className={cn(
+        "flex flex-col items-center justify-center px-6 py-12 text-center",
+        className,
+      )}
       style={animStyle()}
     >
       {illustration && (
@@ -81,19 +84,26 @@ export function NyuchiOnboardingStep({
               key={i}
               className={cn(
                 "rounded-full transition-all",
-                i === currentStep ? "h-2 w-6 bg-primary" : "size-2 bg-muted-foreground/20",
+                i === currentStep
+                  ? "h-2 w-6 bg-primary"
+                  : "size-2 bg-muted-foreground/20",
               )}
             />
           ))}
         </div>
       )}
 
-      {children && <div className="mt-8 w-full max-w-[320px] text-left">{children}</div>}
+      {children && (
+        <div className="mt-8 w-full max-w-[320px] text-left">{children}</div>
+      )}
 
       {(onNext || (onSkip && !isLast)) && (
         <div className="mt-8 flex w-full max-w-[280px] flex-col items-center gap-3">
           {onNext && (
-            <Button onClick={onNext} className="h-14 w-full rounded-full text-[15px] font-semibold">
+            <Button
+              onClick={onNext}
+              className="h-14 w-full rounded-full text-[15px] font-semibold"
+            >
               {isLast ? "Get started" : nextLabel}
             </Button>
           )}

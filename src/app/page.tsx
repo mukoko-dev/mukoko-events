@@ -22,7 +22,10 @@ import { SITE_URL } from "@/lib/site-url";
  * and handed to presentational components.
  */
 
-async function resolveViewer(): Promise<{ signedIn: boolean; firstName: string | null }> {
+async function resolveViewer(): Promise<{
+  signedIn: boolean;
+  firstName: string | null;
+}> {
   if (isDevBypass()) {
     return { signedIn: true, firstName: DEV_NAME.split(/\s+/)[0] ?? null };
   }
@@ -65,7 +68,10 @@ export default async function HomePage() {
     return <HomeYourEvents events={events} userFirstName={viewer.firstName} />;
   }
 
-  const [featuredEvent, cities] = await Promise.all([fetchFeaturedEvent(), fetchCities()]);
+  const [featuredEvent, cities] = await Promise.all([
+    fetchFeaturedEvent(),
+    fetchCities(),
+  ]);
   return (
     <>
       {/*

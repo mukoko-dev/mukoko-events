@@ -50,7 +50,10 @@ export default async function proxy(request: NextRequest, ctx: any) {
     // else passes through unmodified.
     const path = request.nextUrl.pathname;
     if (path.startsWith("/auth/") || path === "/callback") {
-      return new NextResponse("WorkOS environment is not configured on this deployment.", { status: 503 });
+      return new NextResponse(
+        "WorkOS environment is not configured on this deployment.",
+        { status: 503 },
+      );
     }
     return NextResponse.next();
   }
@@ -61,5 +64,7 @@ export default async function proxy(request: NextRequest, ctx: any) {
 export const config = {
   // Run on every page-style route, but skip Next's static / image / favicon
   // pipelines so Tailwind v4 + image optimisation aren't intercepted.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.json|.*\\..*).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.json|.*\\..*).*)",
+  ],
 };

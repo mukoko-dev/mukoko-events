@@ -19,8 +19,14 @@ interface InterestCategoryDoc {
 
 export async function GET() {
   try {
-    const col = await getCollection<InterestCategoryDoc>(DB.engagement, "interestCategories");
-    const docs = await col.find({ isActive: true }).sort({ sortOrder: 1, name: 1 }).toArray();
+    const col = await getCollection<InterestCategoryDoc>(
+      DB.engagement,
+      "interestCategories",
+    );
+    const docs = await col
+      .find({ isActive: true })
+      .sort({ sortOrder: 1, name: 1 })
+      .toArray();
     const categories = docs.map((d) => ({
       id: d.slug,
       name: d.name,

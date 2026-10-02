@@ -24,7 +24,9 @@ describe("MoonPhase accessibility", () => {
   }
 
   it("exposes an aria-label on the SVG role=img", () => {
-    const { container } = render(<MoonPhase date={new Date(Date.UTC(2024, 0, 25))} />);
+    const { container } = render(
+      <MoonPhase date={new Date(Date.UTC(2024, 0, 25))} />,
+    );
     const svg = container.querySelector("svg");
     expect(svg).not.toBeNull();
     expect(svg?.getAttribute("role")).toBe("img");

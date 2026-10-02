@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 import { CalendarDays, Compass, MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { NyuchiTimeline, type TimelineItem } from "@/components/ui/nyuchi-timeline";
+import {
+  NyuchiTimeline,
+  type TimelineItem,
+} from "@/components/ui/nyuchi-timeline";
 import { NyuchiEmptyState } from "@/components/ui/nyuchi-empty-state";
 import { categoryToMineral } from "@/lib/category-mineral";
 import { getMediaUrl, type Event } from "@/lib/api";
@@ -50,21 +53,28 @@ export function HomeYourEvents({ events, userFirstName }: HomeYourEventsProps) {
   const router = useRouter();
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
 
-  const hostingIds = useMemo(() => new Set(events.hosting.map((e) => e.id)), [events.hosting]);
+  const hostingIds = useMemo(
+    () => new Set(events.hosting.map((e) => e.id)),
+    [events.hosting],
+  );
 
   const upcomingItems = useMemo(() => {
     const merged = [
       ...events.hosting.map((e) => toTimelineItem(e, true)),
       ...events.attending.map((e) => toTimelineItem(e, false)),
     ];
-    return merged.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return merged.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
   }, [events.attending, events.hosting]);
 
   const pastItems = useMemo(
     () =>
       events.past
         .map((e) => toTimelineItem(e, hostingIds.has(e.id)))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+        .sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        ),
     [events.past, hostingIds],
   );
 
@@ -111,10 +121,14 @@ export function HomeYourEvents({ events, userFirstName }: HomeYourEventsProps) {
         </div>
 
         {/* Upcoming / Past segmented control */}
-        <Tabs value={tab} onValueChange={(v) => setTab(v as "upcoming" | "past")}>
+        <Tabs
+          value={tab}
+          onValueChange={(v) => setTab(v as "upcoming" | "past")}
+        >
           <TabsList className="mb-6">
             <TabsTrigger value="upcoming">
-              Upcoming{upcomingItems.length > 0 ? ` (${upcomingItems.length})` : ""}
+              Upcoming
+              {upcomingItems.length > 0 ? ` (${upcomingItems.length})` : ""}
             </TabsTrigger>
             <TabsTrigger value="past">
               Past{pastItems.length > 0 ? ` (${pastItems.length})` : ""}
@@ -122,7 +136,11 @@ export function HomeYourEvents({ events, userFirstName }: HomeYourEventsProps) {
           </TabsList>
 
           <TabsContent value="upcoming">
-            {upcomingItems.length > 0 ? <NyuchiTimeline items={upcomingItems} /> : emptyState}
+            {upcomingItems.length > 0 ? (
+              <NyuchiTimeline items={upcomingItems} />
+            ) : (
+              emptyState
+            )}
           </TabsContent>
           <TabsContent value="past">
             {pastItems.length > 0 ? (
@@ -140,7 +158,10 @@ export function HomeYourEvents({ events, userFirstName }: HomeYourEventsProps) {
         </Tabs>
 
         {/* Quiet secondary navigation */}
-        <nav aria-label="Quick links" className="mt-8 flex flex-wrap items-center gap-2">
+        <nav
+          aria-label="Quick links"
+          className="mt-8 flex flex-wrap items-center gap-2"
+        >
           {[
             { href: "/calendar", label: "Calendar", Icon: CalendarDays },
             { href: "/map", label: "Near me", Icon: MapPin },

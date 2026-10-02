@@ -26,7 +26,12 @@ import { getCollection, personsCollection, DB } from "@/lib/mongo/databases";
 import { stampNew } from "@/lib/mongo/ids";
 import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
 import { syncPersonFromWorkos, type SyncPersonInput } from "@/lib/mongo/users";
-import { isDevBypass, DEV_WORKOS_ID, DEV_EMAIL, DEV_NAME } from "@/lib/auth/dev";
+import {
+  isDevBypass,
+  DEV_WORKOS_ID,
+  DEV_EMAIL,
+  DEV_NAME,
+} from "@/lib/auth/dev";
 import type { BaseDoc } from "@/lib/mongo/types";
 
 /** Waitlist entry — sibling to `events.rsvps`, stored in `events.waitlist`. */
@@ -50,14 +55,21 @@ function waitlistCollection() {
 async function resolveActor(): Promise<{ personId: string; entityId: string }> {
   let syncInput: SyncPersonInput;
   if (isDevBypass()) {
-    syncInput = { workosUserId: DEV_WORKOS_ID, email: DEV_EMAIL, name: DEV_NAME, emailVerified: true };
+    syncInput = {
+      workosUserId: DEV_WORKOS_ID,
+      email: DEV_EMAIL,
+      name: DEV_NAME,
+      emailVerified: true,
+    };
   } else {
     const { user } = await withAuth();
     if (!user) throw new Error("You must be signed in to join the waitlist.");
     syncInput = {
       workosUserId: user.id,
       email: user.email ?? null,
-      name: [user.firstName, user.lastName].filter(Boolean).join(" ").trim() || null,
+      name:
+        [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+        null,
       givenName: user.firstName ?? null,
       familyName: user.lastName ?? null,
       picture: user.profilePictureUrl ?? null,
@@ -71,7 +83,8 @@ async function resolveActor(): Promise<{ personId: string; entityId: string }> {
     await syncPersonFromWorkos(syncInput);
     person = await persons.findOne({ workosUserId: syncInput.workosUserId });
   }
-  if (!person) throw new Error("Could not resolve your account. Please try again.");
+  if (!person)
+    throw new Error("Could not resolve your account. Please try again.");
 
   const entityId = await ensureHostEntityForPerson(person);
   return { personId: person._id, entityId };
@@ -86,7 +99,9 @@ export interface WaitlistStatusResult {
  * Add the signed-in person to an event's waitlist. Idempotent: re-joining (or
  * re-activating a previously-left entry) leaves a single active `waiting` row.
  */
-export async function joinWaitlist(eventId: string): Promise<WaitlistStatusResult> {
+export async function joinWaitlist(
+  eventId: string,
+): Promise<WaitlistStatusResult> {
   if (!eventId) throw new Error("An event is required to join its waitlist.");
   const { personId, entityId } = await resolveActor();
   const now = new Date();
@@ -99,7 +114,14 @@ export async function joinWaitlist(eventId: string): Promise<WaitlistStatusResul
     if (existing.status !== "waiting") {
       await col.updateOne(
         { _id: existing._id },
-        { $set: { status: "waiting", joinedAt: now, leftAt: null, updatedAt: now } },
+        {
+          $set: {
+            status: "waiting",
+            joinedAt: now,
+            leftAt: null,
+            updatedAt: now,
+          },
+        },
       );
     }
     return { onWaitlist: true };
@@ -121,7 +143,9 @@ export async function joinWaitlist(eventId: string): Promise<WaitlistStatusResul
  * Remove the signed-in person from an event's waitlist. Idempotent: a missing
  * or already-left entry resolves to `onWaitlist: false` without error.
  */
-export async function leaveWaitlist(eventId: string): Promise<WaitlistStatusResult> {
+export async function leaveWaitlist(
+  eventId: string,
+): Promise<WaitlistStatusResult> {
   if (!eventId) throw new Error("An event is required to leave its waitlist.");
   const { personId } = await resolveActor();
   const now = new Date();
@@ -135,7 +159,9 @@ export async function leaveWaitlist(eventId: string): Promise<WaitlistStatusResu
 }
 
 /** Read whether the signed-in person currently holds a `waiting` entry. */
-export async function getWaitlistStatus(eventId: string): Promise<WaitlistStatusResult> {
+export async function getWaitlistStatus(
+  eventId: string,
+): Promise<WaitlistStatusResult> {
   if (!eventId) return { onWaitlist: false };
   // Don't sync/create the actor just to read status — resolve quietly.
   let workosUserId: string | null = null;

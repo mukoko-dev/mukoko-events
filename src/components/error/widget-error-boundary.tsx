@@ -29,11 +29,13 @@ export class WidgetErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback ?? (
-        <div className="p-4 rounded-xl bg-surface border border-elevated text-center text-sm text-text-secondary">
-          <AlertTriangle className="w-5 h-5 mx-auto mb-2 text-text-tertiary" />
-          <p>Something went wrong</p>
-        </div>
+      return (
+        this.props.fallback ?? (
+          <div className="p-4 rounded-xl bg-surface border border-elevated text-center text-sm text-text-secondary">
+            <AlertTriangle className="w-5 h-5 mx-auto mb-2 text-text-tertiary" />
+            <p>Something went wrong</p>
+          </div>
+        )
       );
     }
     return this.props.children;

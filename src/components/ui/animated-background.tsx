@@ -6,7 +6,9 @@ import { useTheme } from "@/components/theme-provider";
 
 // Lazy load the heavy Three.js component
 const GradientBackground = lazy(() =>
-  import("./gradient-background").then((mod) => ({ default: mod.GradientBackground }))
+  import("./gradient-background").then((mod) => ({
+    default: mod.GradientBackground,
+  })),
 );
 
 interface AnimatedBackgroundProps {
@@ -49,7 +51,7 @@ function AnimatedBackgroundInner({
   const prefersReducedMotion = useSyncExternalStore(
     subscribeToMotionPreference,
     getMotionPreference,
-    () => false // Server snapshot
+    () => false, // Server snapshot
   );
 
   // Use static background if animation is disabled or user prefers reduced motion
@@ -60,15 +62,20 @@ function AnimatedBackgroundInner({
   return (
     <>
       <Suspense fallback={<StaticGradientBackground theme={resolvedTheme} />}>
-        <GradientBackground theme={resolvedTheme} intensity={intensity} speed={speed} />
+        <GradientBackground
+          theme={resolvedTheme}
+          intensity={intensity}
+          speed={speed}
+        />
       </Suspense>
       {/* Frosted glass overlay */}
       <div
         className="fixed inset-0 -z-9 pointer-events-none backdrop-blur-[1px]"
         style={{
-          background: resolvedTheme === "dark"
-            ? "rgba(10, 10, 10, 0.3)"
-            : "rgba(250, 250, 248, 0.4)",
+          background:
+            resolvedTheme === "dark"
+              ? "rgba(10, 10, 10, 0.3)"
+              : "rgba(250, 250, 248, 0.4)",
         }}
         aria-hidden="true"
       />
@@ -82,7 +89,7 @@ export function AnimatedBackground(props: AnimatedBackgroundProps) {
   const mounted = useSyncExternalStore(
     subscribeToMount,
     getIsMounted,
-    () => false // Server snapshot
+    () => false, // Server snapshot
   );
 
   // Show static background on server or before mount

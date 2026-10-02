@@ -3,7 +3,8 @@ import { Users, Heart, Globe, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn about Nhimbe — a community events discovery and management platform connecting people across Africa.",
+  description:
+    "Learn about Nhimbe — a community events discovery and management platform connecting people across Africa.",
 };
 
 export default function AboutPage() {
@@ -51,22 +52,23 @@ export default function AboutPage() {
         <h2 className="text-2xl font-bold mb-4">Our Story</h2>
         <div className="prose prose-lg text-text-secondary space-y-4">
           <p>
-            <strong className="text-foreground">Nhimbe</strong> (pronounced /ˈnhimbɛ/)
-            is the traditional Shona practice of communal work where community members
-            come together to help each other with large tasks—harvesting, building,
-            celebrations.
+            <strong className="text-foreground">Nhimbe</strong> (pronounced
+            /ˈnhimbɛ/) is the traditional Shona practice of communal work where
+            community members come together to help each other with large
+            tasks—harvesting, building, celebrations.
           </p>
           <p>
-            The concept embodies <em>Ubuntu</em>: collective effort for shared benefit.
-            When a family needed to harvest their fields or build a home, the community
-            would gather to help. In return, that family would do the same for others.
-            Together, everyone thrived.
+            The concept embodies <em>Ubuntu</em>: collective effort for shared
+            benefit. When a family needed to harvest their fields or build a
+            home, the community would gather to help. In return, that family
+            would do the same for others. Together, everyone thrived.
           </p>
           <p>
-            We built Nhimbe to bring this spirit into the digital age. In a world where
-            we&apos;re more connected than ever yet often feel isolated, Nhimbe helps
-            communities come together—whether for a tech meetup, a cultural celebration,
-            a wellness session, or a simple gathering of friends.
+            We built Nhimbe to bring this spirit into the digital age. In a
+            world where we&apos;re more connected than ever yet often feel
+            isolated, Nhimbe helps communities come together—whether for a tech
+            meetup, a cultural celebration, a wellness session, or a simple
+            gathering of friends.
           </p>
         </div>
       </section>
@@ -98,9 +100,9 @@ export default function AboutPage() {
           <p className="text-text-secondary mb-2">Nhimbe is part of</p>
           <h3 className="text-2xl font-bold text-secondary mb-4">Mukoko</h3>
           <p className="text-text-secondary max-w-md mx-auto">
-            The digital ecosystem connecting African communities through technology.
-            From payments to social connections, Mukoko is building Africa&apos;s
-            digital future.
+            The digital ecosystem connecting African communities through
+            technology. From payments to social connections, Mukoko is building
+            Africa&apos;s digital future.
           </p>
         </div>
       </section>

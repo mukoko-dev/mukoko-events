@@ -15,7 +15,12 @@ import type { Mineral } from "@/lib/category-mineral";
    (the source shipped duplicate className/tabIndex attributes).
    ═══════════════════════════════════════════════════════════════ */
 
-type PlaceVerification = "unverified" | "community" | "otp" | "government" | "licensed";
+type PlaceVerification =
+  | "unverified"
+  | "community"
+  | "otp"
+  | "government"
+  | "licensed";
 
 interface NyuchiPlaceCardProps {
   loading?: boolean;
@@ -111,26 +116,38 @@ export function NyuchiPlaceCard({
       )}
       <div className="p-3">
         <div className="flex items-center gap-1.5">
-          <h4 className="line-clamp-1 text-sm font-medium text-foreground">{name}</h4>
+          <h4 className="line-clamp-1 text-sm font-medium text-foreground">
+            {name}
+          </h4>
           {isVerified && (
             <span
               className="size-3.5 rounded-full"
-              style={{ backgroundColor: `color-mix(in srgb, ${tierColors[verificationTier]} 40%, transparent)` }}
+              style={{
+                backgroundColor: `color-mix(in srgb, ${tierColors[verificationTier]} 40%, transparent)`,
+              }}
               aria-label={`${verificationTier} verified`}
             />
           )}
         </div>
-        {category && <span className="text-[10px] text-muted-foreground">{category}</span>}
+        {category && (
+          <span className="text-[10px] text-muted-foreground">{category}</span>
+        )}
         <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
           {rating != null && (
             <span className="flex items-center gap-0.5">
               <Star className="size-3 fill-[var(--color-gold)] text-[var(--color-gold)]" />
               {rating.toFixed(1)}
-              {reviewCount != null && <span className="opacity-60">({reviewCount})</span>}
+              {reviewCount != null && (
+                <span className="opacity-60">({reviewCount})</span>
+              )}
             </span>
           )}
           {openNow != null && (
-            <span className={openNow ? "text-[var(--color-malachite)]" : "text-red-400"}>
+            <span
+              className={
+                openNow ? "text-[var(--color-malachite)]" : "text-red-400"
+              }
+            >
               {openNow ? "Open" : "Closed"}
             </span>
           )}
@@ -149,14 +166,18 @@ export function NyuchiPlaceCard({
       ) : (
         <div
           className="flex size-12 shrink-0 items-center justify-center rounded-[var(--radius-inner,7px)]"
-          style={{ backgroundColor: `color-mix(in srgb, ${accent} 12%, transparent)` }}
+          style={{
+            backgroundColor: `color-mix(in srgb, ${accent} 12%, transparent)`,
+          }}
         >
           <MapPin className="size-5" style={{ color: accent }} />
         </div>
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className="line-clamp-1 text-sm font-medium text-foreground">{name}</span>
+          <span className="line-clamp-1 text-sm font-medium text-foreground">
+            {name}
+          </span>
           {isVerified && (
             <span
               className="size-3 rounded-full"
@@ -189,7 +210,10 @@ export function NyuchiPlaceCard({
         )}
         {openNow != null && (
           <span
-            className={cn("text-[10px] font-medium", openNow ? "text-[var(--color-malachite)]" : "text-red-400")}
+            className={cn(
+              "text-[10px] font-medium",
+              openNow ? "text-[var(--color-malachite)]" : "text-red-400",
+            )}
           >
             {openNow ? "Open" : "Closed"}
           </span>
@@ -217,7 +241,12 @@ export function NyuchiPlaceCard({
         {compact}
       </a>
     ) : (
-      <div {...commonProps} onClick={onClick} tabIndex={interactive ? 0 : undefined} className={classes}>
+      <div
+        {...commonProps}
+        onClick={onClick}
+        tabIndex={interactive ? 0 : undefined}
+        className={classes}
+      >
         {compact}
       </div>
     );
@@ -234,7 +263,13 @@ export function NyuchiPlaceCard({
       {row}
     </a>
   ) : (
-    <div {...commonProps} onClick={onClick} tabIndex={interactive ? 0 : undefined} style={rowStyle} className={classes}>
+    <div
+      {...commonProps}
+      onClick={onClick}
+      tabIndex={interactive ? 0 : undefined}
+      style={rowStyle}
+      className={classes}
+    >
       {row}
     </div>
   );

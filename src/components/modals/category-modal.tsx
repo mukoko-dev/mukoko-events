@@ -33,21 +33,34 @@ export function CategoryModal({
   removeTag,
 }: CategoryModalProps) {
   return (
-    <ResponsiveModal open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }} title="Category & Tags">
+    <ResponsiveModal
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+      title="Category & Tags"
+    >
       <div className="space-y-4">
         <div>
-          <Label className="block text-sm text-text-secondary mb-2">Category</Label>
+          <Label className="block text-sm text-text-secondary mb-2">
+            Category
+          </Label>
           {/* Group categories by their group field */}
           {Object.entries(
-            categories.reduce((groups, cat) => {
-              const group = cat.group;
-              if (!groups[group]) groups[group] = [];
-              groups[group].push(cat);
-              return groups;
-            }, {} as Record<string, Category[]>)
+            categories.reduce(
+              (groups, cat) => {
+                const group = cat.group;
+                if (!groups[group]) groups[group] = [];
+                groups[group].push(cat);
+                return groups;
+              },
+              {} as Record<string, Category[]>,
+            ),
           ).map(([groupName, groupCategories]) => (
             <div key={groupName} className="mb-4">
-              <div className="text-xs text-text-tertiary uppercase tracking-wider mb-2">{groupName}</div>
+              <div className="text-xs text-text-tertiary uppercase tracking-wider mb-2">
+                {groupName}
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {groupCategories.map((cat) => (
                   <Button
@@ -87,16 +100,27 @@ export function CategoryModal({
               placeholder="Add a tag..."
               className="flex-1 px-4 py-3 bg-surface text-foreground placeholder:text-text-tertiary rounded-xl border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring/50 text-base"
             />
-            <Button onClick={addTag} className="px-4 py-3 bg-primary text-primary-foreground rounded-xl shrink-0">
+            <Button
+              onClick={addTag}
+              className="px-4 py-3 bg-primary text-primary-foreground rounded-xl shrink-0"
+            >
               Add
             </Button>
           </div>
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
-                <span key={tag} className="flex items-center gap-1 px-3 py-1 bg-surface rounded-full text-sm">
+                <span
+                  key={tag}
+                  className="flex items-center gap-1 px-3 py-1 bg-surface rounded-full text-sm"
+                >
                   #{tag}
-                  <Button variant="ghost" size="sm" onClick={() => removeTag(tag)} className="hover:text-red-400 p-0 h-auto min-h-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeTag(tag)}
+                    className="hover:text-red-400 p-0 h-auto min-h-0"
+                  >
                     <X className="w-4 h-4" />
                   </Button>
                 </span>

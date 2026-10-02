@@ -3,7 +3,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 vi.mock("server-only", () => ({}));
 
 // Mongo accessor + auth gate are mocked so the action runs in isolation.
-const places = { find: vi.fn(), aggregate: vi.fn(), findOne: vi.fn(), insertOne: vi.fn() };
+const places = {
+  find: vi.fn(),
+  aggregate: vi.fn(),
+  findOne: vi.fn(),
+  insertOne: vi.fn(),
+};
 const placesGeo = { findOne: vi.fn() };
 const entities = { insertOne: vi.fn() };
 vi.mock("@/lib/mongo/databases", () => ({
@@ -18,7 +23,12 @@ vi.mock("@/lib/auth/dev", () => ({
   isDevBypass: vi.fn(() => true),
 }));
 
-import { geocodeAddress, reverseGeocode, resolveCountryTimezone, ensurePlaceFromOsmSuggestion } from "./geocode";
+import {
+  geocodeAddress,
+  reverseGeocode,
+  resolveCountryTimezone,
+  ensurePlaceFromOsmSuggestion,
+} from "./geocode";
 
 /** Build a chainable find() result (.limit().toArray()). */
 function findReturning(docs: unknown[]) {
@@ -42,7 +52,9 @@ beforeEach(() => {
   places.find.mockReturnValue(findReturning([]));
   // Simulate Atlas Search being unavailable by default (e.g. no index on a
   // local/test cluster) so existing regex-path tests keep exercising find().
-  places.aggregate.mockReturnValue(aggregateReturning(new Error("no such index")));
+  places.aggregate.mockReturnValue(
+    aggregateReturning(new Error("no such index")),
+  );
   places.findOne.mockResolvedValue(null);
   places.insertOne.mockResolvedValue({ acknowledged: true });
   entities.insertOne.mockResolvedValue({ acknowledged: true });
@@ -65,7 +77,11 @@ describe("geocodeAddress", () => {
           _id: "place-1",
           name: "Rainbow Towers",
           isActive: true,
-          address: { streetAddress: "1 Pennefather Ave", addressLocality: "Harare", addressCountry: "Zimbabwe" },
+          address: {
+            streetAddress: "1 Pennefather Ave",
+            addressLocality: "Harare",
+            addressCountry: "Zimbabwe",
+          },
           geo: { type: "Point", coordinates: [31.0522, -17.8306] },
         },
       ]),
@@ -93,7 +109,11 @@ describe("geocodeAddress", () => {
           _id: "place-2",
           name: "National Sports Stadium",
           isActive: true,
-          address: { streetAddress: "Rotten Row", addressLocality: "Harare", addressCountry: "Zimbabwe" },
+          address: {
+            streetAddress: "Rotten Row",
+            addressLocality: "Harare",
+            addressCountry: "Zimbabwe",
+          },
           geo: { type: "Point", coordinates: [31.05, -17.85] },
         },
       ]),
@@ -106,7 +126,9 @@ describe("geocodeAddress", () => {
     expect(pipeline[0].$search.index).toBe("places_search");
     expect(places.find).not.toHaveBeenCalled();
     expect(global.fetch).not.toHaveBeenCalled();
-    expect(results).toMatchObject([{ source: "db", placeId: "place-2", name: "National Sports Stadium" }]);
+    expect(results).toMatchObject([
+      { source: "db", placeId: "place-2", name: "National Sports Stadium" },
+    ]);
   });
 
   it("searches searchKeywords via Atlas Search — the field the OSM ingestion pipeline actually populates", async () => {
@@ -122,7 +144,13 @@ describe("geocodeAddress", () => {
           isActive: true,
           address: { addressLocality: "Harare", addressCountry: "Zimbabwe" },
           geo: { type: "Point", coordinates: [31.05, -17.83] },
-          searchKeywords: ["Accommodation", "Hotels & Stays", "Kuhudzai", "LocalBusiness", "Zimbabwe"],
+          searchKeywords: [
+            "Accommodation",
+            "Hotels & Stays",
+            "Kuhudzai",
+            "LocalBusiness",
+            "Zimbabwe",
+          ],
         },
       ]),
     );
@@ -131,19 +159,29 @@ describe("geocodeAddress", () => {
 
     const pipeline = places.aggregate.mock.calls[0][0];
     const should = pipeline[0].$search.compound.should;
-    expect(should).toContainEqual({ text: { query: "Accommodation", path: "searchKeywords" } });
-    expect(results).toMatchObject([{ source: "db", placeId: "place-3", name: "Kuhudzai" }]);
+    expect(should).toContainEqual({
+      text: { query: "Accommodation", path: "searchKeywords" },
+    });
+    expect(results).toMatchObject([
+      { source: "db", placeId: "place-3", name: "Kuhudzai" },
+    ]);
   });
 
   it("falls back to the regex scan when the Atlas Search index errors", async () => {
-    places.aggregate.mockReturnValue(aggregateReturning(new Error("Atlas Search is not configured")));
+    places.aggregate.mockReturnValue(
+      aggregateReturning(new Error("Atlas Search is not configured")),
+    );
     places.find.mockReturnValue(
       findReturning([
         {
           _id: "place-1",
           name: "Rainbow Towers",
           isActive: true,
-          address: { streetAddress: "1 Pennefather Ave", addressLocality: "Harare", addressCountry: "Zimbabwe" },
+          address: {
+            streetAddress: "1 Pennefather Ave",
+            addressLocality: "Harare",
+            addressCountry: "Zimbabwe",
+          },
           geo: { type: "Point", coordinates: [31.0522, -17.8306] },
         },
       ]),
@@ -152,11 +190,17 @@ describe("geocodeAddress", () => {
     const results = await geocodeAddress("Rainbow");
 
     expect(results).toHaveLength(1);
-    expect(results[0]).toMatchObject({ source: "db", placeId: "place-1", name: "Rainbow Towers" });
+    expect(results[0]).toMatchObject({
+      source: "db",
+      placeId: "place-1",
+      name: "Rainbow Towers",
+    });
   });
 
   it("regex fallback also matches on searchKeywords, not just name/address", async () => {
-    places.aggregate.mockReturnValue(aggregateReturning(new Error("Atlas Search is not configured")));
+    places.aggregate.mockReturnValue(
+      aggregateReturning(new Error("Atlas Search is not configured")),
+    );
     places.find.mockReturnValue(
       findReturning([
         {
@@ -165,7 +209,13 @@ describe("geocodeAddress", () => {
           isActive: true,
           address: { addressLocality: "Harare", addressCountry: "Zimbabwe" },
           geo: { type: "Point", coordinates: [31.05, -17.83] },
-          searchKeywords: ["Accommodation", "Hotels & Stays", "Kuhudzai", "LocalBusiness", "Zimbabwe"],
+          searchKeywords: [
+            "Accommodation",
+            "Hotels & Stays",
+            "Kuhudzai",
+            "LocalBusiness",
+            "Zimbabwe",
+          ],
         },
       ]),
     );
@@ -173,14 +223,23 @@ describe("geocodeAddress", () => {
     const results = await geocodeAddress("Accommodation");
 
     const filter = places.find.mock.calls[0][0];
-    expect(filter.$or).toContainEqual({ searchKeywords: { $regex: "Accommodation", $options: "i" } });
-    expect(results).toMatchObject([{ source: "db", placeId: "place-3", name: "Kuhudzai" }]);
+    expect(filter.$or).toContainEqual({
+      searchKeywords: { $regex: "Accommodation", $options: "i" },
+    });
+    expect(results).toMatchObject([
+      { source: "db", placeId: "place-3", name: "Kuhudzai" },
+    ]);
   });
 
   it("skips DB rows without a usable Point geometry", async () => {
     places.find.mockReturnValue(
       findReturning([
-        { _id: "no-geo", name: "No Geo", isActive: true, geo: { type: "Polygon", coordinates: [] } },
+        {
+          _id: "no-geo",
+          name: "No Geo",
+          isActive: true,
+          geo: { type: "Polygon", coordinates: [] },
+        },
       ]),
     );
     // With no valid DB coords it falls through to OSM, which we stub empty.
@@ -216,7 +275,9 @@ describe("geocodeAddress", () => {
     const results = await geocodeAddress("Bulawayo");
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
-    const calledUrl = String((global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]);
+    const calledUrl = String(
+      (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0],
+    );
     expect(calledUrl).toContain("nominatim.openstreetmap.org/search");
     expect(calledUrl).toContain("format=geojson");
     expect(calledUrl).toContain("countrycodes=");
@@ -235,7 +296,9 @@ describe("geocodeAddress", () => {
   });
 
   it("returns [] (no throw) when both DB is empty and Nominatim errors", async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("network down"));
+    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("network down"),
+    );
     await expect(geocodeAddress("anywhere")).resolves.toEqual([]);
   });
 });
@@ -259,28 +322,30 @@ describe("geocodeAddress — reporting a catalogue miss to fundi-ingestion", () 
   }
 
   function mockNominatimHit() {
-    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(async (url: string) => {
-      if (isNominatimUrl(url)) {
-        return {
-          ok: true,
-          json: async () => ({
-            features: [
-              {
-                geometry: { type: "Point", coordinates: [28.6266, -20.1325] },
-                properties: {
-                  display_name: "Bulawayo, Zimbabwe",
-                  name: "Bulawayo",
-                  osm_type: "relation",
-                  osm_id: 12345,
-                  address: { city: "Bulawayo", country: "Zimbabwe" },
+    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(
+      async (url: string) => {
+        if (isNominatimUrl(url)) {
+          return {
+            ok: true,
+            json: async () => ({
+              features: [
+                {
+                  geometry: { type: "Point", coordinates: [28.6266, -20.1325] },
+                  properties: {
+                    display_name: "Bulawayo, Zimbabwe",
+                    name: "Bulawayo",
+                    osm_type: "relation",
+                    osm_id: 12345,
+                    address: { city: "Bulawayo", country: "Zimbabwe" },
+                  },
                 },
-              },
-            ],
-          }),
-        };
-      }
-      return { ok: true, text: async () => "" };
-    });
+              ],
+            }),
+          };
+        }
+        return { ok: true, text: async () => "" };
+      },
+    );
   }
 
   it("does not call fundi-ingestion when FUNDI_API_TOKEN is unset", async () => {
@@ -299,14 +364,23 @@ describe("geocodeAddress — reporting a catalogue miss to fundi-ingestion", () 
     await geocodeAddress("Bulawayo");
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
-    const [url, init] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[1];
+    const [url, init] = (global.fetch as ReturnType<typeof vi.fn>).mock
+      .calls[1];
     expect(String(url)).toBe("https://fundi-ingestion.nyuchi.dev/tasks");
     expect(init.headers.authorization).toBe("Bearer test-token");
     const body = JSON.parse(init.body);
     expect(body).toMatchObject({
-      region: { kind: "point_radius", center: [28.6266, -20.1325], radiusMeters: 3000 },
+      region: {
+        kind: "point_radius",
+        center: [28.6266, -20.1325],
+        radiusMeters: 3000,
+      },
       categories: "all",
-      source: { kind: "search_miss", surface: "geocode-address", query: "Bulawayo" },
+      source: {
+        kind: "search_miss",
+        surface: "geocode-address",
+        query: "Bulawayo",
+      },
     });
   });
 
@@ -330,22 +404,28 @@ describe("geocodeAddress — reporting a catalogue miss to fundi-ingestion", () 
 
   it("swallows a reporting failure without affecting the returned suggestions", async () => {
     process.env.FUNDI_API_TOKEN = "test-token";
-    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(async (url: string) => {
-      if (isNominatimUrl(url)) {
-        return {
-          ok: true,
-          json: async () => ({
-            features: [
-              {
-                geometry: { type: "Point", coordinates: [28.6266, -20.1325] },
-                properties: { name: "Bulawayo", osm_type: "relation", osm_id: 12345 },
-              },
-            ],
-          }),
-        };
-      }
-      throw new Error("fundi-ingestion is down");
-    });
+    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(
+      async (url: string) => {
+        if (isNominatimUrl(url)) {
+          return {
+            ok: true,
+            json: async () => ({
+              features: [
+                {
+                  geometry: { type: "Point", coordinates: [28.6266, -20.1325] },
+                  properties: {
+                    name: "Bulawayo",
+                    osm_type: "relation",
+                    osm_id: 12345,
+                  },
+                },
+              ],
+            }),
+          };
+        }
+        throw new Error("fundi-ingestion is down");
+      },
+    );
 
     const results = await geocodeAddress("Bulawayo");
 
@@ -378,7 +458,9 @@ describe("reverseGeocode", () => {
 
     const result = await reverseGeocode(-17.8252, 31.0335);
 
-    const calledUrl = String((global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]);
+    const calledUrl = String(
+      (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0],
+    );
     expect(calledUrl).toContain("nominatim.openstreetmap.org/reverse");
     expect(result).toMatchObject({ city: "Harare", country: "Zimbabwe" });
   });
@@ -421,7 +503,11 @@ describe("resolveCountryTimezone", () => {
   });
 
   it("returns undefined when the matched doc has no usable Point geometry", async () => {
-    placesGeo.findOne.mockResolvedValue({ geoType: "country", name: "Nowhere", geo: { type: "Polygon", coordinates: [] } });
+    placesGeo.findOne.mockResolvedValue({
+      geoType: "country",
+      name: "Nowhere",
+      geo: { type: "Polygon", coordinates: [] },
+    });
     expect(await resolveCountryTimezone("Nowhere")).toBeUndefined();
   });
 });
@@ -443,7 +529,9 @@ describe("ensurePlaceFromOsmSuggestion", () => {
 
     const id = await ensurePlaceFromOsmSuggestion(input);
 
-    expect(places.findOne).toHaveBeenCalledWith({ "sourceProvenance.legacyId": "way/136597457" });
+    expect(places.findOne).toHaveBeenCalledWith({
+      "sourceProvenance.legacyId": "way/136597457",
+    });
     expect(id).toBe("existing-place-1");
     expect(places.insertOne).not.toHaveBeenCalled();
     expect(entities.insertOne).not.toHaveBeenCalled();
@@ -452,7 +540,15 @@ describe("ensurePlaceFromOsmSuggestion", () => {
   it("creates a paired external entity + place, inferring placeType from Overpass tags", async () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
-      json: async () => ({ elements: [{ type: "way", id: 136597457, tags: { tourism: "hotel", name: "Miekles Hotel" } }] }),
+      json: async () => ({
+        elements: [
+          {
+            type: "way",
+            id: 136597457,
+            tags: { tourism: "hotel", name: "Miekles Hotel" },
+          },
+        ],
+      }),
     });
 
     const id = await ensurePlaceFromOsmSuggestion(input);
@@ -481,7 +577,9 @@ describe("ensurePlaceFromOsmSuggestion", () => {
   });
 
   it("falls back to a generic LocalBusiness placeType when Overpass is unreachable", async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("network down"));
+    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("network down"),
+    );
 
     await ensurePlaceFromOsmSuggestion(input);
 
@@ -491,7 +589,10 @@ describe("ensurePlaceFromOsmSuggestion", () => {
 
   it("never throws — swallows a Mongo write failure and returns null", async () => {
     places.insertOne.mockRejectedValue(new Error("insert failed"));
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true, json: async () => ({ elements: [] }) });
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ elements: [] }),
+    });
 
     await expect(ensurePlaceFromOsmSuggestion(input)).resolves.toBeNull();
   });

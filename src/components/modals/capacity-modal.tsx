@@ -29,10 +29,18 @@ export function CapacityModal({
   };
 
   return (
-    <ResponsiveModal open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }} title="Capacity">
+    <ResponsiveModal
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+      title="Capacity"
+    >
       <div className="space-y-4">
         <div>
-          <Label className="block text-sm text-text-secondary mb-2">Maximum Attendees</Label>
+          <Label className="block text-sm text-text-secondary mb-2">
+            Maximum Attendees
+          </Label>
           <Input
             type="number"
             inputMode="numeric"
@@ -43,7 +51,9 @@ export function CapacityModal({
             className="w-full px-4 py-3 bg-surface text-foreground placeholder:text-text-tertiary rounded-xl border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring/50 text-base"
           />
         </div>
-        <p className="text-sm text-text-tertiary">Leave empty for unlimited capacity</p>
+        <p className="text-sm text-text-tertiary">
+          Leave empty for unlimited capacity
+        </p>
         <div className="pt-2">
           <Button
             onClick={onClose}

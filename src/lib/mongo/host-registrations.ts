@@ -33,7 +33,9 @@ type RsvpWithApproval = RsvpDoc & { approvalStatus?: ApprovalStatus };
 
 function toIso(value: Date | string | null | undefined): string {
   if (!value) return new Date(0).toISOString();
-  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+  return value instanceof Date
+    ? value.toISOString()
+    : new Date(value).toISOString();
 }
 
 /**
@@ -41,7 +43,9 @@ function toIso(value: Date | string | null | undefined): string {
  * and check-in state. Status resolves to `attended` when a check-in exists,
  * otherwise the rsvp's `approvalStatus`, otherwise `registered`.
  */
-export async function getEventRegistrations(eventId: string): Promise<Registration[]> {
+export async function getEventRegistrations(
+  eventId: string,
+): Promise<Registration[]> {
   const rsvps = await rsvpsCollection();
   const rows = (await rsvps
     .find({ eventId, rsvpResponse: "RsvpResponseYes" })
@@ -59,7 +63,9 @@ export async function getEventRegistrations(eventId: string): Promise<Registrati
   const checkInDocs = await checkIns
     .find({ eventId, attendeePersonId: { $in: personIds } })
     .toArray();
-  const checkInByPerson = new Map(checkInDocs.map((c) => [c.attendeePersonId, c]));
+  const checkInByPerson = new Map(
+    checkInDocs.map((c) => [c.attendeePersonId, c]),
+  );
 
   return rows.map((r) => {
     const person = personById.get(r.attendeePersonId);
@@ -90,7 +96,10 @@ export async function setRegistrationApproval(
   status: "approved" | "rejected",
 ): Promise<void> {
   const rsvps = await rsvpsCollection();
-  const set: Record<string, unknown> = { approvalStatus: status, updatedAt: new Date() };
+  const set: Record<string, unknown> = {
+    approvalStatus: status,
+    updatedAt: new Date(),
+  };
   await rsvps.updateOne({ _id: rsvpId }, { $set: set });
 }
 
@@ -158,7 +167,10 @@ export async function getCheckinStats(eventId: string): Promise<CheckinStats> {
   const rsvps = await rsvpsCollection();
   const checkIns = await checkInsCollection();
 
-  const total = await rsvps.countDocuments({ eventId, rsvpResponse: "RsvpResponseYes" });
+  const total = await rsvps.countDocuments({
+    eventId,
+    rsvpResponse: "RsvpResponseYes",
+  });
   const attended = await checkIns.countDocuments({ eventId });
   const remaining = Math.max(0, total - attended);
   const rate = total > 0 ? Math.round((attended / total) * 100) : 0;

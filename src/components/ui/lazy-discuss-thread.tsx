@@ -38,10 +38,12 @@ export function LazyDiscussThread({
         <Button
           variant="ghost"
           disabled={isPending}
-          onClick={() => startTransition(async () => {
-            const id = await resolveConversationId();
-            setConversationId(id);
-          })}
+          onClick={() =>
+            startTransition(async () => {
+              const id = await resolveConversationId();
+              setConversationId(id);
+            })
+          }
           className="gap-1.5 rounded-full text-sm"
         >
           <MessageCircle className="w-4 h-4" aria-hidden />
@@ -51,5 +53,11 @@ export function LazyDiscussThread({
     );
   }
 
-  return <CampfireThread conversationId={conversationId} title={title} emptyLabel={emptyLabel} />;
+  return (
+    <CampfireThread
+      conversationId={conversationId}
+      title={title}
+      emptyLabel={emptyLabel}
+    />
+  );
 }

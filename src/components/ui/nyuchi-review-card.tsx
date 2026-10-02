@@ -48,7 +48,10 @@ interface NyuchiReviewCardProps {
 
 // Tier → mineral trust dot. Mirrors the verified-badge tier ladder
 // (community=terracotta, contact=cobalt, government=gold, licensed=tanzanite).
-const tierDot: Record<Exclude<ReviewTier, 0>, { color: string; label: string }> = {
+const tierDot: Record<
+  Exclude<ReviewTier, 0>,
+  { color: string; label: string }
+> = {
   1: { color: "var(--color-terracotta)", label: "Community verified" },
   2: { color: "var(--color-cobalt)", label: "Contact verified" },
   3: { color: "var(--color-gold)", label: "Government verified" },
@@ -93,7 +96,10 @@ export function NyuchiReviewCard({
     );
   }
 
-  const dot = verificationTier > 0 ? tierDot[verificationTier as Exclude<ReviewTier, 0>] : null;
+  const dot =
+    verificationTier > 0
+      ? tierDot[verificationTier as Exclude<ReviewTier, 0>]
+      : null;
 
   return (
     <div
@@ -111,7 +117,11 @@ export function NyuchiReviewCard({
           <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-xs font-bold text-muted-foreground">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={reviewer} className="size-full object-cover" />
+              <img
+                src={avatarUrl}
+                alt={reviewer}
+                className="size-full object-cover"
+              />
             ) : (
               getInitials(reviewer, 1)
             )}
@@ -129,7 +139,9 @@ export function NyuchiReviewCard({
                 />
               )}
             </div>
-            {date && <p className="text-[10px] text-muted-foreground">{date}</p>}
+            {date && (
+              <p className="text-[10px] text-muted-foreground">{date}</p>
+            )}
           </div>
         </div>
         <div aria-label={`${rating} out of 5 stars`}>

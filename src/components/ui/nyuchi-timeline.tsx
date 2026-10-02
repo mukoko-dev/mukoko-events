@@ -50,7 +50,9 @@ interface NyuchiTimelineProps {
 }
 
 function toDate(d: string | Date): Date {
-  return typeof d === "string" ? new Date(d.length <= 10 ? `${d}T00:00:00` : d) : d;
+  return typeof d === "string"
+    ? new Date(d.length <= 10 ? `${d}T00:00:00` : d)
+    : d;
 }
 function dayKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -82,7 +84,11 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
     <>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
-          <span className="size-1.5 shrink-0 rounded-full" style={{ backgroundColor: dot }} aria-hidden />
+          <span
+            className="size-1.5 shrink-0 rounded-full"
+            style={{ backgroundColor: dot }}
+            aria-hidden
+          />
           {item.time && (
             <span className="inline-flex items-center gap-1">
               <Clock className="size-3" aria-hidden />
@@ -91,7 +97,9 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
           )}
           {item.category && <span className="truncate">{item.category}</span>}
         </div>
-        <h3 className="mt-1 truncate text-[16px] font-semibold leading-[1.25] text-foreground">{item.title}</h3>
+        <h3 className="mt-1 truncate text-[16px] font-semibold leading-[1.25] text-foreground">
+          {item.title}
+        </h3>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-muted-foreground">
           {item.host && <span className="truncate">{item.host}</span>}
           {item.location && (
@@ -109,7 +117,9 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
         </div>
       </div>
 
-      {item.avatars && item.avatars.length > 0 && <AvatarStack avatars={item.avatars} />}
+      {item.avatars && item.avatars.length > 0 && (
+        <AvatarStack avatars={item.avatars} />
+      )}
 
       {item.thumbnail && (
         <div className="size-14 shrink-0 overflow-hidden rounded-[var(--radius-md,12px)] bg-muted">
@@ -124,7 +134,12 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
     "group/timeline flex items-center gap-3 rounded-[var(--radius-card,14px)] border bg-card px-3.5 py-3 text-card-foreground transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)]";
 
   return item.href ? (
-    <a data-slot="nyuchi-timeline-row" href={item.href} className={classes} style={style}>
+    <a
+      data-slot="nyuchi-timeline-row"
+      href={item.href}
+      className={classes}
+      style={style}
+    >
       {body}
     </a>
   ) : (
@@ -134,7 +149,12 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
   );
 }
 
-export function NyuchiTimeline({ items, loading = false, emptyState, className }: NyuchiTimelineProps) {
+export function NyuchiTimeline({
+  items,
+  loading = false,
+  emptyState,
+  className,
+}: NyuchiTimelineProps) {
   useNyuchiHarness("timeline");
 
   const groups = React.useMemo(() => {
@@ -146,12 +166,18 @@ export function NyuchiTimeline({ items, loading = false, emptyState, className }
       if (g) g.items.push(item);
       else map.set(key, { date: d, items: [item] });
     }
-    return Array.from(map.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+    return Array.from(map.values()).sort(
+      (a, b) => a.date.getTime() - b.date.getTime(),
+    );
   }, [items]);
 
   if (loading) {
     return (
-      <div data-slot="nyuchi-timeline" aria-busy="true" className={cn("flex flex-col gap-6", className)}>
+      <div
+        data-slot="nyuchi-timeline"
+        aria-busy="true"
+        className={cn("flex flex-col gap-6", className)}
+      >
         {Array.from({ length: 3 }).map((_, gi) => (
           <div key={gi} className="flex gap-4">
             <div className="w-12 shrink-0 animate-pulse space-y-1">
@@ -160,7 +186,10 @@ export function NyuchiTimeline({ items, loading = false, emptyState, className }
             </div>
             <div className="flex flex-1 flex-col gap-2">
               {Array.from({ length: 2 }).map((_, ri) => (
-                <div key={ri} className="h-[76px] animate-pulse rounded-[var(--radius-card,14px)] border bg-card" />
+                <div
+                  key={ri}
+                  className="h-[76px] animate-pulse rounded-[var(--radius-card,14px)] border bg-card"
+                />
               ))}
             </div>
           </div>
@@ -172,10 +201,17 @@ export function NyuchiTimeline({ items, loading = false, emptyState, className }
   if (groups.length === 0) return <>{emptyState}</>;
 
   return (
-    <div data-slot="nyuchi-timeline" className={cn("flex flex-col gap-6", className)}>
+    <div
+      data-slot="nyuchi-timeline"
+      className={cn("flex flex-col gap-6", className)}
+    >
       {groups.map((group) => {
-        const weekday = group.date.toLocaleDateString(undefined, { weekday: "short" });
-        const month = group.date.toLocaleDateString(undefined, { month: "short" });
+        const weekday = group.date.toLocaleDateString(undefined, {
+          weekday: "short",
+        });
+        const month = group.date.toLocaleDateString(undefined, {
+          month: "short",
+        });
         return (
           <div key={dayKey(group.date)} className="flex gap-4">
             {/* Date rail */}

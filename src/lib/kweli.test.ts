@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { kweliVerifyUrl, verificationTierCode, verificationTierLevel } from "./kweli";
+import {
+  kweliVerifyUrl,
+  verificationTierCode,
+  verificationTierLevel,
+} from "./kweli";
 
 describe("verificationTierLevel", () => {
   it("passes through valid numeric tiers", () => {

@@ -9,7 +9,11 @@ const el = () => document.querySelector('[data-slot="nyuchi-group-card"]');
 describe("NyuchiGroupCard", () => {
   it("renders name, member count and topics", () => {
     const { getByText } = render(
-      <NyuchiGroupCard name="Harare Devs" memberCount={1200} topics={["Tech", "Careers"]} />,
+      <NyuchiGroupCard
+        name="Harare Devs"
+        memberCount={1200}
+        topics={["Tech", "Careers"]}
+      />,
     );
     expect(getByText("Harare Devs")).toBeTruthy();
     expect(getByText("1,200 members")).toBeTruthy();
@@ -20,12 +24,24 @@ describe("NyuchiGroupCard", () => {
     let joins = 0;
     let cardClicks = 0;
     const { getByText, rerender } = render(
-      <NyuchiGroupCard name="X" memberCount={1} onClick={() => (cardClicks += 1)} onJoin={() => (joins += 1)} />,
+      <NyuchiGroupCard
+        name="X"
+        memberCount={1}
+        onClick={() => (cardClicks += 1)}
+        onJoin={() => (joins += 1)}
+      />,
     );
     fireEvent.click(getByText("Join Circle"));
     expect(joins).toBe(1);
     expect(cardClicks).toBe(0);
-    rerender(<NyuchiGroupCard name="X" memberCount={1} joined onJoin={() => (joins += 1)} />);
+    rerender(
+      <NyuchiGroupCard
+        name="X"
+        memberCount={1}
+        joined
+        onJoin={() => (joins += 1)}
+      />,
+    );
     expect(getByText("Joined")).toBeTruthy();
   });
 

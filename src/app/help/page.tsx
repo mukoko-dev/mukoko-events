@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useFeedback, openIntercomMessage } from "@/components/feedback/feedback-context";
+import {
+  useFeedback,
+  openIntercomMessage,
+} from "@/components/feedback/feedback-context";
 import Link from "next/link";
 import {
   Search,
@@ -156,7 +159,12 @@ export default function HelpPage() {
       newOpenItems.add(key);
     }
     setOpenItems(newOpenItems);
-    try { localStorage.setItem("nhimbe-faq-open", JSON.stringify([...newOpenItems])); } catch {}
+    try {
+      localStorage.setItem(
+        "nhimbe-faq-open",
+        JSON.stringify([...newOpenItems]),
+      );
+    } catch {}
   };
 
   const filteredCategories = faqCategories
@@ -165,7 +173,7 @@ export default function HelpPage() {
       items: category.items.filter(
         (item) =>
           item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+          item.answer.toLowerCase().includes(searchQuery.toLowerCase()),
       ),
     }))
     .filter((category) => category.items.length > 0);
@@ -197,10 +205,26 @@ export default function HelpPage() {
       {/* Quick Links */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
         {[
-          { icon: <CalendarPlus className="w-5 h-5" />, label: "Create Event", href: "/events/create" },
-          { icon: <MapPin className="w-5 h-5" />, label: "Find Events", href: "/" },
-          { icon: <Ticket className="w-5 h-5" />, label: "My Tickets", href: "/my-events" },
-          { icon: <User className="w-5 h-5" />, label: "Account", href: "/my-events" },
+          {
+            icon: <CalendarPlus className="w-5 h-5" />,
+            label: "Create Event",
+            href: "/events/create",
+          },
+          {
+            icon: <MapPin className="w-5 h-5" />,
+            label: "Find Events",
+            href: "/",
+          },
+          {
+            icon: <Ticket className="w-5 h-5" />,
+            label: "My Tickets",
+            href: "/my-events",
+          },
+          {
+            icon: <User className="w-5 h-5" />,
+            label: "Account",
+            href: "/my-events",
+          },
         ].map((link) => (
           <Link
             key={link.label}
@@ -208,7 +232,9 @@ export default function HelpPage() {
             className="flex flex-col items-center gap-2 p-4 bg-surface rounded-xl border border-elevated hover:border-primary/50 transition-colors"
           >
             <div className="text-primary">{link.icon}</div>
-            <span className="text-sm font-medium text-foreground">{link.label}</span>
+            <span className="text-sm font-medium text-foreground">
+              {link.label}
+            </span>
           </Link>
         ))}
       </div>
@@ -267,7 +293,9 @@ export default function HelpPage() {
         <p className="text-text-secondary mb-6">
           Our support team is here to assist you with any questions
         </p>
-        <Button variant="default" onClick={() => openSupport()}>Contact Support</Button>
+        <Button variant="default" onClick={() => openSupport()}>
+          Contact Support
+        </Button>
       </div>
     </div>
   );

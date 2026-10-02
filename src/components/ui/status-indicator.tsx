@@ -43,13 +43,17 @@ function StatusIndicator({
       <span className="relative inline-flex">
         <span
           data-slot="status-dot"
-          className={cn("inline-block rounded-full", sizeMap[size], statusColors[status])}
+          className={cn(
+            "inline-block rounded-full",
+            sizeMap[size],
+            statusColors[status],
+          )}
         />
         {shouldPulse && (
           <span
             className={cn(
               "absolute inset-0 rounded-full animate-ping opacity-75",
-              statusColors[status]
+              statusColors[status],
             )}
           />
         )}

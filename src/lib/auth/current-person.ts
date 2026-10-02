@@ -14,7 +14,12 @@ import "server-only";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import { personsCollection } from "@/lib/mongo/databases";
 import { syncPersonFromWorkos, type SyncPersonInput } from "@/lib/mongo/users";
-import { isDevBypass, DEV_WORKOS_ID, DEV_EMAIL, DEV_NAME } from "@/lib/auth/dev";
+import {
+  isDevBypass,
+  DEV_WORKOS_ID,
+  DEV_EMAIL,
+  DEV_NAME,
+} from "@/lib/auth/dev";
 import type { PersonDoc } from "@/lib/mongo/types";
 
 /**
@@ -24,14 +29,20 @@ import type { PersonDoc } from "@/lib/mongo/types";
  */
 export async function resolveActingSyncInput(): Promise<SyncPersonInput | null> {
   if (isDevBypass()) {
-    return { workosUserId: DEV_WORKOS_ID, email: DEV_EMAIL, name: DEV_NAME, emailVerified: true };
+    return {
+      workosUserId: DEV_WORKOS_ID,
+      email: DEV_EMAIL,
+      name: DEV_NAME,
+      emailVerified: true,
+    };
   }
   const { user } = await withAuth();
   if (!user) return null;
   return {
     workosUserId: user.id,
     email: user.email ?? null,
-    name: [user.firstName, user.lastName].filter(Boolean).join(" ").trim() || null,
+    name:
+      [user.firstName, user.lastName].filter(Boolean).join(" ").trim() || null,
     givenName: user.firstName ?? null,
     familyName: user.lastName ?? null,
     picture: user.profilePictureUrl ?? null,
@@ -61,7 +72,9 @@ export async function resolveActingPerson(): Promise<PersonDoc | null> {
  * Like {@link resolveActingPerson} but throws when there is no signed-in person.
  * Use in actions that cannot proceed anonymously.
  */
-export async function requireActingPerson(message = "You must be signed in."): Promise<PersonDoc> {
+export async function requireActingPerson(
+  message = "You must be signed in.",
+): Promise<PersonDoc> {
   const person = await resolveActingPerson();
   if (!person) throw new Error(message);
   return person;

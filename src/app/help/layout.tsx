@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   description: "Get help with Nhimbe — find answers to common questions.",
 };
 
-export default function HelpLayout({ children }: { children: React.ReactNode }) {
+export default function HelpLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return children;
 }

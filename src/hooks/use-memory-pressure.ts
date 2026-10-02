@@ -21,12 +21,19 @@ function useMemoryPressure(): MemoryPressureResult {
     // Try Pressure Observer API (Chrome 125+)
     if ("PressureObserver" in window) {
       try {
-        const observer = new (window as unknown as { PressureObserver: new (cb: (records: Array<{ state: PressureState }>) => void, opts: { sampleInterval: number }) => { observe: (source: string) => void; disconnect: () => void } }).PressureObserver(
+        const observer = new (
+          window as unknown as {
+            PressureObserver: new (
+              cb: (records: Array<{ state: PressureState }>) => void,
+              opts: { sampleInterval: number },
+            ) => { observe: (source: string) => void; disconnect: () => void };
+          }
+        ).PressureObserver(
           (records: Array<{ state: PressureState }>) => {
             const latest = records[records.length - 1];
             if (latest) setPressure(latest.state);
           },
-          { sampleInterval: 2000 }
+          { sampleInterval: 2000 },
         );
         observer.observe("cpu");
         return () => observer.disconnect();

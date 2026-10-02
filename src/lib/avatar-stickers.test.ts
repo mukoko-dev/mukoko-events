@@ -13,7 +13,9 @@ describe("avatar stickers", () => {
   it("encodes each sticker as a self-contained SVG data URI", () => {
     for (const sticker of AVATAR_STICKERS) {
       expect(sticker.dataUri).toMatch(/^data:image\/svg\+xml,/);
-      const decoded = decodeURIComponent(sticker.dataUri.replace(/^data:image\/svg\+xml,/, ""));
+      const decoded = decodeURIComponent(
+        sticker.dataUri.replace(/^data:image\/svg\+xml,/, ""),
+      );
       expect(decoded).toContain(sticker.color);
       expect(decoded).toContain("<svg");
     }

@@ -14,9 +14,10 @@ function getThemeFromGradient(gradient?: string): keyof typeof themes {
   if (!gradient) return "tanzanite";
   const g = gradient.toLowerCase();
   for (const [id, theme] of Object.entries(themes)) {
-    const hex = `${theme.light.accent} ${theme.dark.accent} ${theme.gradient}`
-      .toLowerCase()
-      .match(/#[0-9a-f]{6}/g) ?? [];
+    const hex =
+      `${theme.light.accent} ${theme.dark.accent} ${theme.gradient}`
+        .toLowerCase()
+        .match(/#[0-9a-f]{6}/g) ?? [];
     if (hex.some((h) => g.includes(h))) return id as keyof typeof themes;
   }
   return "tanzanite";
@@ -34,7 +35,11 @@ interface EventThemeWrapperProps {
  * hydration mismatch); globals.css selects the active mode under `.light` /
  * `.dark` and computes the subtle `--wash` page ground (surface + accent).
  */
-export function EventThemeWrapper({ children, coverGradient, themeId }: EventThemeWrapperProps) {
+export function EventThemeWrapper({
+  children,
+  coverGradient,
+  themeId,
+}: EventThemeWrapperProps) {
   const resolvedThemeId = themeId || getThemeFromGradient(coverGradient);
   const theme: WashedTheme = getTheme(resolvedThemeId);
 

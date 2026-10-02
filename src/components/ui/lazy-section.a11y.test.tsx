@@ -25,7 +25,7 @@ describe("LazySection accessibility", () => {
     const { container } = render(
       <LazySection>
         <div>Heavy content</div>
-      </LazySection>
+      </LazySection>,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -35,7 +35,7 @@ describe("LazySection accessibility", () => {
     const { container } = render(
       <LazySection fallback={<p>Loading section…</p>}>
         <div>Heavy content</div>
-      </LazySection>
+      </LazySection>,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -45,7 +45,7 @@ describe("LazySection accessibility", () => {
     const { container } = render(
       <LazySection>
         <div>Heavy content</div>
-      </LazySection>
+      </LazySection>,
     );
     const wrapper = container.querySelector('[data-slot="lazy-section"]');
     expect(wrapper).not.toBeNull();

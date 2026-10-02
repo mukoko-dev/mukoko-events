@@ -100,7 +100,9 @@ function mapPlaceDocToDetail(doc: PlaceDoc): PlaceDetail {
   const rating = (discovery.aggregateRating ?? {}) as Record<string, unknown>;
   const { latitude, longitude } = pointLatLng(doc.geo);
   const images = Array.isArray(media.image)
-    ? (media.image as unknown[]).filter((u): u is string => typeof u === "string")
+    ? (media.image as unknown[]).filter(
+        (u): u is string => typeof u === "string",
+      )
     : null;
 
   return {
@@ -145,7 +147,9 @@ function mapPlaceDocToDetail(doc: PlaceDoc): PlaceDetail {
  * runs only for a recognised caller — venue data is public-read, but routing it
  * through the authenticated server boundary keeps the browser off Mongo.
  */
-export async function getPlaceById(placeId: string | null | undefined): Promise<PlaceDetail | null> {
+export async function getPlaceById(
+  placeId: string | null | undefined,
+): Promise<PlaceDetail | null> {
   if (!placeId) return null;
 
   // Resolve the acting identity (dev bypass or WorkOS session). We don't need

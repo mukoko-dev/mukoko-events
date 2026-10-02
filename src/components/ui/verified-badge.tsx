@@ -113,8 +113,16 @@ const STATUS_OVERLAY = {
   living: { modifier: 0.0, active: true, overlay: null },
   liveness_pending: { modifier: 0.0, active: true, overlay: null },
   suspended: { modifier: -0.05, active: false, overlay: "suspended" as const },
-  presumed_ancestral: { modifier: 0.05, active: false, overlay: "ancestral" as const },
-  verified_ancestral: { modifier: 0.05, active: false, overlay: "ancestral" as const },
+  presumed_ancestral: {
+    modifier: 0.05,
+    active: false,
+    overlay: "ancestral" as const,
+  },
+  verified_ancestral: {
+    modifier: 0.05,
+    active: false,
+    overlay: "ancestral" as const,
+  },
 } as const;
 
 const badgeSizeVariants = cva(
@@ -129,13 +137,14 @@ const badgeSizeVariants = cva(
       },
     },
     defaultVariants: { size: "md" },
-  }
+  },
 );
 
 const iconSizeMap = { sm: 10, md: 12, lg: 16, xl: 20 } as const;
 
-export interface NyuchiVerifiedBadgeProps
-  extends VariantProps<typeof badgeSizeVariants> {
+export interface NyuchiVerifiedBadgeProps extends VariantProps<
+  typeof badgeSizeVariants
+> {
   /** Verification tier code. */
   tier: VerificationTier;
   /** Platform status. Affects badge appearance. */
@@ -187,7 +196,12 @@ function NyuchiVerifiedBadge({
         className={cn(badgeSizeVariants({ size }), "opacity-40", className)}
         style={{ backgroundColor: "rgba(107,107,102,0.15)", ...entry }}
       >
-        <Ban width={iconSize} height={iconSize} strokeWidth={2.5} color="#6B6B66" />
+        <Ban
+          width={iconSize}
+          height={iconSize}
+          strokeWidth={2.5}
+          color="#6B6B66"
+        />
       </span>
     );
   }
@@ -204,7 +218,12 @@ function NyuchiVerifiedBadge({
         className={cn(badgeSizeVariants({ size }), "opacity-60", className)}
         style={{ backgroundColor: config.bg, ...entry }}
       >
-        <Flower2 width={iconSize} height={iconSize} strokeWidth={2} style={{ color: config.fg }} />
+        <Flower2
+          width={iconSize}
+          height={iconSize}
+          strokeWidth={2}
+          style={{ color: config.fg }}
+        />
       </span>
     );
   }
@@ -218,17 +237,29 @@ function NyuchiVerifiedBadge({
       data-level={config.level}
       data-trust={config.cumulativeTrust}
       aria-label={config.label}
-      title={showTooltip ? `${config.label} · Trust ${config.cumulativeTrust}` : undefined}
+      title={
+        showTooltip
+          ? `${config.label} · Trust ${config.cumulativeTrust}`
+          : undefined
+      }
       className={cn(badgeSizeVariants({ size }), className)}
       style={{ backgroundColor: config.bg, ...entry }}
     >
-      <Icon width={iconSize} height={iconSize} strokeWidth={2.5} style={{ color: config.fg }} />
+      <Icon
+        width={iconSize}
+        height={iconSize}
+        strokeWidth={2.5}
+        style={{ color: config.fg }}
+      />
     </span>
   );
 }
 
 /** Compute the trust score on the client. */
-function computeTrustScore(tier: VerificationTier, status: PlatformStatus): number {
+function computeTrustScore(
+  tier: VerificationTier,
+  status: PlatformStatus,
+): number {
   const statusConfig = STATUS_OVERLAY[status];
 
   // Suspended/ancestral = fixed at modifier only.

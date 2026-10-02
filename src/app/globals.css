@@ -15,87 +15,87 @@
   /* African Minerals (theme-adaptive raw values for marks). tanzanite is the
    * nhimbe / Mukoko lead; cobalt is exceptional (links/info); malachite success;
    * gold reward accent; sodalite the Shamwari (AI) mineral. */
-  --mineral-cobalt-raw:      #0047AB;
-  --mineral-tanzanite-raw:   #B388FF;
-  --mineral-malachite-raw:   #64FFDA;
-  --mineral-gold-raw:        #FFD740;
-  --mineral-terracotta-raw:  #A0522D;
-  --mineral-sodalite-raw:    #283593;
-  --mineral-copper-raw:      #BF5A36;
+  --mineral-cobalt-raw: #0047ab;
+  --mineral-tanzanite-raw: #b388ff;
+  --mineral-malachite-raw: #64ffda;
+  --mineral-gold-raw: #ffd740;
+  --mineral-terracotta-raw: #a0522d;
+  --mineral-sodalite-raw: #283593;
+  --mineral-copper-raw: #bf5a36;
 
   /* Mineral surface containers (light defaults) */
-  --container-cobalt:     #E3F2FD;
-  --container-tanzanite:  #F3E5F5;
-  --container-malachite:  #E0F2F1;
-  --container-gold:       #FFF8E1;
-  --container-terracotta: #FBE9E7;
-  --container-sodalite:   #E8EAF6;
-  --on-container-cobalt:     #002966;
-  --on-container-tanzanite:  #2E004D;
-  --on-container-malachite:  #00332B;
-  --on-container-gold:       #3E2723;
-  --on-container-terracotta: #5D2906;
-  --on-container-sodalite:   #1A237E;
+  --container-cobalt: #e3f2fd;
+  --container-tanzanite: #f3e5f5;
+  --container-malachite: #e0f2f1;
+  --container-gold: #fff8e1;
+  --container-terracotta: #fbe9e7;
+  --container-sodalite: #e8eaf6;
+  --on-container-cobalt: #002966;
+  --on-container-tanzanite: #2e004d;
+  --on-container-malachite: #00332b;
+  --on-container-gold: #3e2723;
+  --on-container-terracotta: #5d2906;
+  --on-container-sodalite: #1a237e;
 
   /* Sodalite — AI / Shamwari mineral (light surface; AAA-strong navy) */
   --sodalite: #283593;
 
   /* Seven Heritage colours (atmospheric, theme-adaptive) — mzizi canon
      lightHex; see mzizi-registry/lib/tokens/palette.source.ts. */
-  --heritage-indigo:   #4527A0;
-  --heritage-savanna:  #8D6E1A;
-  --heritage-baobab:   #4E342E;
-  --heritage-sunset:   #D84315;
-  --heritage-river:    #006064;
-  --heritage-hematite: #546E7A;
-  --heritage-kalahari: #C9B589;
-  --color-indigo:   var(--heritage-indigo);
-  --color-savanna:  var(--heritage-savanna);
-  --color-baobab:   var(--heritage-baobab);
-  --color-sunset:   var(--heritage-sunset);
-  --color-river:    var(--heritage-river);
+  --heritage-indigo: #4527a0;
+  --heritage-savanna: #8d6e1a;
+  --heritage-baobab: #4e342e;
+  --heritage-sunset: #d84315;
+  --heritage-river: #006064;
+  --heritage-hematite: #546e7a;
+  --heritage-kalahari: #c9b589;
+  --color-indigo: var(--heritage-indigo);
+  --color-savanna: var(--heritage-savanna);
+  --color-baobab: var(--heritage-baobab);
+  --color-sunset: var(--heritage-sunset);
+  --color-river: var(--heritage-river);
   --color-hematite: var(--heritage-hematite);
   --color-kalahari: var(--heritage-kalahari);
 
   /* Spacing scale — mzizi doctrine 4.1.0 extended ladder.
    * The *-plus half-steps and 4xl/5xl/6xl are 4.1.0 additions; the base rungs
    * are unchanged. */
-  --space-xxs:       0.125rem;
-  --space-xs:        0.25rem;
-  --space-xs-plus:   0.375rem;
-  --space-sm:        0.5rem;
-  --space-sm-plus:   0.625rem;
-  --space-md:        0.75rem;
-  --space-base:      1rem;
+  --space-xxs: 0.125rem;
+  --space-xs: 0.25rem;
+  --space-xs-plus: 0.375rem;
+  --space-sm: 0.5rem;
+  --space-sm-plus: 0.625rem;
+  --space-md: 0.75rem;
+  --space-base: 1rem;
   --space-base-plus: 1.25rem;
-  --space-lg:        1.5rem;
-  --space-xl:        2rem;
-  --space-xl-plus:   2.5rem;
-  --space-2xl:       3rem;
-  --space-2xl-plus:  3.5rem;
-  --space-3xl:       4rem;
-  --space-4xl:       5rem;
-  --space-5xl:       6rem;
-  --space-6xl:       8rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xl-plus: 2.5rem;
+  --space-2xl: 3rem;
+  --space-2xl-plus: 3.5rem;
+  --space-3xl: 4rem;
+  --space-4xl: 5rem;
+  --space-5xl: 6rem;
+  --space-6xl: 8rem;
 
   /* Motion — nhimbe's --motion-* durations, plus mzizi doctrine 4.1.0
    * --motion-duration-* aliases, a spring ease, and stagger steps so both
    * naming schemes resolve. */
-  --motion-quick:    100ms;
+  --motion-quick: 100ms;
   --motion-standard: 200ms;
   --motion-emphasis: 350ms;
   --motion-dramatic: 500ms;
-  --motion-duration-quick:    var(--motion-quick);
+  --motion-duration-quick: var(--motion-quick);
   --motion-duration-standard: var(--motion-standard);
   --motion-duration-emphasis: var(--motion-emphasis);
   --motion-duration-dramatic: var(--motion-dramatic);
-  --easing-entrance: cubic-bezier(0.0, 0.0, 0.2, 1);
-  --easing-exit:     cubic-bezier(0.4, 0.0, 1, 1);
-  --easing-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
-  --easing-spring:   cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --easing-entrance: cubic-bezier(0, 0, 0.2, 1);
+  --easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --motion-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --motion-stagger-tight: 30ms;
-  --motion-stagger-base:  50ms;
+  --motion-stagger-base: 50ms;
   --motion-stagger-loose: 80ms;
 
   /* Touch targets / component sizing — compact 3-tier scale.
@@ -104,9 +104,9 @@
    * sm  34px  chips, icon buttons, dense secondary actions
    */
   --touch-target-lg: 48px;
-  --touch-target:    40px;
+  --touch-target: 40px;
   --touch-target-sm: 34px;
-  --min-touch:       40px;
+  --min-touch: 40px;
 
   /* Control heights — single knob for the deliberate nhimbe divergence from
    * mzizi doctrine 4.1.0. The doctrine specifies default 56px / min 48px for
@@ -114,27 +114,27 @@
    * adopt the doctrine sizing later, bump these three values in one place —
    * Button (default/sm) and Input read their height from these tokens.
    *   doctrine: --h-button-default: 3.5rem; --h-button-sm: 3rem; --h-input: 3.5rem; */
-  --h-button-default: 2.25rem;  /* 36px — nhimbe compact (doctrine 56px) */
-  --h-button-sm:      2rem;     /* 32px — nhimbe compact (doctrine 48px) */
-  --h-input:          2.25rem;  /* 36px — nhimbe compact (doctrine 56px) */
-  --header-height:    52px;
+  --h-button-default: 2.25rem; /* 36px — nhimbe compact (doctrine 56px) */
+  --h-button-sm: 2rem; /* 32px — nhimbe compact (doctrine 48px) */
+  --h-input: 2.25rem; /* 36px — nhimbe compact (doctrine 56px) */
+  --header-height: 52px;
   --bottom-nav-height: 80px;
-  --page-max-width:    1280px;
-  --page-margin:       20px;
+  --page-max-width: 1280px;
+  --page-margin: 20px;
   --mineral-strip-width: 4px;
 
   /* Z-index ladder (mirrors design system; keeps existing comment below) */
-  --z-base:     0;
+  --z-base: 0;
   --z-dropdown: 10;
-  --z-sticky:   20;
-  --z-overlay:  30;
-  --z-modal:    40;
-  --z-toast:    50;
-  --z-tooltip:  60;
+  --z-sticky: 20;
+  --z-overlay: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-tooltip: 60;
 
   /* Existing nhimbe tokens — preserved */
-  --charcoal: #0A0A0A;
-  --cream: #FAF9F5;
+  --charcoal: #0a0a0a;
+  --cream: #faf9f5;
 
   /* ─── nhimbe lead / accent tokens (design.nyuchi.com mapping) ──────────
    * The design's prototypes use --nh-lead as the active mineral accent that
@@ -146,54 +146,54 @@
 
   /* ─── Typography scale (design system canonical) ─────────────────────
    * mzizi doctrine 4.1.0 adds --fs-display-sm, --fs-h6, --fs-code (+ --lh-h6). */
-  --fs-display:    4.5rem;   /* 72 — serif 700 */
-  --fs-display-sm: 3.75rem;  /* 60 — serif 700 */
-  --fs-h1:         3rem;     /* 48 — serif 700 */
-  --fs-h2:         2.25rem;  /* 36 — serif 600 */
-  --fs-h3:         1.875rem; /* 30 — serif 600 */
-  --fs-h4:         1.5rem;   /* 24 — sans 600 */
-  --fs-h5:         1.25rem;  /* 20 — sans 600 */
-  --fs-h6:         1rem;     /* 16 — sans 600 */
-  --fs-body-lg:    1.125rem; /* 18 — sans 400 */
-  --fs-body:       1rem;     /* 16 — sans 400 */
-  --fs-small:      0.875rem; /* 14 — sans 400 */
-  --fs-caption:    0.75rem;  /* 12 — sans 400 */
-  --fs-code:       0.875rem; /* 14 — mono 400 */
+  --fs-display: 4.5rem; /* 72 — serif 700 */
+  --fs-display-sm: 3.75rem; /* 60 — serif 700 */
+  --fs-h1: 3rem; /* 48 — serif 700 */
+  --fs-h2: 2.25rem; /* 36 — serif 600 */
+  --fs-h3: 1.875rem; /* 30 — serif 600 */
+  --fs-h4: 1.5rem; /* 24 — sans 600 */
+  --fs-h5: 1.25rem; /* 20 — sans 600 */
+  --fs-h6: 1rem; /* 16 — sans 600 */
+  --fs-body-lg: 1.125rem; /* 18 — sans 400 */
+  --fs-body: 1rem; /* 16 — sans 400 */
+  --fs-small: 0.875rem; /* 14 — sans 400 */
+  --fs-caption: 0.75rem; /* 12 — sans 400 */
+  --fs-code: 0.875rem; /* 14 — mono 400 */
   --lh-display: 1.1;
-  --lh-h1:      1.15;
-  --lh-h2:      1.2;
-  --lh-h3:      1.25;
-  --lh-h4:      1.3;
-  --lh-h5:      1.4;
-  --lh-h6:      1.4;
-  --lh-body:    1.6;
-  --lh-small:   1.5;
+  --lh-h1: 1.15;
+  --lh-h2: 1.2;
+  --lh-h3: 1.25;
+  --lh-h4: 1.3;
+  --lh-h5: 1.4;
+  --lh-h6: 1.4;
+  --lh-body: 1.6;
+  --lh-small: 1.5;
 
   /* ─── Radius — ecosystem numbers 7/12/14/17 + pill ──────────────────
    * mzizi doctrine 4.1.0: --radius-base (14) and --radius-2xl (17) are
    * aliases for --radius-lg / --radius-xl. Buttons and inputs are pill. */
-  --radius-sm:     7px;
-  --radius-md:     12px;
-  --radius-base:   14px;
-  --radius-lg:     14px;
-  --radius-xl:     17px;
-  --radius-2xl:    17px;
-  --radius-full:   9999px;
+  --radius-sm: 7px;
+  --radius-md: 12px;
+  --radius-base: 14px;
+  --radius-lg: 14px;
+  --radius-xl: 17px;
+  --radius-2xl: 17px;
+  --radius-full: 9999px;
   --radius-circle: 50%;
 
   /* ─── Shadows / rings ───────────────────────────────────────────────
    * mzizi doctrine 4.1.0 elevation rungs: none / xs / sm / md / lg / xl,
    * plus inner (inset) and a focus-ring token (2px bg gap + 4px primary). */
-  --ring-1:      0 0 0 1px rgba(10,10,10,0.06);
+  --ring-1: 0 0 0 1px rgba(10, 10, 10, 0.06);
   --shadow-none: none;
-  --shadow-xs:   0 1px 2px rgba(20,20,19,0.04);
-  --shadow-sm:   0 1px 2px rgba(0,0,0,0.15);
-  --shadow-md:   0 4px 12px rgba(0,0,0,0.2);
-  --shadow-lg:   0 8px 24px rgba(0,0,0,0.25);
-  --shadow-xl:   0 20px 60px rgba(0,0,0,0.4);
-  --shadow-inner: inset 0 2px 4px rgba(20,20,19,0.06);
+  --shadow-xs: 0 1px 2px rgba(20, 20, 19, 0.04);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.4);
+  --shadow-inner: inset 0 2px 4px rgba(20, 20, 19, 0.06);
   --shadow-focus-ring: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
-  --shadow-glow: 0 4px 20px rgba(179,136,255,0.30);  /* tanzanite FAB glow */
+  --shadow-glow: 0 4px 20px rgba(179, 136, 255, 0.3); /* tanzanite FAB glow */
 
   /* ─────────────────────────────────────────────────────────────────
    * Default theme = dark. .dark mirrors this; .light overrides below.
@@ -202,245 +202,245 @@
    * ───────────────────────────────────────────────────────────────── */
 
   /* Surface ladder — warm-neutral (dark) */
-  --pitch:     #050505;   /* deepest — media wells, splash */
-  --void:      #080807;   /* app shell behind base */
-  --base:      #0E0D0C;   /* page background */
-  --surface:   #131211;   /* card / panel */
-  --container: #1E1D1A;   /* neutral grouped content */
-  --overlay:   #23221F;   /* dialogs / menus */
-  --raised:    #2E2C29;   /* toasts / raised menus */
+  --pitch: #050505; /* deepest — media wells, splash */
+  --void: #080807; /* app shell behind base */
+  --base: #0e0d0c; /* page background */
+  --surface: #131211; /* card / panel */
+  --container: #1e1d1a; /* neutral grouped content */
+  --overlay: #23221f; /* dialogs / menus */
+  --raised: #2e2c29; /* toasts / raised menus */
 
   --background: var(--base);
-  --foreground: #F5F5F4;
-  --elevated:   var(--container);
+  --foreground: #f5f5f4;
+  --elevated: var(--container);
 
   /* Semantic surfaces mapped onto the ladder */
-  --card:                 var(--surface);
-  --card-foreground:      #F5F5F4;
-  --muted:                var(--container);
-  --muted-foreground:     #B2AFA8;   /* warm stone, AAA */
-  --scrim:                rgba(0,0,0,0.60);
-  --popover:              var(--overlay);
-  --popover-foreground:   #F5F5F4;
-  --border:               #2A2927;   /* warm stone border */
+  --card: var(--surface);
+  --card-foreground: #f5f5f4;
+  --muted: var(--container);
+  --muted-foreground: #b2afa8; /* warm stone, AAA */
+  --scrim: rgba(0, 0, 0, 0.6);
+  --popover: var(--overlay);
+  --popover-foreground: #f5f5f4;
+  --border: #2a2927; /* warm stone border */
 
   /* Text hierarchy (dark) */
-  --text-primary:   #F5F5F4;
-  --text-secondary: #B2AFA8;
-  --text-tertiary:  #8A8A85;
+  --text-primary: #f5f5f4;
+  --text-secondary: #b2afa8;
+  --text-tertiary: #8a8a85;
 
   /* Minerals (dark) */
-  --cobalt:    #00B0FF;
-  --tanzanite: #B388FF;
-  --malachite: #64FFDA;
-  --gold:      #FFD740;
-  --sodalite:  #3D5AFE;
+  --cobalt: #00b0ff;
+  --tanzanite: #b388ff;
+  --malachite: #64ffda;
+  --gold: #ffd740;
+  --sodalite: #3d5afe;
 
   /* Semantic roles — tanzanite is the nhimbe fill (buttons, CTAs, brand);
    * cobalt is exceptional (links/info); malachite success; gold reward accent. */
-  --primary:              var(--tanzanite);
-  --primary-foreground:   #1A0033;   /* deep plum on tanzanite */
-  --secondary:            #262523;   /* quiet warm-neutral */
-  --secondary-foreground: #F5F5F4;
-  --accent:               var(--gold);
+  --primary: var(--tanzanite);
+  --primary-foreground: #1a0033; /* deep plum on tanzanite */
+  --secondary: #262523; /* quiet warm-neutral */
+  --secondary-foreground: #f5f5f4;
+  --accent: var(--gold);
 
   /* Status semantics (dark) */
-  --success: #64FFDA;
-  --info:    #00B0FF;
-  --warning: #FFD866;
-  --error:   #F2B8B5;
-  --status-syncing: #36ABBA;   /* live sync in progress */
-  --status-offline: #BA9570;   /* disconnected */
-  --status-neutral: #A09C93;   /* idle / inactive */
+  --success: #64ffda;
+  --info: #00b0ff;
+  --warning: #ffd866;
+  --error: #f2b8b5;
+  --status-syncing: #36abba; /* live sync in progress */
+  --status-offline: #ba9570; /* disconnected */
+  --status-neutral: #a09c93; /* idle / inactive */
 
   /* nhimbe lead pair (dark) — tanzanite */
-  --nh-lead:      var(--tanzanite);
+  --nh-lead: var(--tanzanite);
   --nh-lead-soft: var(--container-tanzanite);
-  --nh-on-lead:   var(--on-container-tanzanite);
+  --nh-on-lead: var(--on-container-tanzanite);
   --nh-secondary: var(--cobalt);
-  --nh-accent:    var(--gold);
-  --nh-baobab:    var(--heritage-baobab);
-  --nh-savanna:   var(--heritage-savanna);
-  --nh-sunset:    var(--heritage-sunset);
+  --nh-accent: var(--gold);
+  --nh-baobab: var(--heritage-baobab);
+  --nh-savanna: var(--heritage-savanna);
+  --nh-sunset: var(--heritage-sunset);
 
   /* nhimbe AI pair — sodalite, the Shamwari (AI) mineral */
-  --nh-ai:      var(--sodalite);
+  --nh-ai: var(--sodalite);
   --nh-ai-soft: var(--container-sodalite);
-  --nh-on-ai:   var(--on-container-sodalite);
+  --nh-on-ai: var(--on-container-sodalite);
 
   /* High-contrast text on gradient/hero backgrounds */
-  --hero-text: #FFFFFF;
-  --hero-text-muted: #E0E0E0;
+  --hero-text: #ffffff;
+  --hero-text-muted: #e0e0e0;
 }
 
 /* Dark Theme - WCAG AAA Compliant */
 .dark {
   /* Nyuchi heritage / mineral container overrides for dark surfaces */
-  --container-cobalt:     #001F3F;
-  --container-tanzanite:  #1A0033;
-  --container-malachite:  #00251A;
-  --container-gold:       #332200;
-  --container-terracotta: #3E1A00;
-  --container-sodalite:   #1A1F4D;
-  --on-container-cobalt:     #B3E5FC;
-  --on-container-tanzanite:  #E1BEE7;
-  --on-container-malachite:  #A7FFEB;
-  --on-container-gold:       #FFECB3;
-  --on-container-terracotta: #FFCCBC;
-  --on-container-sodalite:   #C5CAE9;
+  --container-cobalt: #001f3f;
+  --container-tanzanite: #1a0033;
+  --container-malachite: #00251a;
+  --container-gold: #332200;
+  --container-terracotta: #3e1a00;
+  --container-sodalite: #1a1f4d;
+  --on-container-cobalt: #b3e5fc;
+  --on-container-tanzanite: #e1bee7;
+  --on-container-malachite: #a7ffeb;
+  --on-container-gold: #ffecb3;
+  --on-container-terracotta: #ffccbc;
+  --on-container-sodalite: #c5cae9;
   /* Seven Heritage colours — mzizi canon darkHex. */
-  --heritage-indigo:   #7986CB;
-  --heritage-savanna:  #E5C158;
-  --heritage-baobab:   #A1887F;
-  --heritage-sunset:   #FF7043;
-  --heritage-river:    #4DD0E1;
-  --heritage-hematite: #90A4AE;
-  --heritage-kalahari: #E8D9B5;
+  --heritage-indigo: #7986cb;
+  --heritage-savanna: #e5c158;
+  --heritage-baobab: #a1887f;
+  --heritage-sunset: #ff7043;
+  --heritage-river: #4dd0e1;
+  --heritage-hematite: #90a4ae;
+  --heritage-kalahari: #e8d9b5;
 
   /* Surface ladder — warm-neutral (dark) */
-  --pitch:     #050505;
-  --void:      #080807;
-  --base:      #0E0D0C;
-  --surface:   #131211;
-  --container: #1E1D1A;
-  --overlay:   #23221F;
-  --raised:    #2E2C29;
+  --pitch: #050505;
+  --void: #080807;
+  --base: #0e0d0c;
+  --surface: #131211;
+  --container: #1e1d1a;
+  --overlay: #23221f;
+  --raised: #2e2c29;
 
   --background: var(--base);
-  --foreground: #F5F5F4;
-  --elevated:   var(--container);
+  --foreground: #f5f5f4;
+  --elevated: var(--container);
 
   /* Semantic surfaces (dark) */
-  --card:                 var(--surface);
-  --card-foreground:      #F5F5F4;
-  --muted:                var(--container);
-  --muted-foreground:     #B2AFA8;   /* warm stone — AAA on all dark surfaces */
-  --scrim:                rgba(0,0,0,0.60);
-  --popover:              var(--overlay);
-  --popover-foreground:   #F5F5F4;
-  --border:               #2A2927;   /* warm stone border */
+  --card: var(--surface);
+  --card-foreground: #f5f5f4;
+  --muted: var(--container);
+  --muted-foreground: #b2afa8; /* warm stone — AAA on all dark surfaces */
+  --scrim: rgba(0, 0, 0, 0.6);
+  --popover: var(--overlay);
+  --popover-foreground: #f5f5f4;
+  --border: #2a2927; /* warm stone border */
 
   /* Text hierarchy - AAA compliant */
-  --text-primary: #F5F5F4;     /* 18.9:1 on base */
-  --text-secondary: #B2AFA8;   /* 9.6:1 on base */
-  --text-tertiary: #8A8A85;    /* 5.9:1 — captions/disabled */
+  --text-primary: #f5f5f4; /* 18.9:1 on base */
+  --text-secondary: #b2afa8; /* 9.6:1 on base */
+  --text-tertiary: #8a8a85; /* 5.9:1 — captions/disabled */
 
   /* Minerals (dark) */
-  --cobalt:    #00B0FF;
-  --tanzanite: #B388FF;
-  --malachite: #64FFDA;
-  --gold:      #FFD740;
-  --sodalite:  #3D5AFE;
+  --cobalt: #00b0ff;
+  --tanzanite: #b388ff;
+  --malachite: #64ffda;
+  --gold: #ffd740;
+  --sodalite: #3d5afe;
 
   /* Semantic roles — tanzanite fill, cobalt exceptional, malachite success */
-  --primary:              var(--tanzanite);
-  --primary-foreground:   #1A0033;
-  --secondary:            #262523;
-  --secondary-foreground: #F5F5F4;
-  --accent:               var(--gold);
+  --primary: var(--tanzanite);
+  --primary-foreground: #1a0033;
+  --secondary: #262523;
+  --secondary-foreground: #f5f5f4;
+  --accent: var(--gold);
 
   /* Status semantics (dark) */
-  --success: #64FFDA;
-  --info:    #00B0FF;
-  --warning: #FFD866;
-  --error:   #F2B8B5;
-  --status-syncing: #36ABBA;
-  --status-offline: #BA9570;
-  --status-neutral: #A09C93;
+  --success: #64ffda;
+  --info: #00b0ff;
+  --warning: #ffd866;
+  --error: #f2b8b5;
+  --status-syncing: #36abba;
+  --status-offline: #ba9570;
+  --status-neutral: #a09c93;
 
   /* nhimbe lead pair (dark) — tanzanite */
-  --nh-lead:      var(--tanzanite);
+  --nh-lead: var(--tanzanite);
   --nh-lead-soft: var(--container-tanzanite);
-  --nh-on-lead:   var(--on-container-tanzanite);
+  --nh-on-lead: var(--on-container-tanzanite);
   --nh-secondary: var(--cobalt);
-  --nh-accent:    var(--gold);
-  --nh-baobab:    var(--heritage-baobab);
-  --nh-savanna:   var(--heritage-savanna);
-  --nh-sunset:    var(--heritage-sunset);
-  --shadow-glow:  0 4px 20px rgba(179,136,255,0.30);
+  --nh-accent: var(--gold);
+  --nh-baobab: var(--heritage-baobab);
+  --nh-savanna: var(--heritage-savanna);
+  --nh-sunset: var(--heritage-sunset);
+  --shadow-glow: 0 4px 20px rgba(179, 136, 255, 0.3);
 
   /* nhimbe AI pair — sodalite (dark) */
-  --nh-ai:      var(--sodalite);
+  --nh-ai: var(--sodalite);
   --nh-ai-soft: var(--container-sodalite);
-  --nh-on-ai:   var(--on-container-sodalite);
+  --nh-on-ai: var(--on-container-sodalite);
 
   /* Hero section high contrast */
-  --hero-text: #FFFFFF;
-  --hero-text-muted: #E0E0E0;
+  --hero-text: #ffffff;
+  --hero-text-muted: #e0e0e0;
 }
 
 /* Light Theme - WCAG AAA Compliant */
 .light {
   /* Surface ladder — warm-neutral (light) */
-  --pitch:     #FAFAFA;
-  --void:      #F8F8F7;
-  --base:      #F3F3F1;
-  --surface:   #EEEEEC;
-  --container: #E5E4E1;
-  --overlay:   #E0DFDC;
-  --raised:    #D6D5D1;
+  --pitch: #fafafa;
+  --void: #f8f8f7;
+  --base: #f3f3f1;
+  --surface: #eeeeec;
+  --container: #e5e4e1;
+  --overlay: #e0dfdc;
+  --raised: #d6d5d1;
 
   --background: var(--base);
   --foreground: #141413;
-  --elevated:   var(--container);
+  --elevated: var(--container);
 
   /* Semantic surfaces (light) — cards stay pure white above the warm base */
-  --card:                 #FFFFFF;
-  --card-foreground:      #141413;
-  --muted:                var(--container);
-  --muted-foreground:     #494840;   /* AAA on all light surfaces */
-  --scrim:                rgba(0,0,0,0.40);
-  --popover:              #FFFFFF;
-  --popover-foreground:   #141413;
-  --border:               #E7E5E0;   /* warm stone border */
+  --card: #ffffff;
+  --card-foreground: #141413;
+  --muted: var(--container);
+  --muted-foreground: #494840; /* AAA on all light surfaces */
+  --scrim: rgba(0, 0, 0, 0.4);
+  --popover: #ffffff;
+  --popover-foreground: #141413;
+  --border: #e7e5e0; /* warm stone border */
 
   /* Text hierarchy - AAA compliant (7:1+ on the warm base) */
-  --text-primary: #141413;     /* 17.9:1 contrast */
-  --text-secondary: #494840;   /* 8.9:1 contrast */
-  --text-tertiary: #595959;    /* 6.8:1 — captions/disabled */
+  --text-primary: #141413; /* 17.9:1 contrast */
+  --text-secondary: #494840; /* 8.9:1 contrast */
+  --text-tertiary: #595959; /* 6.8:1 — captions/disabled */
 
   /* Minerals — darkened for light-mode AAA */
-  --cobalt:    #0047AB;        /* 8.6:1 — links/info */
-  --malachite: #004D40;        /* success */
-  --tanzanite: #4B0082;        /* 10.5:1 — primary/brand */
-  --gold:      #8B5A00;        /* 7.1:1 — reward accent */
-  --sodalite:  #283593;        /* 8.6:1 — Shamwari (AI) mineral */
+  --cobalt: #0047ab; /* 8.6:1 — links/info */
+  --malachite: #004d40; /* success */
+  --tanzanite: #4b0082; /* 10.5:1 — primary/brand */
+  --gold: #8b5a00; /* 7.1:1 — reward accent */
+  --sodalite: #283593; /* 8.6:1 — Shamwari (AI) mineral */
 
   /* Semantic roles — tanzanite fill (white text), cobalt exceptional */
-  --primary:              var(--tanzanite);
-  --primary-foreground:   #FFFFFF;
-  --secondary:            #E5E4E1;
+  --primary: var(--tanzanite);
+  --primary-foreground: #ffffff;
+  --secondary: #e5e4e1;
   --secondary-foreground: #141413;
-  --accent:               var(--gold);
+  --accent: var(--gold);
 
   /* Status semantics (light) */
-  --success: #004D40;
-  --info:    #0047AB;
-  --warning: #7A5C00;
-  --error:   #B3261E;
-  --status-syncing: #1C5962;
-  --status-offline: #674C32;
-  --status-neutral: #55514B;
+  --success: #004d40;
+  --info: #0047ab;
+  --warning: #7a5c00;
+  --error: #b3261e;
+  --status-syncing: #1c5962;
+  --status-offline: #674c32;
+  --status-neutral: #55514b;
 
   /* nhimbe lead pair (light) — tanzanite */
-  --nh-lead:      var(--tanzanite);
+  --nh-lead: var(--tanzanite);
   --nh-lead-soft: var(--container-tanzanite);
-  --nh-on-lead:   #FFFFFF;
+  --nh-on-lead: #ffffff;
   --nh-secondary: var(--cobalt);
-  --nh-accent:    var(--gold);
-  --nh-baobab:    var(--heritage-baobab);
-  --nh-savanna:   var(--heritage-savanna);
-  --nh-sunset:    var(--heritage-sunset);
-  --shadow-glow:  0 4px 20px rgba(75,0,130,0.20);
+  --nh-accent: var(--gold);
+  --nh-baobab: var(--heritage-baobab);
+  --nh-savanna: var(--heritage-savanna);
+  --nh-sunset: var(--heritage-sunset);
+  --shadow-glow: 0 4px 20px rgba(75, 0, 130, 0.2);
 
   /* nhimbe AI pair — sodalite (light) */
-  --nh-ai:      var(--sodalite);
+  --nh-ai: var(--sodalite);
   --nh-ai-soft: var(--container-sodalite);
-  --nh-on-ai:   var(--on-container-sodalite);
+  --nh-on-ai: var(--on-container-sodalite);
 
   /* Hero section high contrast */
-  --hero-text: #0A0A0A;
-  --hero-text-muted: #2A2A2A;
+  --hero-text: #0a0a0a;
+  --hero-text-muted: #2a2a2a;
 }
 
 /*
@@ -453,14 +453,14 @@
  * text-sidebar-foreground, …).
  */
 :root {
-  --sidebar:                    var(--card);
-  --sidebar-foreground:         var(--card-foreground);
-  --sidebar-primary:            var(--primary);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent:             var(--muted);
-  --sidebar-accent-foreground:  var(--foreground);
-  --sidebar-border:             var(--border);
-  --sidebar-ring:               var(--primary);
+  --sidebar-accent: var(--muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--primary);
 }
 
 @theme inline {
@@ -528,7 +528,8 @@
   --color-nh-secondary: var(--nh-secondary);
 
   /* Typography — sans (body), serif (headings), mono (code/kiosk codes) */
-  --font-sans: "Noto Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans:
+    "Noto Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Noto Serif", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
 
@@ -678,34 +679,38 @@ a {
  * mixed with the theme accent (~7% light / ~12% dark) — subtle + AAA-safe.
  * Defaults on :root keep the vars resolving outside the wrapper. */
 :root {
-  --event-primary:       #B388FF;
-  --event-on-wash:       #E1BEE7;
-  --event-secondary:     #7C4DFF;
-  --event-accent:        #4B0082;
-  --event-gradient:      linear-gradient(135deg, #4B0082, #B388FF);
-  --event-surface:       color-mix(in srgb, var(--event-primary) 16%, transparent);
-  --event-surface-hover: color-mix(in srgb, var(--event-primary) 26%, transparent);
-  --event-border:        color-mix(in srgb, var(--event-primary) 24%, transparent);
-  --wash:                var(--surface);
+  --event-primary: #b388ff;
+  --event-on-wash: #e1bee7;
+  --event-secondary: #7c4dff;
+  --event-accent: #4b0082;
+  --event-gradient: linear-gradient(135deg, #4b0082, #b388ff);
+  --event-surface: color-mix(in srgb, var(--event-primary) 16%, transparent);
+  --event-surface-hover: color-mix(
+    in srgb,
+    var(--event-primary) 26%,
+    transparent
+  );
+  --event-border: color-mix(in srgb, var(--event-primary) 24%, transparent);
+  --wash: var(--surface);
 }
 
 /* Active mode = dark by default (matches the dark-first theme snapshot). */
 .event-themed-page {
-  --event-primary:  var(--ev-accent-d, #B388FF);
-  --event-on-wash:  var(--ev-onwash-d, #E1BEE7);
-  --event-secondary: var(--ev-onwash-d, #7C4DFF);
-  --event-accent:   var(--ev-accent-d, #4B0082);
-  --event-gradient: var(--ev-grad-d, linear-gradient(135deg, #4B0082, #B388FF));
+  --event-primary: var(--ev-accent-d, #b388ff);
+  --event-on-wash: var(--ev-onwash-d, #e1bee7);
+  --event-secondary: var(--ev-onwash-d, #7c4dff);
+  --event-accent: var(--ev-accent-d, #4b0082);
+  --event-gradient: var(--ev-grad-d, linear-gradient(135deg, #4b0082, #b388ff));
   --wash: color-mix(in srgb, var(--event-primary) 12%, var(--surface));
   background: var(--wash);
 }
 
 .light .event-themed-page {
-  --event-primary:  var(--ev-accent-l, #4B0082);
-  --event-on-wash:  var(--ev-onwash-l, #2E004D);
-  --event-secondary: var(--ev-onwash-l, #5E35B1);
-  --event-accent:   var(--ev-accent-l, #3A0068);
-  --event-gradient: var(--ev-grad-l, linear-gradient(135deg, #3A0068, #4B0082));
+  --event-primary: var(--ev-accent-l, #4b0082);
+  --event-on-wash: var(--ev-onwash-l, #2e004d);
+  --event-secondary: var(--ev-onwash-l, #5e35b1);
+  --event-accent: var(--ev-accent-l, #3a0068);
+  --event-gradient: var(--ev-grad-l, linear-gradient(135deg, #3a0068, #4b0082));
   --wash: color-mix(in srgb, var(--event-primary) 7%, var(--surface));
 }
 
@@ -761,7 +766,9 @@ a {
   background-color: var(--card);
   color: var(--muted-foreground);
   text-align: left;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .kudu:hover {

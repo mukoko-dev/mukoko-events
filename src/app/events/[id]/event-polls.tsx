@@ -159,7 +159,10 @@ function PollCard({
                   }}
                 />
                 <span className="relative flex items-center gap-3">
-                  <span className={`flex-1 text-sm ${mine ? "font-semibold" : ""}`} style={mine ? { color: "var(--nh-lead)" } : undefined}>
+                  <span
+                    className={`flex-1 text-sm ${mine ? "font-semibold" : ""}`}
+                    style={mine ? { color: "var(--nh-lead)" } : undefined}
+                  >
                     {opt.text}
                   </span>
                   <span className="text-xs font-mono text-muted-foreground tabular-nums">

@@ -12,7 +12,12 @@
 
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import { syncPersonFromWorkos, type AppUser } from "@/lib/mongo/users";
-import { isDevBypass, DEV_WORKOS_ID, DEV_EMAIL, DEV_NAME } from "@/lib/auth/dev";
+import {
+  isDevBypass,
+  DEV_WORKOS_ID,
+  DEV_EMAIL,
+  DEV_NAME,
+} from "@/lib/auth/dev";
 
 /**
  * Sync the currently signed-in user into identity.persons and return the app
@@ -35,7 +40,10 @@ export async function syncCurrentUser(): Promise<AppUser | null> {
     const { user } = await withAuth();
     if (!user) return null;
 
-    const name = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
+    const name = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
 
     const appUser = await syncPersonFromWorkos({
       workosUserId: user.id,
@@ -54,7 +62,10 @@ export async function syncCurrentUser(): Promise<AppUser | null> {
     // (incomplete WorkOS env), or the Mongo upsert failing (e.g. MONGODB_URI
     // unset on a preview) — degrades to signed-out instead of 500-ing the
     // caller. A misconfigured deployment renders as logged-out, not crashed.
-    console.error("[mukoko:auth] syncCurrentUser failed; treating as signed out:", err);
+    console.error(
+      "[mukoko:auth] syncCurrentUser failed; treating as signed out:",
+      err,
+    );
     return null;
   }
 }

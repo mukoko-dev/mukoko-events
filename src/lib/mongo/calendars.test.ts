@@ -40,7 +40,12 @@ vi.mock("@/lib/mongo/databases", () => ({
 
 // listCalendarEvents delegates to the shared listEvents fan-out — stub it.
 vi.mock("@/lib/mongo/events", () => ({
-  listEvents: vi.fn(async () => ({ events: [], total: 0, limit: 100, offset: 0 })),
+  listEvents: vi.fn(async () => ({
+    events: [],
+    total: 0,
+    limit: 100,
+    offset: 0,
+  })),
 }));
 
 import {
@@ -111,7 +116,10 @@ const followInput: FollowCalendarInput = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  calendars.updateOne.mockResolvedValue({ acknowledged: true, modifiedCount: 1 });
+  calendars.updateOne.mockResolvedValue({
+    acknowledged: true,
+    modifiedCount: 1,
+  });
   calendars.insertOne.mockResolvedValue({ acknowledged: true });
 });
 
@@ -148,7 +156,11 @@ describe("buildCalendarDoc", () => {
   });
 
   it("carries an explicit circleId when the calendar belongs to a circle", () => {
-    const doc = buildCalendarDoc({ ...createInput, circleId: "circle-9", visibility: "unlisted" });
+    const doc = buildCalendarDoc({
+      ...createInput,
+      circleId: "circle-9",
+      visibility: "unlisted",
+    });
     expect(doc.circleId).toBe("circle-9");
     expect(doc.visibility).toBe("unlisted");
   });
@@ -164,15 +176,27 @@ describe("createCalendar", () => {
 
 describe("canViewCalendar (private-404 gate)", () => {
   it("lets anyone view public and unlisted calendars", () => {
-    expect(canViewCalendar({ visibility: "public", ownerPersonId: "p1" }, null)).toBe(true);
-    expect(canViewCalendar({ visibility: "unlisted", ownerPersonId: "p1" }, null)).toBe(true);
-    expect(canViewCalendar({ visibility: "unlisted", ownerPersonId: "p1" }, "p2")).toBe(true);
+    expect(
+      canViewCalendar({ visibility: "public", ownerPersonId: "p1" }, null),
+    ).toBe(true);
+    expect(
+      canViewCalendar({ visibility: "unlisted", ownerPersonId: "p1" }, null),
+    ).toBe(true);
+    expect(
+      canViewCalendar({ visibility: "unlisted", ownerPersonId: "p1" }, "p2"),
+    ).toBe(true);
   });
 
   it("hides private calendars from everyone but the owner", () => {
-    expect(canViewCalendar({ visibility: "private", ownerPersonId: "p1" }, null)).toBe(false);
-    expect(canViewCalendar({ visibility: "private", ownerPersonId: "p1" }, "p2")).toBe(false);
-    expect(canViewCalendar({ visibility: "private", ownerPersonId: "p1" }, "p1")).toBe(true);
+    expect(
+      canViewCalendar({ visibility: "private", ownerPersonId: "p1" }, null),
+    ).toBe(false);
+    expect(
+      canViewCalendar({ visibility: "private", ownerPersonId: "p1" }, "p2"),
+    ).toBe(false);
+    expect(
+      canViewCalendar({ visibility: "private", ownerPersonId: "p1" }, "p1"),
+    ).toBe(true);
   });
 });
 
@@ -191,7 +215,10 @@ describe("buildFollowWrite", () => {
 
   it("is keyed by (calendarId, followerPersonId) — the idempotency identity", () => {
     const { filter } = buildFollowWrite(followInput);
-    expect(filter).toEqual({ calendarId: "cal-1", followerPersonId: "person-2" });
+    expect(filter).toEqual({
+      calendarId: "cal-1",
+      followerPersonId: "person-2",
+    });
   });
 
   it("re-activates in place: isActive true, followedAt refreshed, unfollowedAt cleared", () => {
@@ -224,7 +251,10 @@ describe("followCalendar (idempotent, never double-counts)", () => {
   });
 
   it("repeat follow: updates the same row and does NOT increment again", async () => {
-    follows.findOneAndUpdate.mockResolvedValueOnce({ _id: "f1", isActive: true });
+    follows.findOneAndUpdate.mockResolvedValueOnce({
+      _id: "f1",
+      isActive: true,
+    });
     const result = await followCalendar(followInput);
 
     expect(result.becameFollower).toBe(false);
@@ -232,7 +262,10 @@ describe("followCalendar (idempotent, never double-counts)", () => {
   });
 
   it("re-follow after unfollow: flips the existing row and increments once", async () => {
-    follows.findOneAndUpdate.mockResolvedValueOnce({ _id: "f1", isActive: false });
+    follows.findOneAndUpdate.mockResolvedValueOnce({
+      _id: "f1",
+      isActive: false,
+    });
     const result = await followCalendar(followInput);
 
     expect(result.becameFollower).toBe(true);
@@ -242,14 +275,26 @@ describe("followCalendar (idempotent, never double-counts)", () => {
 
 describe("unfollowCalendar (idempotent)", () => {
   it("flips the active row and decrements followerCount once", async () => {
-    follows.findOneAndUpdate.mockResolvedValueOnce({ _id: "f1", isActive: true });
-    const result = await unfollowCalendar({ calendarId: "cal-1", followerPersonId: "person-2" });
+    follows.findOneAndUpdate.mockResolvedValueOnce({
+      _id: "f1",
+      isActive: true,
+    });
+    const result = await unfollowCalendar({
+      calendarId: "cal-1",
+      followerPersonId: "person-2",
+    });
 
     expect(result.stoppedFollowing).toBe(true);
     const [filter, update, options] = follows.findOneAndUpdate.mock.calls[0];
-    expect(filter).toEqual({ calendarId: "cal-1", followerPersonId: "person-2", isActive: true });
+    expect(filter).toEqual({
+      calendarId: "cal-1",
+      followerPersonId: "person-2",
+      isActive: true,
+    });
     expect((update.$set as Record<string, unknown>).isActive).toBe(false);
-    expect((update.$set as Record<string, unknown>).unfollowedAt).toBeInstanceOf(Date);
+    expect(
+      (update.$set as Record<string, unknown>).unfollowedAt,
+    ).toBeInstanceOf(Date);
     // Never an upsert — unfollowing something never followed creates nothing.
     expect(options?.upsert).toBeUndefined();
     expect(calendars.updateOne).toHaveBeenCalledTimes(1);
@@ -260,7 +305,10 @@ describe("unfollowCalendar (idempotent)", () => {
 
   it("unfollow without an active follow changes nothing", async () => {
     follows.findOneAndUpdate.mockResolvedValueOnce(null);
-    const result = await unfollowCalendar({ calendarId: "cal-1", followerPersonId: "person-2" });
+    const result = await unfollowCalendar({
+      calendarId: "cal-1",
+      followerPersonId: "person-2",
+    });
 
     expect(result.stoppedFollowing).toBe(false);
     expect(calendars.updateOne).not.toHaveBeenCalled();
@@ -269,12 +317,18 @@ describe("unfollowCalendar (idempotent)", () => {
 
 describe("updateCalendar", () => {
   it("only $sets the fields explicitly provided, plus updatedAt", async () => {
-    calendars.findOneAndUpdate.mockResolvedValueOnce({ _id: "cal-1", name: "New Name" });
+    calendars.findOneAndUpdate.mockResolvedValueOnce({
+      _id: "cal-1",
+      name: "New Name",
+    });
     await updateCalendar("cal-1", { name: "New Name", visibility: "unlisted" });
 
     const [filter, update, options] = calendars.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ _id: "cal-1" });
-    expect(update.$set).toMatchObject({ name: "New Name", visibility: "unlisted" });
+    expect(update.$set).toMatchObject({
+      name: "New Name",
+      visibility: "unlisted",
+    });
     expect(update.$set).not.toHaveProperty("description");
     expect(update.$set.updatedAt).toBeInstanceOf(Date);
     expect(options).toEqual({ returnDocument: "after" });
@@ -320,7 +374,10 @@ describe("listFollowedCalendars", () => {
 
     const result = await listFollowedCalendars("person-1");
 
-    expect(follows.find).toHaveBeenCalledWith({ followerPersonId: "person-1", isActive: true });
+    expect(follows.find).toHaveBeenCalledWith({
+      followerPersonId: "person-1",
+      isActive: true,
+    });
     expect(result.map((d) => d._id)).toEqual(["cal-1", "cal-2"]);
   });
 
@@ -332,8 +389,12 @@ describe("listFollowedCalendars", () => {
   });
 
   it("drops rows whose calendar was deleted/archived out from under the follow", async () => {
-    follows.find.mockReturnValueOnce(cursor([{ calendarId: "cal-1" }, { calendarId: "cal-gone" }]));
-    calendars.find.mockReturnValueOnce(cursor([{ _id: "cal-1", name: "First" }]));
+    follows.find.mockReturnValueOnce(
+      cursor([{ calendarId: "cal-1" }, { calendarId: "cal-gone" }]),
+    );
+    calendars.find.mockReturnValueOnce(
+      cursor([{ _id: "cal-1", name: "First" }]),
+    );
 
     const result = await listFollowedCalendars("person-1");
     expect(result).toHaveLength(1);
@@ -343,14 +404,19 @@ describe("listFollowedCalendars", () => {
 
 describe("attachEventToCalendar", () => {
   it("sets calendarId on the event and increments the calendar's eventCount", async () => {
-    events.findOneAndUpdate.mockResolvedValueOnce({ _id: "event-1", calendarId: null });
+    events.findOneAndUpdate.mockResolvedValueOnce({
+      _id: "event-1",
+      calendarId: null,
+    });
     await attachEventToCalendar("event-1", "cal-1");
 
     const [filter, update] = events.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ _id: "event-1", calendarId: { $ne: "cal-1" } });
     expect((update.$set as Record<string, unknown>).calendarId).toBe("cal-1");
     expect(calendars.updateOne).toHaveBeenCalledTimes(1);
-    expect(calendars.updateOne.mock.calls[0][1].$inc).toEqual({ eventCount: 1 });
+    expect(calendars.updateOne.mock.calls[0][1].$inc).toEqual({
+      eventCount: 1,
+    });
   });
 
   it("re-attaching to the same calendar is a no-op (no double-increment)", async () => {
@@ -360,7 +426,10 @@ describe("attachEventToCalendar", () => {
   });
 
   it("moving between calendars increments the new and decrements the old", async () => {
-    events.findOneAndUpdate.mockResolvedValueOnce({ _id: "event-1", calendarId: "cal-old" });
+    events.findOneAndUpdate.mockResolvedValueOnce({
+      _id: "event-1",
+      calendarId: "cal-old",
+    });
     await attachEventToCalendar("event-1", "cal-new");
 
     expect(calendars.updateOne).toHaveBeenCalledTimes(2);
@@ -375,7 +444,10 @@ describe("attachEventToCalendar", () => {
 
 describe("detachEventFromCalendar", () => {
   it("clears calendarId and decrements the old calendar's eventCount", async () => {
-    events.findOneAndUpdate.mockResolvedValueOnce({ _id: "event-1", calendarId: "cal-1" });
+    events.findOneAndUpdate.mockResolvedValueOnce({
+      _id: "event-1",
+      calendarId: "cal-1",
+    });
 
     await detachEventFromCalendar("event-1");
 
@@ -399,7 +471,10 @@ describe("listCalendarsByOwner", () => {
   it("filters by personal ownership alone when no host entity ids are given", async () => {
     calendars.find.mockReturnValue(cursor([]));
     await listCalendarsByOwner("person-1");
-    expect(calendars.find).toHaveBeenCalledWith({ ownerPersonId: "person-1", isActive: true });
+    expect(calendars.find).toHaveBeenCalledWith({
+      ownerPersonId: "person-1",
+      isActive: true,
+    });
   });
 
   it("also matches calendars owned by any given host entity", async () => {
@@ -407,7 +482,10 @@ describe("listCalendarsByOwner", () => {
     await listCalendarsByOwner("person-1", ["entity-a", "entity-b"]);
     expect(calendars.find).toHaveBeenCalledWith({
       isActive: true,
-      $or: [{ ownerPersonId: "person-1" }, { ownerEntityId: { $in: ["entity-a", "entity-b"] } }],
+      $or: [
+        { ownerPersonId: "person-1" },
+        { ownerEntityId: { $in: ["entity-a", "entity-b"] } },
+      ],
     });
   });
 });

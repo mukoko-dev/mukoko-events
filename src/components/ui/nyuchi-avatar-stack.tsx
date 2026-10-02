@@ -45,7 +45,8 @@ function NyuchiAvatarStack({
   const count = total ?? people.length;
   const overflow = count - shown.length;
   const summary = label ? `${count} ${label}` : `${count}`;
-  const avatarSize = size === "sm" ? "size-6 text-[10px]" : "size-8 text-[11px]";
+  const avatarSize =
+    size === "sm" ? "size-6 text-[10px]" : "size-8 text-[11px]";
   const bubble = cn(
     "inline-flex items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground ring-2 ring-card",
     avatarSize,
@@ -66,7 +67,10 @@ function NyuchiAvatarStack({
               key={i}
               src={person.src}
               alt=""
-              className={cn("rounded-full object-cover ring-2 ring-card", avatarSize)}
+              className={cn(
+                "rounded-full object-cover ring-2 ring-card",
+                avatarSize,
+              )}
             />
           ) : (
             <span key={i} className={bubble}>

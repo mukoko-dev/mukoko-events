@@ -32,9 +32,13 @@ export async function POST(
 
   let ctx;
   try {
-    ctx = await requireBearerEventHost(request.headers.get("Authorization"), id);
+    ctx = await requireBearerEventHost(
+      request.headers.get("Authorization"),
+      id,
+    );
   } catch (err) {
-    if (err instanceof ActorError) return NextResponse.json({ error: err.message }, { status: err.status });
+    if (err instanceof ActorError)
+      return NextResponse.json({ error: err.message }, { status: err.status });
     throw err;
   }
 
@@ -44,12 +48,18 @@ export async function POST(
     notifyAttendees?: boolean;
   }>(request);
   if (!parsed.ok) {
-    return NextResponse.json({ error: parsed.error }, { status: parsed.status });
+    return NextResponse.json(
+      { error: parsed.error },
+      { status: parsed.status },
+    );
   }
 
   const text = clampString(parsed.data.text, MAX_UPDATE_LENGTH);
   if (!text) {
-    return NextResponse.json({ error: "Write the announcement text to send." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Write the announcement text to send." },
+      { status: 400 },
+    );
   }
   const rawType = clampString(parsed.data.updateType, 40);
   const updateType = (UPDATE_TYPES as readonly string[]).includes(rawType)
@@ -65,11 +75,15 @@ export async function POST(
       notifyAttendees: parsed.data.notifyAttendees === true,
     });
     return NextResponse.json({
-      message: parsed.data.notifyAttendees === true ? "Announcement sent to attendees" : "Announcement posted",
+      message:
+        parsed.data.notifyAttendees === true
+          ? "Announcement sent to attendees"
+          : "Announcement posted",
       updateId,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to post the announcement.";
+    const message =
+      err instanceof Error ? err.message : "Failed to post the announcement.";
     console.error(`[mukoko] POST /api/events/${id}/blast failed`, err);
     return NextResponse.json({ error: message }, { status: 400 });
   }

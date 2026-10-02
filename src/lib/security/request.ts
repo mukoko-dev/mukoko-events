@@ -79,7 +79,11 @@ export async function readJsonBody<T = unknown>(
   try {
     return { ok: true, data: JSON.parse(text) as T };
   } catch {
-    return { ok: false, status: 400, error: "Request body must be valid JSON." };
+    return {
+      ok: false,
+      status: 400,
+      error: "Request body must be valid JSON.",
+    };
   }
 }
 
@@ -101,7 +105,11 @@ export function clampStringArray(
   const out: string[] = [];
   for (const item of value) {
     if (typeof item !== "string") continue;
-    out.push(item.length > opts.maxItemLength ? item.slice(0, opts.maxItemLength) : item);
+    out.push(
+      item.length > opts.maxItemLength
+        ? item.slice(0, opts.maxItemLength)
+        : item,
+    );
     if (out.length >= opts.maxItems) break;
   }
   return out;

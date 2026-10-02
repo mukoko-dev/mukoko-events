@@ -20,7 +20,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
-import { HostModePicker, type HostMode } from "@/app/events/create/host-mode-picker";
+import {
+  HostModePicker,
+  type HostMode,
+} from "@/app/events/create/host-mode-picker";
 import { ThemeSelector } from "@/app/events/create/theme-selector";
 import { themeIds, themes } from "@/lib/themes";
 import {
@@ -32,11 +35,23 @@ import {
 } from "@/app/actions/calendars";
 import type { CalendarVisibility } from "@/lib/mongo/types";
 
-const themeList = themeIds.map((id) => ({ id, name: themes[id].name, gradient: themes[id].gradient }));
+const themeList = themeIds.map((id) => ({
+  id,
+  name: themes[id].name,
+  gradient: themes[id].gradient,
+}));
 
-const VISIBILITY_OPTIONS: { value: CalendarVisibility; label: string; hint: string }[] = [
+const VISIBILITY_OPTIONS: {
+  value: CalendarVisibility;
+  label: string;
+  hint: string;
+}[] = [
   { value: "public", label: "Public", hint: "Listed in Discover and search" },
-  { value: "unlisted", label: "Unlisted", hint: "Only reachable via direct link" },
+  {
+    value: "unlisted",
+    label: "Unlisted",
+    hint: "Only reachable via direct link",
+  },
   { value: "private", label: "Private", hint: "Only you can view it" },
 ];
 
@@ -47,7 +62,10 @@ function themeIndexFor(themeId: string | null | undefined): number {
 
 /** The form's baseline state — used for the initial render, re-seeding on
  *  edit, and resetting after a successful create, so all three stay in sync. */
-function formStateFor(editing: CalendarListItem | null, initialCircleId: string | null) {
+function formStateFor(
+  editing: CalendarListItem | null,
+  initialCircleId: string | null,
+) {
   return {
     name: editing?.name ?? "",
     description: editing?.description ?? "",
@@ -79,12 +97,18 @@ export function CreateCalendarModal({
   const initialState = formStateFor(editing, initialCircleId);
   const [name, setName] = useState(initialState.name);
   const [description, setDescription] = useState(initialState.description);
-  const [visibility, setVisibility] = useState<CalendarVisibility>(initialState.visibility);
-  const [selectedThemeIndex, setSelectedThemeIndex] = useState(initialState.themeIndex);
+  const [visibility, setVisibility] = useState<CalendarVisibility>(
+    initialState.visibility,
+  );
+  const [selectedThemeIndex, setSelectedThemeIndex] = useState(
+    initialState.themeIndex,
+  );
   const [hostMode, setHostMode] = useState<HostMode>("person");
   const [hostEntityId, setHostEntityId] = useState<string | null>(null);
   const [circles, setCircles] = useState<{ id: string; name: string }[]>([]);
-  const [circleId, setCircleId] = useState<string | null>(initialState.circleId);
+  const [circleId, setCircleId] = useState<string | null>(
+    initialState.circleId,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isEditing = editing !== null;
@@ -145,7 +169,9 @@ export function CreateCalendarModal({
       }
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save that calendar.");
+      setError(
+        err instanceof Error ? err.message : "Could not save that calendar.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -154,7 +180,9 @@ export function CreateCalendarModal({
   return (
     <ResponsiveModal
       open={isOpen}
-      onOpenChange={(open) => { if (!open) onClose(); }}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
       title={isEditing ? "Edit calendar" : "Create a calendar"}
       description="A followable stream for events that happen on a regular basis — a club, a series, a recurring meetup."
     >
@@ -171,7 +199,9 @@ export function CreateCalendarModal({
         </div>
 
         <div>
-          <Label className="block text-sm text-text-secondary mb-2">Description</Label>
+          <Label className="block text-sm text-text-secondary mb-2">
+            Description
+          </Label>
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -182,24 +212,47 @@ export function CreateCalendarModal({
         </div>
 
         {!isEditing && (
-          <HostModePicker hostMode={hostMode} hostEntityId={hostEntityId} onChange={(mode, id) => { setHostMode(mode); setHostEntityId(id); }} />
+          <HostModePicker
+            hostMode={hostMode}
+            hostEntityId={hostEntityId}
+            onChange={(mode, id) => {
+              setHostMode(mode);
+              setHostEntityId(id);
+            }}
+          />
         )}
 
-        <ThemeSelector themes={themeList} selectedIndex={selectedThemeIndex} onSelect={setSelectedThemeIndex} />
+        <ThemeSelector
+          themes={themeList}
+          selectedIndex={selectedThemeIndex}
+          onSelect={setSelectedThemeIndex}
+        />
 
         <div>
-          <Label className="block text-sm text-text-secondary mb-2">Visibility</Label>
-          <RadioGroup value={visibility} onValueChange={(v) => setVisibility(v as CalendarVisibility)}>
+          <Label className="block text-sm text-text-secondary mb-2">
+            Visibility
+          </Label>
+          <RadioGroup
+            value={visibility}
+            onValueChange={(v) => setVisibility(v as CalendarVisibility)}
+          >
             {VISIBILITY_OPTIONS.map((opt) => (
               <label
                 key={opt.value}
                 htmlFor={`calendar-visibility-${opt.value}`}
                 className="flex items-center gap-3 p-3 bg-surface rounded-xl cursor-pointer select-none"
               >
-                <RadioGroupItem value={opt.value} id={`calendar-visibility-${opt.value}`} />
+                <RadioGroupItem
+                  value={opt.value}
+                  id={`calendar-visibility-${opt.value}`}
+                />
                 <span className="flex-1">
-                  <span className="block font-medium text-foreground">{opt.label}</span>
-                  <span className="block text-xs text-text-tertiary">{opt.hint}</span>
+                  <span className="block font-medium text-foreground">
+                    {opt.label}
+                  </span>
+                  <span className="block text-xs text-text-tertiary">
+                    {opt.hint}
+                  </span>
                 </span>
               </label>
             ))}
@@ -208,7 +261,9 @@ export function CreateCalendarModal({
 
         {circles.length > 0 && (
           <div>
-            <Label className="block text-sm text-text-secondary mb-2">Attach to a circle (optional)</Label>
+            <Label className="block text-sm text-text-secondary mb-2">
+              Attach to a circle (optional)
+            </Label>
             <Select
               value={circleId ?? "none"}
               onValueChange={(v) => setCircleId(v === "none" ? null : v)}
@@ -219,7 +274,9 @@ export function CreateCalendarModal({
               <SelectContent>
                 <SelectItem value="none">No circle</SelectItem>
                 {circles.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -234,7 +291,11 @@ export function CreateCalendarModal({
             disabled={isSubmitting}
             className="w-full h-[var(--touch-target)] bg-primary text-primary-foreground rounded-xl font-semibold"
           >
-            {isSubmitting ? "Saving…" : isEditing ? "Save changes" : "Create calendar"}
+            {isSubmitting
+              ? "Saving…"
+              : isEditing
+                ? "Save changes"
+                : "Create calendar"}
           </Button>
         </div>
       </div>

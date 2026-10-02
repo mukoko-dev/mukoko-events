@@ -29,7 +29,9 @@ export function ReferralLeaderboard({
   className = "",
 }: ReferralLeaderboardProps) {
   const [loading, setLoading] = useState(true);
-  const [leaderboard, setLeaderboard] = useState<ReferralLeaderboardEntry[]>([]);
+  const [leaderboard, setLeaderboard] = useState<ReferralLeaderboardEntry[]>(
+    [],
+  );
 
   useEffect(() => {
     async function fetchLeaderboard() {
@@ -127,7 +129,8 @@ export function ReferralLeaderboard({
             Share Your Link
           </Button>
           <p className="text-xs text-text-tertiary text-center mt-2">
-            Help build the community! Share with friends and climb the leaderboard.
+            Help build the community! Share with friends and climb the
+            leaderboard.
           </p>
         </div>
       )}
@@ -135,8 +138,8 @@ export function ReferralLeaderboard({
       {/* Philosophy Note */}
       <div className="mt-4 p-3 bg-elevated rounded-xl">
         <p className="text-xs text-text-secondary text-center">
-          <span className="text-primary font-medium">Open data</span> - We believe in transparency.
-          See who&apos;s helping grow the community.
+          <span className="text-primary font-medium">Open data</span> - We
+          believe in transparency. See who&apos;s helping grow the community.
         </p>
       </div>
     </div>

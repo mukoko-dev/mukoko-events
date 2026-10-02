@@ -35,7 +35,13 @@ describe("reciprocalRankFuse", () => {
   });
 
   it("dedupes ids that appear in multiple lists", () => {
-    const fused = reciprocalRankFuse([["a", "b"], ["a", "b"]], [1, 1]);
+    const fused = reciprocalRankFuse(
+      [
+        ["a", "b"],
+        ["a", "b"],
+      ],
+      [1, 1],
+    );
     expect(fused).toEqual(["a", "b"]);
     expect(new Set(fused).size).toBe(fused.length);
   });

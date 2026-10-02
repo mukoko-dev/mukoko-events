@@ -49,7 +49,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const contentType = (request.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
+  const contentType = (request.headers.get("content-type") ?? "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
   const ext = EXT_BY_TYPE[contentType];
   if (!ext) {
     return NextResponse.json(
@@ -64,7 +67,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
   if (buffer.byteLength > MAX_BYTES) {
     return NextResponse.json(
-      { error: "Image is too large (max 4 MB). Please choose a smaller image." },
+      {
+        error: "Image is too large (max 4 MB). Please choose a smaller image.",
+      },
       { status: 413 },
     );
   }

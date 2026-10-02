@@ -32,7 +32,11 @@ interface AttachCalendarProps {
   onAttached: () => void;
 }
 
-export function AttachCalendar({ circleId, attachedIds, onAttached }: AttachCalendarProps) {
+export function AttachCalendar({
+  circleId,
+  attachedIds,
+  onAttached,
+}: AttachCalendarProps) {
   const [mine, setMine] = useState<CalendarListItem[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -54,7 +58,9 @@ export function AttachCalendar({ circleId, attachedIds, onAttached }: AttachCale
       setSelected(null);
       onAttached();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not attach that calendar.");
+      setError(
+        err instanceof Error ? err.message : "Could not attach that calendar.",
+      );
     } finally {
       setIsAttaching(false);
     }
@@ -86,7 +92,12 @@ export function AttachCalendar({ circleId, attachedIds, onAttached }: AttachCale
           </Button>
         </>
       )}
-      <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setIsCreateOpen(true)}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="gap-1.5"
+        onClick={() => setIsCreateOpen(true)}
+      >
         <Plus className="w-4 h-4" aria-hidden />
         Create a calendar for this circle
       </Button>

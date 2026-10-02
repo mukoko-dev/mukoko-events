@@ -7,7 +7,10 @@ import { useRouter } from "next/navigation";
 import { Pencil, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreateCalendarModal } from "@/components/modals/calendar-modal";
-import { archiveCalendarAction, type CalendarListItem } from "@/app/actions/calendars";
+import {
+  archiveCalendarAction,
+  type CalendarListItem,
+} from "@/app/actions/calendars";
 import type { CalendarViewData } from "./calendar-view";
 
 function toListItem(calendar: CalendarViewData): CalendarListItem {
@@ -30,7 +33,12 @@ export function OwnerActions({ calendar }: { calendar: CalendarViewData }) {
   const [isArchiving, startArchiving] = useTransition();
 
   function handleArchive() {
-    if (!window.confirm(`Archive "${calendar.name}"? Followers will no longer see it.`)) return;
+    if (
+      !window.confirm(
+        `Archive "${calendar.name}"? Followers will no longer see it.`,
+      )
+    )
+      return;
     startArchiving(async () => {
       await archiveCalendarAction(calendar.id);
       router.push("/calendars");

@@ -50,7 +50,10 @@ interface NyuchiRegistrationCardProps {
 function formatPrice(price: string | number): string {
   if (price === 0 || price === "Free" || price === "0") return "Free";
   return typeof price === "number"
-    ? new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(price)
+    ? new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "USD",
+      }).format(price)
     : price;
 }
 
@@ -74,7 +77,9 @@ function NyuchiRegistrationCard({
   const { animStyle, announce } = useNyuchiHarness("registration-card");
 
   const firstAvailable = tiers.find((t) => !t.soldOut)?.id ?? null;
-  const [selected, setSelected] = React.useState<string | null>(selectedTierId ?? firstAvailable);
+  const [selected, setSelected] = React.useState<string | null>(
+    selectedTierId ?? firstAvailable,
+  );
   const [qty, setQty] = React.useState<number>(quantity ?? min);
 
   React.useEffect(() => {
@@ -101,13 +106,23 @@ function NyuchiRegistrationCard({
   }
 
   const activeTier = tiers.find((t) => t.id === selected) ?? null;
-  const unitPrice = activeTier && typeof activeTier.price === "number" ? activeTier.price : null;
+  const unitPrice =
+    activeTier && typeof activeTier.price === "number"
+      ? activeTier.price
+      : null;
   const totalPrice = unitPrice != null ? unitPrice * qty : null;
   const isFreeTier =
-    activeTier != null && (activeTier.price === 0 || activeTier.price === "Free" || activeTier.price === "0");
+    activeTier != null &&
+    (activeTier.price === 0 ||
+      activeTier.price === "Free" ||
+      activeTier.price === "0");
   const cta =
     ctaLabel ??
-    (totalPrice != null ? `Register — ${formatPrice(totalPrice)}` : isFreeTier ? "Register — Free" : "Register");
+    (totalPrice != null
+      ? `Register — ${formatPrice(totalPrice)}`
+      : isFreeTier
+        ? "Register — Free"
+        : "Register");
 
   return (
     <section
@@ -122,24 +137,38 @@ function NyuchiRegistrationCard({
       <div className="flex items-center gap-2">
         <span
           className="inline-flex size-8 shrink-0 items-center justify-center rounded-full"
-          style={{ backgroundColor: `color-mix(in srgb, ${accent} 14%, transparent)`, color: accent }}
+          style={{
+            backgroundColor: `color-mix(in srgb, ${accent} 14%, transparent)`,
+            color: accent,
+          }}
           aria-hidden
         >
           <Ticket className="size-4" strokeWidth={2.2} />
         </span>
         <div className="min-w-0">
-          <div className="text-[16px] font-semibold leading-none text-foreground">{label}</div>
-          {helper && <div className="mt-1 text-[13px] text-muted-foreground">{helper}</div>}
+          <div className="text-[16px] font-semibold leading-none text-foreground">
+            {label}
+          </div>
+          {helper && (
+            <div className="mt-1 text-[13px] text-muted-foreground">
+              {helper}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Tier list */}
-      <div role="radiogroup" aria-label="Ticket tiers" className="flex flex-col gap-2">
+      <div
+        role="radiogroup"
+        aria-label="Ticket tiers"
+        className="flex flex-col gap-2"
+      >
         {tiers.map((tier) => {
           const isSelected = tier.id === selected;
           const sub = tier.soldOut
             ? "Sold out"
-            : tier.note ?? (tier.remaining != null ? `${tier.remaining} left` : null);
+            : (tier.note ??
+              (tier.remaining != null ? `${tier.remaining} left` : null));
           return (
             <button
               key={tier.id}
@@ -150,7 +179,10 @@ function NyuchiRegistrationCard({
               onClick={() => pickTier(tier)}
               style={
                 isSelected
-                  ? { borderColor: accent, backgroundColor: `color-mix(in srgb, ${accent} 8%, transparent)` }
+                  ? {
+                      borderColor: accent,
+                      backgroundColor: `color-mix(in srgb, ${accent} 8%, transparent)`,
+                    }
                   : undefined
               }
               className={cn(
@@ -162,14 +194,28 @@ function NyuchiRegistrationCard({
             >
               <span className="min-w-0">
                 <span className="flex items-center gap-2">
-                  <span className="truncate text-[15px] font-medium text-foreground">{tier.name}</span>
-                  {isSelected && <Check className="size-4 shrink-0" style={{ color: accent }} aria-hidden />}
+                  <span className="truncate text-[15px] font-medium text-foreground">
+                    {tier.name}
+                  </span>
+                  {isSelected && (
+                    <Check
+                      className="size-4 shrink-0"
+                      style={{ color: accent }}
+                      aria-hidden
+                    />
+                  )}
                 </span>
-                {sub && <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">{sub}</span>}
+                {sub && (
+                  <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                    {sub}
+                  </span>
+                )}
               </span>
               <span
                 className="shrink-0 text-[15px] font-semibold"
-                style={{ color: tier.soldOut ? "var(--muted-foreground)" : accent }}
+                style={{
+                  color: tier.soldOut ? "var(--muted-foreground)" : accent,
+                }}
               >
                 {formatPrice(tier.price)}
               </span>
@@ -180,7 +226,9 @@ function NyuchiRegistrationCard({
 
       {/* Quantity stepper */}
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-medium text-muted-foreground">Quantity</span>
+        <span className="text-[13px] font-medium text-muted-foreground">
+          Quantity
+        </span>
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -191,7 +239,9 @@ function NyuchiRegistrationCard({
           >
             <Minus className="size-4" aria-hidden />
           </button>
-          <span className="w-10 text-center text-[16px] font-semibold tabular-nums text-foreground">{qty}</span>
+          <span className="w-10 text-center text-[16px] font-semibold tabular-nums text-foreground">
+            {qty}
+          </span>
           <button
             type="button"
             aria-label="Increase quantity"
@@ -210,7 +260,10 @@ function NyuchiRegistrationCard({
         onClick={() => onSubmit?.({ tierId: selected, quantity: qty })}
         disabled={disabled || loading || selected === null}
         className="flex h-[52px] min-h-[48px] w-full items-center justify-center gap-2 rounded-full text-[16px] font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] disabled:opacity-50"
-        style={{ backgroundColor: accent, color: "var(--primary-foreground, #fff)" }}
+        style={{
+          backgroundColor: accent,
+          color: "var(--primary-foreground, #fff)",
+        }}
       >
         {loading && <Loader2 className="size-5 animate-spin" aria-hidden />}
         {loading ? "Processing…" : cta}

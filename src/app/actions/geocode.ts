@@ -24,7 +24,11 @@
 
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import tzlookup from "tz-lookup";
-import { placesCollection, placesGeoCollection, entitiesCollection } from "@/lib/mongo/databases";
+import {
+  placesCollection,
+  placesGeoCollection,
+  entitiesCollection,
+} from "@/lib/mongo/databases";
 import { isDevBypass } from "@/lib/auth/dev";
 import { newId, slugify, stampNew } from "@/lib/mongo/ids";
 import type { PlaceDoc, EntityDoc } from "@/lib/mongo/types";
@@ -56,7 +60,10 @@ export interface GeocodeSuggestion {
 }
 
 /** Resolve an IANA timezone from coordinates; `tzlookup` throws on out-of-range input. */
-function timezoneForCoords(latitude: number, longitude: number): string | undefined {
+function timezoneForCoords(
+  latitude: number,
+  longitude: number,
+): string | undefined {
   try {
     return tzlookup(latitude, longitude);
   } catch {
@@ -70,7 +77,8 @@ const REGION_COUNTRY_CODES = "zw,za,zm,ke,ng,gh,ug,tz,rw,et,mz,bw,sz,na,mw";
 const NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org";
 // Nominatim usage policy requires an identifying User-Agent that a maintainer
 // could contact. Kept generic (no PII) but app-specific.
-const NOMINATIM_USER_AGENT = "nhimbe/1.0 (+https://nhimbe.com; events discovery)";
+const NOMINATIM_USER_AGENT =
+  "nhimbe/1.0 (+https://nhimbe.com; events discovery)";
 
 const OVERPASS_ENDPOINT = "https://overpass-api.de/api/interpreter";
 
@@ -86,7 +94,9 @@ async function assertCaller(): Promise<void> {
 }
 
 /** Pull [latitude, longitude] out of a GeoJSON Point geometry. */
-function pointLatLng(geo: Record<string, unknown> | null | undefined): [number, number] | null {
+function pointLatLng(
+  geo: Record<string, unknown> | null | undefined,
+): [number, number] | null {
   if (!geo || geo.type !== "Point") return null;
   const coords = geo.coordinates;
   if (!Array.isArray(coords) || coords.length < 2) return null;
@@ -97,7 +107,10 @@ function pointLatLng(geo: Record<string, unknown> | null | undefined): [number, 
   return [lat, lng];
 }
 
-function strField(obj: Record<string, unknown> | null | undefined, key: string): string {
+function strField(
+  obj: Record<string, unknown> | null | undefined,
+  key: string,
+): string {
   const v = obj?.[key];
   return typeof v === "string" ? v : "";
 }
@@ -142,7 +155,10 @@ function mapPlaceDocs(docs: PlaceDoc[], limit: number): GeocodeSuggestion[] {
  * see `searchPlacesDb`) via a plain regex scan. Kept as the fallback for
  * `searchPlacesDb` — no Atlas Search dependency.
  */
-async function searchPlacesDbRegex(query: string, limit: number): Promise<GeocodeSuggestion[]> {
+async function searchPlacesDbRegex(
+  query: string,
+  limit: number,
+): Promise<GeocodeSuggestion[]> {
   const places = await placesCollection();
   const rx = { $regex: escapeRegex(query), $options: "i" };
   const docs = (await places
@@ -174,7 +190,10 @@ async function searchPlacesDbRegex(query: string, limit: number): Promise<Geocod
  * (e.g. a local dev cluster without a Search deployment) so the geocode
  * combobox never hard-fails.
  */
-async function searchPlacesDb(query: string, limit: number): Promise<GeocodeSuggestion[]> {
+async function searchPlacesDb(
+  query: string,
+  limit: number,
+): Promise<GeocodeSuggestion[]> {
   const places = await placesCollection();
   try {
     const docs = (await places
@@ -185,7 +204,9 @@ async function searchPlacesDb(query: string, limit: number): Promise<GeocodeSugg
             compound: {
               filter: [{ equals: { path: "isActive", value: true } }],
               should: [
-                { autocomplete: { query, path: "name", fuzzy: { maxEdits: 1 } } },
+                {
+                  autocomplete: { query, path: "name", fuzzy: { maxEdits: 1 } },
+                },
                 { text: { query, path: "searchKeywords" } },
                 { text: { query, path: ["description", "tags", "keywords"] } },
               ],
@@ -225,10 +246,21 @@ function mapNominatimFeature(f: NominatimFeature): GeocodeSuggestion | null {
 
   const props = f.properties ?? {};
   const addr = (props.address ?? {}) as Record<string, string>;
-  const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || "";
+  const city =
+    addr.city ||
+    addr.town ||
+    addr.village ||
+    addr.municipality ||
+    addr.county ||
+    "";
   const country = addr.country || "";
   const street = [addr.house_number, addr.road].filter(Boolean).join(" ");
-  const name = props.name || street || city || (props.display_name ?? "").split(",")[0] || "";
+  const name =
+    props.name ||
+    street ||
+    city ||
+    (props.display_name ?? "").split(",")[0] ||
+    "";
   const osmType = props.osm_type ?? "node";
   const osmIdNum = Number(props.osm_id);
 
@@ -239,7 +271,8 @@ function mapNominatimFeature(f: NominatimFeature): GeocodeSuggestion | null {
     address: street,
     city,
     country,
-    displayName: props.display_name || [name, city, country].filter(Boolean).join(", "),
+    displayName:
+      props.display_name || [name, city, country].filter(Boolean).join(", "),
     latitude: lat,
     longitude: lng,
     timezone: timezoneForCoords(lat, lng),
@@ -249,7 +282,10 @@ function mapNominatimFeature(f: NominatimFeature): GeocodeSuggestion | null {
 }
 
 /** Query OSM Nominatim (GeoJSON). Returns [] on any network / parse failure. */
-async function searchNominatim(query: string, limit: number): Promise<GeocodeSuggestion[]> {
+async function searchNominatim(
+  query: string,
+  limit: number,
+): Promise<GeocodeSuggestion[]> {
   const url = new URL(`${NOMINATIM_ENDPOINT}/search`);
   url.searchParams.set("format", "geojson");
   url.searchParams.set("q", query);
@@ -278,7 +314,8 @@ async function searchNominatim(query: string, limit: number): Promise<GeocodeSug
   }
 }
 
-const FUNDI_INGESTION_URL = process.env.FUNDI_INGESTION_URL ?? "https://fundi-ingestion.nyuchi.dev";
+const FUNDI_INGESTION_URL =
+  process.env.FUNDI_INGESTION_URL ?? "https://fundi-ingestion.nyuchi.dev";
 const SEARCH_MISS_RADIUS_METERS = 3000;
 
 /**
@@ -290,7 +327,10 @@ const SEARCH_MISS_RADIUS_METERS = 3000;
  * (missing token, network, non-2xx) is swallowed — a reporting hiccup must
  * never affect the address search the caller actually asked for.
  */
-async function reportSearchMiss(query: string, near: GeocodeSuggestion): Promise<void> {
+async function reportSearchMiss(
+  query: string,
+  near: GeocodeSuggestion,
+): Promise<void> {
   const token = process.env.FUNDI_API_TOKEN;
   if (!token) return;
   try {
@@ -387,13 +427,21 @@ export async function reverseGeocode(
     const feature = body.features?.[0];
     if (!feature) return null;
     const addr = (feature.properties?.address ?? {}) as Record<string, string>;
-    const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || "";
+    const city =
+      addr.city ||
+      addr.town ||
+      addr.village ||
+      addr.municipality ||
+      addr.county ||
+      "";
     const country = addr.country || "";
     if (!city) return null;
     return {
       city,
       country,
-      displayName: feature.properties?.display_name || [city, country].filter(Boolean).join(", "),
+      displayName:
+        feature.properties?.display_name ||
+        [city, country].filter(Boolean).join(", "),
       latitude,
       longitude,
     };
@@ -412,7 +460,9 @@ export async function reverseGeocode(
  * that data improves and needs no maintenance for countries outside the
  * app's core markets.
  */
-export async function resolveCountryTimezone(country: string): Promise<string | undefined> {
+export async function resolveCountryTimezone(
+  country: string,
+): Promise<string | undefined> {
   const name = country.trim();
   if (!name) return undefined;
 
@@ -434,7 +484,10 @@ export async function resolveCountryTimezone(country: string): Promise<string | 
  * Nominatim hit with the same category/amenity data the Mukoko platform's own
  * OSM ingestion pipeline reads before promoting it into `places.places`.
  */
-async function fetchOverpassTags(osmType: string, osmId: number): Promise<Record<string, string> | null> {
+async function fetchOverpassTags(
+  osmType: string,
+  osmId: number,
+): Promise<Record<string, string> | null> {
   const kind = osmType === "way" || osmType === "relation" ? osmType : "node";
   try {
     const res = await fetch(OVERPASS_ENDPOINT, {
@@ -444,7 +497,9 @@ async function fetchOverpassTags(osmType: string, osmId: number): Promise<Record
       next: { revalidate: 86400 },
     });
     if (!res.ok) return null;
-    const body = (await res.json()) as { elements?: Array<{ tags?: Record<string, string> }> };
+    const body = (await res.json()) as {
+      elements?: Array<{ tags?: Record<string, string> }>;
+    };
     return body.elements?.[0]?.tags ?? null;
   } catch {
     return null;
@@ -452,32 +507,62 @@ async function fetchOverpassTags(osmType: string, osmId: number): Promise<Record
 }
 
 /** `places.places.placeType` is a closed enum — map common OSM tags onto it. */
-function inferPlaceType(tags: Record<string, string> | null): PlaceDoc["placeType"] {
+function inferPlaceType(
+  tags: Record<string, string> | null,
+): PlaceDoc["placeType"] {
   if (!tags) return ["LocalBusiness"];
   const tourism = tags.tourism;
   const amenity = tags.amenity;
-  if (tourism && ["hotel", "guest_house", "motel", "hostel", "apartment", "chalet"].includes(tourism)) {
+  if (
+    tourism &&
+    ["hotel", "guest_house", "motel", "hostel", "apartment", "chalet"].includes(
+      tourism,
+    )
+  ) {
     return ["Accommodation"];
   }
-  if (tourism && ["attraction", "museum", "viewpoint", "artwork", "gallery", "zoo"].includes(tourism)) {
+  if (
+    tourism &&
+    ["attraction", "museum", "viewpoint", "artwork", "gallery", "zoo"].includes(
+      tourism,
+    )
+  ) {
     return ["TouristAttraction"];
   }
-  if (amenity && ["restaurant", "cafe", "fast_food", "bar", "pub", "food_court"].includes(amenity)) {
+  if (
+    amenity &&
+    ["restaurant", "cafe", "fast_food", "bar", "pub", "food_court"].includes(
+      amenity,
+    )
+  ) {
     return ["Restaurant"];
   }
   if (tags.shop) return ["Store"];
-  if (tags.leisure === "park" || tags.leisure === "nature_reserve") return ["Park"];
+  if (tags.leisure === "park" || tags.leisure === "nature_reserve")
+    return ["Park"];
   if (tags.natural === "beach") return ["Beach"];
-  if (tags.natural === "peak" || tags.natural === "volcano") return ["Mountain"];
+  if (tags.natural === "peak" || tags.natural === "volcano")
+    return ["Mountain"];
   if (tags.natural === "water" && tags.water === "lake") return ["Lake"];
   if (tags.waterway === "river") return ["River"];
   if (
     amenity &&
-    ["townhall", "courthouse", "police", "fire_station", "embassy", "public_building"].includes(amenity)
+    [
+      "townhall",
+      "courthouse",
+      "police",
+      "fire_station",
+      "embassy",
+      "public_building",
+    ].includes(amenity)
   ) {
     return ["CivicStructure"];
   }
-  if (tags.building === "residential" || tags.building === "house" || tags.building === "apartments") {
+  if (
+    tags.building === "residential" ||
+    tags.building === "house" ||
+    tags.building === "apartments"
+  ) {
     return ["Residence"];
   }
   return ["LocalBusiness"];
@@ -510,13 +595,17 @@ export interface EnsurePlaceInput {
  * failure never blocks the caller from finishing whatever they were doing
  * (e.g. selecting a venue for an event).
  */
-export async function ensurePlaceFromOsmSuggestion(input: EnsurePlaceInput): Promise<string | null> {
+export async function ensurePlaceFromOsmSuggestion(
+  input: EnsurePlaceInput,
+): Promise<string | null> {
   try {
     await assertCaller();
     const places = await placesCollection();
     const legacyId = `${input.osmType}/${input.osmId}`;
 
-    const existing = await places.findOne({ "sourceProvenance.legacyId": legacyId });
+    const existing = await places.findOne({
+      "sourceProvenance.legacyId": legacyId,
+    });
     if (existing) return existing._id;
 
     const tags = await fetchOverpassTags(input.osmType, input.osmId);
@@ -544,7 +633,11 @@ export async function ensurePlaceFromOsmSuggestion(input: EnsurePlaceInput): Pro
       // same as being tier 0. nhimbe still never writes a tier ABOVE 0;
       // Kweli remains the only thing that raises one.
       bundu: { verificationTier: 0 },
-      sourceProvenance: { legacyId, mirroredFrom: "osm", sourceProject: "nhimbe" },
+      sourceProvenance: {
+        legacyId,
+        mirroredFrom: "osm",
+        sourceProject: "nhimbe",
+      },
     } as EntityDoc;
     await entities.insertOne(entityDoc);
 

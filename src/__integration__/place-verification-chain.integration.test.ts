@@ -23,7 +23,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { placesCollection, entitiesCollection } from "@/lib/mongo/databases";
-import { kweliVerifyUrl, verificationTierCode, verificationTierLevel } from "@/lib/kweli";
+import {
+  kweliVerifyUrl,
+  verificationTierCode,
+  verificationTierLevel,
+} from "@/lib/kweli";
 
 // The promotion path is auth-gated; the dev bypass is the documented way to
 // drive it without a WorkOS session (same lever .claude/skills/verify pulls).
@@ -98,7 +102,8 @@ describe("the chain: place created → unverified → Kweli verifies → badge",
 
     // 2. nhimbe reads it — unverified, so no badge and a verify CTA.
     const fresh = await places.findOne({ _id: place._id });
-    const rawTier = (fresh as { bundu?: { verificationTier?: unknown } }).bundu?.verificationTier;
+    const rawTier = (fresh as { bundu?: { verificationTier?: unknown } }).bundu
+      ?.verificationTier;
 
     expect(verificationTierLevel(rawTier)).toBe(0);
     expect(verificationTierCode(rawTier)).toBe("unverified");
@@ -115,8 +120,8 @@ describe("the chain: place created → unverified → Kweli verifies → badge",
 
     // 5. nhimbe re-reads and renders the right mineral tier.
     const verified = await places.findOne({ _id: place._id });
-    const newTier = (verified as { bundu?: { verificationTier?: unknown } }).bundu
-      ?.verificationTier;
+    const newTier = (verified as { bundu?: { verificationTier?: unknown } })
+      .bundu?.verificationTier;
 
     expect(verificationTierLevel(newTier)).toBe(3);
     expect(verificationTierCode(newTier)).toBe("government");
@@ -140,7 +145,8 @@ describe("the chain: place created → unverified → Kweli verifies → badge",
     for (const [tier, code] of ladder) {
       await kweliApprovesTier(place._id, tier);
       const row = await places.findOne({ _id: place._id });
-      const raw = (row as { bundu?: { verificationTier?: unknown } }).bundu?.verificationTier;
+      const raw = (row as { bundu?: { verificationTier?: unknown } }).bundu
+        ?.verificationTier;
       expect(verificationTierCode(raw)).toBe(code);
     }
   });
@@ -157,7 +163,8 @@ describe("the chain: place created → unverified → Kweli verifies → badge",
     } as never);
 
     const row = await places.findOne({ _id: "place-no-bundu" });
-    const raw = (row as { bundu?: { verificationTier?: unknown } }).bundu?.verificationTier;
+    const raw = (row as { bundu?: { verificationTier?: unknown } }).bundu
+      ?.verificationTier;
 
     expect(verificationTierLevel(raw)).toBe(0);
     expect(verificationTierCode(raw)).toBe("unverified");
@@ -171,10 +178,13 @@ describe("nhimbe's own producer, driven for real", () => {
     // Overpass is the one network dependency of the promotion path. Stub it so
     // this test exercises the WRITE, not OSM's uptime.
     globalThis.fetch = (async () =>
-      new Response(JSON.stringify({ elements: [{ tags: { amenity: "restaurant" } }] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      })) as typeof fetch;
+      new Response(
+        JSON.stringify({ elements: [{ tags: { amenity: "restaurant" } }] }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      )) as typeof fetch;
   });
 
   afterEach(() => {
@@ -184,7 +194,8 @@ describe("nhimbe's own producer, driven for real", () => {
   it("writes a place AND its owning entity, both at tier 0", async () => {
     // Drives the real ensurePlaceFromOsmSuggestion — not a copied shape — so
     // the assertion below is about what nhimbe actually stores today.
-    const { ensurePlaceFromOsmSuggestion } = await import("@/app/actions/geocode");
+    const { ensurePlaceFromOsmSuggestion } =
+      await import("@/app/actions/geocode");
 
     const placeId = await ensurePlaceFromOsmSuggestion({
       name: "Nyuchi Africa Kitchen",
@@ -204,18 +215,27 @@ describe("nhimbe's own producer, driven for real", () => {
 
     // The fix: a tier is now written explicitly, so this row is visible to a
     // `bundu.verificationTier` query instead of silently absent from it.
-    expect((place as { bundu?: { verificationTier?: number } }).bundu?.verificationTier).toBe(0);
+    expect(
+      (place as { bundu?: { verificationTier?: number } }).bundu
+        ?.verificationTier,
+    ).toBe(0);
 
     // Rule 10 — every place has an owning entity, and it carries a tier too.
-    const entity = await (await entitiesCollection()).findOne({
+    const entity = await (
+      await entitiesCollection()
+    ).findOne({
       _id: (place as { ownerEntityId: string }).ownerEntityId,
     });
     expect(entity).not.toBeNull();
-    expect((entity as { bundu?: { verificationTier?: number } }).bundu?.verificationTier).toBe(0);
+    expect(
+      (entity as { bundu?: { verificationTier?: number } }).bundu
+        ?.verificationTier,
+    ).toBe(0);
   });
 
   it("is idempotent — re-picking the same venue never duplicates", async () => {
-    const { ensurePlaceFromOsmSuggestion } = await import("@/app/actions/geocode");
+    const { ensurePlaceFromOsmSuggestion } =
+      await import("@/app/actions/geocode");
     const input = {
       name: "Twice Picked",
       address: "1 Second St",
@@ -231,7 +251,9 @@ describe("nhimbe's own producer, driven for real", () => {
     const second = await ensurePlaceFromOsmSuggestion(input);
 
     expect(second).toBe(first);
-    const rows = await (await placesCollection())
+    const rows = await (
+      await placesCollection()
+    )
       .find({ "sourceProvenance.legacyId": `${OSM_TYPE}/3002` })
       .toArray();
     expect(rows).toHaveLength(1);
@@ -241,7 +263,8 @@ describe("nhimbe's own producer, driven for real", () => {
     // The join this whole workstream is about: a place nhimbe created is
     // findable by a tier query, verifiable through Kweli, and reads back with
     // the right badge — the same journey as an agent-created place.
-    const { ensurePlaceFromOsmSuggestion } = await import("@/app/actions/geocode");
+    const { ensurePlaceFromOsmSuggestion } =
+      await import("@/app/actions/geocode");
     const placeId = (await ensurePlaceFromOsmSuggestion({
       name: "Chain Venue",
       address: "3 Chain Rd",
@@ -253,13 +276,18 @@ describe("nhimbe's own producer, driven for real", () => {
       osmId: 3003,
     }))!;
 
-    const unverified = await (await placesCollection()).find({ "bundu.verificationTier": 0 }).toArray();
+    const unverified = await (
+      await placesCollection()
+    )
+      .find({ "bundu.verificationTier": 0 })
+      .toArray();
     expect(unverified.map((p) => p._id)).toContain(placeId);
 
     await kweliApprovesTier(placeId, 4);
 
     const row = await (await placesCollection()).findOne({ _id: placeId });
-    const raw = (row as { bundu?: { verificationTier?: unknown } }).bundu?.verificationTier;
+    const raw = (row as { bundu?: { verificationTier?: unknown } }).bundu
+      ?.verificationTier;
     expect(verificationTierCode(raw)).toBe("licensed");
   });
 });
@@ -275,12 +303,16 @@ describe("two producers, one collection — the divergence", () => {
 
     await places.insertOne(agentShapedPlace(2001, "entity-first") as never);
 
-    const matches = await places.find({ "sourceProvenance.legacyId": legacyId }).toArray();
+    const matches = await places
+      .find({ "sourceProvenance.legacyId": legacyId })
+      .toArray();
     expect(matches).toHaveLength(1);
 
     // A second producer looking up the same key finds the first one and
     // no-ops — the dedup works, which is why this has gone unnoticed.
-    const existing = await places.findOne({ "sourceProvenance.legacyId": legacyId });
+    const existing = await places.findOne({
+      "sourceProvenance.legacyId": legacyId,
+    });
     expect(existing).not.toBeNull();
   });
 
@@ -304,7 +336,9 @@ describe("two producers, one collection — the divergence", () => {
       },
     } as never);
 
-    const withTier = await places.find({ "bundu.verificationTier": { $exists: true } }).toArray();
+    const withTier = await places
+      .find({ "bundu.verificationTier": { $exists: true } })
+      .toArray();
     const withoutTier = await places
       .find({ "bundu.verificationTier": { $exists: false } })
       .toArray();
@@ -315,7 +349,8 @@ describe("two producers, one collection — the divergence", () => {
     // Both still read as unverified through nhimbe's own helper — the bug is
     // invisible from nhimbe and only shows up in a tier-filtered query.
     for (const p of [...withTier, ...withoutTier]) {
-      const raw = (p as { bundu?: { verificationTier?: unknown } }).bundu?.verificationTier;
+      const raw = (p as { bundu?: { verificationTier?: unknown } }).bundu
+        ?.verificationTier;
       expect(verificationTierLevel(raw)).toBe(0);
     }
   });
@@ -327,7 +362,8 @@ describe("two producers, one collection — the divergence", () => {
     const row = await places.findOne({ _id: "agent-place-2004" });
     // fundi vs nhimbe — the only way to tell afterwards which produced a row.
     expect(
-      (row as { sourceProvenance?: { sourceProject?: string } }).sourceProvenance?.sourceProject,
+      (row as { sourceProvenance?: { sourceProject?: string } })
+        .sourceProvenance?.sourceProject,
     ).toBe("fundi");
   });
 });

@@ -64,7 +64,9 @@ describe("createCalendar", () => {
       ownerEntityId: ENTITY,
     });
 
-    const raw = await (await calendarsCollection()).findOne({ _id: created._id });
+    const raw = await (
+      await calendarsCollection()
+    ).findOne({ _id: created._id });
     expect(raw!.createdAt).toBeInstanceOf(Date);
     expect(raw!.updatedAt).toBeInstanceOf(Date);
   });
@@ -75,7 +77,9 @@ describe("createCalendar", () => {
       ownerPersonId: OWNER,
       ownerEntityId: ENTITY,
     });
-    const raw = await (await calendarsCollection()).findOne({ _id: created._id });
+    const raw = await (
+      await calendarsCollection()
+    ).findOne({ _id: created._id });
     expect(typeof raw!._id).toBe("string");
   });
 });
@@ -100,7 +104,9 @@ describe("getCalendarBySlug", () => {
 
     // Soft-archived, so the row still exists — the read must filter it out.
     expect(await getCalendarBySlug(created.slug)).toBeNull();
-    expect(await (await calendarsCollection()).findOne({ _id: created._id })).not.toBeNull();
+    expect(
+      await (await calendarsCollection()).findOne({ _id: created._id }),
+    ).not.toBeNull();
   });
 });
 
@@ -124,7 +130,9 @@ describe("updateCalendar", () => {
       ownerPersonId: OWNER,
       ownerEntityId: ENTITY,
     });
-    const updated = await updateCalendar(created._id, { name: "Renamed Entirely" });
+    const updated = await updateCalendar(created._id, {
+      name: "Renamed Entirely",
+    });
 
     // Slugs are permalinks — renaming must not break existing links.
     expect(updated!.slug).toBe(created.slug);
@@ -202,7 +210,11 @@ describe("listPublicCalendars", () => {
 
 describe("listCalendarsByOwner", () => {
   it("returns only that owner's calendars", async () => {
-    await createCalendar({ name: "Mine", ownerPersonId: OWNER, ownerEntityId: ENTITY });
+    await createCalendar({
+      name: "Mine",
+      ownerPersonId: OWNER,
+      ownerEntityId: ENTITY,
+    });
     await createCalendar({
       name: "Theirs",
       ownerPersonId: "person-someone-else",
@@ -224,10 +236,20 @@ describe("follows", () => {
       ownerEntityId: ENTITY,
     });
 
-    await followCalendar({ calendarId: cal._id, followerPersonId: "person-follower", followerEntityId: ENTITY });
-    await followCalendar({ calendarId: cal._id, followerPersonId: "person-follower", followerEntityId: ENTITY });
+    await followCalendar({
+      calendarId: cal._id,
+      followerPersonId: "person-follower",
+      followerEntityId: ENTITY,
+    });
+    await followCalendar({
+      calendarId: cal._id,
+      followerPersonId: "person-follower",
+      followerEntityId: ENTITY,
+    });
 
-    const rows = await (await calendarFollowsCollection())
+    const rows = await (
+      await calendarFollowsCollection()
+    )
       .find({ calendarId: cal._id, followerPersonId: "person-follower" })
       .toArray();
 
@@ -242,11 +264,24 @@ describe("follows", () => {
       ownerEntityId: ENTITY,
     });
 
-    await followCalendar({ calendarId: cal._id, followerPersonId: "person-follower", followerEntityId: ENTITY });
-    await unfollowCalendar({ calendarId: cal._id, followerPersonId: "person-follower" });
-    await followCalendar({ calendarId: cal._id, followerPersonId: "person-follower", followerEntityId: ENTITY });
+    await followCalendar({
+      calendarId: cal._id,
+      followerPersonId: "person-follower",
+      followerEntityId: ENTITY,
+    });
+    await unfollowCalendar({
+      calendarId: cal._id,
+      followerPersonId: "person-follower",
+    });
+    await followCalendar({
+      calendarId: cal._id,
+      followerPersonId: "person-follower",
+      followerEntityId: ENTITY,
+    });
 
-    const rows = await (await calendarFollowsCollection())
+    const rows = await (
+      await calendarFollowsCollection()
+    )
       .find({ calendarId: cal._id, followerPersonId: "person-follower" })
       .toArray();
 
@@ -261,10 +296,20 @@ describe("follows", () => {
       ownerEntityId: ENTITY,
     });
 
-    await followCalendar({ calendarId: cal._id, followerPersonId: "person-a", followerEntityId: ENTITY });
-    await followCalendar({ calendarId: cal._id, followerPersonId: "person-b", followerEntityId: ENTITY });
+    await followCalendar({
+      calendarId: cal._id,
+      followerPersonId: "person-a",
+      followerEntityId: ENTITY,
+    });
+    await followCalendar({
+      calendarId: cal._id,
+      followerPersonId: "person-b",
+      followerEntityId: ENTITY,
+    });
 
-    const rows = await (await calendarFollowsCollection())
+    const rows = await (
+      await calendarFollowsCollection()
+    )
       .find({ calendarId: cal._id, isActive: true })
       .toArray();
 
@@ -283,7 +328,11 @@ describe("pure helpers still agree with the stored shape", () => {
     await (await calendarsCollection()).insertOne(doc);
     const stored = await getCalendarById(doc._id);
 
-    expect(stored).toMatchObject({ _id: doc._id, name: "Round Trip", slug: doc.slug });
+    expect(stored).toMatchObject({
+      _id: doc._id,
+      name: "Round Trip",
+      slug: doc.slug,
+    });
   });
 
   it("canViewCalendar gates private calendars to their owner", async () => {

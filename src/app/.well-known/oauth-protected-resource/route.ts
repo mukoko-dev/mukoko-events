@@ -21,7 +21,8 @@ export const dynamic = "force-dynamic";
 // Cloudflare proxy the public host arrives as `x-forwarded-host` (falling back to
 // `host`); default to the app's canonical origin when neither is present.
 function resourceOrigin(request: Request): string {
-  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const host =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
   return host ? `https://${host}` : "https://nhimbe.com";
 }
 

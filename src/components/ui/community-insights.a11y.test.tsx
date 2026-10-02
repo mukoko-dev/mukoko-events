@@ -1,7 +1,10 @@
 import { render, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { axe } from "vitest-axe";
-import { CommunityInsights, CommunityInsightsCompact } from "./community-insights";
+import {
+  CommunityInsights,
+  CommunityInsightsCompact,
+} from "./community-insights";
 
 const mockGetCommunityStats = vi.fn();
 
@@ -9,7 +12,8 @@ const mockGetCommunityStats = vi.fn();
 // worker-era @/lib/api helper), so mock that — importing the real action would
 // pull in `server-only` and blow up in jsdom.
 vi.mock("@/app/actions/discovery", () => ({
-  getCommunityStatsAction: (...args: unknown[]) => mockGetCommunityStats(...args),
+  getCommunityStatsAction: (...args: unknown[]) =>
+    mockGetCommunityStats(...args),
 }));
 
 describe("CommunityInsights accessibility", () => {
@@ -30,7 +34,9 @@ describe("CommunityInsights accessibility", () => {
   });
 
   it("full version has no a11y violations after data loads", async () => {
-    const { container, queryByText } = render(<CommunityInsights city="Harare" />);
+    const { container, queryByText } = render(
+      <CommunityInsights city="Harare" />,
+    );
     await waitFor(() => {
       expect(queryByText("Community Insights")).toBeInTheDocument();
     });
@@ -39,7 +45,9 @@ describe("CommunityInsights accessibility", () => {
   });
 
   it("compact version has no a11y violations after data loads", async () => {
-    const { container, queryByText } = render(<CommunityInsightsCompact city="Harare" />);
+    const { container, queryByText } = render(
+      <CommunityInsightsCompact city="Harare" />,
+    );
     await waitFor(() => {
       expect(queryByText(/What's Trending/i)).toBeInTheDocument();
     });

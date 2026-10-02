@@ -7,7 +7,10 @@ import {
   type CityWithCount,
 } from "@/lib/mongo/lookups";
 import { listFeaturedCircles, type FeaturedCircle } from "@/lib/mongo/circles";
-import { listFeaturedCalendars, type FeaturedCalendar } from "@/lib/mongo/calendars";
+import {
+  listFeaturedCalendars,
+  type FeaturedCalendar,
+} from "@/lib/mongo/calendars";
 
 export const metadata: Metadata = {
   title: "Discover",

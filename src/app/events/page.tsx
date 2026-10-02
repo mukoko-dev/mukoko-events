@@ -15,7 +15,9 @@ interface EventsPageProps {
  * top-level discovery surface in the nav (browse lives on /discover).
  */
 
-export async function generateMetadata({ searchParams }: EventsPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: EventsPageProps): Promise<Metadata> {
   const params = await searchParams;
   const category = params.category || undefined;
   const city = params.city || undefined;

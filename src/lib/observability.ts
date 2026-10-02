@@ -1,14 +1,14 @@
-type LogLevel = "debug" | "info" | "warn" | "error"
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 interface LogContext {
   /** Module or component name (e.g., "registry", "weather-chart") */
-  module?: string
+  module?: string;
   /** Additional structured data */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
   /** Error object if applicable */
-  error?: Error
+  error?: Error;
   /** Unique identifier for tracing (e.g., request ID, session ID) */
-  traceId?: string
+  traceId?: string;
 }
 
 const LOG_METHODS: Record<LogLevel, (...args: unknown[]) => void> = {
@@ -16,11 +16,11 @@ const LOG_METHODS: Record<LogLevel, (...args: unknown[]) => void> = {
   info: console.info,
   warn: console.warn,
   error: console.error,
-}
+};
 
 function formatPrefix(level: LogLevel, module?: string): string {
-  const tag = module ? `[mukoko:${module}]` : "[mukoko]"
-  return `${tag} ${level.toUpperCase()}`
+  const tag = module ? `[mukoko:${module}]` : "[mukoko]";
+  return `${tag} ${level.toUpperCase()}`;
 }
 
 /**
@@ -37,34 +37,34 @@ function formatPrefix(level: LogLevel, module?: string): string {
  */
 export const log = {
   debug(message: string, ctx?: LogContext) {
-    emit("debug", message, ctx)
+    emit("debug", message, ctx);
   },
   info(message: string, ctx?: LogContext) {
-    emit("info", message, ctx)
+    emit("info", message, ctx);
   },
   warn(message: string, ctx?: LogContext) {
-    emit("warn", message, ctx)
+    emit("warn", message, ctx);
   },
   error(message: string, ctx?: LogContext) {
-    emit("error", message, ctx)
+    emit("error", message, ctx);
   },
-}
+};
 
 function emit(level: LogLevel, message: string, ctx?: LogContext) {
-  const prefix = formatPrefix(level, ctx?.module)
-  const parts: unknown[] = [`${prefix} ${message}`]
+  const prefix = formatPrefix(level, ctx?.module);
+  const parts: unknown[] = [`${prefix} ${message}`];
 
   if (ctx?.traceId) {
-    parts.push(`[trace:${ctx.traceId}]`)
+    parts.push(`[trace:${ctx.traceId}]`);
   }
   if (ctx?.data) {
-    parts.push(ctx.data)
+    parts.push(ctx.data);
   }
   if (ctx?.error) {
-    parts.push(ctx.error)
+    parts.push(ctx.error);
   }
 
-  LOG_METHODS[level](...parts)
+  LOG_METHODS[level](...parts);
 }
 
 /**
@@ -84,27 +84,27 @@ function emit(level: LogLevel, message: string, ctx?: LogContext) {
 export async function measure<T>(
   label: string,
   fn: () => T | Promise<T>,
-  ctx?: LogContext
+  ctx?: LogContext,
 ): Promise<T> {
-  const start = performance.now()
+  const start = performance.now();
   try {
-    const result = await fn()
-    const duration = Math.round(performance.now() - start)
+    const result = await fn();
+    const duration = Math.round(performance.now() - start);
     log.info(`${label} completed in ${duration}ms`, {
       ...ctx,
       module: ctx?.module ?? "perf",
       data: { ...ctx?.data, duration, label },
-    })
-    return result
+    });
+    return result;
   } catch (error) {
-    const duration = Math.round(performance.now() - start)
+    const duration = Math.round(performance.now() - start);
     log.error(`${label} failed after ${duration}ms`, {
       ...ctx,
       module: ctx?.module ?? "perf",
       data: { ...ctx?.data, duration, label },
       error: error instanceof Error ? error : new Error(String(error)),
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -123,8 +123,8 @@ export async function measure<T>(
  * ```
  */
 export function trackError(error: unknown, ctx?: LogContext) {
-  const err = error instanceof Error ? error : new Error(String(error))
-  log.error(err.message, { ...ctx, error: err })
+  const err = error instanceof Error ? error : new Error(String(error));
+  log.error(err.message, { ...ctx, error: err });
 }
 
 /**
@@ -145,16 +145,16 @@ export function trackError(error: unknown, ctx?: LogContext) {
 export function createLogger(module: string) {
   return {
     debug(message: string, ctx?: Omit<LogContext, "module">) {
-      log.debug(message, { ...ctx, module })
+      log.debug(message, { ...ctx, module });
     },
     info(message: string, ctx?: Omit<LogContext, "module">) {
-      log.info(message, { ...ctx, module })
+      log.info(message, { ...ctx, module });
     },
     warn(message: string, ctx?: Omit<LogContext, "module">) {
-      log.warn(message, { ...ctx, module })
+      log.warn(message, { ...ctx, module });
     },
     error(message: string, ctx?: Omit<LogContext, "module">) {
-      log.error(message, { ...ctx, module })
+      log.error(message, { ...ctx, module });
     },
-  }
+  };
 }

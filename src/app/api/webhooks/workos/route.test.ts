@@ -37,7 +37,10 @@ import { POST } from "./route";
 
 const WEBHOOK_URL = "https://nhimbe.com/api/webhooks/workos";
 
-function makeRequest(body: unknown, signature: string | null = "t=1,v1=abc"): Request {
+function makeRequest(
+  body: unknown,
+  signature: string | null = "t=1,v1=abc",
+): Request {
   const headers = new Headers({ "content-type": "application/json" });
   if (signature) headers.set("workos-signature", signature);
   return new Request(WEBHOOK_URL, {
@@ -69,7 +72,12 @@ const orgMembership = {
 };
 
 function stubEvent(eventType: string, data: unknown) {
-  constructEvent.mockResolvedValue({ id: "event_1", event: eventType, data, createdAt: "2026-07-14T00:00:00Z" });
+  constructEvent.mockResolvedValue({
+    id: "event_1",
+    event: eventType,
+    data,
+    createdAt: "2026-07-14T00:00:00Z",
+  });
 }
 
 beforeEach(() => {
@@ -101,8 +109,12 @@ describe("POST /api/webhooks/workos — verification gate", () => {
   });
 
   it("answers 401 when signature verification fails", async () => {
-    constructEvent.mockRejectedValue(new Error("Signature hash does not match"));
-    const res = await POST(makeRequest({ event: "user.created", data: workosUser }));
+    constructEvent.mockRejectedValue(
+      new Error("Signature hash does not match"),
+    );
+    const res = await POST(
+      makeRequest({ event: "user.created", data: workosUser }),
+    );
     expect(res.status).toBe(401);
     expect(users.syncPersonFromWorkos).not.toHaveBeenCalled();
   });
@@ -120,22 +132,25 @@ describe("POST /api/webhooks/workos — verification gate", () => {
 });
 
 describe("POST /api/webhooks/workos — user events", () => {
-  it.each(["user.created", "user.updated"])("%s upserts identity.persons", async (eventType) => {
-    stubEvent(eventType, workosUser);
-    const res = await POST(makeRequest({}));
+  it.each(["user.created", "user.updated"])(
+    "%s upserts identity.persons",
+    async (eventType) => {
+      stubEvent(eventType, workosUser);
+      const res = await POST(makeRequest({}));
 
-    expect(res.status).toBe(200);
-    expect(users.syncPersonFromWorkos).toHaveBeenCalledTimes(1);
-    expect(users.syncPersonFromWorkos).toHaveBeenCalledWith({
-      workosUserId: "user_123",
-      email: "amai@example.com",
-      name: "Amai Mukoko",
-      givenName: "Amai",
-      familyName: "Mukoko",
-      picture: null,
-      emailVerified: true,
-    });
-  });
+      expect(res.status).toBe(200);
+      expect(users.syncPersonFromWorkos).toHaveBeenCalledTimes(1);
+      expect(users.syncPersonFromWorkos).toHaveBeenCalledWith({
+        workosUserId: "user_123",
+        email: "amai@example.com",
+        name: "Amai Mukoko",
+        givenName: "Amai",
+        familyName: "Mukoko",
+        picture: null,
+        emailVerified: true,
+      });
+    },
+  );
 
   it("user.deleted soft-deactivates the person", async () => {
     stubEvent("user.deleted", workosUser);
@@ -155,23 +170,25 @@ describe("POST /api/webhooks/workos — user events", () => {
 });
 
 describe("POST /api/webhooks/workos — organization membership events", () => {
-  it.each(["organization_membership.created", "organization_membership.updated"])(
-    "%s mirrors onto entity.memberships",
-    async (eventType) => {
-      stubEvent(eventType, orgMembership);
-      const res = await POST(makeRequest({}));
+  it.each([
+    "organization_membership.created",
+    "organization_membership.updated",
+  ])("%s mirrors onto entity.memberships", async (eventType) => {
+    stubEvent(eventType, orgMembership);
+    const res = await POST(makeRequest({}));
 
-      expect(res.status).toBe(200);
-      expect(entityMirror.mirrorWorkosOrganizationMembership).toHaveBeenCalledWith({
-        workosOrganizationMembershipId: "om_123",
-        workosOrganizationId: "org_456",
-        organizationName: "Harare Makers Collective",
-        workosUserId: "user_123",
-        roleSlug: "admin",
-        status: "active",
-      });
-    },
-  );
+    expect(res.status).toBe(200);
+    expect(
+      entityMirror.mirrorWorkosOrganizationMembership,
+    ).toHaveBeenCalledWith({
+      workosOrganizationMembershipId: "om_123",
+      workosOrganizationId: "org_456",
+      organizationName: "Harare Makers Collective",
+      workosUserId: "user_123",
+      roleSlug: "admin",
+      status: "active",
+    });
+  });
 
   it("organization_membership.deleted ends the mirrored membership", async () => {
     stubEvent("organization_membership.deleted", orgMembership);
@@ -181,7 +198,9 @@ describe("POST /api/webhooks/workos — organization membership events", () => {
     expect(entityMirror.endWorkosOrganizationMembership).toHaveBeenCalledWith({
       workosOrganizationMembershipId: "om_123",
     });
-    expect(entityMirror.mirrorWorkosOrganizationMembership).not.toHaveBeenCalled();
+    expect(
+      entityMirror.mirrorWorkosOrganizationMembership,
+    ).not.toHaveBeenCalled();
   });
 
   it("replayed deliveries are re-dispatched (idempotency lives in the keyed upserts)", async () => {
@@ -191,7 +210,9 @@ describe("POST /api/webhooks/workos — organization membership events", () => {
 
     expect(first.status).toBe(200);
     expect(second.status).toBe(200);
-    expect(entityMirror.mirrorWorkosOrganizationMembership).toHaveBeenCalledTimes(2);
+    expect(
+      entityMirror.mirrorWorkosOrganizationMembership,
+    ).toHaveBeenCalledTimes(2);
     const [a, b] = entityMirror.mirrorWorkosOrganizationMembership.mock.calls;
     expect(a).toEqual(b);
   });
@@ -205,12 +226,16 @@ describe("POST /api/webhooks/workos — dispatch outcomes", () => {
     expect(res.status).toBe(200);
     expect(users.syncPersonFromWorkos).not.toHaveBeenCalled();
     expect(users.deactivatePersonByWorkosId).not.toHaveBeenCalled();
-    expect(entityMirror.mirrorWorkosOrganizationMembership).not.toHaveBeenCalled();
+    expect(
+      entityMirror.mirrorWorkosOrganizationMembership,
+    ).not.toHaveBeenCalled();
     expect(entityMirror.endWorkosOrganizationMembership).not.toHaveBeenCalled();
   });
 
   it("answers 500 when a mirror write fails, so WorkOS retries", async () => {
-    users.syncPersonFromWorkos.mockRejectedValue(new Error("cluster unavailable"));
+    users.syncPersonFromWorkos.mockRejectedValue(
+      new Error("cluster unavailable"),
+    );
     stubEvent("user.created", workosUser);
     const res = await POST(makeRequest({}));
     expect(res.status).toBe(500);

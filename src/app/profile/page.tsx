@@ -74,16 +74,22 @@ function ProfileContent() {
     ? new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" })
     : "Unknown";
 
-  const themeLabel = theme === "system" ? "System" : resolvedTheme === "dark" ? "Dark" : "Light";
+  const themeLabel =
+    theme === "system" ? "System" : resolvedTheme === "dark" ? "Dark" : "Light";
   const languageLabel = locale === "sn" ? "Shona" : "English";
-  const emailUpdatesLabel = user?.subscribedToEventUpdates === false ? "Off" : "On";
+  const emailUpdatesLabel =
+    user?.subscribedToEventUpdates === false ? "Off" : "On";
 
   const menuItems: MenuSection[] = [
     {
       section: "Events",
       items: [
         { icon: Ticket, label: "My tickets", href: "/my-events" },
-        { icon: Users, label: "Events I'm hosting", href: "/my-events?tab=hosting" },
+        {
+          icon: Users,
+          label: "Events I'm hosting",
+          href: "/my-events?tab=hosting",
+        },
         { icon: Heart, label: "Saved events", href: "/my-events?tab=saved" },
       ],
     },
@@ -139,7 +145,11 @@ function ProfileContent() {
       section: "Support",
       items: [
         { icon: HelpCircle, label: "Help center", href: "/help" },
-        { icon: MessageSquareWarning, label: "Send feedback", onClick: () => openFeedback() },
+        {
+          icon: MessageSquareWarning,
+          label: "Send feedback",
+          onClick: () => openFeedback(),
+        },
         { icon: Shield, label: "Privacy policy", href: "/privacy" },
       ],
     },
@@ -160,7 +170,9 @@ function ProfileContent() {
       {(user?.addressLocality || user?.addressCountry) && (
         <p className="mb-8 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
           <MapPin className="size-4" aria-hidden="true" />
-          {[user?.addressLocality, user?.addressCountry].filter(Boolean).join(", ")}
+          {[user?.addressLocality, user?.addressCountry]
+            .filter(Boolean)
+            .join(", ")}
         </p>
       )}
 
@@ -188,7 +200,8 @@ function ProfileContent() {
         (() => {
           const missing: string[] = [];
           if (!profileCompleteness.name) missing.push("your name");
-          if (!profileCompleteness.addressLocality) missing.push("your location");
+          if (!profileCompleteness.addressLocality)
+            missing.push("your location");
           if (!profileCompleteness.interests) missing.push("your interests");
           const completionPercent =
             ([
@@ -228,10 +241,15 @@ function ProfileContent() {
                 />
               </svg>
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-foreground">Complete your profile</p>
+                <p className="font-medium text-foreground">
+                  Complete your profile
+                </p>
                 <p className="text-sm text-muted-foreground">{nudgeText}</p>
               </div>
-              <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <ChevronRight
+                className="size-5 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
             </Link>
           );
         })()}
@@ -242,7 +260,10 @@ function ProfileContent() {
       {/* Menu sections */}
       <div className="space-y-6">
         {menuItems.map((section) => (
-          <section key={section.section} aria-labelledby={`sec-${section.section}`}>
+          <section
+            key={section.section}
+            aria-labelledby={`sec-${section.section}`}
+          >
             <h2
               id={`sec-${section.section}`}
               className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground"
@@ -255,12 +276,21 @@ function ProfileContent() {
 
                 const inner = (
                   <>
-                    <Icon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
-                    <span className="flex-1 font-medium text-foreground">{item.label}</span>
+                    <Icon
+                      className="size-5 shrink-0 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <span className="flex-1 font-medium text-foreground">
+                      {item.label}
+                    </span>
                     {item.value && (
-                      <span className="text-sm text-muted-foreground">{item.value}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {item.value}
+                      </span>
                     )}
-                    {item.srState && <span className="sr-only">{item.srState}</span>}
+                    {item.srState && (
+                      <span className="sr-only">{item.srState}</span>
+                    )}
                     {item.external ? (
                       <ExternalLink
                         className="size-4 shrink-0 text-muted-foreground"
@@ -278,7 +308,11 @@ function ProfileContent() {
                 return (
                   <li key={item.label}>
                     {item.onClick ? (
-                      <button type="button" onClick={item.onClick} className={rowClasses}>
+                      <button
+                        type="button"
+                        onClick={item.onClick}
+                        className={rowClasses}
+                      >
                         {inner}
                       </button>
                     ) : item.external ? (
@@ -336,7 +370,10 @@ function ProfileContent() {
             className="w-full max-w-sm rounded-[var(--radius-xl,17px)] bg-card p-6 ring-1 ring-foreground/10"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 id="signout-title" className="mb-2 font-serif text-xl font-bold text-foreground">
+            <h2
+              id="signout-title"
+              className="mb-2 font-serif text-xl font-bold text-foreground"
+            >
               Sign out?
             </h2>
             <p id="signout-desc" className="mb-6 text-muted-foreground">

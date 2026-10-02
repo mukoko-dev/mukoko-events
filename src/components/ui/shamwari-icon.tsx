@@ -14,7 +14,10 @@ import { SectionErrorBoundary } from "@/components/error/section-error-boundary"
  * `aria-hidden` (the usual pattern when adjacent text already says
  * "Shamwari").
  */
-export interface ShamwariIconProps extends Omit<React.SVGProps<SVGSVGElement>, "children"> {
+export interface ShamwariIconProps extends Omit<
+  React.SVGProps<SVGSVGElement>,
+  "children"
+> {
   size?: number;
   /** Set false to render statically — e.g. inside an already-animating parent. */
   animate?: boolean;
@@ -47,7 +50,7 @@ function ShamwariIconMark({
       className={cn("shamwari-icon", className)}
       role={isDecorative ? undefined : "img"}
       aria-hidden={isDecorative ? "true" : undefined}
-      aria-label={isDecorative ? undefined : ariaLabelProp ?? "Shamwari AI"}
+      aria-label={isDecorative ? undefined : (ariaLabelProp ?? "Shamwari AI")}
       style={
         shouldAnimate
           ? {
@@ -83,7 +86,11 @@ export function ShamwariIcon(props: ShamwariIconProps) {
         <span
           role={props["aria-hidden"] ? undefined : "img"}
           aria-hidden={props["aria-hidden"] ? "true" : undefined}
-          aria-label={props["aria-hidden"] ? undefined : props["aria-label"] ?? FALLBACK_LABEL}
+          aria-label={
+            props["aria-hidden"]
+              ? undefined
+              : (props["aria-label"] ?? FALLBACK_LABEL)
+          }
           style={{ display: "inline-block", width: size, height: size }}
         />
       }

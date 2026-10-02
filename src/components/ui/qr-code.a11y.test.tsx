@@ -18,7 +18,8 @@ describe("QRCode accessibility", () => {
     // name. We require either role="img" + aria-label, or aria-label
     // alone, so SRs announce the QR target.
     const hasAccessibleName =
-      !!canvas?.getAttribute("aria-label") || !!canvas?.getAttribute("aria-labelledby");
+      !!canvas?.getAttribute("aria-label") ||
+      !!canvas?.getAttribute("aria-labelledby");
     expect(hasAccessibleName).toBe(true);
   });
 });

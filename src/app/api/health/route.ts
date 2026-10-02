@@ -49,7 +49,8 @@ async function withTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
       promise,
       new Promise<never>((_resolve, reject) => {
         timer = setTimeout(
-          () => reject(new Error(`${label} timed out after ${PROBE_TIMEOUT_MS}ms`)),
+          () =>
+            reject(new Error(`${label} timed out after ${PROBE_TIMEOUT_MS}ms`)),
           PROBE_TIMEOUT_MS,
         );
       }),
@@ -63,7 +64,11 @@ async function checkMongo(): Promise<Check> {
   if (!process.env.MONGODB_URI) {
     // Unconfigured is a deployment fact, not a runtime fault — report it
     // plainly instead of as a failure the on-call should chase.
-    return { status: "skipped", latencyMs: null, error: "MONGODB_URI is not set" };
+    return {
+      status: "skipped",
+      latencyMs: null,
+      error: "MONGODB_URI is not set",
+    };
   }
 
   const startedAt = Date.now();
@@ -114,6 +119,9 @@ export async function HEAD() {
   const status = mongodb.status === "down" ? "down" : "ok";
   return new Response(null, {
     status: status === "down" ? 503 : 200,
-    headers: { "X-Health-Status": status, "Cache-Control": "no-store, max-age=0" },
+    headers: {
+      "X-Health-Status": status,
+      "Cache-Control": "no-store, max-age=0",
+    },
   });
 }

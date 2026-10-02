@@ -36,14 +36,19 @@ export const runtime = "nodejs";
 const log = createLogger("workos-webhook");
 
 /** The verified WorkOS event union, as returned by the SDK. */
-type WorkosEvent = Awaited<ReturnType<ReturnType<typeof getWorkOS>["webhooks"]["constructEvent"]>>;
+type WorkosEvent = Awaited<
+  ReturnType<ReturnType<typeof getWorkOS>["webhooks"]["constructEvent"]>
+>;
 
 export async function POST(request: Request): Promise<NextResponse> {
   const secret = process.env.WORKOS_WEBHOOK_SECRET;
   if (!secret) {
     // Misconfiguration, not a client error. Never log the secret itself.
     log.warn("WORKOS_WEBHOOK_SECRET is not set — webhook endpoint disabled");
-    return NextResponse.json({ error: "Webhook is not configured" }, { status: 503 });
+    return NextResponse.json(
+      { error: "Webhook is not configured" },
+      { status: 503 },
+    );
   }
 
   const sigHeader = request.headers.get("workos-signature");
@@ -57,7 +62,11 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   let event: WorkosEvent;
   try {
-    event = await getWorkOS().webhooks.constructEvent({ payload, sigHeader, secret });
+    event = await getWorkOS().webhooks.constructEvent({
+      payload,
+      sigHeader,
+      secret,
+    });
   } catch {
     log.warn("Rejected WorkOS webhook with an invalid signature");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
@@ -66,7 +75,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     const handled = await handleEvent(event);
     if (handled) {
-      log.info("Processed WorkOS event", { data: { eventType: event.event, eventId: event.id } });
+      log.info("Processed WorkOS event", {
+        data: { eventType: event.event, eventId: event.id },
+      });
     } else {
       log.debug("Ignoring unhandled WorkOS event type", {
         data: { eventType: event.event, eventId: event.id },
@@ -78,7 +89,10 @@ export async function POST(request: Request): Promise<NextResponse> {
       error: error instanceof Error ? error : new Error(String(error)),
     });
     // 500 → WorkOS retries; handlers are idempotent so the replay is safe.
-    return NextResponse.json({ error: "Event processing failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Event processing failed" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ received: true });
@@ -98,9 +112,12 @@ async function handleEvent(event: WorkosEvent): Promise<boolean> {
     case "user.deleted": {
       const matched = await deactivatePersonByWorkosId(event.data.id);
       if (!matched) {
-        log.debug("user.deleted for a person nhimbe never saw — nothing to deactivate", {
-          data: { workosUserId: event.data.id },
-        });
+        log.debug(
+          "user.deleted for a person nhimbe never saw — nothing to deactivate",
+          {
+            data: { workosUserId: event.data.id },
+          },
+        );
       }
       return true;
     }

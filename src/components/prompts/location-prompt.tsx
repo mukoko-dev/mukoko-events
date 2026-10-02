@@ -12,8 +12,13 @@ const DISMISS_KEY = "nhimbe_location_prompt_dismissed";
 
 export function LocationPrompt() {
   const { user, isAuthenticated, refreshUser } = useAuth();
-  const [cities, setCities] = useState<{ addressLocality: string; addressCountry: string }[]>([]);
-  const [selected, setSelected] = useState<{ addressLocality: string; addressCountry: string } | null>(null);
+  const [cities, setCities] = useState<
+    { addressLocality: string; addressCountry: string }[]
+  >([]);
+  const [selected, setSelected] = useState<{
+    addressLocality: string;
+    addressCountry: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -24,7 +29,9 @@ export function LocationPrompt() {
   }, []);
 
   useEffect(() => {
-    getCitiesAction().then(setCities).catch(() => {});
+    getCitiesAction()
+      .then(setCities)
+      .catch(() => {});
   }, []);
 
   if (!isAuthenticated || user?.addressLocality || dismissed) return null;
@@ -33,7 +40,10 @@ export function LocationPrompt() {
     if (!selected || !user?.personId) return;
     setLoading(true);
     try {
-      await updateMyProfile({ addressLocality: selected.addressLocality, addressCountry: selected.addressCountry });
+      await updateMyProfile({
+        addressLocality: selected.addressLocality,
+        addressCountry: selected.addressCountry,
+      });
       await refreshUser();
     } catch {
       // Silently fail — non-blocking prompt
@@ -56,7 +66,11 @@ export function LocationPrompt() {
         <p className="text-sm font-medium">Where are you based?</p>
         <select
           className="mt-1 w-full bg-elevated rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-          value={selected ? `${selected.addressLocality}|${selected.addressCountry}` : ""}
+          value={
+            selected
+              ? `${selected.addressLocality}|${selected.addressCountry}`
+              : ""
+          }
           onChange={(e) => {
             const [addressLocality, addressCountry] = e.target.value.split("|");
             setSelected({ addressLocality, addressCountry });
@@ -64,7 +78,10 @@ export function LocationPrompt() {
         >
           <option value="">Select a city</option>
           {cities.map((c) => (
-            <option key={`${c.addressLocality}-${c.addressCountry}`} value={`${c.addressLocality}|${c.addressCountry}`}>
+            <option
+              key={`${c.addressLocality}-${c.addressCountry}`}
+              value={`${c.addressLocality}|${c.addressCountry}`}
+            >
               {c.addressLocality}, {c.addressCountry}
             </option>
           ))}
@@ -77,7 +94,12 @@ export function LocationPrompt() {
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Set"}
       </Button>
-      <Button variant="ghost" size="sm" onClick={handleDismiss} className="text-text-tertiary hover:text-foreground p-1 h-auto min-h-0">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleDismiss}
+        className="text-text-tertiary hover:text-foreground p-1 h-auto min-h-0"
+      >
         <X className="w-4 h-4" />
       </Button>
     </div>

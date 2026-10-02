@@ -4,13 +4,19 @@ import { PublishBar } from "./nyuchi-create-listing";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 describe("nyuchi-create-listing shell", () => {
   it("PublishBar fires onPublish and shows the loading label", () => {
     const onPublish = vi.fn();
-    const { getByRole, rerender } = render(<PublishBar label="Continue" onPublish={onPublish} />);
+    const { getByRole, rerender } = render(
+      <PublishBar label="Continue" onPublish={onPublish} />,
+    );
     fireEvent.click(getByRole("button"));
     expect(onPublish).toHaveBeenCalledOnce();
     rerender(<PublishBar label="Continue" loading onPublish={onPublish} />);

@@ -16,7 +16,10 @@
  */
 
 import { withAuth } from "@workos-inc/authkit-nextjs";
-import { circleMembershipsCollection, circlesCollection } from "@/lib/mongo/databases";
+import {
+  circleMembershipsCollection,
+  circlesCollection,
+} from "@/lib/mongo/databases";
 import { getPersonByWorkosId } from "@/lib/mongo/users";
 import { isDevBypass, DEV_WORKOS_ID } from "@/lib/auth/dev";
 import type { CircleDoc } from "@/lib/mongo/types";

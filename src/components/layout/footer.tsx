@@ -86,7 +86,10 @@ function FooterColumn({
 export function Footer() {
   const { open } = useFeedback();
   return (
-    <footer className="border-t border-elevated mt-20 pb-[env(safe-area-inset-bottom,0px)]" role="contentinfo">
+    <footer
+      className="border-t border-elevated mt-20 pb-[env(safe-area-inset-bottom,0px)]"
+      role="contentinfo"
+    >
       <div className="max-w-300 mx-auto px-6 py-12">
         {/* Top section — brand + link columns */}
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-12">
@@ -112,7 +115,9 @@ export function Footer() {
                 />
               </div>
               <span className="flex flex-col leading-tight">
-                <span className="font-serif text-xl font-bold text-primary">Nhimbe</span>
+                <span className="font-serif text-xl font-bold text-primary">
+                  Nhimbe
+                </span>
                 <span className="text-[11px] font-medium uppercase tracking-wide text-text-tertiary">
                   by Mukoko Events
                 </span>

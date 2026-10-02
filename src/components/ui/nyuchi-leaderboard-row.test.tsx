@@ -8,7 +8,9 @@ const el = () => document.querySelector('[data-slot="nyuchi-leaderboard-row"]');
 
 describe("NyuchiLeaderboardRow", () => {
   it("renders position, name and a formatted score", () => {
-    const { getByText } = render(<NyuchiLeaderboardRow position={1} name="Tendai Moyo" score={2048} />);
+    const { getByText } = render(
+      <NyuchiLeaderboardRow position={1} name="Tendai Moyo" score={2048} />,
+    );
     expect(getByText("1")).toBeTruthy();
     expect(getByText("Tendai Moyo")).toBeTruthy();
     expect(getByText("2,048")).toBeTruthy();
@@ -16,7 +18,13 @@ describe("NyuchiLeaderboardRow", () => {
 
   it("highlights the current user and renders the trust badge slot", () => {
     const { getByText } = render(
-      <NyuchiLeaderboardRow position={4} name="Me" score={10} isCurrentUser verifiedBadge={<span>V</span>} />,
+      <NyuchiLeaderboardRow
+        position={4}
+        name="Me"
+        score={10}
+        isCurrentUser
+        verifiedBadge={<span>V</span>}
+      />,
     );
     expect(getByText("V")).toBeTruthy();
     expect(getByText("Me").className).toContain("font-bold");
@@ -24,7 +32,14 @@ describe("NyuchiLeaderboardRow", () => {
 
   it("fires onClick", () => {
     let clicked = false;
-    render(<NyuchiLeaderboardRow position={2} name="X" score={1} onClick={() => (clicked = true)} />);
+    render(
+      <NyuchiLeaderboardRow
+        position={2}
+        name="X"
+        score={1}
+        onClick={() => (clicked = true)}
+      />,
+    );
     fireEvent.click(el()!);
     expect(clicked).toBe(true);
   });

@@ -45,7 +45,10 @@ function PulseDotStrip({ filled, total }: { filled: number; total: number }) {
           style={{
             width: 4,
             height: 4,
-            background: i < filled ? "var(--nh-lead)" : "color-mix(in srgb, var(--nh-lead) 22%, transparent)",
+            background:
+              i < filled
+                ? "var(--nh-lead)"
+                : "color-mix(in srgb, var(--nh-lead) 22%, transparent)",
           }}
         />
       ))}
@@ -68,20 +71,31 @@ export function EventCardHorizontal({
     ? formatEventDateTime(date.full, date.time)
     : `${date.month} ${date.day}${date.time ? `, ${date.time}` : ""}`;
 
-  const venueDisplay = (location.name || location.venue)
-    ? `${location.name ?? location.venue}`
-    : `${location.addressLocality}, ${location.addressCountry}`;
+  const venueDisplay =
+    location.name || location.venue
+      ? `${location.name ?? location.venue}`
+      : `${location.addressLocality}, ${location.addressCountry}`;
 
   // Only render the pulse strip when we have something meaningful to show.
   const DOT_COUNT = 16;
   const showPulse = typeof attendeeCount === "number" && attendeeCount >= 0;
-  const capacityForFill = maximumAttendeeCapacity ?? Math.max(attendeeCount ?? 0, DOT_COUNT);
+  const capacityForFill =
+    maximumAttendeeCapacity ?? Math.max(attendeeCount ?? 0, DOT_COUNT);
   const filled = showPulse
-    ? Math.min(DOT_COUNT, Math.round(((attendeeCount ?? 0) / Math.max(capacityForFill, 1)) * DOT_COUNT))
+    ? Math.min(
+        DOT_COUNT,
+        Math.round(
+          ((attendeeCount ?? 0) / Math.max(capacityForFill, 1)) * DOT_COUNT,
+        ),
+      )
     : 0;
 
   return (
-    <Link data-slot="event-card-horizontal" href={`/events/${id}`} className="block group">
+    <Link
+      data-slot="event-card-horizontal"
+      href={`/events/${id}`}
+      className="block group"
+    >
       <div className="flex gap-4 p-2 -m-2 rounded-xl hover:bg-surface/50 transition-colors">
         {/* Square Image Thumbnail */}
         <div
@@ -89,7 +103,11 @@ export function EventCardHorizontal({
           className="w-[72px] h-[72px] shrink-0 rounded-lg overflow-hidden"
           style={
             !coverImage
-              ? { background: coverGradient || "linear-gradient(135deg, #004D40, #00796B)" }
+              ? {
+                  background:
+                    coverGradient ||
+                    "linear-gradient(135deg, #004D40, #00796B)",
+                }
               : undefined
           }
         >
@@ -105,7 +123,10 @@ export function EventCardHorizontal({
         </div>
 
         {/* Event Details */}
-        <div data-slot="event-card-horizontal-body" className="flex-1 min-w-0 py-0.5">
+        <div
+          data-slot="event-card-horizontal-body"
+          className="flex-1 min-w-0 py-0.5"
+        >
           {/* Date/Time */}
           <p className="text-sm text-text-secondary mb-1">{dateTime}</p>
 

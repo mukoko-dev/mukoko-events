@@ -2,8 +2,14 @@ import "server-only";
 
 import { personsCollection } from "@/lib/mongo/databases";
 import { verifyBearer } from "@/lib/auth/workos-token";
-import { consumeDailyUsage, UsageLimitExceededError } from "@/lib/mongo/usage-limits";
-import { getPlatformSettings, type PlatformSettings } from "@/lib/mongo/settings";
+import {
+  consumeDailyUsage,
+  UsageLimitExceededError,
+} from "@/lib/mongo/usage-limits";
+import {
+  getPlatformSettings,
+  type PlatformSettings,
+} from "@/lib/mongo/settings";
 import { getMukokoPlan } from "@/lib/mongo/entitlements";
 import type { PersonDoc } from "@/lib/mongo/types";
 
@@ -28,15 +34,23 @@ export class ActorError extends Error {
   }
 }
 
-export async function resolveActorFromBearer(authorization: string | null): Promise<PersonDoc> {
+export async function resolveActorFromBearer(
+  authorization: string | null,
+): Promise<PersonDoc> {
   let verified;
   try {
     verified = await verifyBearer(authorization);
   } catch {
-    throw new ActorError("Your session token is invalid or has expired. Sign in again.", 401);
+    throw new ActorError(
+      "Your session token is invalid or has expired. Sign in again.",
+      401,
+    );
   }
   if (!verified) {
-    throw new ActorError("Authentication required. Present a WorkOS bearer token.", 401);
+    throw new ActorError(
+      "Authentication required. Present a WorkOS bearer token.",
+      401,
+    );
   }
 
   const persons = await personsCollection();
@@ -65,11 +79,17 @@ export async function resolveActorFromBearer(authorization: string | null): Prom
  * metered/invoiced outside this repo) isn't capped here at all. Once past
  * the ceiling the caller gets a 429, never a silent/permanent block.
  */
-async function enforceApiRateLimit(person: PersonDoc, settings: PlatformSettings): Promise<void> {
+async function enforceApiRateLimit(
+  person: PersonDoc,
+  settings: PlatformSettings,
+): Promise<void> {
   const plan = getMukokoPlan(person);
   if (plan === "custom") return;
 
-  const limit = plan === "pro" ? settings.proApiWritesPerDayPerCaller : settings.freeApiWritesPerDayPerCaller;
+  const limit =
+    plan === "pro"
+      ? settings.proApiWritesPerDayPerCaller
+      : settings.freeApiWritesPerDayPerCaller;
   try {
     await consumeDailyUsage({
       subjectId: person._id,

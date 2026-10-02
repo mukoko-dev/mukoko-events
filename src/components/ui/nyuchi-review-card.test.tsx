@@ -4,7 +4,11 @@ import { NyuchiReviewCard } from "./nyuchi-review-card";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 function card() {
@@ -14,7 +18,12 @@ function card() {
 describe("NyuchiReviewCard", () => {
   it("renders reviewer, review text and star rating label", () => {
     const { getByText, getByLabelText } = render(
-      <NyuchiReviewCard reviewer="Tapiwa" rating={4} text="Great gathering, well organised." date="2 days ago" />,
+      <NyuchiReviewCard
+        reviewer="Tapiwa"
+        rating={4}
+        text="Great gathering, well organised."
+        date="2 days ago"
+      />,
     );
     expect(getByText("Tapiwa")).toBeTruthy();
     expect(getByText("Great gathering, well organised.")).toBeTruthy();
@@ -22,15 +31,31 @@ describe("NyuchiReviewCard", () => {
   });
 
   it("shows a mineral trust dot for a verified tier", () => {
-    render(<NyuchiReviewCard reviewer="Rudo" rating={5} text="Loved it" verificationTier={3} />);
+    render(
+      <NyuchiReviewCard
+        reviewer="Rudo"
+        rating={5}
+        text="Loved it"
+        verificationTier={3}
+      />,
+    );
     expect(card()?.getAttribute("data-tier")).toBe("3");
-    expect(document.querySelector('[aria-label="Government verified"]')).toBeTruthy();
+    expect(
+      document.querySelector('[aria-label="Government verified"]'),
+    ).toBeTruthy();
   });
 
   it("fires onHelpful and reflects the marked state", () => {
     const onHelpful = vi.fn();
     const { getByRole } = render(
-      <NyuchiReviewCard reviewer="Sipho" rating={5} text="Nice" helpfulCount={3} markedHelpful onHelpful={onHelpful} />,
+      <NyuchiReviewCard
+        reviewer="Sipho"
+        rating={5}
+        text="Nice"
+        helpfulCount={3}
+        markedHelpful
+        onHelpful={onHelpful}
+      />,
     );
     const btn = getByRole("button", { pressed: true });
     fireEvent.click(btn);

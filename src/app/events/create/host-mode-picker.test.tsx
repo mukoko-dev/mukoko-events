@@ -16,26 +16,61 @@ beforeEach(() => {
 describe("HostModePicker", () => {
   it("lists a community entity alongside organisations, not dropped", async () => {
     getMyHostEntities.mockResolvedValue([
-      { id: "entity-1", name: "Harare Runners Club", entityType: "community", logo: null, description: null, verified: false },
-      { id: "entity-2", name: "Acme Org", entityType: "organization", logo: null, description: null, verified: false },
+      {
+        id: "entity-1",
+        name: "Harare Runners Club",
+        entityType: "community",
+        logo: null,
+        description: null,
+        verified: false,
+      },
+      {
+        id: "entity-2",
+        name: "Acme Org",
+        entityType: "organization",
+        logo: null,
+        description: null,
+        verified: false,
+      },
     ]);
 
-    render(<HostModePicker hostMode="person" hostEntityId={null} onChange={vi.fn()} />);
+    render(
+      <HostModePicker
+        hostMode="person"
+        hostEntityId={null}
+        onChange={vi.fn()}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Harare Runners Club")).toBeInTheDocument();
     });
     expect(screen.getByText("Acme Org")).toBeInTheDocument();
-    expect(screen.queryByText(/no families, organisations, or communities/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/no families, organisations, or communities/i),
+    ).not.toBeInTheDocument();
   });
 
   it("selecting a community entity reports hostMode=organization with its entity id", async () => {
     getMyHostEntities.mockResolvedValue([
-      { id: "entity-1", name: "Harare Runners Club", entityType: "community", logo: null, description: null, verified: false },
+      {
+        id: "entity-1",
+        name: "Harare Runners Club",
+        entityType: "community",
+        logo: null,
+        description: null,
+        verified: false,
+      },
     ]);
     const onChange = vi.fn();
 
-    render(<HostModePicker hostMode="person" hostEntityId={null} onChange={onChange} />);
+    render(
+      <HostModePicker
+        hostMode="person"
+        hostEntityId={null}
+        onChange={onChange}
+      />,
+    );
 
     const row = await screen.findByText("Harare Runners Club");
     row.closest("button")?.click();
@@ -46,10 +81,18 @@ describe("HostModePicker", () => {
   it("shows the empty state mentioning communities when there are no entities", async () => {
     getMyHostEntities.mockResolvedValue([]);
 
-    render(<HostModePicker hostMode="person" hostEntityId={null} onChange={vi.fn()} />);
+    render(
+      <HostModePicker
+        hostMode="person"
+        hostEntityId={null}
+        onChange={vi.fn()}
+      />,
+    );
 
     await waitFor(() => {
-      expect(screen.getByText(/no families, organisations, or communities/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/no families, organisations, or communities/i),
+      ).toBeInTheDocument();
     });
   });
 });

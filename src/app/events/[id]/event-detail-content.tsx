@@ -2,13 +2,27 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { ArrowLeft, MapPin, Video, Bookmark, ChevronRight, Flame, Eye, Star, Settings, Pencil } from "lucide-react";
+import {
+  ArrowLeft,
+  MapPin,
+  Video,
+  Bookmark,
+  ChevronRight,
+  Flame,
+  Eye,
+  Star,
+  Settings,
+  Pencil,
+} from "lucide-react";
 import { useTrackedLink } from "@/lib/use-tracked-link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { NyuchiAlertBanner, type AlertSeverity } from "@/components/ui/nyuchi-alert-banner";
+import {
+  NyuchiAlertBanner,
+  type AlertSeverity,
+} from "@/components/ui/nyuchi-alert-banner";
 import { NyuchiMetaTile } from "@/components/ui/nyuchi-meta-tile";
 import { AddToCalendarButton, GetDirectionsButton } from "./event-actions";
 import { LikeButton } from "./like-button";
@@ -28,18 +42,34 @@ import { EventSpecifics } from "./event-specifics";
 import { EventVenueCard } from "./event-venue-card";
 import { EventPolls } from "./event-polls";
 import { EventDiscuss } from "./event-discuss";
-import { type UserReferralCode, type EventStats, type ReviewStats } from "@/lib/api";
+import {
+  type UserReferralCode,
+  type EventStats,
+  type ReviewStats,
+} from "@/lib/api";
 import type { Event } from "@/lib/api";
 import { useSaveEvent } from "@/lib/use-save-event";
 
 const EventRatings = dynamic(
-  () => import("@/components/ui/event-ratings").then(m => ({ default: m.EventRatings })),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full rounded-2xl" /> }
+  () =>
+    import("@/components/ui/event-ratings").then((m) => ({
+      default: m.EventRatings,
+    })),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-48 w-full rounded-2xl" />,
+  },
 );
 
 const ReferralLeaderboard = dynamic(
-  () => import("@/components/ui/referral-leaderboard").then(m => ({ default: m.ReferralLeaderboard })),
-  { ssr: false, loading: () => <Skeleton className="h-64 w-full rounded-2xl" /> }
+  () =>
+    import("@/components/ui/referral-leaderboard").then((m) => ({
+      default: m.ReferralLeaderboard,
+    })),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
+  },
 );
 
 // Deferred like the two above: EventMap's static `import "leaflet/dist/leaflet.css"`
@@ -47,8 +77,11 @@ const ReferralLeaderboard = dynamic(
 // visitor never scrolls to the map (the Leaflet JS itself was already lazy —
 // only the CSS wasn't).
 const EventMap = dynamic(
-  () => import("./event-map").then(m => ({ default: m.EventMap })),
-  { ssr: false, loading: () => <Skeleton className="h-64 w-full rounded-2xl" /> }
+  () => import("./event-map").then((m) => ({ default: m.EventMap })),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
+  },
 );
 
 interface EventDetailContentProps {
@@ -79,7 +112,8 @@ function eventStatusAlert(
       return {
         severity: "moderate",
         headline: "This event has been postponed",
-        description: "A new date has not been confirmed yet. Watch this page for the rescheduled time.",
+        description:
+          "A new date has not been confirmed yet. Watch this page for the rescheduled time.",
       };
     case "EventRescheduled":
       return {
@@ -91,7 +125,8 @@ function eventStatusAlert(
       return {
         severity: "watch",
         headline: "This event has moved online",
-        description: "The event is now taking place online. See the joining details below.",
+        description:
+          "The event is now taking place online. See the joining details below.",
       };
     default:
       return null;
@@ -118,7 +153,11 @@ export function EventDetailContent({
   const reviewStats = initialReviewStats;
   // Bookmark / save persists to events.save_action via the hook — no more
   // local-only state. canSave gates the click for unauthenticated users.
-  const { saved, toggle: toggleSaved, canSave: canSaveEvent } = useSaveEvent(event.id);
+  const {
+    saved,
+    toggle: toggleSaved,
+    canSave: canSaveEvent,
+  } = useSaveEvent(event.id);
   const bookmarked = !!saved;
   const isPastEvent = new Date(event.startDate) < new Date();
   const isOnline = event.eventAttendanceMode === "OnlineEventAttendanceMode";
@@ -128,12 +167,12 @@ export function EventDetailContent({
   const trackedMeetingUrl = useTrackedLink(
     isOnline ? event.meetingUrl : undefined,
     event.id,
-    "meeting_url"
+    "meeting_url",
   );
   const trackedTicketUrl = useTrackedLink(
     event.offers?.url,
     event.id,
-    "ticket"
+    "ticket",
   );
 
   return (
@@ -141,7 +180,10 @@ export function EventDetailContent({
       {/* Extra bottom padding on mobile for the sticky RSVP bar */}
       <div className="max-w-250 mx-auto px-4 sm:px-6 py-6 sm:py-10 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-foreground/60 hover:text-foreground h-10 px-3 -ml-3 rounded-xl hover:bg-surface transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground/60 hover:text-foreground h-10 px-3 -ml-3 rounded-xl hover:bg-surface transition-colors"
+          >
             <ArrowLeft className="w-4.5 h-4.5" />
             Back to events
           </Link>
@@ -189,7 +231,9 @@ export function EventDetailContent({
           location={isOnline ? "Online" : event.location.name}
           host={event.organizer.name}
         >
-          {(stats?.isHot || (stats?.views ?? 0) > 0 || (reviewStats?.averageRating ?? 0) > 0) && (
+          {(stats?.isHot ||
+            (stats?.views ?? 0) > 0 ||
+            (reviewStats?.averageRating ?? 0) > 0) && (
             <div className="flex flex-wrap items-center gap-2">
               {stats?.isHot && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
@@ -198,14 +242,18 @@ export function EventDetailContent({
               )}
               {(stats?.views ?? 0) > 0 && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
-                  <Eye className="size-3.5" aria-hidden /> {formatViews(stats!.views!)}
+                  <Eye className="size-3.5" aria-hidden />{" "}
+                  {formatViews(stats!.views!)}
                 </span>
               )}
-              {reviewStats && reviewStats.averageRating > 0 && reviewStats.totalReviews > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
-                  <Star className="size-3.5 fill-current" aria-hidden /> {reviewStats.averageRating.toFixed(1)}
-                </span>
-              )}
+              {reviewStats &&
+                reviewStats.averageRating > 0 &&
+                reviewStats.totalReviews > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+                    <Star className="size-3.5 fill-current" aria-hidden />{" "}
+                    {reviewStats.averageRating.toFixed(1)}
+                  </span>
+                )}
             </div>
           )}
         </NyuchiCoverWashHeader>
@@ -214,17 +262,19 @@ export function EventDetailContent({
           {/* Main Content */}
           <div>
             {/* Featured in badge - Luma style */}
-            {event.location.addressLocality && event.location.addressLocality !== "Online" && (
-              <div className="flex items-center gap-2 mb-3">
-                <Badge
-                  variant="ghost"
-                  className="text-xs font-medium border-0 px-0"
-                  style={{ color: "var(--event-primary)" }}
-                >
-                  Featured in {event.location.addressLocality} <ChevronRight className="w-3 h-3 inline" />
-                </Badge>
-              </div>
-            )}
+            {event.location.addressLocality &&
+              event.location.addressLocality !== "Online" && (
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge
+                    variant="ghost"
+                    className="text-xs font-medium border-0 px-0"
+                    style={{ color: "var(--event-primary)" }}
+                  >
+                    Featured in {event.location.addressLocality}{" "}
+                    <ChevronRight className="w-3 h-3 inline" />
+                  </Badge>
+                </div>
+              )}
 
             {/* Live attendance pulse strip — signature visual from Nhimbe.html */}
             <EventPulseStrip event={event} />
@@ -235,7 +285,8 @@ export function EventDetailContent({
             <EventInfoTiles
               event={event}
               weatherSlot={
-                event.location.addressLocality && event.location.addressLocality !== "Online" ? (
+                event.location.addressLocality &&
+                event.location.addressLocality !== "Online" ? (
                   <EventWeather
                     city={event.location.addressLocality}
                     eventDate={event.startDate}
@@ -248,15 +299,21 @@ export function EventDetailContent({
             <EventCircleCta event={event} />
 
             {/* Compact host link under title */}
-            <Link href="#hosted-by" className="flex items-center gap-2 mb-5 sm:mb-6 group">
+            <Link
+              href="#hosted-by"
+              className="flex items-center gap-2 mb-5 sm:mb-6 group"
+            >
               <div
                 className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-[#0A0A0A] shrink-0"
-                style={{ background: `linear-gradient(135deg, var(--event-primary), var(--event-secondary))` }}
+                style={{
+                  background: `linear-gradient(135deg, var(--event-primary), var(--event-secondary))`,
+                }}
               >
                 {event.organizer.initials}
               </div>
               <span className="text-sm text-foreground/60 group-hover:text-foreground transition-colors">
-                {event.organizer.name} <ChevronRight className="w-3 h-3 inline" />
+                {event.organizer.name}{" "}
+                <ChevronRight className="w-3 h-3 inline" />
               </span>
             </Link>
 
@@ -286,7 +343,18 @@ export function EventDetailContent({
               }
               trailing={
                 isOnline && event.meetingUrl ? (
-                  <Button variant="secondary" size="sm" onClick={() => window.open(trackedMeetingUrl || event.meetingUrl, "_blank")}>Join</Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        trackedMeetingUrl || event.meetingUrl,
+                        "_blank",
+                      )
+                    }
+                  >
+                    Join
+                  </Button>
                 ) : (
                   <GetDirectionsButton event={event} />
                 )
@@ -297,7 +365,12 @@ export function EventDetailContent({
             <div>
               <h3 className="text-lg font-bold mb-4">About This Event</h3>
               {event.description.split("\n\n").map((paragraph, index) => (
-                <p key={index} className="text-[15px] leading-relaxed text-foreground/60 mb-4">{paragraph}</p>
+                <p
+                  key={index}
+                  className="text-[15px] leading-relaxed text-foreground/60 mb-4"
+                >
+                  {paragraph}
+                </p>
               ))}
             </div>
 
@@ -327,14 +400,24 @@ export function EventDetailContent({
             {/* Location Section - Luma style: heading, venue, address, map */}
             {isInPerson && (
               <div className="mt-8">
-                <Separator className="mb-8" style={{ backgroundColor: "var(--event-surface)" }} />
-                <h3 className="text-sm font-medium text-muted-foreground mb-4">Location</h3>
-                <h4 className="text-lg font-bold mb-1">{event.location.name}</h4>
+                <Separator
+                  className="mb-8"
+                  style={{ backgroundColor: "var(--event-surface)" }}
+                />
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">
+                  Location
+                </h3>
+                <h4 className="text-lg font-bold mb-1">
+                  {event.location.name}
+                </h4>
                 {event.location.streetAddress && (
-                  <p className="text-sm text-foreground/60 mb-1">{event.location.streetAddress}</p>
+                  <p className="text-sm text-foreground/60 mb-1">
+                    {event.location.streetAddress}
+                  </p>
                 )}
                 <p className="text-sm text-foreground/60 mb-5">
-                  {event.location.addressLocality}, {event.location.addressCountry}
+                  {event.location.addressLocality},{" "}
+                  {event.location.addressCountry}
                 </p>
                 <EventMap
                   venue={event.location.name}
@@ -348,7 +431,10 @@ export function EventDetailContent({
             {/* Weather for in-person events */}
             {isInPerson && (
               <div className="mt-6">
-                <EventWeather city={event.location.addressLocality} eventDate={event.startDate} />
+                <EventWeather
+                  city={event.location.addressLocality}
+                  eventDate={event.startDate}
+                />
               </div>
             )}
 
@@ -361,21 +447,37 @@ export function EventDetailContent({
                 onClick handler on either) and a Globe icon with no link
                 behind it. */}
             <div id="hosted-by" className="mt-10 scroll-mt-20">
-              <Separator className="mb-8" style={{ backgroundColor: "var(--event-surface)" }} />
-              <EventEntityHostCard eventId={event.id} reviewStats={reviewStats} />
+              <Separator
+                className="mb-8"
+                style={{ backgroundColor: "var(--event-surface)" }}
+              />
+              <EventEntityHostCard
+                eventId={event.id}
+                reviewStats={reviewStats}
+              />
             </div>
 
             {/* Ratings */}
             {isPastEvent && (
               <div className="mt-10">
-                <Separator className="mb-8" style={{ backgroundColor: "var(--event-surface)" }} />
-                <EventRatings eventId={event.id} isPastEvent={true} userCanReview={true} />
+                <Separator
+                  className="mb-8"
+                  style={{ backgroundColor: "var(--event-surface)" }}
+                />
+                <EventRatings
+                  eventId={event.id}
+                  isPastEvent={true}
+                  userCanReview={true}
+                />
               </div>
             )}
 
             {/* Referral Leaderboard */}
             <div className="mt-10">
-              <Separator className="mb-8" style={{ backgroundColor: "var(--event-surface)" }} />
+              <Separator
+                className="mb-8"
+                style={{ backgroundColor: "var(--event-surface)" }}
+              />
               <ReferralLeaderboard
                 eventId={event.id}
                 userReferralCode={userReferral?.code}
@@ -401,11 +503,20 @@ export function EventDetailContent({
                 ? "border-transparent"
                 : "border-elevated hover:bg-elevated"
             }`}
-            style={bookmarked ? { backgroundColor: "var(--event-surface)", color: "var(--event-primary)" } : undefined}
+            style={
+              bookmarked
+                ? {
+                    backgroundColor: "var(--event-surface)",
+                    color: "var(--event-primary)",
+                  }
+                : undefined
+            }
             aria-label={bookmarked ? "Remove bookmark" : "Bookmark event"}
             aria-pressed={bookmarked}
           >
-            <Bookmark className={`w-5 h-5 ${bookmarked ? "fill-current" : ""}`} />
+            <Bookmark
+              className={`w-5 h-5 ${bookmarked ? "fill-current" : ""}`}
+            />
           </button>
           {/* Price + RSVP */}
           <div className="flex-1 min-w-0">

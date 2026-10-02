@@ -32,9 +32,7 @@ export function InviteFriends({
 
   return (
     <div data-slot="invite-friends" className={cn("space-y-4", className)}>
-      <h3 className="text-sm font-semibold text-foreground">
-        Invite friends
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground">Invite friends</h3>
 
       <div className="flex items-center gap-2">
         <Input

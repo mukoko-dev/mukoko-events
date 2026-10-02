@@ -26,7 +26,11 @@ interface EventInfoTilesProps {
   weatherSlot?: React.ReactNode;
 }
 
-function formatTimeRange(startISO: string, endISO?: string, tz?: string): string {
+function formatTimeRange(
+  startISO: string,
+  endISO?: string,
+  tz?: string,
+): string {
   const opts: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "2-digit",
@@ -49,7 +53,11 @@ function formatIsoDuration(iso?: string): string | null {
 
 export function EventInfoTiles({ event, weatherSlot }: EventInfoTilesProps) {
   const isOnline = event.eventAttendanceMode === "OnlineEventAttendanceMode";
-  const timeRange = formatTimeRange(event.startDate, event.endDate, event.timezone);
+  const timeRange = formatTimeRange(
+    event.startDate,
+    event.endDate,
+    event.timezone,
+  );
   const duration = formatIsoDuration(event.duration);
   const venue = event.location.name || (isOnline ? "Online" : "TBA");
   const locality = event.location.addressLocality;
@@ -62,7 +70,11 @@ export function EventInfoTiles({ event, weatherSlot }: EventInfoTilesProps) {
       <Tile
         Icon={Clock}
         caption="When"
-        primary={event.date.day ? `${event.date.month} ${event.date.day}` : event.date.full || ""}
+        primary={
+          event.date.day
+            ? `${event.date.month} ${event.date.day}`
+            : event.date.full || ""
+        }
         secondary={duration ? `${timeRange} · ${duration}` : timeRange}
         tint="var(--nh-lead)"
       />
@@ -70,12 +82,20 @@ export function EventInfoTiles({ event, weatherSlot }: EventInfoTilesProps) {
         Icon={MapPin}
         caption={isOnline ? "Online" : "Where"}
         primary={venue}
-        secondary={isOnline ? (event.meetingPlatform || "Virtual") : (locality || "")}
+        secondary={
+          isOnline ? event.meetingPlatform || "Virtual" : locality || ""
+        }
         tint="var(--nh-secondary)"
         borderLeft
       />
-      <div className="flex flex-col gap-1.5 px-3" style={{ borderLeft: "1px solid var(--border)" }}>
-        <span className="inline-flex items-center gap-1.5" style={{ color: "var(--nh-accent)" }}>
+      <div
+        className="flex flex-col gap-1.5 px-3"
+        style={{ borderLeft: "1px solid var(--border)" }}
+      >
+        <span
+          className="inline-flex items-center gap-1.5"
+          style={{ color: "var(--nh-accent)" }}
+        >
           <Cloud className="w-3.5 h-3.5" strokeWidth={2.2} aria-hidden />
           <span className="text-[10px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
             Weather
@@ -90,7 +110,11 @@ export function EventInfoTiles({ event, weatherSlot }: EventInfoTilesProps) {
 }
 
 interface TileProps {
-  Icon: React.ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>;
+  Icon: React.ComponentType<{
+    className?: string;
+    strokeWidth?: number;
+    "aria-hidden"?: boolean;
+  }>;
   caption: string;
   primary: string;
   secondary?: string;
@@ -98,13 +122,23 @@ interface TileProps {
   borderLeft?: boolean;
 }
 
-function Tile({ Icon, caption, primary, secondary, tint, borderLeft }: TileProps) {
+function Tile({
+  Icon,
+  caption,
+  primary,
+  secondary,
+  tint,
+  borderLeft,
+}: TileProps) {
   return (
     <div
       className="flex flex-col gap-1.5 px-3"
       style={{ borderLeft: borderLeft ? "1px solid var(--border)" : undefined }}
     >
-      <span className="inline-flex items-center gap-1.5" style={{ color: tint }}>
+      <span
+        className="inline-flex items-center gap-1.5"
+        style={{ color: tint }}
+      >
         <Icon className="w-3.5 h-3.5" strokeWidth={2.2} aria-hidden />
         <span className="text-[10px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
           {caption}
@@ -113,7 +147,11 @@ function Tile({ Icon, caption, primary, secondary, tint, borderLeft }: TileProps
       <span className="font-serif text-base font-semibold leading-tight text-foreground line-clamp-1">
         {primary}
       </span>
-      {secondary && <span className="text-[11px] text-muted-foreground line-clamp-1">{secondary}</span>}
+      {secondary && (
+        <span className="text-[11px] text-muted-foreground line-clamp-1">
+          {secondary}
+        </span>
+      )}
     </div>
   );
 }
@@ -126,9 +164,15 @@ function Tile({ Icon, caption, primary, secondary, tint, borderLeft }: TileProps
 export function EventPulseStrip({ event }: { event: Event }) {
   const DOT_COUNT = 28;
   const attendees = event.attendeeCount ?? 0;
-  const capacity = event.maximumAttendeeCapacity ?? Math.max(attendees, DOT_COUNT);
-  const filled = Math.min(DOT_COUNT, Math.round((attendees / Math.max(capacity, 1)) * DOT_COUNT));
-  const atCapacity = !!event.maximumAttendeeCapacity && attendees >= event.maximumAttendeeCapacity;
+  const capacity =
+    event.maximumAttendeeCapacity ?? Math.max(attendees, DOT_COUNT);
+  const filled = Math.min(
+    DOT_COUNT,
+    Math.round((attendees / Math.max(capacity, 1)) * DOT_COUNT),
+  );
+  const atCapacity =
+    !!event.maximumAttendeeCapacity &&
+    attendees >= event.maximumAttendeeCapacity;
 
   return (
     <div
@@ -154,7 +198,12 @@ export function EventPulseStrip({ event }: { event: Event }) {
       </span>
       <span className="text-xs font-semibold text-foreground">
         {attendees}
-        {event.maximumAttendeeCapacity ? <span className="text-muted-foreground"> / {event.maximumAttendeeCapacity}</span> : null}
+        {event.maximumAttendeeCapacity ? (
+          <span className="text-muted-foreground">
+            {" "}
+            / {event.maximumAttendeeCapacity}
+          </span>
+        ) : null}
       </span>
       {atCapacity && (
         <span
@@ -197,7 +246,9 @@ export function EventContributionsBoard({ event }: { event: Event }) {
   if (chips.length === 0) return null;
   return (
     <section data-slot="event-contributions" className="mt-8">
-      <h3 className="text-sm font-medium text-muted-foreground mb-3">Contributions board</h3>
+      <h3 className="text-sm font-medium text-muted-foreground mb-3">
+        Contributions board
+      </h3>
       <ul className="flex flex-wrap gap-2">
         {chips.map((c, i) => (
           <li
@@ -205,7 +256,10 @@ export function EventContributionsBoard({ event }: { event: Event }) {
             className="inline-flex items-center gap-1.5 px-3 h-8 rounded-full border text-xs"
             style={{ borderColor: "var(--border)" }}
           >
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--nh-accent)" }} />
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: "var(--nh-accent)" }}
+            />
             <span className="font-medium">{c}</span>
           </li>
         ))}

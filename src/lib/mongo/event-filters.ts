@@ -33,7 +33,9 @@ const CITY_COUNTRY_PATH_LEGACY = "location.addressCountry";
  * gate behind both listings and /discover counts. `$ne: "private"` also admits
  * documents with no `mukoko.visibility` set (treated as public).
  */
-export function publishedVisibleMatch(from: Date = new Date()): Record<string, unknown> {
+export function publishedVisibleMatch(
+  from: Date = new Date(),
+): Record<string, unknown> {
   return {
     status: { $in: [...PUBLISHED_STATUSES] },
     startDate: { $gte: from },
@@ -58,7 +60,10 @@ export const cityCountryExpr = {
  */
 export function cityLocalityFilter(city: string): Record<string, unknown> {
   return {
-    $or: [{ [CITY_LOCALITY_PATH]: city }, { [CITY_LOCALITY_PATH_LEGACY]: city }],
+    $or: [
+      { [CITY_LOCALITY_PATH]: city },
+      { [CITY_LOCALITY_PATH_LEGACY]: city },
+    ],
   };
 }
 
@@ -67,7 +72,8 @@ export function cityLocalityFilter(city: string): Record<string, unknown> {
 /** Read a dotted path off a document without throwing on missing links. */
 function readPath(doc: EventDoc, path: string): unknown {
   return path.split(".").reduce<unknown>((acc, key) => {
-    if (acc && typeof acc === "object") return (acc as Record<string, unknown>)[key];
+    if (acc && typeof acc === "object")
+      return (acc as Record<string, unknown>)[key];
     return undefined;
   }, doc);
 }
@@ -99,12 +105,20 @@ export function eventMatchesCity(doc: EventDoc, city: string): boolean {
 }
 
 /** JS mirror of `publishedVisibleMatch`. */
-export function isPublishedVisibleUpcoming(doc: EventDoc, from: Date = new Date()): boolean {
+export function isPublishedVisibleUpcoming(
+  doc: EventDoc,
+  from: Date = new Date(),
+): boolean {
   const status = (doc as { status?: string }).status;
-  if (!(PUBLISHED_STATUSES as readonly string[]).includes(status ?? "")) return false;
+  if (!(PUBLISHED_STATUSES as readonly string[]).includes(status ?? ""))
+    return false;
   const start =
-    doc.startDate instanceof Date ? doc.startDate : new Date(doc.startDate as unknown as string);
-  if (Number.isNaN(start.getTime()) || start.getTime() < from.getTime()) return false;
-  const visibility = (doc.mukoko as Record<string, unknown> | undefined)?.visibility;
+    doc.startDate instanceof Date
+      ? doc.startDate
+      : new Date(doc.startDate as unknown as string);
+  if (Number.isNaN(start.getTime()) || start.getTime() < from.getTime())
+    return false;
+  const visibility = (doc.mukoko as Record<string, unknown> | undefined)
+    ?.visibility;
   return visibility !== "private";
 }

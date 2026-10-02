@@ -7,7 +7,10 @@ import * as React from "react";
 import { Shield, Activity, Star, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getInitials } from "@/lib/avatar-initials";
-import type { PlatformStatus, VerificationTier } from "@/components/ui/verified-badge";
+import type {
+  PlatformStatus,
+  VerificationTier,
+} from "@/components/ui/verified-badge";
 
 /* ═══════════════════════════════════════════════════════════════
    nyuchi profile block — brand identity component.
@@ -24,21 +27,67 @@ import type { PlatformStatus, VerificationTier } from "@/components/ui/verified-
    from mzizi and rewired onto nhimbe's harness + verified-badge types.
    ═══════════════════════════════════════════════════════════════ */
 
-const TIER_DISPLAY: Record<VerificationTier, { label: string; fg: string; bg: string }> = {
-  unverified: { label: "Unverified", fg: "#6B6B66", bg: "rgba(107,107,102,0.15)" },
-  community: { label: "Community Verified", fg: "var(--color-terracotta,#D4A574)", bg: "rgba(212,165,116,0.15)" },
-  otp: { label: "Contact Verified", fg: "var(--color-cobalt,#00B0FF)", bg: "rgba(0,176,255,0.15)" },
-  government: { label: "Government Verified", fg: "var(--color-gold,#FFD740)", bg: "rgba(255,215,64,0.15)" },
-  licensed: { label: "Licensed Professional", fg: "var(--color-tanzanite,#B388FF)", bg: "rgba(179,136,255,0.15)" },
+const TIER_DISPLAY: Record<
+  VerificationTier,
+  { label: string; fg: string; bg: string }
+> = {
+  unverified: {
+    label: "Unverified",
+    fg: "#6B6B66",
+    bg: "rgba(107,107,102,0.15)",
+  },
+  community: {
+    label: "Community Verified",
+    fg: "var(--color-terracotta,#D4A574)",
+    bg: "rgba(212,165,116,0.15)",
+  },
+  otp: {
+    label: "Contact Verified",
+    fg: "var(--color-cobalt,#00B0FF)",
+    bg: "rgba(0,176,255,0.15)",
+  },
+  government: {
+    label: "Government Verified",
+    fg: "var(--color-gold,#FFD740)",
+    bg: "rgba(255,215,64,0.15)",
+  },
+  licensed: {
+    label: "Licensed Professional",
+    fg: "var(--color-tanzanite,#B388FF)",
+    bg: "rgba(179,136,255,0.15)",
+  },
 };
 
-const STATUS_DISPLAY: Record<PlatformStatus, { label: string; color: string; bg: string }> = {
-  pre_verification: { label: "New", color: "#6B6B66", bg: "rgba(107,107,102,0.12)" },
+const STATUS_DISPLAY: Record<
+  PlatformStatus,
+  { label: string; color: string; bg: string }
+> = {
+  pre_verification: {
+    label: "New",
+    color: "#6B6B66",
+    bg: "rgba(107,107,102,0.12)",
+  },
   living: { label: "Active", color: "#4ADE80", bg: "rgba(74,222,128,0.12)" },
-  liveness_pending: { label: "Pending", color: "#FBBF24", bg: "rgba(251,191,36,0.12)" },
-  suspended: { label: "Suspended", color: "#FF5252", bg: "rgba(248,113,113,0.12)" },
-  presumed_ancestral: { label: "Memorial", color: "var(--color-tanzanite,#B388FF)", bg: "rgba(167,139,250,0.12)" },
-  verified_ancestral: { label: "Ancestral", color: "var(--color-tanzanite,#B388FF)", bg: "rgba(167,139,250,0.12)" },
+  liveness_pending: {
+    label: "Pending",
+    color: "#FBBF24",
+    bg: "rgba(251,191,36,0.12)",
+  },
+  suspended: {
+    label: "Suspended",
+    color: "#FF5252",
+    bg: "rgba(248,113,113,0.12)",
+  },
+  presumed_ancestral: {
+    label: "Memorial",
+    color: "var(--color-tanzanite,#B388FF)",
+    bg: "rgba(167,139,250,0.12)",
+  },
+  verified_ancestral: {
+    label: "Ancestral",
+    color: "var(--color-tanzanite,#B388FF)",
+    bg: "rgba(167,139,250,0.12)",
+  },
 };
 
 interface ProfileStat {
@@ -112,7 +161,8 @@ function NyuchiProfileBlock({
 
   const tierConfig = TIER_DISPLAY[verificationTier];
   const statusConfig = STATUS_DISPLAY[platformStatus];
-  const showTrustIndicators = verificationTier !== "unverified" || trustScore != null;
+  const showTrustIndicators =
+    verificationTier !== "unverified" || trustScore != null;
 
   const trustPercent = trustScore != null ? Math.round(trustScore * 100) : 0;
   const trustColor =
@@ -144,7 +194,10 @@ function NyuchiProfileBlock({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={avatar} alt={name} className="size-full object-cover" />
         ) : (
-          <span className="font-bold text-primary-foreground" style={{ fontSize: avatarSize * 0.35 }}>
+          <span
+            className="font-bold text-primary-foreground"
+            style={{ fontSize: avatarSize * 0.35 }}
+          >
             {initials}
           </span>
         )}
@@ -160,12 +213,18 @@ function NyuchiProfileBlock({
                 style={{ backgroundColor: tierConfig.bg }}
                 title={tierConfig.label}
               >
-                <Shield className="size-3" style={{ color: tierConfig.fg }} strokeWidth={2.5} />
+                <Shield
+                  className="size-3"
+                  style={{ color: tierConfig.fg }}
+                  strokeWidth={2.5}
+                />
               </span>
             )}
       </div>
 
-      {subtitle && <p className="mt-1 text-[13px] text-muted-foreground">{subtitle}</p>}
+      {subtitle && (
+        <p className="mt-1 text-[13px] text-muted-foreground">{subtitle}</p>
+      )}
 
       {showTrustIndicators && (
         <div className="mt-4 flex w-full max-w-xs flex-col gap-3">
@@ -179,7 +238,10 @@ function NyuchiProfileBlock({
             </span>
             <span
               className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold"
-              style={{ backgroundColor: statusConfig.bg, color: statusConfig.color }}
+              style={{
+                backgroundColor: statusConfig.bg,
+                color: statusConfig.color,
+              }}
             >
               <Activity className="size-3" strokeWidth={2.5} />
               {statusConfig.label}
@@ -200,12 +262,18 @@ function NyuchiProfileBlock({
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
                 <div
                   className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${trustPercent}%`, backgroundColor: trustColor }}
+                  style={{
+                    width: `${trustPercent}%`,
+                    backgroundColor: trustColor,
+                  }}
                 />
               </div>
               {ubuntuPoints != null && (
                 <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <Star className="size-2.5" style={{ color: "var(--color-gold,#FFD740)" }} />
+                  <Star
+                    className="size-2.5"
+                    style={{ color: "var(--color-gold,#FFD740)" }}
+                  />
                   {ubuntuPoints.toLocaleString()} Ubuntu Points
                 </span>
               )}
@@ -218,7 +286,9 @@ function NyuchiProfileBlock({
         <div className="mt-5 flex items-center gap-8">
           {stats.map((stat) => (
             <div key={stat.label} className="text-center">
-              <div className="text-xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-xl font-bold text-foreground">
+                {stat.value}
+              </div>
               <div className="text-xs text-muted-foreground">{stat.label}</div>
             </div>
           ))}

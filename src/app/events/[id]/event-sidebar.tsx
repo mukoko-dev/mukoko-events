@@ -2,7 +2,17 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { TrendingUp, Eye, Users, Star, Share2, QrCode, Flame, ArrowRight, Hourglass } from "lucide-react";
+import {
+  TrendingUp,
+  Eye,
+  Users,
+  Star,
+  Share2,
+  QrCode,
+  Flame,
+  ArrowRight,
+  Hourglass,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -12,7 +22,11 @@ import { RegistrationPanel } from "./registration-panel";
 import { HostReputation } from "@/components/ui/host-reputation";
 import { NyuchiAvatarStack } from "@/components/ui/nyuchi-avatar-stack";
 import { EventEntityHostCard } from "./event-entity-host-card";
-import { joinWaitlist, leaveWaitlist, getWaitlistStatus } from "@/app/actions/waitlist";
+import {
+  joinWaitlist,
+  leaveWaitlist,
+  getWaitlistStatus,
+} from "@/app/actions/waitlist";
 import { useAuth } from "@/components/auth/auth-context";
 import { useT } from "@/lib/i18n";
 import type { Event, EventStats, ReviewStats } from "@/lib/api";
@@ -28,9 +42,20 @@ function formatViews(count: number): string {
   return count.toString();
 }
 
-function StatBox({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+function StatBox({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}) {
   return (
-    <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--background)" }}>
+    <div
+      className="p-3 rounded-lg"
+      style={{ backgroundColor: "var(--background)" }}
+    >
       <div className="flex items-center gap-1.5 text-foreground/60 mb-1">
         {icon}
         <span className="text-xs">{label}</span>
@@ -71,7 +96,9 @@ function WaitlistControl({ eventId }: { eventId: string }) {
     setError(null);
     startTransition(async () => {
       try {
-        const res = onWaitlist ? await leaveWaitlist(eventId) : await joinWaitlist(eventId);
+        const res = onWaitlist
+          ? await leaveWaitlist(eventId)
+          : await joinWaitlist(eventId);
         setOnWaitlist(res.onWaitlist);
       } catch {
         setError("Something went wrong. Please try again.");
@@ -80,7 +107,10 @@ function WaitlistControl({ eventId }: { eventId: string }) {
   };
 
   return (
-    <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--event-border)" }}>
+    <div
+      className="mt-4 pt-4 border-t"
+      style={{ borderColor: "var(--event-border)" }}
+    >
       <div className="flex items-center gap-1.5 text-foreground/60 mb-2">
         <Hourglass className="w-3.5 h-3.5" />
         <span className="text-xs">This event is full</span>
@@ -101,7 +131,9 @@ function WaitlistControl({ eventId }: { eventId: string }) {
               : "Join waitlist"}
         </Button>
       ) : (
-        <Link href={`/auth/hosted?return_to=${encodeURIComponent(`/events/${eventId}`)}`}>
+        <Link
+          href={`/auth/hosted?return_to=${encodeURIComponent(`/events/${eventId}`)}`}
+        >
           <Button variant="default" className="w-full py-4 text-base">
             Sign in to join the waitlist
           </Button>
@@ -123,61 +155,112 @@ export function EventSidebar({ event, stats, reviewStats }: EventSidebarProps) {
     : null;
 
   return (
-    <aside data-slot="event-sidebar" className="lg:sticky lg:top-[calc(4rem+env(safe-area-inset-top,0px))] self-start space-y-6">
+    <aside
+      data-slot="event-sidebar"
+      className="lg:sticky lg:top-[calc(4rem+env(safe-area-inset-top,0px))] self-start space-y-6"
+    >
       {/* Ticket Card */}
-      <Card className="border-0" style={{ backgroundColor: "var(--event-surface)" }}>
+      <Card
+        className="border-0"
+        style={{ backgroundColor: "var(--event-surface)" }}
+      >
         <CardContent className="p-6">
-          <RegistrationPanel eventId={event.id} price={event.offers} spotsRemaining={spotsLeft} />
+          <RegistrationPanel
+            eventId={event.id}
+            price={event.offers}
+            spotsRemaining={spotsLeft}
+          />
 
           {event.maximumAttendeeCapacity && (
-            <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--event-border)" }}>
+            <div
+              className="mt-4 pt-4 border-t"
+              style={{ borderColor: "var(--event-border)" }}
+            >
               <div className="flex items-center justify-between text-sm mb-2">
                 <span className="text-foreground/60">Spots</span>
-                <span className="font-medium">{event.attendeeCount} / {event.maximumAttendeeCapacity}</span>
+                <span className="font-medium">
+                  {event.attendeeCount} / {event.maximumAttendeeCapacity}
+                </span>
               </div>
               <Progress value={capacityPercent} className="h-2" />
-              {spotsLeft !== null && spotsLeft > 0 && spotsLeft < event.maximumAttendeeCapacity * 0.2 && (
-                <p className="text-xs text-red-400 mt-2">Only {spotsLeft} spots left!</p>
-              )}
+              {spotsLeft !== null &&
+                spotsLeft > 0 &&
+                spotsLeft < event.maximumAttendeeCapacity * 0.2 && (
+                  <p className="text-xs text-red-400 mt-2">
+                    Only {spotsLeft} spots left!
+                  </p>
+                )}
             </div>
           )}
 
-          {spotsLeft !== null && spotsLeft <= 0 && <WaitlistControl eventId={event.id} />}
+          {spotsLeft !== null && spotsLeft <= 0 && (
+            <WaitlistControl eventId={event.id} />
+          )}
         </CardContent>
       </Card>
 
       {/* Event Insights */}
       {(stats || reviewStats) && (
-        <Card className="border-0" style={{ backgroundColor: "var(--event-surface)" }}>
+        <Card
+          className="border-0"
+          style={{ backgroundColor: "var(--event-surface)" }}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2.5 text-sm">
-              <TrendingUp className="w-4.5 h-4.5" style={{ color: "var(--event-primary)" }} />
+              <TrendingUp
+                className="w-4.5 h-4.5"
+                style={{ color: "var(--event-primary)" }}
+              />
               Event Insights
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="grid grid-cols-2 gap-3">
               {stats?.views !== undefined && (
-                <StatBox icon={<Eye className="w-3.5 h-3.5" />} label="Views" value={formatViews(stats.views)} />
+                <StatBox
+                  icon={<Eye className="w-3.5 h-3.5" />}
+                  label="Views"
+                  value={formatViews(stats.views)}
+                />
               )}
-              <StatBox icon={<Users className="w-3.5 h-3.5" />} label="Going" value={event.attendeeCount} />
+              <StatBox
+                icon={<Users className="w-3.5 h-3.5" />}
+                label="Going"
+                value={event.attendeeCount}
+              />
               {reviewStats && reviewStats.totalReviews > 0 && (
-                <StatBox icon={<Star className="w-3.5 h-3.5 text-accent" />} label="Rating" value={reviewStats.averageRating.toFixed(1)} />
+                <StatBox
+                  icon={<Star className="w-3.5 h-3.5 text-accent" />}
+                  label="Rating"
+                  value={reviewStats.averageRating.toFixed(1)}
+                />
               )}
               {stats?.referrals !== undefined && stats.referrals > 0 && (
-                <StatBox icon={<Share2 className="w-3.5 h-3.5" />} label="Referrals" value={stats.referrals} />
+                <StatBox
+                  icon={<Share2 className="w-3.5 h-3.5" />}
+                  label="Referrals"
+                  value={stats.referrals}
+                />
               )}
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-3">Open data - Transparency builds trust</p>
+            <p className="text-xs text-muted-foreground text-center mt-3">
+              Open data - Transparency builds trust
+            </p>
           </CardContent>
         </Card>
       )}
 
       {/* QR Code */}
-      <Card className="border-0" style={{ backgroundColor: "var(--event-surface)" }}>
+      <Card
+        className="border-0"
+        style={{ backgroundColor: "var(--event-surface)" }}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2.5 text-sm">
-            <QrCode className="w-4.5 h-4.5" style={{ color: "var(--event-primary)" }} />
+            <QrCode
+              className="w-4.5 h-4.5"
+              style={{ color: "var(--event-primary)" }}
+            />
             Share Event
           </CardTitle>
         </CardHeader>
@@ -191,11 +274,18 @@ export function EventSidebar({ event, stats, reviewStats }: EventSidebarProps) {
 
       {/* Friends */}
       {event.friends && event.friends.length > 0 && (
-        <Card className="border-0" style={{ backgroundColor: "var(--event-surface)" }}>
+        <Card
+          className="border-0"
+          style={{ backgroundColor: "var(--event-surface)" }}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2.5 text-sm">
-              <Users className="w-4.5 h-4.5" style={{ color: "var(--event-primary)" }} />
-              {event.friends.length} friend{event.friends.length > 1 ? "s" : ""} going
+              <Users
+                className="w-4.5 h-4.5"
+                style={{ color: "var(--event-primary)" }}
+              />
+              {event.friends.length} friend{event.friends.length > 1 ? "s" : ""}{" "}
+              going
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
@@ -209,7 +299,11 @@ export function EventSidebar({ event, stats, reviewStats }: EventSidebarProps) {
       )}
 
       {/* Host card — entity path (MongoDB via server action) with legacy fallback */}
-      <EventEntityHostCard eventId={event.id} onResolved={setHasEntityHost} reviewStats={reviewStats} />
+      <EventEntityHostCard
+        eventId={event.id}
+        onResolved={setHasEntityHost}
+        reviewStats={reviewStats}
+      />
       {!hasEntityHost && (
         <HostReputation
           host={{
@@ -219,7 +313,12 @@ export function EventSidebar({ event, stats, reviewStats }: EventSidebarProps) {
             eventsHosted: event.organizer.eventCount,
             rating: reviewStats?.averageRating,
             reviewCount: reviewStats?.totalReviews,
-            badges: event.organizer.eventCount > 10 ? ["trusted-host", "veteran"] : event.organizer.eventCount > 5 ? ["trusted-host"] : ["rising-star"],
+            badges:
+              event.organizer.eventCount > 10
+                ? ["trusted-host", "veteran"]
+                : event.organizer.eventCount > 5
+                  ? ["trusted-host"]
+                  : ["rising-star"],
           }}
           variant="compact"
         />
@@ -247,11 +346,17 @@ export function EventSidebar({ event, stats, reviewStats }: EventSidebarProps) {
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-sm">{t("circle.title")}</h4>
-              <p className="text-xs text-foreground/60">{t("circle.subtitle")}</p>
+              <p className="text-xs text-foreground/60">
+                {t("circle.subtitle")}
+              </p>
             </div>
           </div>
           <Link
-            href={event.eventCircleId ? `/circles/${event.eventCircleId}` : "/circles"}
+            href={
+              event.eventCircleId
+                ? `/circles/${event.eventCircleId}`
+                : "/circles"
+            }
             className="inline-flex items-center justify-center gap-1.5 w-full h-[var(--touch-target)] rounded-full bg-primary text-primary-foreground text-sm font-semibold transition-transform duration-[var(--motion-quick)] hover:-translate-y-px"
           >
             {t("circle.view")}

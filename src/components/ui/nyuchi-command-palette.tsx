@@ -16,7 +16,14 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Search, CornerDownLeft, Loader2, ArrowUp, ArrowDown, type LucideIcon } from "lucide-react";
+import {
+  Search,
+  CornerDownLeft,
+  Loader2,
+  ArrowUp,
+  ArrowDown,
+  type LucideIcon,
+} from "lucide-react";
 import type { Mineral } from "@/lib/category-mineral";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { useNyuchiHarness } from "@/components/ui/harness";
@@ -150,7 +157,8 @@ export function NyuchiCommandPalette({
       const ql = q.toLowerCase();
       const nav = navItems.filter(
         (n) =>
-          n.label.toLowerCase().includes(ql) || (n.description ?? "").toLowerCase().includes(ql),
+          n.label.toLowerCase().includes(ql) ||
+          (n.description ?? "").toLowerCase().includes(ql),
       );
       out.push(...nav, ...results);
     } else {
@@ -170,8 +178,11 @@ export function NyuchiCommandPalette({
 
   // Keep the selection in range as the list changes; announce the count.
   useEffect(() => {
-    setSelected((s) => (items.length === 0 ? 0 : Math.min(s, items.length - 1)));
-    if (open && query.trim()) announce(`${items.length} result${items.length === 1 ? "" : "s"}`);
+    setSelected((s) =>
+      items.length === 0 ? 0 : Math.min(s, items.length - 1),
+    );
+    if (open && query.trim())
+      announce(`${items.length} result${items.length === 1 ? "" : "s"}`);
   }, [items.length, open, query, announce]);
 
   const activate = useCallback(
@@ -194,7 +205,9 @@ export function NyuchiCommandPalette({
         setSelected((s) => (items.length ? (s + 1) % items.length : 0));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSelected((s) => (items.length ? (s - 1 + items.length) % items.length : 0));
+        setSelected((s) =>
+          items.length ? (s - 1 + items.length) % items.length : 0,
+        );
       } else if (e.key === "Enter") {
         e.preventDefault();
         activate(items[selected]);
@@ -206,7 +219,10 @@ export function NyuchiCommandPalette({
   if (!open) return null;
 
   // Group the flat list for rendering while keeping the flat index for nav.
-  const groups: { name: string; items: { item: CommandPaletteItem; index: number }[] }[] = [];
+  const groups: {
+    name: string;
+    items: { item: CommandPaletteItem; index: number }[];
+  }[] = [];
   items.forEach((item, index) => {
     const g = groups.find((x) => x.name === item.group);
     if (g) g.items.push({ item, index });
@@ -233,9 +249,15 @@ export function NyuchiCommandPalette({
         {/* Input */}
         <div className="flex items-center gap-2.5 border-b border-elevated px-4">
           {searching ? (
-            <Loader2 className="size-4 shrink-0 animate-spin text-[var(--primary)]" aria-hidden />
+            <Loader2
+              className="size-4 shrink-0 animate-spin text-[var(--primary)]"
+              aria-hidden
+            />
           ) : (
-            <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <Search
+              className="size-4 shrink-0 text-muted-foreground"
+              aria-hidden
+            />
           )}
           <input
             ref={inputRef}
@@ -246,16 +268,24 @@ export function NyuchiCommandPalette({
             role="combobox"
             aria-expanded
             aria-controls="command-palette-list"
-            aria-activedescendant={items.length ? `cmd-item-${selected}` : undefined}
+            aria-activedescendant={
+              items.length ? `cmd-item-${selected}` : undefined
+            }
             className="flex-1 bg-transparent py-3.5 text-[15px] text-foreground outline-none placeholder:text-muted-foreground"
           />
         </div>
 
         {/* Results */}
-        <div id="command-palette-list" role="listbox" className="flex-1 overflow-y-auto p-2">
+        <div
+          id="command-palette-list"
+          role="listbox"
+          className="flex-1 overflow-y-auto p-2"
+        >
           {items.length === 0 ? (
             <p className="px-2 py-9 text-center text-sm text-muted-foreground">
-              {query.trim() ? `No matches for “${query.trim()}”.` : "Type to search."}
+              {query.trim()
+                ? `No matches for “${query.trim()}”.`
+                : "Type to search."}
             </p>
           ) : (
             groups.map((group) => (
@@ -283,12 +313,16 @@ export function NyuchiCommandPalette({
                       <Icon
                         className={cn(
                           "size-4 shrink-0",
-                          isSel ? "text-[var(--primary)]" : "text-muted-foreground",
+                          isSel
+                            ? "text-[var(--primary)]"
+                            : "text-muted-foreground",
                         )}
                         aria-hidden
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm text-foreground">{item.label}</span>
+                        <span className="block truncate text-sm text-foreground">
+                          {item.label}
+                        </span>
                         {item.description && (
                           <span className="block truncate text-xs text-muted-foreground">
                             {item.description}

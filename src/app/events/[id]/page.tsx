@@ -71,18 +71,29 @@ async function loadCompanionData(eventId: string): Promise<{
         let referral = await getUserReferralCodeAction(appUser.id);
         if (!referral) {
           const result = await generateUserReferralCodeAction(appUser.id);
-          referral = { code: result.code, totalReferrals: 0, totalConversions: 0 };
+          referral = {
+            code: result.code,
+            totalReferrals: 0,
+            totalConversions: 0,
+          };
         }
         return referral;
       })
       .catch(() => null),
     canManageEventAction(eventId).catch(() => false),
   ]);
-  return { stats, reviewStats: reviews?.stats ?? null, userReferral, canManage };
+  return {
+    stats,
+    reviewStats: reviews?.stats ?? null,
+    userReferral,
+    canManage,
+  };
 }
 
 // Dynamic OpenGraph metadata
-export async function generateMetadata({ params }: EventDetailPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: EventDetailPageProps): Promise<Metadata> {
   const { id } = await params;
   const event = await loadEvent(id);
 
@@ -154,7 +165,9 @@ export async function generateMetadata({ params }: EventDetailPageProps): Promis
   };
 }
 
-export default async function EventDetailPage({ params }: EventDetailPageProps) {
+export default async function EventDetailPage({
+  params,
+}: EventDetailPageProps) {
   const { id } = await params;
   const event = await loadEvent(id);
 
@@ -162,7 +175,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     notFound();
   }
 
-  const { stats, reviewStats, userReferral, canManage } = await loadCompanionData(event.id);
+  const { stats, reviewStats, userReferral, canManage } =
+    await loadCompanionData(event.id);
 
   const eventUrl = `${SITE_URL}/e/${event.shortCode}`;
 
@@ -174,24 +188,26 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     description: event.description,
     startDate: event.startDate,
     eventStatus: `https://schema.org/${event.eventStatus || "EventScheduled"}`,
-    eventAttendanceMode: event.eventAttendanceMode === 'OnlineEventAttendanceMode'
-      ? "https://schema.org/OnlineEventAttendanceMode"
-      : "https://schema.org/OfflineEventAttendanceMode",
-    location: event.eventAttendanceMode === 'OnlineEventAttendanceMode'
-      ? {
-          "@type": "VirtualLocation",
-          url: eventUrl,
-        }
-      : {
-          "@type": "Place",
-          name: event.location.name,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: event.location.streetAddress,
-            addressLocality: event.location.addressLocality,
-            addressCountry: event.location.addressCountry,
+    eventAttendanceMode:
+      event.eventAttendanceMode === "OnlineEventAttendanceMode"
+        ? "https://schema.org/OnlineEventAttendanceMode"
+        : "https://schema.org/OfflineEventAttendanceMode",
+    location:
+      event.eventAttendanceMode === "OnlineEventAttendanceMode"
+        ? {
+            "@type": "VirtualLocation",
+            url: eventUrl,
+          }
+        : {
+            "@type": "Place",
+            name: event.location.name,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: event.location.streetAddress,
+              addressLocality: event.location.addressLocality,
+              addressCountry: event.location.addressCountry,
+            },
           },
-        },
     organizer: {
       "@type": "Organization",
       name: event.organizer.name,
