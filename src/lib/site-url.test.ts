@@ -16,8 +16,12 @@ describe("site-url", () => {
   });
 
   it("absoluteUrl joins a path without doubling the slash", () => {
-    expect(absoluteUrl("/events/abc")).toBe("https://events.mukoko.com/events/abc");
-    expect(absoluteUrl("events/abc")).toBe("https://events.mukoko.com/events/abc");
+    expect(absoluteUrl("/events/abc")).toBe(
+      "https://events.mukoko.com/events/abc",
+    );
+    expect(absoluteUrl("events/abc")).toBe(
+      "https://events.mukoko.com/events/abc",
+    );
     expect(absoluteUrl()).toBe("https://events.mukoko.com/");
   });
 });

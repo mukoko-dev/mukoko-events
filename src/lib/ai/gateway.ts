@@ -31,7 +31,8 @@ const GATEWAY_AUTH_TOKEN = process.env.SHAMWARI_AI_GATEWAY_AUTH_TOKEN;
  * `SHAMWARI_GENERATION_MODEL` (a Vercel env var) so the model can be swapped
  * without a code change/deploy; defaults to Qwen3-30B.
  */
-export const QWEN_MODEL = process.env.SHAMWARI_GENERATION_MODEL || "@cf/qwen/qwen3-30b-a3b-fp8";
+export const QWEN_MODEL =
+  process.env.SHAMWARI_GENERATION_MODEL || "@cf/qwen/qwen3-30b-a3b-fp8";
 /**
  * Embedding model fronted by the gateway (BGE base, 768-dim). Overridable via
  * `SHAMWARI_EMBEDDING_MODEL`, but ONLY swap for another 768-dim model — the
@@ -39,7 +40,8 @@ export const QWEN_MODEL = process.env.SHAMWARI_GENERATION_MODEL || "@cf/qwen/qwe
  * with a different output size would break vector search until the index is
  * rebuilt.
  */
-export const EMBEDDING_MODEL = process.env.SHAMWARI_EMBEDDING_MODEL || "@cf/baai/bge-base-en-v1.5";
+export const EMBEDDING_MODEL =
+  process.env.SHAMWARI_EMBEDDING_MODEL || "@cf/baai/bge-base-en-v1.5";
 /** Dimensionality of EMBEDDING_MODEL — used by the Atlas vector index. */
 export const EMBEDDING_DIMENSIONS = 768;
 
@@ -47,7 +49,9 @@ export const EMBEDDING_DIMENSIONS = 768;
  * to a graceful fallback rather than surfacing a 500. */
 export class AiGatewayNotConfiguredError extends Error {
   constructor() {
-    super("[mukoko] Shamwari AI Gateway is not configured (SHAMWARI_AI_GATEWAY_URL / _TOKEN)");
+    super(
+      "[mukoko] Shamwari AI Gateway is not configured (SHAMWARI_AI_GATEWAY_URL / _TOKEN)",
+    );
     this.name = "AiGatewayNotConfiguredError";
   }
 }
@@ -61,7 +65,11 @@ export function isGatewayConfigured(): boolean {
   return Boolean(GATEWAY_URL && GATEWAY_TOKEN);
 }
 
-async function gatewayRun<T>(model: string, body: unknown, timeoutMs: number): Promise<T> {
+async function gatewayRun<T>(
+  model: string,
+  body: unknown,
+  timeoutMs: number,
+): Promise<T> {
   if (!GATEWAY_URL || !GATEWAY_TOKEN) throw new AiGatewayNotConfiguredError();
   const url = `${GATEWAY_URL.replace(/\/$/, "")}/${model}`;
   const headers: Record<string, string> = {
@@ -70,7 +78,8 @@ async function gatewayRun<T>(model: string, body: unknown, timeoutMs: number): P
   };
   // Authenticated Gateway: the second credential that lets us through the
   // gateway front door, distinct from the Workers AI provider token above.
-  if (GATEWAY_AUTH_TOKEN) headers["cf-aig-authorization"] = `Bearer ${GATEWAY_AUTH_TOKEN}`;
+  if (GATEWAY_AUTH_TOKEN)
+    headers["cf-aig-authorization"] = `Bearer ${GATEWAY_AUTH_TOKEN}`;
   const res = await fetch(url, {
     method: "POST",
     headers,
@@ -79,7 +88,9 @@ async function gatewayRun<T>(model: string, body: unknown, timeoutMs: number): P
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`[mukoko] Shamwari gateway ${model} failed (${res.status}): ${text.slice(0, 200)}`);
+    throw new Error(
+      `[mukoko] Shamwari gateway ${model} failed (${res.status}): ${text.slice(0, 200)}`,
+    );
   }
   return (await res.json()) as T;
 }
@@ -96,7 +107,11 @@ export async function chat(
 ): Promise<string> {
   const data = await gatewayRun<WorkersAiTextResult>(
     QWEN_MODEL,
-    { messages, max_tokens: opts.maxTokens ?? 400, temperature: opts.temperature ?? 0.7 },
+    {
+      messages,
+      max_tokens: opts.maxTokens ?? 400,
+      temperature: opts.temperature ?? 0.7,
+    },
     opts.timeoutMs ?? 20_000,
   );
   const response = data.result?.response ?? data.response;

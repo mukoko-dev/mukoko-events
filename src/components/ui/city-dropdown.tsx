@@ -51,12 +51,16 @@ export function CityDropdown({
   }, [open]);
 
   const label =
-    displayLabel ?? (allOption && value === allOption.value ? allOption.label : value);
+    displayLabel ??
+    (allOption && value === allOption.value ? allOption.label : value);
 
   const isSubtle = variant === "subtle";
 
   return (
-    <div className={`relative ${isSubtle ? "inline-block" : ""} ${className}`} ref={ref}>
+    <div
+      className={`relative ${isSubtle ? "inline-block" : ""} ${className}`}
+      ref={ref}
+    >
       <button
         onClick={() => setOpen(!open)}
         className={

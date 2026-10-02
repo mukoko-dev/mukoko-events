@@ -35,7 +35,9 @@ let cachedClient: S3Client | null = null;
 
 function getR2Client(): S3Client {
   if (!isR2Configured()) {
-    throw new Error("R2 is not configured (missing R2_* environment variables)");
+    throw new Error(
+      "R2 is not configured (missing R2_* environment variables)",
+    );
   }
   if (!cachedClient) {
     cachedClient = new S3Client({

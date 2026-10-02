@@ -95,11 +95,15 @@ export function NyuchiEmptyState({
             {icon}
           </EmptyMedia>
         )}
-        <EmptyTitle className={cn("font-serif", compact ? "text-base" : "text-lg")}>
+        <EmptyTitle
+          className={cn("font-serif", compact ? "text-base" : "text-lg")}
+        >
           {title}
         </EmptyTitle>
         {description && (
-          <EmptyDescription className="max-w-[280px]">{description}</EmptyDescription>
+          <EmptyDescription className="max-w-[280px]">
+            {description}
+          </EmptyDescription>
         )}
       </EmptyHeader>
 
@@ -111,7 +115,11 @@ export function NyuchiEmptyState({
             </Button>
           )}
           {onSecondary && secondaryLabel && (
-            <Button variant="outline" onClick={onSecondary} className="rounded-full">
+            <Button
+              variant="outline"
+              onClick={onSecondary}
+              className="rounded-full"
+            >
               {secondaryLabel}
             </Button>
           )}

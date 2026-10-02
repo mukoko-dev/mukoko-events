@@ -26,7 +26,14 @@ interface PublishBarProps {
   className?: string;
 }
 
-function PublishBar({ label = "Publish", loading = false, disabled = false, onPublish, secondary, className }: PublishBarProps) {
+function PublishBar({
+  label = "Publish",
+  loading = false,
+  disabled = false,
+  onPublish,
+  secondary,
+  className,
+}: PublishBarProps) {
   return (
     <div
       data-slot="publish-bar"

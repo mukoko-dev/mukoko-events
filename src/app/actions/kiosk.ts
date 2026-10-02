@@ -16,7 +16,12 @@
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import { personsCollection } from "@/lib/mongo/databases";
 import { syncPersonFromWorkos, type SyncPersonInput } from "@/lib/mongo/users";
-import { isDevBypass, DEV_WORKOS_ID, DEV_EMAIL, DEV_NAME } from "@/lib/auth/dev";
+import {
+  isDevBypass,
+  DEV_WORKOS_ID,
+  DEV_EMAIL,
+  DEV_NAME,
+} from "@/lib/auth/dev";
 import {
   requestKioskPairing,
   getKioskPairingStatus,
@@ -32,14 +37,21 @@ import type { KioskPairingStatus, KioskSession, ScreenType } from "@/lib/api";
 async function resolveActingPerson(): Promise<PersonDoc> {
   let syncInput: SyncPersonInput;
   if (isDevBypass()) {
-    syncInput = { workosUserId: DEV_WORKOS_ID, email: DEV_EMAIL, name: DEV_NAME, emailVerified: true };
+    syncInput = {
+      workosUserId: DEV_WORKOS_ID,
+      email: DEV_EMAIL,
+      name: DEV_NAME,
+      emailVerified: true,
+    };
   } else {
     const { user } = await withAuth();
     if (!user) throw new Error("You must be signed in to pair a kiosk.");
     syncInput = {
       workosUserId: user.id,
       email: user.email ?? null,
-      name: [user.firstName, user.lastName].filter(Boolean).join(" ").trim() || null,
+      name:
+        [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+        null,
       givenName: user.firstName ?? null,
       familyName: user.lastName ?? null,
       picture: user.profilePictureUrl ?? null,
@@ -53,7 +65,8 @@ async function resolveActingPerson(): Promise<PersonDoc> {
     await syncPersonFromWorkos(syncInput);
     person = await persons.findOne({ workosUserId: syncInput.workosUserId });
   }
-  if (!person) throw new Error("Could not resolve your account. Please try again.");
+  if (!person)
+    throw new Error("Could not resolve your account. Please try again.");
   return person;
 }
 
@@ -65,7 +78,9 @@ export async function requestKioskPairingAction(
 }
 
 /** Poll a pairing code's status (open — the screen has no session yet). */
-export async function getKioskPairingStatusAction(code: string): Promise<KioskPairingStatus> {
+export async function getKioskPairingStatusAction(
+  code: string,
+): Promise<KioskPairingStatus> {
   return getKioskPairingStatus(code);
 }
 
@@ -73,18 +88,27 @@ export async function getKioskPairingStatusAction(code: string): Promise<KioskPa
 export async function confirmKioskPairingAction(
   code: string,
   eventId: string,
-): Promise<{ message: string; eventName: string; screenType: ScreenType; sessionToken: string }> {
+): Promise<{
+  message: string;
+  eventName: string;
+  screenType: ScreenType;
+  sessionToken: string;
+}> {
   const person = await resolveActingPerson();
   return confirmKioskPairing(code, eventId, person._id);
 }
 
 /** Resolve a confirmed kiosk/signage session from its token. */
-export async function getKioskSessionAction(token: string): Promise<{ session: KioskSession }> {
+export async function getKioskSessionAction(
+  token: string,
+): Promise<{ session: KioskSession }> {
   return getKioskSession(token);
 }
 
 /** Deactivate a kiosk/signage session. */
-export async function endKioskSessionAction(token: string): Promise<{ message: string }> {
+export async function endKioskSessionAction(
+  token: string,
+): Promise<{ message: string }> {
   return endKioskSession(token);
 }
 

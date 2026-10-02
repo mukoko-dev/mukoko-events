@@ -18,7 +18,10 @@ const featuredEvent: Event = {
   description: "An evening of jazz.",
   startDate: "2026-08-01T18:00:00.000Z",
   date: { day: "1", month: "Aug", time: "6:00 PM" } as Event["date"],
-  location: { name: "National Gallery", addressLocality: "Harare" } as Event["location"],
+  location: {
+    name: "National Gallery",
+    addressLocality: "Harare",
+  } as Event["location"],
   category: "music",
   keywords: [],
   attendeeCount: 42,
@@ -28,7 +31,9 @@ const featuredEvent: Event = {
 describe("HomeLanding", () => {
   it("renders the serif hero with one primary CTA into /discover", () => {
     render(<HomeLanding cities={[]} />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Find your people.");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "Find your people.",
+    );
     const cta = screen.getByRole("link", { name: /Explore gatherings/ });
     expect(cta).toHaveAttribute("href", "/discover");
   });
@@ -51,11 +56,15 @@ describe("HomeLanding", () => {
   });
 
   it("shows at most one featured event as a teaser — no feed", () => {
-    const { container } = render(<HomeLanding featuredEvent={featuredEvent} cities={[]} />);
+    const { container } = render(
+      <HomeLanding featuredEvent={featuredEvent} cities={[]} />,
+    );
     expect(screen.getByText("Sunset Jazz at the Gallery")).toBeInTheDocument();
     // The 4.2.0 timeline (date-railed feed) must NOT render on home.
     expect(container.querySelector('[data-slot="nyuchi-timeline"]')).toBeNull();
-    expect(container.querySelector('[data-slot="nyuchi-timeline-row"]')).toBeNull();
+    expect(
+      container.querySelector('[data-slot="nyuchi-timeline-row"]'),
+    ).toBeNull();
     expect(container.querySelectorAll('a[href^="/events/e"]').length).toBe(1);
   });
 

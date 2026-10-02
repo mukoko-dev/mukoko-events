@@ -10,7 +10,10 @@ import {
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth as useAuthKit, useAccessToken } from "@workos-inc/authkit-nextjs/components";
+import {
+  useAuth as useAuthKit,
+  useAccessToken,
+} from "@workos-inc/authkit-nextjs/components";
 import { syncCurrentUser } from "@/app/actions/auth";
 import { safeReturnTo } from "@/lib/auth/return-to";
 
@@ -55,7 +58,10 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
   super_admin: 3,
 };
 
-export function hasPermission(userRole: UserRole, requiredRole: UserRole): boolean {
+export function hasPermission(
+  userRole: UserRole,
+  requiredRole: UserRole,
+): boolean {
   return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
 }
 
@@ -90,7 +96,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { user: workosUser, loading: authKitLoading, signOut: authKitSignOut } = useAuthKit();
+  const {
+    user: workosUser,
+    loading: authKitLoading,
+    signOut: authKitSignOut,
+  } = useAuthKit();
   const { accessToken, getAccessToken } = useAccessToken();
 
   const [nhimbeUser, setNhimbeUser] = useState<NhimbeUser | null>(null);
@@ -200,9 +210,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authKitLoading || syncing || ((!!workosUser || devBypass) && !hasSynced);
   const isAuthenticated = (!!workosUser || devBypass) && !!nhimbeUser;
 
-  const hasName = !!nhimbeUser?.name && nhimbeUser.name !== "" && nhimbeUser.name !== "User";
+  const hasName =
+    !!nhimbeUser?.name && nhimbeUser.name !== "" && nhimbeUser.name !== "User";
   const hasAddressLocality = !!nhimbeUser?.addressLocality;
-  const hasInterests = !!nhimbeUser?.interests && nhimbeUser.interests.length > 0;
+  const hasInterests =
+    !!nhimbeUser?.interests && nhimbeUser.interests.length > 0;
 
   const getAccessTokenSafe = useCallback(async () => {
     try {

@@ -87,7 +87,11 @@ function NyuchiAvatarPicker({
   const busy = uploading || checkingGravatar || disabled;
 
   return (
-    <div data-slot="nyuchi-avatar-picker" style={animStyle()} className={cn("space-y-4", className)}>
+    <div
+      data-slot="nyuchi-avatar-picker"
+      style={animStyle()}
+      className={cn("space-y-4", className)}
+    >
       <div className="flex items-center gap-4">
         <div
           className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary"
@@ -97,7 +101,9 @@ function NyuchiAvatarPicker({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={value} alt="" className="size-full object-cover" />
           ) : (
-            <span className="text-2xl font-bold text-primary-foreground">{getInitials(name)}</span>
+            <span className="text-2xl font-bold text-primary-foreground">
+              {getInitials(name)}
+            </span>
           )}
         </div>
 
@@ -116,7 +122,13 @@ function NyuchiAvatarPicker({
             )}
             Upload photo
           </Button>
-          <Button type="button" variant="secondary" size="sm" disabled={busy} onClick={handleGravatar}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={busy}
+            onClick={handleGravatar}
+          >
             {checkingGravatar ? (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             ) : (
@@ -142,7 +154,8 @@ function NyuchiAvatarPicker({
 
       {gravatarNotFound && (
         <p className="text-sm text-muted-foreground" role="status">
-          No Gravatar found for your email — try uploading a photo or picking a sticker instead.
+          No Gravatar found for your email — try uploading a photo or picking a
+          sticker instead.
         </p>
       )}
       {error && (
@@ -169,7 +182,8 @@ function NyuchiAvatarPicker({
               }}
               className={cn(
                 "flex size-11 items-center justify-center overflow-hidden rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                value === sticker.dataUri && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+                value === sticker.dataUri &&
+                  "ring-2 ring-primary ring-offset-2 ring-offset-background",
               )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

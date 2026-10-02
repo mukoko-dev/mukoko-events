@@ -94,7 +94,9 @@ export function buildCalendarIcs(input: IcsCalendarInput): string {
     `X-WR-CALNAME:${escapeIcsText(input.name)}`,
   ];
   if (input.description) {
-    lines.push(`X-WR-CALDESC:${escapeIcsText(trimIcsDescription(input.description))}`);
+    lines.push(
+      `X-WR-CALDESC:${escapeIcsText(trimIcsDescription(input.description))}`,
+    );
   }
 
   for (const event of input.events) {
@@ -114,7 +116,9 @@ export function buildCalendarIcs(input: IcsCalendarInput): string {
     if (event.location) lines.push(`LOCATION:${escapeIcsText(event.location)}`);
     if (event.url) lines.push(`URL:${escapeIcsText(event.url)}`);
     if (event.description) {
-      lines.push(`DESCRIPTION:${escapeIcsText(trimIcsDescription(event.description))}`);
+      lines.push(
+        `DESCRIPTION:${escapeIcsText(trimIcsDescription(event.description))}`,
+      );
     }
     lines.push("END:VEVENT");
   }

@@ -15,9 +15,17 @@
 
 import { NextResponse } from "next/server";
 import { listEvents } from "@/lib/mongo/events";
-import { createEventForPerson, type CreateEventActionInput } from "@/app/actions/events";
+import {
+  createEventForPerson,
+  type CreateEventActionInput,
+} from "@/app/actions/events";
 import { resolveActorFromBearer, ActorError } from "@/lib/auth/mcp-actor";
-import { parseBoundedInt, clampString, clampStringArray, readJsonBody } from "@/lib/security/request";
+import {
+  parseBoundedInt,
+  clampString,
+  clampStringArray,
+  readJsonBody,
+} from "@/lib/security/request";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,16 +37,32 @@ export async function GET(request: Request) {
   // `limit`/`offset` must be sane integers (a NaN would become `.limit(NaN)`,
   // an unbounded value a full-collection scan), and the string filters are
   // length-capped so they can't be abused as oversized query payloads.
-  const limit = parseBoundedInt(searchParams.get("limit"), { min: 1, max: 100, fallback: 20 });
-  const offset = parseBoundedInt(searchParams.get("offset"), { min: 0, max: 100_000, fallback: 0 });
-  const cityFilter = clampString(searchParams.get("city") ?? "", 120) || undefined;
-  const categoryFilter = clampString(searchParams.get("category") ?? "", 120) || undefined;
+  const limit = parseBoundedInt(searchParams.get("limit"), {
+    min: 1,
+    max: 100,
+    fallback: 20,
+  });
+  const offset = parseBoundedInt(searchParams.get("offset"), {
+    min: 0,
+    max: 100_000,
+    fallback: 0,
+  });
+  const cityFilter =
+    clampString(searchParams.get("city") ?? "", 120) || undefined;
+  const categoryFilter =
+    clampString(searchParams.get("category") ?? "", 120) || undefined;
   // Free-text search (the MCP `search_events` tool sends `q`). Length-capped so
   // an oversized value can't become an expensive regex payload.
-  const queryFilter = clampString(searchParams.get("q") ?? "", 200) || undefined;
+  const queryFilter =
+    clampString(searchParams.get("q") ?? "", 200) || undefined;
 
   try {
-    const { events, total, limit: appliedLimit, offset: appliedOffset } = await listEvents({
+    const {
+      events,
+      total,
+      limit: appliedLimit,
+      offset: appliedOffset,
+    } = await listEvents({
       city: cityFilter,
       category: categoryFilter,
       query: queryFilter,
@@ -52,7 +76,10 @@ export async function GET(request: Request) {
     });
   } catch (err) {
     console.error("[mukoko] GET /api/events failed", err);
-    return NextResponse.json({ error: "Failed to load events" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load events" },
+      { status: 500 },
+    );
   }
 }
 
@@ -62,13 +89,17 @@ export async function POST(request: Request) {
   try {
     person = await resolveActorFromBearer(request.headers.get("Authorization"));
   } catch (err) {
-    if (err instanceof ActorError) return NextResponse.json({ error: err.message }, { status: err.status });
+    if (err instanceof ActorError)
+      return NextResponse.json({ error: err.message }, { status: err.status });
     throw err;
   }
 
   const parsed = await readJsonBody<Partial<CreateEventActionInput>>(request);
   if (!parsed.ok) {
-    return NextResponse.json({ error: parsed.error }, { status: parsed.status });
+    return NextResponse.json(
+      { error: parsed.error },
+      { status: parsed.status },
+    );
   }
   const body = parsed.data;
 
@@ -82,7 +113,10 @@ export async function POST(request: Request) {
     startDate: clampString(body.startDate, 40),
     endDate: body.endDate ?? null,
     category: body.category ?? null,
-    keywords: clampStringArray(body.keywords, { maxItems: 30, maxItemLength: 80 }),
+    keywords: clampStringArray(body.keywords, {
+      maxItems: 30,
+      maxItemLength: 80,
+    }),
     image: body.image ?? null,
     coverGradient: body.coverGradient ?? null,
     isOnline: Boolean(body.isOnline),
@@ -98,7 +132,10 @@ export async function POST(request: Request) {
     ticketUrl: body.ticketUrl ?? null,
     visibility: body.visibility === "private" ? "private" : "public",
     requiresApproval: Boolean(body.requiresApproval),
-    hostMode: body.hostMode === "organization" || body.hostMode === "family" ? body.hostMode : "person",
+    hostMode:
+      body.hostMode === "organization" || body.hostMode === "family"
+        ? body.hostMode
+        : "person",
     hostEntityId: body.hostEntityId ?? null,
   };
 
@@ -107,7 +144,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ id, event }, { status: 201 });
   } catch (err) {
     // Validation failures throw plain Errors — surface their message as a 400.
-    const message = err instanceof Error ? err.message : "Failed to create event.";
+    const message =
+      err instanceof Error ? err.message : "Failed to create event.";
     console.error("[mukoko] POST /api/events failed", err);
     return NextResponse.json({ error: message }, { status: 400 });
   }

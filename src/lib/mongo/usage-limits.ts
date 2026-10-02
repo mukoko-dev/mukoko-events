@@ -30,7 +30,8 @@ interface UsageCounterDoc extends BaseDoc {
   count: number;
 }
 
-const usageCountersCollection = () => getCollection<UsageCounterDoc>(DB.system, "usageCounters");
+const usageCountersCollection = () =>
+  getCollection<UsageCounterDoc>(DB.system, "usageCounters");
 
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);

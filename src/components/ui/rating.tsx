@@ -49,7 +49,9 @@ function Rating({
             disabled={readOnly}
             className={cn(
               "transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm",
-              readOnly ? "cursor-default" : "cursor-pointer hover:scale-110 transition-transform"
+              readOnly
+                ? "cursor-default"
+                : "cursor-pointer hover:scale-110 transition-transform",
             )}
             onClick={() => onChange?.(starValue)}
             onMouseEnter={() => !readOnly && setHoverValue(starValue)}
@@ -57,9 +59,7 @@ function Rating({
             <Star
               className={cn(
                 sizeMap[size],
-                isFilled
-                  ? "text-accent fill-accent"
-                  : "text-foreground/20"
+                isFilled ? "text-accent fill-accent" : "text-foreground/20",
               )}
             />
           </button>

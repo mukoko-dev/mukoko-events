@@ -36,7 +36,9 @@ export interface MapPlaceCoords {
  * fall back to the first ring's first vertex, which is good enough to drop a
  * single discovery pin.
  */
-function coordsFromGeo(geo: Record<string, unknown> | null | undefined): [number, number] | null {
+function coordsFromGeo(
+  geo: Record<string, unknown> | null | undefined,
+): [number, number] | null {
   if (!geo) return null;
   const type = geo.type;
   const raw = geo.coordinates;
@@ -67,7 +69,9 @@ function coordsFromGeo(geo: Record<string, unknown> | null | undefined): [number
  * Resolve a single place's coordinates. Returns null when the id is empty,
  * the place is missing, or it carries no usable geometry.
  */
-export async function getMapPlaceById(placeId: string): Promise<MapPlaceCoords | null> {
+export async function getMapPlaceById(
+  placeId: string,
+): Promise<MapPlaceCoords | null> {
   if (!placeId) return null;
 
   // Resolve the acting identity for a consistent auth gate. The data is public,

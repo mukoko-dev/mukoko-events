@@ -25,7 +25,11 @@ vi.mock("@workos-inc/authkit-nextjs", () => ({
 }));
 vi.mock("@workos-inc/authkit-nextjs/components", () => ({
   useAuth: () => ({ user: null, loading: false, signOut: vi.fn() }),
-  useAccessToken: () => ({ accessToken: null, loading: false, getAccessToken: vi.fn() }),
+  useAccessToken: () => ({
+    accessToken: null,
+    loading: false,
+    getAccessToken: vi.fn(),
+  }),
 }));
 // The owner-actions edit modal renders a ResponsiveModal, which reads
 // window.matchMedia via useIsMobile — jsdom doesn't implement it, so force
@@ -127,8 +131,14 @@ beforeEach(() => {
   getCalendarBySlug.mockResolvedValue(baseCalendar);
   listCalendarEvents.mockResolvedValue([timelineEvent]);
   isFollowingCalendar.mockResolvedValue(false);
-  getEntityById.mockResolvedValue({ _id: "entity-1", name: "Studio Collective" });
-  getCircleSummary.mockResolvedValue({ id: "circle-1", name: "Harare Musicians" });
+  getEntityById.mockResolvedValue({
+    _id: "entity-1",
+    name: "Studio Collective",
+  });
+  getCircleSummary.mockResolvedValue({
+    id: "circle-1",
+    name: "Harare Musicians",
+  });
   resolveActingPerson.mockResolvedValue(null);
 });
 
@@ -145,13 +155,19 @@ describe("CalendarPage (SSR render)", () => {
   it("renders name, description, curator, counts and the event timeline", async () => {
     await renderPage();
 
-    expect(screen.getByRole("heading", { name: "Harare Live Music" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Harare Live Music" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Every gig worth catching.")).toBeInTheDocument();
-    expect(screen.getByText(/Curated by Studio Collective/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Curated by Studio Collective/),
+    ).toBeInTheDocument();
     expect(screen.getByText(/42 followers/)).toBeInTheDocument();
     expect(screen.getByText(/3 events/)).toBeInTheDocument();
     // The stream itself — the timeline drill-down.
-    expect(document.querySelector('[data-slot="nyuchi-timeline"]')).toBeTruthy();
+    expect(
+      document.querySelector('[data-slot="nyuchi-timeline"]'),
+    ).toBeTruthy();
     expect(screen.getByText("Jam Session")).toBeInTheDocument();
   });
 
@@ -175,7 +191,10 @@ describe("CalendarPage (SSR render)", () => {
       `/auth/hosted?return_to=${encodeURIComponent("/calendars/harare-live-music-abc123")}`,
     );
     const ics = screen.getByRole("link", { name: /Subscribe \(\.ics\)/ });
-    expect(ics).toHaveAttribute("href", "/calendars/harare-live-music-abc123/ics");
+    expect(ics).toHaveAttribute(
+      "href",
+      "/calendars/harare-live-music-abc123/ics",
+    );
   });
 
   it("shows the Follow pill (not the sign-in link) to a signed-in viewer", async () => {
@@ -188,12 +207,16 @@ describe("CalendarPage (SSR render)", () => {
   it("degrades to a friendly empty state when the calendar has no upcoming events", async () => {
     listCalendarEvents.mockResolvedValue([]);
     await renderPage();
-    expect(screen.getByText(/No upcoming events on this calendar yet/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/No upcoming events on this calendar yet/),
+    ).toBeInTheDocument();
   });
 
   it("404s for an unknown slug", async () => {
     getCalendarBySlug.mockResolvedValue(null);
-    await expect(CalendarPage(pageProps("nope"))).rejects.toThrow("NEXT_NOT_FOUND");
+    await expect(CalendarPage(pageProps("nope"))).rejects.toThrow(
+      "NEXT_NOT_FOUND",
+    );
   });
 });
 
@@ -216,7 +239,9 @@ describe("CalendarPage (private-404 gate)", () => {
     getCalendarBySlug.mockResolvedValue(privateCalendar);
     resolveActingPerson.mockResolvedValue({ _id: "owner-1" });
     await renderPage();
-    expect(screen.getByRole("heading", { name: "Harare Live Music" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Harare Live Music" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Private")).toBeInTheDocument();
   });
 });
@@ -233,14 +258,20 @@ describe("generateMetadata", () => {
   });
 
   it("noindexes unlisted calendars but still names them", async () => {
-    getCalendarBySlug.mockResolvedValue({ ...baseCalendar, visibility: "unlisted" });
+    getCalendarBySlug.mockResolvedValue({
+      ...baseCalendar,
+      visibility: "unlisted",
+    });
     const metadata = await generateMetadata(pageProps());
     expect(metadata.title).toBe("Harare Live Music - Nhimbe");
     expect(metadata.robots).toEqual({ index: false });
   });
 
   it("never leaks a private calendar's name through metadata", async () => {
-    getCalendarBySlug.mockResolvedValue({ ...baseCalendar, visibility: "private" });
+    getCalendarBySlug.mockResolvedValue({
+      ...baseCalendar,
+      visibility: "private",
+    });
     const metadata = await generateMetadata(pageProps());
     expect(metadata.title).toBe("Calendar not found - Nhimbe");
     expect(JSON.stringify(metadata)).not.toContain("Harare Live Music");

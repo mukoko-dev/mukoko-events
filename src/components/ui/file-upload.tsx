@@ -77,9 +77,12 @@ function FileUpload({
           dragActive
             ? "border-primary bg-primary/5"
             : "border-foreground/10 hover:border-foreground/20",
-          disabled && "pointer-events-none opacity-50"
+          disabled && "pointer-events-none opacity-50",
         )}
-        onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragActive(true);
+        }}
         onDragLeave={() => setDragActive(false)}
         onDrop={(e) => {
           e.preventDefault();
@@ -94,7 +97,8 @@ function FileUpload({
           onClick={() => inputRef.current?.click()}
           className="text-sm text-foreground/60 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
         >
-          Drop files here or <span className="font-medium text-primary">browse</span>
+          Drop files here or{" "}
+          <span className="font-medium text-primary">browse</span>
         </button>
         <p className="text-xs text-foreground/40">Max {formatSize(maxSize)}</p>
         <input
@@ -110,7 +114,10 @@ function FileUpload({
       </div>
 
       {error && (
-        <div data-slot="file-upload-error" className="flex items-center gap-2 text-sm text-red-400">
+        <div
+          data-slot="file-upload-error"
+          className="flex items-center gap-2 text-sm text-red-400"
+        >
           <AlertCircle className="size-4" />
           {error}
         </div>
@@ -125,8 +132,14 @@ function FileUpload({
             >
               <div className="flex-1 truncate text-sm">{file.name}</div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-foreground/40">{formatSize(file.size)}</span>
-                <Button variant="ghost" size="icon-xs" onClick={() => removeFile(i)}>
+                <span className="text-xs text-foreground/40">
+                  {formatSize(file.size)}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => removeFile(i)}
+                >
                   <X className="size-3" />
                 </Button>
               </div>

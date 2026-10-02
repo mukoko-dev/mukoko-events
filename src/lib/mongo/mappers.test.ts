@@ -109,17 +109,28 @@ describe("mapEventDocToApi", () => {
 
   it("maps the first embedded offer", () => {
     const e = mapEventDocToApi(baseEvent());
-    expect(e.offers).toEqual({ price: 10, priceCurrency: "USD", url: undefined, availability: "InStock" });
+    expect(e.offers).toEqual({
+      price: 10,
+      priceCurrency: "USD",
+      url: undefined,
+      availability: "InStock",
+    });
   });
 
   it("treats free events without offers as price 0", () => {
-    const e = mapEventDocToApi(baseEvent({ offers: [], isAccessibleForFree: true }));
+    const e = mapEventDocToApi(
+      baseEvent({ offers: [], isAccessibleForFree: true }),
+    );
     expect(e.offers).toEqual({ price: 0 });
   });
 
   it("draft events are not published", () => {
-    expect(mapEventDocToApi(baseEvent({ status: "draft" })).isPublished).toBe(false);
-    expect(mapEventDocToApi(baseEvent({ status: "live" })).isPublished).toBe(true);
+    expect(mapEventDocToApi(baseEvent({ status: "draft" })).isPublished).toBe(
+      false,
+    );
+    expect(mapEventDocToApi(baseEvent({ status: "live" })).isPublished).toBe(
+      true,
+    );
   });
 
   it("prefers a resolved place document over the embedded location", () => {
@@ -134,7 +145,11 @@ describe("mapEventDocToApi", () => {
       ownerEntityId: "ent-9",
       placeType: ["Place"],
       geo: { type: "Point", coordinates: [31.05, -17.83] },
-      address: { addressLocality: "Harare", addressCountry: "ZW", streetAddress: "5th St" },
+      address: {
+        addressLocality: "Harare",
+        addressCountry: "ZW",
+        streetAddress: "5th St",
+      },
       url: "https://maps.example/csc",
     };
     const e = mapEventDocToApi(baseEvent(), { place });
@@ -155,7 +170,12 @@ describe("mapEventDocToApi", () => {
   it("surfaces the meeting link for online events from the VirtualLocation", () => {
     const doc = baseEvent({
       attendanceMode: "OnlineEventAttendanceMode",
-      location: { "@type": "VirtualLocation", name: "Online", url: "https://zoom.us/j/123", platform: "zoom" },
+      location: {
+        "@type": "VirtualLocation",
+        name: "Online",
+        url: "https://zoom.us/j/123",
+        platform: "zoom",
+      },
     });
     const e = mapEventDocToApi(doc);
     expect(e.meetingUrl).toBe("https://zoom.us/j/123");
@@ -165,13 +185,20 @@ describe("mapEventDocToApi", () => {
   });
 
   it("surfaces the chosen cover gradient from mukoko metadata", () => {
-    const e = mapEventDocToApi(baseEvent({ mukoko: { coverGradient: "malachite-gradient" } }));
+    const e = mapEventDocToApi(
+      baseEvent({ mukoko: { coverGradient: "malachite-gradient" } }),
+    );
     expect(e.coverGradient).toBe("malachite-gradient");
   });
 
   it("falls back to the embedded location when no place is resolved", () => {
     const doc = baseEvent({
-      location: { "@type": "Place", name: "Backyard", addressLocality: "Bulawayo", addressCountry: "ZW" },
+      location: {
+        "@type": "Place",
+        name: "Backyard",
+        addressLocality: "Bulawayo",
+        addressCountry: "ZW",
+      },
     });
     const e = mapEventDocToApi(doc);
     expect(e.location.name).toBe("Backyard");
@@ -192,7 +219,10 @@ describe("mapEventDocToApi", () => {
       isActive: true,
       isPrivateByDefault: false,
     };
-    const e = mapEventDocToApi(baseEvent(), { hostEntity: entity, hostEventCount: 3 });
+    const e = mapEventDocToApi(baseEvent(), {
+      hostEntity: entity,
+      hostEventCount: 3,
+    });
     expect(e.organizer.name).toBe("Harare Jazz Club");
     expect(e.organizer.identifier).toBe("harare-jazz-club");
     expect(e.organizer.eventCount).toBe(3);

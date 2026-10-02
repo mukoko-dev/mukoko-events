@@ -2,15 +2,19 @@
   "name": "nhimbe",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@11.12.1",
   "scripts": {
     "dev": "next dev -p 11825",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "vp lint",
+    "lint:eslint": "eslint",
     "test": "NODE_ENV=test vitest",
     "test:run": "NODE_ENV=test vitest run",
     "test:coverage": "NODE_ENV=test vitest run --coverage",
-    "test:integration": "NODE_ENV=test vitest run --config vitest.integration.config.ts"
+    "test:integration": "NODE_ENV=test vitest run --config vitest.integration.config.ts",
+    "check": "vp check",
+    "fmt": "vp fmt"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1085.0",

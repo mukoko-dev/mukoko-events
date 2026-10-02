@@ -86,13 +86,17 @@ function NyuchiUserMenu({
         >
           <Avatar className="size-8">
             <AvatarImage src={avatarUrl} alt={name} />
-            <AvatarFallback className="text-xs">{getInitials(name)}</AvatarFallback>
+            <AvatarFallback className="text-xs">
+              {getInitials(name)}
+            </AvatarFallback>
           </Avatar>
           {!compact && (
             <>
               <div className="hidden flex-col sm:flex">
                 <span className="text-sm font-medium leading-none">{name}</span>
-                {email && <span className="text-xs text-muted-foreground">{email}</span>}
+                {email && (
+                  <span className="text-xs text-muted-foreground">{email}</span>
+                )}
               </div>
               <ChevronsUpDown className="ml-auto hidden size-4 text-muted-foreground sm:block" />
             </>
@@ -106,7 +110,11 @@ function NyuchiUserMenu({
               {name}
               {badge}
             </span>
-            {email && <span className="text-xs leading-none text-muted-foreground">{email}</span>}
+            {email && (
+              <span className="text-xs leading-none text-muted-foreground">
+                {email}
+              </span>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -114,7 +122,11 @@ function NyuchiUserMenu({
           {items.map((item) => {
             const Icon = item.icon;
             return (
-              <DropdownMenuItem key={item.label} onClick={item.onClick} asChild={!!item.href}>
+              <DropdownMenuItem
+                key={item.label}
+                onClick={item.onClick}
+                asChild={!!item.href}
+              >
                 {item.href ? (
                   <Link href={item.href}>
                     {Icon && <Icon className="mr-2 size-4" />}

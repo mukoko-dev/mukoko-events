@@ -52,7 +52,9 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
     // and the built endpoints don't double the scheme
     const m = workosAuthMetadata();
     expect(m.issuer).toBe("https://accounts.mukoko.com");
-    expect(m.registrationEndpoint).toBe("https://accounts.mukoko.com/oauth2/register");
+    expect(m.registrationEndpoint).toBe(
+      "https://accounts.mukoko.com/oauth2/register",
+    );
   });
 
   it("reads the client id from WORKOS_CLIENT_ID (empty when unset)", () => {
@@ -64,9 +66,13 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
   it("builds the OAuth 2.1 endpoints on the AuthKit domain", () => {
     const m = workosAuthMetadata();
     expect(m.issuer).toBe("https://accounts.mukoko.com");
-    expect(m.authorizationEndpoint).toBe("https://accounts.mukoko.com/oauth2/authorize");
+    expect(m.authorizationEndpoint).toBe(
+      "https://accounts.mukoko.com/oauth2/authorize",
+    );
     expect(m.tokenEndpoint).toBe("https://accounts.mukoko.com/oauth2/token");
-    expect(m.registrationEndpoint).toBe("https://accounts.mukoko.com/oauth2/register");
+    expect(m.registrationEndpoint).toBe(
+      "https://accounts.mukoko.com/oauth2/register",
+    );
     expect(m.jwksUri).toBe("https://accounts.mukoko.com/oauth2/jwks");
   });
 
@@ -74,9 +80,13 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
     process.env.WORKOS_AUTHKIT_DOMAIN = "example.authkit.app";
     const m = workosAuthMetadata();
     expect(m.issuer).toBe("https://example.authkit.app");
-    expect(m.authorizationEndpoint).toBe("https://example.authkit.app/oauth2/authorize");
+    expect(m.authorizationEndpoint).toBe(
+      "https://example.authkit.app/oauth2/authorize",
+    );
     expect(m.tokenEndpoint).toBe("https://example.authkit.app/oauth2/token");
-    expect(m.registrationEndpoint).toBe("https://example.authkit.app/oauth2/register");
+    expect(m.registrationEndpoint).toBe(
+      "https://example.authkit.app/oauth2/register",
+    );
     expect(m.jwksUri).toBe("https://example.authkit.app/oauth2/jwks");
   });
 

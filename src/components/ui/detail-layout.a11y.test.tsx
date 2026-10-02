@@ -5,7 +5,14 @@ import { DetailLayout } from "./detail-layout";
 
 vi.mock("next/link", () => ({
   __esModule: true,
-  default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
     <a href={href} {...rest}>
       {children}
     </a>
@@ -35,7 +42,7 @@ describe("DetailLayout accessibility", () => {
           <h1>Event title</h1>
           <p>Description body</p>
         </article>
-      </DetailLayout>
+      </DetailLayout>,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -45,7 +52,7 @@ describe("DetailLayout accessibility", () => {
     const { container } = render(
       <DetailLayout backHref="/">
         <h1>Just content</h1>
-      </DetailLayout>
+      </DetailLayout>,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

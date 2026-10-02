@@ -7,10 +7,7 @@ import { resolve } from "node:path";
  * a future edit can't silently drop the pill radii, the extended scales, or the
  * deliberate nhimbe divergences (tanzanite primary, compact control heights).
  */
-const css = readFileSync(
-  resolve(process.cwd(), "src/app/globals.css"),
-  "utf8",
-);
+const css = readFileSync(resolve(process.cwd(), "src/app/globals.css"), "utf8");
 
 describe("mzizi doctrine 4.1.0 tokens", () => {
   it("makes buttons and inputs pill-shaped (radius-full)", () => {
@@ -56,8 +53,12 @@ describe("mzizi doctrine 4.1.0 tokens", () => {
 
   it("aliases motion durations and adds spring + stagger tokens", () => {
     expect(css).toMatch(/--motion-duration-quick:\s*var\(--motion-quick\)/);
-    expect(css).toMatch(/--motion-duration-dramatic:\s*var\(--motion-dramatic\)/);
-    expect(css).toMatch(/--motion-ease-spring:\s*cubic-bezier\(0\.34,\s*1\.56,\s*0\.64,\s*1\)/);
+    expect(css).toMatch(
+      /--motion-duration-dramatic:\s*var\(--motion-dramatic\)/,
+    );
+    expect(css).toMatch(
+      /--motion-ease-spring:\s*cubic-bezier\(0\.34,\s*1\.56,\s*0\.64,\s*1\)/,
+    );
     expect(css).toContain("--motion-stagger-tight:");
     expect(css).toContain("--motion-stagger-base:");
     expect(css).toContain("--motion-stagger-loose:");
@@ -84,17 +85,25 @@ describe("mzizi doctrine 4.2.0 washed refresh", () => {
   it("defines the --wash cover-ground token as a surface + accent mix", () => {
     // The wash mixes the active surface with the event accent (~7% / ~12%).
     expect(css).toMatch(/--wash:/);
-    expect(css).toMatch(/--wash:\s*color-mix\(in srgb, var\(--event-primary\) 12%, var\(--surface\)\)/);
-    expect(css).toMatch(/--wash:\s*color-mix\(in srgb, var\(--event-primary\) 7%, var\(--surface\)\)/);
+    expect(css).toMatch(
+      /--wash:\s*color-mix\(in srgb, var\(--event-primary\) 12%, var\(--surface\)\)/,
+    );
+    expect(css).toMatch(
+      /--wash:\s*color-mix\(in srgb, var\(--event-primary\) 7%, var\(--surface\)\)/,
+    );
   });
 
   it("paints the event-themed page ground with the wash", () => {
-    expect(css).toMatch(/\.event-themed-page\s*\{[^}]*background:\s*var\(--wash\)/);
+    expect(css).toMatch(
+      /\.event-themed-page\s*\{[^}]*background:\s*var\(--wash\)/,
+    );
   });
 
   it("selects the active event palette from the wrapper's light/dark vars", () => {
     expect(css).toMatch(/--event-primary:\s*var\(--ev-accent-d/);
-    expect(css).toMatch(/\.light \.event-themed-page[^}]*--event-primary:\s*var\(--ev-accent-l/);
+    expect(css).toMatch(
+      /\.light \.event-themed-page[^}]*--event-primary:\s*var\(--ev-accent-l/,
+    );
   });
 
   it("still keeps tanzanite as the brand primary after the refresh", () => {

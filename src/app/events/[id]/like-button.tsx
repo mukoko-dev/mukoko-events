@@ -39,7 +39,9 @@ export function LikeButton({ eventId }: { eventId: string }) {
     setLiked(next);
     setCount((c) => Math.max(0, c + (next ? 1 : -1)));
     try {
-      const state = next ? await likeEvent(eventId) : await unlikeEvent(eventId);
+      const state = next
+        ? await likeEvent(eventId)
+        : await unlikeEvent(eventId);
       setCount(state.count);
       setLiked(state.likedByMe);
     } catch {
@@ -58,12 +60,21 @@ export function LikeButton({ eventId }: { eventId: string }) {
       className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 border transition-colors disabled:opacity-50 ${
         liked ? "border-transparent" : "border-elevated hover:bg-elevated"
       }`}
-      style={liked ? { backgroundColor: "var(--event-surface)", color: "var(--event-primary)" } : undefined}
+      style={
+        liked
+          ? {
+              backgroundColor: "var(--event-surface)",
+              color: "var(--event-primary)",
+            }
+          : undefined
+      }
       aria-label={liked ? "Unlike event" : "Like event"}
       aria-pressed={liked}
     >
       <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
-      {count > 0 && <span className="text-[10px] leading-none mt-0.5">{count}</span>}
+      {count > 0 && (
+        <span className="text-[10px] leading-none mt-0.5">{count}</span>
+      )}
     </button>
   );
 }

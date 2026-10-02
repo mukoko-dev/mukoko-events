@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { slugifyLocation, weatherEmbedUrl, WEATHER_EMBED_ORIGIN } from "./weather";
+import {
+  slugifyLocation,
+  weatherEmbedUrl,
+  WEATHER_EMBED_ORIGIN,
+} from "./weather";
 
 describe("slugifyLocation", () => {
   it("lowercases and hyphenates multi-word cities", () => {

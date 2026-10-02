@@ -71,7 +71,8 @@ export async function getMyEntityManagement(): Promise<EntityManagement> {
 
     // Personal/family entities first, then default, then name.
     entities.sort((a, b) => {
-      if (a.entityType !== b.entityType) return a.entityType === "family" ? -1 : 1;
+      if (a.entityType !== b.entityType)
+        return a.entityType === "family" ? -1 : 1;
       if (a.isDefault !== b.isDefault) return a.isDefault ? -1 : 1;
       return a.name.localeCompare(b.name);
     });
@@ -93,7 +94,8 @@ export async function renameMyHostEntity(
   name: string,
 ): Promise<EntityManagement> {
   const person = await resolveActingPerson();
-  if (!person) throw new Error("You must be signed in to manage your entities.");
+  if (!person)
+    throw new Error("You must be signed in to manage your entities.");
 
   await renameHostEntityForPerson({ personId: person._id, entityId, name });
   return getMyEntityManagement();
@@ -104,9 +106,12 @@ export async function renameMyHostEntity(
  * must hold an active hostable membership on the target entity. Returns the
  * fresh management view.
  */
-export async function setMyDefaultHostEntity(entityId: string): Promise<EntityManagement> {
+export async function setMyDefaultHostEntity(
+  entityId: string,
+): Promise<EntityManagement> {
   const person = await resolveActingPerson();
-  if (!person) throw new Error("You must be signed in to manage your entities.");
+  if (!person)
+    throw new Error("You must be signed in to manage your entities.");
 
   await setDefaultHostEntityForPerson({ personId: person._id, entityId });
   return getMyEntityManagement();

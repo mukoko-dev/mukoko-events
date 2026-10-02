@@ -22,9 +22,15 @@ const events = {
 
 vi.mock("@/lib/mongo/databases", () => ({
   eventsCollection: vi.fn(async () => events),
-  entitiesCollection: vi.fn(async () => ({ find: () => ({ toArray: async () => [] }) })),
-  placesCollection: vi.fn(async () => ({ find: () => ({ toArray: async () => [] }) })),
-  personsCollection: vi.fn(async () => ({ find: () => ({ toArray: async () => [] }) })),
+  entitiesCollection: vi.fn(async () => ({
+    find: () => ({ toArray: async () => [] }),
+  })),
+  placesCollection: vi.fn(async () => ({
+    find: () => ({ toArray: async () => [] }),
+  })),
+  personsCollection: vi.fn(async () => ({
+    find: () => ({ toArray: async () => [] }),
+  })),
 }));
 
 import { listEvents } from "./events";
@@ -39,13 +45,17 @@ describe("listEvents free-text query", () => {
     await listEvents({ query: "jazz" });
     const and = capturedFilter.$and as Array<Record<string, unknown>>;
     expect(Array.isArray(and)).toBe(true);
-    const or = and[0].$or as Array<Record<string, { $regex: string; $options: string }>>;
+    const or = and[0].$or as Array<
+      Record<string, { $regex: string; $options: string }>
+    >;
     expect(or.map((c) => Object.keys(c)[0])).toEqual(["name", "description"]);
     expect(or[0].name.$options).toBe("i");
     expect(or[0].name.$regex).toBe("jazz");
     // Published gate still applies.
     expect(capturedFilter.status).toBeDefined();
-    expect((capturedFilter as Record<string, unknown>)["mukoko.visibility"]).toEqual({ $ne: "private" });
+    expect(
+      (capturedFilter as Record<string, unknown>)["mukoko.visibility"],
+    ).toEqual({ $ne: "private" });
   });
 
   it("regex-escapes the query so operators can't be injected", async () => {

@@ -11,7 +11,11 @@ const entities = {
   find: vi.fn(),
 };
 const memberships = { updateOne: vi.fn(), insertOne: vi.fn(), find: vi.fn() };
-const persons = { findOne: vi.fn(), updateOne: vi.fn(), findOneAndUpdate: vi.fn() };
+const persons = {
+  findOne: vi.fn(),
+  updateOne: vi.fn(),
+  findOneAndUpdate: vi.fn(),
+};
 
 /** A minimal Mongo cursor stand-in returning `arr` from `.toArray()`. */
 function cursor<T>(arr: T[]) {
@@ -77,10 +81,16 @@ const membershipInput = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  entities.findOneAndUpdate.mockResolvedValue({ _id: "entity-1", name: "Harare Makers Collective" });
+  entities.findOneAndUpdate.mockResolvedValue({
+    _id: "entity-1",
+    name: "Harare Makers Collective",
+  });
   memberships.updateOne.mockResolvedValue({ acknowledged: true });
   // ensurePersonForWorkosId goes through personsCollection().findOneAndUpdate.
-  persons.findOneAndUpdate.mockResolvedValue({ _id: "person-1", workosUserId: "user_789" });
+  persons.findOneAndUpdate.mockResolvedValue({
+    _id: "person-1",
+    workosUserId: "user_789",
+  });
 });
 
 describe("workosRoleToMembershipRole", () => {
@@ -114,7 +124,10 @@ describe("ensureEntityForWorkosOrg", () => {
     const doc = { ...filter, ...update.$setOnInsert };
     for (const field of ENTITY_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
     expect(update.$setOnInsert.entityType).toBe("organization");
     expect(update.$setOnInsert.ecosystemRole).toBe("external");
@@ -150,7 +163,10 @@ describe("buildWorkosMembershipWrite", () => {
     };
     for (const field of MEMBERSHIP_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
     expect(doc._schemaVersion).toBe("v3.1");
     expect(doc.joinedAt).toBeInstanceOf(Date);
@@ -169,7 +185,10 @@ describe("buildWorkosMembershipWrite", () => {
   });
 
   it("stamps endedAt when the membership is not active", () => {
-    const { update } = buildWorkosMembershipWrite({ ...params, isActive: false });
+    const { update } = buildWorkosMembershipWrite({
+      ...params,
+      isActive: false,
+    });
     const set = update.$set as Record<string, unknown>;
     expect(set.isActive).toBe(false);
     expect(set.endedAt).toBeInstanceOf(Date);
@@ -201,7 +220,10 @@ describe("mirrorWorkosOrganizationMembership", () => {
   });
 
   it("maps a pending membership to an inactive row", async () => {
-    await mirrorWorkosOrganizationMembership({ ...membershipInput, status: "pending" });
+    await mirrorWorkosOrganizationMembership({
+      ...membershipInput,
+      status: "pending",
+    });
     const [, update] = memberships.updateOne.mock.calls[0];
     expect(update.$set.isActive).toBe(false);
   });
@@ -217,7 +239,9 @@ describe("mirrorWorkosOrganizationMembership", () => {
 
 describe("endWorkosOrganizationMembership", () => {
   it("ends the mirrored row keyed on the om_… join key, never upserting", async () => {
-    await endWorkosOrganizationMembership({ workosOrganizationMembershipId: "om_123" });
+    await endWorkosOrganizationMembership({
+      workosOrganizationMembershipId: "om_123",
+    });
 
     const [filter, update, options] = memberships.updateOne.mock.calls[0];
     expect(filter).toEqual({ workosOrganizationMembershipId: "om_123" });
@@ -285,10 +309,7 @@ describe("listHostEntitiesWithRoleForPerson", () => {
 describe("getPersonHostRoleForEntity", () => {
   it("returns the highest active hostable role on the entity", async () => {
     memberships.find.mockReturnValue(
-      cursor([
-        { membershipRole: "manager" },
-        { membershipRole: "admin" },
-      ]),
+      cursor([{ membershipRole: "manager" }, { membershipRole: "admin" }]),
     );
     expect(await getPersonHostRoleForEntity("p1", "e1")).toBe("admin");
   });
@@ -301,11 +322,22 @@ describe("getPersonHostRoleForEntity", () => {
 
 describe("renameHostEntityForPerson", () => {
   it("renames a family entity for a manage-level member, regenerating the slug", async () => {
-    entities.findOne.mockResolvedValue({ _id: "e1", entityType: "family", name: "Old" });
+    entities.findOne.mockResolvedValue({
+      _id: "e1",
+      entityType: "family",
+      name: "Old",
+    });
     memberships.find.mockReturnValue(cursor([{ membershipRole: "founder" }]));
-    entities.findOneAndUpdate.mockResolvedValue({ _id: "e1", name: "New name" });
+    entities.findOneAndUpdate.mockResolvedValue({
+      _id: "e1",
+      name: "New name",
+    });
 
-    await renameHostEntityForPerson({ personId: "p1", entityId: "e1", name: "  New name  " });
+    await renameHostEntityForPerson({
+      personId: "p1",
+      entityId: "e1",
+      name: "  New name  ",
+    });
 
     const [filter, update, options] = entities.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ _id: "e1" });
@@ -316,28 +348,50 @@ describe("renameHostEntityForPerson", () => {
   });
 
   it("rejects a rename on an organisation entity (read-only here)", async () => {
-    entities.findOne.mockResolvedValue({ _id: "e2", entityType: "organization", name: "Org" });
+    entities.findOne.mockResolvedValue({
+      _id: "e2",
+      entityType: "organization",
+      name: "Org",
+    });
     memberships.find.mockReturnValue(cursor([{ membershipRole: "admin" }]));
 
     await expect(
-      renameHostEntityForPerson({ personId: "p1", entityId: "e2", name: "Hacked" }),
+      renameHostEntityForPerson({
+        personId: "p1",
+        entityId: "e2",
+        name: "Hacked",
+      }),
     ).rejects.toThrow(/permission/i);
     expect(entities.findOneAndUpdate).not.toHaveBeenCalled();
   });
 
   it("rejects a rename from a non-manage member", async () => {
-    entities.findOne.mockResolvedValue({ _id: "e1", entityType: "family", name: "Fam" });
-    memberships.find.mockReturnValue(cursor([{ membershipRole: "representative" }]));
+    entities.findOne.mockResolvedValue({
+      _id: "e1",
+      entityType: "family",
+      name: "Fam",
+    });
+    memberships.find.mockReturnValue(
+      cursor([{ membershipRole: "representative" }]),
+    );
 
     await expect(
-      renameHostEntityForPerson({ personId: "p1", entityId: "e1", name: "Nope" }),
+      renameHostEntityForPerson({
+        personId: "p1",
+        entityId: "e1",
+        name: "Nope",
+      }),
     ).rejects.toThrow(/permission/i);
     expect(entities.findOneAndUpdate).not.toHaveBeenCalled();
   });
 
   it("rejects an empty name", async () => {
     await expect(
-      renameHostEntityForPerson({ personId: "p1", entityId: "e1", name: "   " }),
+      renameHostEntityForPerson({
+        personId: "p1",
+        entityId: "e1",
+        name: "   ",
+      }),
     ).rejects.toThrow(/name is required/i);
   });
 });

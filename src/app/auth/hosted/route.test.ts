@@ -22,31 +22,45 @@ function makeRequest(url: string): NextRequest {
 describe("GET /auth/hosted", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getSignInUrl.mockResolvedValue("https://auth.workos.com/sign-in?client_id=abc");
-    getSignUpUrl.mockResolvedValue("https://auth.workos.com/sign-up?client_id=abc");
+    getSignInUrl.mockResolvedValue(
+      "https://auth.workos.com/sign-in?client_id=abc",
+    );
+    getSignUpUrl.mockResolvedValue(
+      "https://auth.workos.com/sign-up?client_id=abc",
+    );
   });
 
   it("redirects to the hosted sign-in URL with a clamped returnTo", async () => {
-    const res = await GET(makeRequest("https://nhimbe.com/auth/hosted?return_to=/events/123"));
+    const res = await GET(
+      makeRequest("https://nhimbe.com/auth/hosted?return_to=/events/123"),
+    );
 
     expect(getSignInUrl).toHaveBeenCalledWith({ returnTo: "/events/123" });
     expect(getSignUpUrl).not.toHaveBeenCalled();
     expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe("https://auth.workos.com/sign-in?client_id=abc");
+    expect(res.headers.get("location")).toBe(
+      "https://auth.workos.com/sign-in?client_id=abc",
+    );
   });
 
   it("routes to the hosted sign-up URL when screen=sign-up", async () => {
     const res = await GET(
-      makeRequest("https://nhimbe.com/auth/hosted?screen=sign-up&return_to=/profile"),
+      makeRequest(
+        "https://nhimbe.com/auth/hosted?screen=sign-up&return_to=/profile",
+      ),
     );
 
     expect(getSignUpUrl).toHaveBeenCalledWith({ returnTo: "/profile" });
     expect(getSignInUrl).not.toHaveBeenCalled();
-    expect(res.headers.get("location")).toBe("https://auth.workos.com/sign-up?client_id=abc");
+    expect(res.headers.get("location")).toBe(
+      "https://auth.workos.com/sign-up?client_id=abc",
+    );
   });
 
   it("clamps an open-redirect return_to back to /", async () => {
-    await GET(makeRequest("https://nhimbe.com/auth/hosted?return_to=//evil.example"));
+    await GET(
+      makeRequest("https://nhimbe.com/auth/hosted?return_to=//evil.example"),
+    );
     expect(getSignInUrl).toHaveBeenCalledWith({ returnTo: "/" });
   });
 

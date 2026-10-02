@@ -52,7 +52,10 @@ function readStoredLocale(fallback: Locale): Locale {
   return fallback;
 }
 
-export function I18nProvider({ children, defaultLocale = "en" }: I18nProviderProps) {
+export function I18nProvider({
+  children,
+  defaultLocale = "en",
+}: I18nProviderProps) {
   // Render with the default on the server so SSR output is stable; hydrate
   // from localStorage on mount.
   const [locale, setLocaleState] = useState<Locale>(defaultLocale);

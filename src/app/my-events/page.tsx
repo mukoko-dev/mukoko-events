@@ -21,7 +21,11 @@ type TabType = "attending" | "hosting" | "past";
 function MyEventsContent() {
   const { user } = useAuth();
   const router = useRouter();
-  const [events, setEvents] = useState<MyEventsResult>({ attending: [], hosting: [], past: [] });
+  const [events, setEvents] = useState<MyEventsResult>({
+    attending: [],
+    hosting: [],
+    past: [],
+  });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("attending");
 
@@ -54,10 +58,30 @@ function MyEventsContent() {
   const hostingEvents = events.hosting;
   const pastEvents = events.past;
 
-  const tabs: { id: TabType; label: string; icon: React.ReactNode; count: number }[] = [
-    { id: "attending", label: "Attending", icon: <Ticket className="w-4 h-4" />, count: attendingEvents.length },
-    { id: "hosting", label: "Hosting", icon: <Users className="w-4 h-4" />, count: hostingEvents.length },
-    { id: "past", label: "Past", icon: <Clock className="w-4 h-4" />, count: pastEvents.length },
+  const tabs: {
+    id: TabType;
+    label: string;
+    icon: React.ReactNode;
+    count: number;
+  }[] = [
+    {
+      id: "attending",
+      label: "Attending",
+      icon: <Ticket className="w-4 h-4" />,
+      count: attendingEvents.length,
+    },
+    {
+      id: "hosting",
+      label: "Hosting",
+      icon: <Users className="w-4 h-4" />,
+      count: hostingEvents.length,
+    },
+    {
+      id: "past",
+      label: "Past",
+      icon: <Clock className="w-4 h-4" />,
+      count: pastEvents.length,
+    },
   ];
 
   const currentEvents = {
@@ -71,9 +95,13 @@ function MyEventsContent() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Events</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            My Events
+          </h1>
           <p className="text-text-secondary mt-1">
-            {user?.name ? `Welcome back, ${user.name.split(" ")[0]}!` : "Manage your upcoming gatherings and see past events"}
+            {user?.name
+              ? `Welcome back, ${user.name.split(" ")[0]}!`
+              : "Manage your upcoming gatherings and see past events"}
           </p>
         </div>
         <Link href="/events/create">
@@ -126,7 +154,9 @@ function MyEventsContent() {
                   href={`/events/${event.id}`}
                   eventTitle={event.name}
                   eventDate={`${event.date.month} ${event.date.day}${event.date.time ? ` · ${event.date.time}` : ""}`}
-                  eventVenue={event.location.name || event.location.addressLocality}
+                  eventVenue={
+                    event.location.name || event.location.addressLocality
+                  }
                   tierName={event.offers?.price ? "Ticket" : "Free entry"}
                   tierPrice={event.offers?.price ?? 0}
                   ticketCode={event.shortCode}
@@ -145,8 +175,16 @@ function MyEventsContent() {
                   mineral={categoryToMineral(event.category)}
                   image={event.image ? getMediaUrl(event.image) : undefined}
                   meta={[
-                    { label: "date", value: `${event.date.month} ${event.date.day}`, icon: Clock },
-                    { label: "going", value: `${event.attendeeCount} going`, icon: Users },
+                    {
+                      label: "date",
+                      value: `${event.date.month} ${event.date.day}`,
+                      icon: Clock,
+                    },
+                    {
+                      label: "going",
+                      value: `${event.attendeeCount} going`,
+                      icon: Users,
+                    },
                   ]}
                 />
               ),
@@ -170,8 +208,14 @@ function MyEventsContent() {
                 ? "Events you've attended or hosted will appear here"
                 : "Explore events and find gatherings that interest you"
           }
-          actionLabel={activeTab === "hosting" ? "Create event" : "Explore events"}
-          onAction={() => router.push(activeTab === "hosting" ? "/events/create" : "/discover")}
+          actionLabel={
+            activeTab === "hosting" ? "Create event" : "Explore events"
+          }
+          onAction={() =>
+            router.push(
+              activeTab === "hosting" ? "/events/create" : "/discover",
+            )
+          }
         />
       )}
     </div>

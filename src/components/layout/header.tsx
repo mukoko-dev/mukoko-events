@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore, useMemo, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useSyncExternalStore,
+  useMemo,
+  useCallback,
+} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,7 +25,10 @@ import {
   Info,
 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-context";
-import { NyuchiUserMenu, type UserMenuItem } from "@/components/ui/nyuchi-user-menu";
+import {
+  NyuchiUserMenu,
+  type UserMenuItem,
+} from "@/components/ui/nyuchi-user-menu";
 import {
   NyuchiCommandPalette,
   type CommandPaletteItem,
@@ -29,15 +38,69 @@ import { categoryToMineral } from "@/lib/category-mineral";
 
 /** Curated "Go to" navigation for the ⌘K command palette. */
 const PALETTE_NAV: CommandPaletteItem[] = [
-  { id: "nav:discover", label: "Discover", href: "/discover", group: "Go to", icon: Compass },
-  { id: "nav:events", label: "All Events", href: "/events", group: "Go to", icon: CalendarDays },
-  { id: "nav:my-events", label: "My Events", href: "/my-events", group: "Go to", icon: Ticket },
-  { id: "nav:calendar", label: "Calendar", href: "/calendar", group: "Go to", icon: CalendarDays },
-  { id: "nav:calendars", label: "My Calendars", href: "/calendars", group: "Go to", icon: CalendarRange },
-  { id: "nav:create", label: "Create an Event", href: "/events/create", group: "Go to", icon: Plus },
-  { id: "nav:circles", label: "Circles", href: "/circles", group: "Go to", icon: Users },
-  { id: "nav:profile", label: "Profile", href: "/profile", group: "Go to", icon: User },
-  { id: "nav:about", label: "About", href: "/about", group: "Go to", icon: Info },
+  {
+    id: "nav:discover",
+    label: "Discover",
+    href: "/discover",
+    group: "Go to",
+    icon: Compass,
+  },
+  {
+    id: "nav:events",
+    label: "All Events",
+    href: "/events",
+    group: "Go to",
+    icon: CalendarDays,
+  },
+  {
+    id: "nav:my-events",
+    label: "My Events",
+    href: "/my-events",
+    group: "Go to",
+    icon: Ticket,
+  },
+  {
+    id: "nav:calendar",
+    label: "Calendar",
+    href: "/calendar",
+    group: "Go to",
+    icon: CalendarDays,
+  },
+  {
+    id: "nav:calendars",
+    label: "My Calendars",
+    href: "/calendars",
+    group: "Go to",
+    icon: CalendarRange,
+  },
+  {
+    id: "nav:create",
+    label: "Create an Event",
+    href: "/events/create",
+    group: "Go to",
+    icon: Plus,
+  },
+  {
+    id: "nav:circles",
+    label: "Circles",
+    href: "/circles",
+    group: "Go to",
+    icon: Users,
+  },
+  {
+    id: "nav:profile",
+    label: "Profile",
+    href: "/profile",
+    group: "Go to",
+    icon: User,
+  },
+  {
+    id: "nav:about",
+    label: "About",
+    href: "/about",
+    group: "Go to",
+    icon: Info,
+  },
 ];
 
 const RECENT_KEY = "nhimbe-recent-searches";
@@ -49,7 +112,10 @@ async function searchPalette(query: string): Promise<CommandPaletteItem[]> {
     return events.map((e) => ({
       id: `event:${e.id}`,
       label: e.name,
-      description: [e.date?.full, e.location?.name || e.location?.addressLocality]
+      description: [
+        e.date?.full,
+        e.location?.name || e.location?.addressLocality,
+      ]
         .filter(Boolean)
         .join(" · "),
       href: `/events/${e.id}`,
@@ -150,7 +216,10 @@ export function Header() {
       const query = q.trim();
       if (!query) return;
       try {
-        const next = [query, ...recentQueries.filter((s) => s !== query)].slice(0, 5);
+        const next = [query, ...recentQueries.filter((s) => s !== query)].slice(
+          0,
+          5,
+        );
         localStorage.setItem(RECENT_KEY, JSON.stringify(next));
       } catch {
         /* ignore */
@@ -179,16 +248,22 @@ export function Header() {
   }, [signOut, router]);
 
   // Memoize the subscription function based on pathname
-  const subscribeToH1 = useMemo(() => createH1Subscription(pathname), [pathname]);
+  const subscribeToH1 = useMemo(
+    () => createH1Subscription(pathname),
+    [pathname],
+  );
 
   // Get page title snapshot
-  const getSnapshot = useMemo(() => () => getPageTitleSnapshot(pathname), [pathname]);
+  const getSnapshot = useMemo(
+    () => () => getPageTitleSnapshot(pathname),
+    [pathname],
+  );
 
   // Use useSyncExternalStore for page title - React 19 compliant
   const pageTitle = useSyncExternalStore(
     subscribeToH1,
     getSnapshot,
-    () => pageTitles[pathname] || null // Server snapshot
+    () => pageTitles[pathname] || null, // Server snapshot
   );
 
   useEffect(() => {
@@ -209,7 +284,7 @@ export function Header() {
         setPaletteOpen((o) => !o);
       }
     },
-    [router]
+    [router],
   );
 
   useEffect(() => {
@@ -254,12 +329,12 @@ export function Header() {
             {/* Wordmark lockup — "Nhimbe by Mukoko Events" (visible when not scrolled) */}
             <span
               className={`flex min-w-0 flex-col leading-none transition-all duration-300 ${
-                isScrolled && pageTitle
-                  ? "opacity-0 absolute"
-                  : "opacity-100"
+                isScrolled && pageTitle ? "opacity-0 absolute" : "opacity-100"
               }`}
             >
-              <span className="truncate font-serif text-[24px] font-bold text-primary">Nhimbe</span>
+              <span className="truncate font-serif text-[24px] font-bold text-primary">
+                Nhimbe
+              </span>
               <span className="mt-0.5 truncate whitespace-nowrap text-[10px] font-medium uppercase tracking-wide text-text-tertiary">
                 by Mukoko Events
               </span>
@@ -270,9 +345,7 @@ export function Header() {
             {pageTitle && (
               <span
                 className={`text-sm sm:text-lg font-semibold text-foreground truncate max-w-32 sm:max-w-75 transition-all duration-300 ${
-                  isScrolled
-                    ? "opacity-100"
-                    : "opacity-0 absolute"
+                  isScrolled ? "opacity-100" : "opacity-0 absolute"
                 }`}
               >
                 {pageTitle}
@@ -282,7 +355,10 @@ export function Header() {
         </Link>
 
         {/* Nav Links */}
-        <nav aria-label="Main navigation" className="hidden md:flex items-center gap-8">
+        <nav
+          aria-label="Main navigation"
+          className="hidden md:flex items-center gap-8"
+        >
           {navLinks.map((link) => (
             <Link
               key={link.href}

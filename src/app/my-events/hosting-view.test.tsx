@@ -36,13 +36,26 @@ describe("HostingView", () => {
     const events = [makeEvent({ id: "h1", name: "My Workshop" })];
     render(<HostingView events={events} />);
     expect(screen.getByText("My Workshop")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Card" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Card" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
   it("switches to the Table view with sortable columns", () => {
     const events = [
-      makeEvent({ id: "h1", name: "Zebra Meetup", attendeeCount: 1, startDate: "2027-02-01T10:00:00.000Z" }),
-      makeEvent({ id: "h2", name: "Apple Social", attendeeCount: 9, startDate: "2027-01-01T10:00:00.000Z" }),
+      makeEvent({
+        id: "h1",
+        name: "Zebra Meetup",
+        attendeeCount: 1,
+        startDate: "2027-02-01T10:00:00.000Z",
+      }),
+      makeEvent({
+        id: "h2",
+        name: "Apple Social",
+        attendeeCount: 9,
+        startDate: "2027-01-01T10:00:00.000Z",
+      }),
     ];
     render(<HostingView events={events} />);
 
@@ -64,7 +77,9 @@ describe("HostingView", () => {
     const { container } = render(<HostingView events={events} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Timeline" }));
-    expect(container.querySelector('[data-slot="nyuchi-timeline"]')).not.toBeNull();
+    expect(
+      container.querySelector('[data-slot="nyuchi-timeline"]'),
+    ).not.toBeNull();
     expect(screen.getByText("My Workshop")).toBeInTheDocument();
   });
 
@@ -72,14 +87,24 @@ describe("HostingView", () => {
     const events = [makeEvent({ id: "h1", name: "My Workshop" })];
     render(<HostingView events={events} />);
     fireEvent.click(screen.getByRole("button", { name: "Table" }));
-    expect(window.localStorage.setItem).toHaveBeenCalledWith("nhimbe:my-events:hosting-view", "table");
+    expect(window.localStorage.setItem).toHaveBeenCalledWith(
+      "nhimbe:my-events:hosting-view",
+      "table",
+    );
   });
 
   it("restores a previously stored view on mount", () => {
-    (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue("timeline");
+    (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
+      "timeline",
+    );
     const events = [makeEvent({ id: "h1", name: "My Workshop" })];
     const { container } = render(<HostingView events={events} />);
-    expect(container.querySelector('[data-slot="nyuchi-timeline"]')).not.toBeNull();
-    expect(screen.getByRole("button", { name: "Timeline" })).toHaveAttribute("aria-pressed", "true");
+    expect(
+      container.querySelector('[data-slot="nyuchi-timeline"]'),
+    ).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Timeline" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 });

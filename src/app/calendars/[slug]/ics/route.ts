@@ -7,7 +7,10 @@
  * Node runtime: the MongoDB driver requires Node, not edge.
  */
 
-import { getCalendarBySlug, listCalendarEventDocs } from "@/lib/mongo/calendars";
+import {
+  getCalendarBySlug,
+  listCalendarEventDocs,
+} from "@/lib/mongo/calendars";
 import { buildCalendarIcs, type IcsEventInput } from "@/lib/ics";
 import { resolveEventCity } from "@/lib/mongo/event-filters";
 import { SITE_URL } from "@/lib/site-url";
@@ -21,7 +24,9 @@ function eventLocationText(doc: EventDoc): string | null {
   const location = doc.location;
   if (!location) return null;
   if (location["@type"] === "VirtualLocation") {
-    return typeof location.url === "string" && location.url ? location.url : "Online";
+    return typeof location.url === "string" && location.url
+      ? location.url
+      : "Online";
   }
   const name = typeof location.name === "string" ? location.name : "";
   // Canonical-first locality resolution (nested, then legacy flat) — the same

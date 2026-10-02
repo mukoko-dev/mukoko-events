@@ -58,7 +58,11 @@ beforeEach(() => {
 
 describe("updateMyProfile", () => {
   it("keys the write on the acting workosUserId and trims text fields", async () => {
-    await updateMyProfile({ name: "  Amai  ", addressLocality: " Harare ", addressCountry: " ZW " });
+    await updateMyProfile({
+      name: "  Amai  ",
+      addressLocality: " Harare ",
+      addressCountry: " ZW ",
+    });
 
     expect(persons.findOneAndUpdate).toHaveBeenCalledTimes(1);
     const [filter, update, options] = persons.findOneAndUpdate.mock.calls[0];
@@ -90,7 +94,9 @@ describe("updateMyProfile", () => {
   });
 
   it("returns the updated user in the app shape and logs the changed fields", async () => {
-    persons.findOneAndUpdate.mockResolvedValueOnce(personDoc({ locale: "sn", name: "Amai" }));
+    persons.findOneAndUpdate.mockResolvedValueOnce(
+      personDoc({ locale: "sn", name: "Amai" }),
+    );
     const user = await updateMyProfile({ name: "Amai", locale: "sn" });
 
     expect(user?.name).toBe("Amai");
@@ -103,7 +109,9 @@ describe("updateMyProfile", () => {
 
   it("throws when the account can't be resolved", async () => {
     persons.findOneAndUpdate.mockResolvedValueOnce(null);
-    await expect(updateMyProfile({ name: "Nobody" })).rejects.toThrow(/resolve your account/i);
+    await expect(updateMyProfile({ name: "Nobody" })).rejects.toThrow(
+      /resolve your account/i,
+    );
   });
 
   it("writes the avatar and new identity fields", async () => {
@@ -116,13 +124,17 @@ describe("updateMyProfile", () => {
       birthdate: "1990-05-12",
     });
     const [, update] = persons.findOneAndUpdate.mock.calls[0];
-    expect(update.$set.picture).toBe("https://assets-s001.mukoko.com/events/abc.png");
+    expect(update.$set.picture).toBe(
+      "https://assets-s001.mukoko.com/events/abc.png",
+    );
     expect(update.$set.nickname).toBe("Ama");
     expect(update.$set.preferredUsername).toBe("amai_zw");
     expect(update.$set.phoneNumber).toBe("+263771234567");
     expect(update.$set.gender).toBe("Woman");
     expect(update.$set.birthdate).toBeInstanceOf(Date);
-    expect((update.$set.birthdate as Date).toISOString()).toBe("1990-05-12T00:00:00.000Z");
+    expect((update.$set.birthdate as Date).toISOString()).toBe(
+      "1990-05-12T00:00:00.000Z",
+    );
   });
 
   it("ignores a malformed birthdate rather than writing an invalid value", async () => {
@@ -134,12 +146,18 @@ describe("updateMyProfile", () => {
 
 describe("getMyGravatarUrlAction", () => {
   it("looks up the acting person's own email and returns the Gravatar URL", async () => {
-    persons.findOne.mockResolvedValueOnce(personDoc({ email: "dev@example.com" }));
-    findGravatarUrl.mockResolvedValueOnce("https://www.gravatar.com/avatar/abc?s=256&d=404");
+    persons.findOne.mockResolvedValueOnce(
+      personDoc({ email: "dev@example.com" }),
+    );
+    findGravatarUrl.mockResolvedValueOnce(
+      "https://www.gravatar.com/avatar/abc?s=256&d=404",
+    );
 
     const url = await getMyGravatarUrlAction();
 
-    expect(persons.findOne).toHaveBeenCalledWith({ workosUserId: "workos-dev" });
+    expect(persons.findOne).toHaveBeenCalledWith({
+      workosUserId: "workos-dev",
+    });
     expect(findGravatarUrl).toHaveBeenCalledWith("dev@example.com");
     expect(url).toBe("https://www.gravatar.com/avatar/abc?s=256&d=404");
   });

@@ -106,21 +106,31 @@ function NyuchiGroupCard({
         }}
       >
         <span className="absolute right-3 top-3 rounded-full bg-background/80 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur-sm">
-          {privacy === "secret" ? "🔒 Secret" : privacy === "closed" ? "🔐 Closed" : "🌍 Open"}
+          {privacy === "secret"
+            ? "🔒 Secret"
+            : privacy === "closed"
+              ? "🔐 Closed"
+              : "🌍 Open"}
         </span>
       </div>
       <div className="space-y-3 p-4">
         <div>
-          <h3 className="truncate font-serif text-sm font-semibold text-foreground">{name}</h3>
+          <h3 className="truncate font-serif text-sm font-semibold text-foreground">
+            {name}
+          </h3>
           <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <span className={cn("size-1.5 rounded-full", activityDot[activity])} />
+            <span
+              className={cn("size-1.5 rounded-full", activityDot[activity])}
+            />
             <span>{activity}</span>
             <span>·</span>
             <span>{memberCount.toLocaleString()} members</span>
           </div>
         </div>
         {description && (
-          <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{description}</p>
+          <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         )}
         {members.length > 0 && (
           <div className="flex items-center -space-x-2">
@@ -131,7 +141,11 @@ function NyuchiGroupCard({
               >
                 {m.avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.avatarUrl} alt={m.name} className="size-full object-cover" />
+                  <img
+                    src={m.avatarUrl}
+                    alt={m.name}
+                    className="size-full object-cover"
+                  />
                 ) : (
                   getInitials(m.name, 1)
                 )}
@@ -150,7 +164,10 @@ function NyuchiGroupCard({
               <span
                 key={t}
                 className="rounded-full px-2 py-0.5 text-[10px] font-medium"
-                style={{ backgroundColor: `color-mix(in srgb, ${ACCENT} 10%, transparent)`, color: ACCENT }}
+                style={{
+                  backgroundColor: `color-mix(in srgb, ${ACCENT} 10%, transparent)`,
+                  color: ACCENT,
+                }}
               >
                 {t}
               </span>
@@ -165,7 +182,9 @@ function NyuchiGroupCard({
             }}
             className={cn(
               "flex h-12 w-full items-center justify-center rounded-full text-[13px] font-medium transition-opacity hover:opacity-80",
-              joined ? "border border-border bg-muted text-foreground" : "text-[#0A0A0A]",
+              joined
+                ? "border border-border bg-muted text-foreground"
+                : "text-[#0A0A0A]",
             )}
             style={joined ? undefined : { backgroundColor: ACCENT }}
           >

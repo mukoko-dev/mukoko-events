@@ -27,7 +27,10 @@ const context = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  requireActingPerson.mockResolvedValue({ _id: "person-1", mukoko: { proPlan: true } });
+  requireActingPerson.mockResolvedValue({
+    _id: "person-1",
+    mukoko: { proPlan: true },
+  });
   isMukokoPro.mockReturnValue(true);
   isGatewayConfigured.mockReturnValue(false); // exercise the fallback path by default
 });
@@ -36,18 +39,29 @@ describe("generateEventDescription (Mukoko Pro gate)", () => {
   it("checks the signed-in person's entitlement before generating", async () => {
     await generateEventDescription(context);
     expect(requireActingPerson).toHaveBeenCalledTimes(1);
-    expect(isMukokoPro).toHaveBeenCalledWith({ _id: "person-1", mukoko: { proPlan: true } });
+    expect(isMukokoPro).toHaveBeenCalledWith({
+      _id: "person-1",
+      mukoko: { proPlan: true },
+    });
   });
 
   it("requires sign-in — never generates for an anonymous visitor", async () => {
-    requireActingPerson.mockRejectedValueOnce(new Error("You must be signed in to use Shamwari."));
-    await expect(generateEventDescription(context)).rejects.toThrow(/signed in/);
+    requireActingPerson.mockRejectedValueOnce(
+      new Error("You must be signed in to use Shamwari."),
+    );
+    await expect(generateEventDescription(context)).rejects.toThrow(
+      /signed in/,
+    );
   });
 
   it("refuses a free-plan person outright, with no free allowance", async () => {
     isMukokoPro.mockReturnValue(false);
-    await expect(generateEventDescription(context)).rejects.toThrow(ShamwariProRequiredError);
-    await expect(generateEventDescription(context)).rejects.toThrow(/Mukoko Pro/);
+    await expect(generateEventDescription(context)).rejects.toThrow(
+      ShamwariProRequiredError,
+    );
+    await expect(generateEventDescription(context)).rejects.toThrow(
+      /Mukoko Pro/,
+    );
   });
 
   it("still degrades to a deterministic fallback for a Pro person when the gateway is unconfigured", async () => {
@@ -65,8 +79,8 @@ describe("regenerateEventDescription (Mukoko Pro gate)", () => {
 
   it("refuses a free-plan person outright", async () => {
     isMukokoPro.mockReturnValueOnce(false);
-    await expect(regenerateEventDescription(context, "shorter")).rejects.toThrow(
-      ShamwariProRequiredError,
-    );
+    await expect(
+      regenerateEventDescription(context, "shorter"),
+    ).rejects.toThrow(ShamwariProRequiredError);
   });
 });

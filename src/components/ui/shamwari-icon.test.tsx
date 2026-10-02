@@ -22,7 +22,9 @@ describe("ShamwariIcon", () => {
 
   it("honours a custom aria-label", () => {
     const { container } = render(<ShamwariIcon aria-label="Ask Shamwari" />);
-    expect(container.querySelector("svg")?.getAttribute("aria-label")).toBe("Ask Shamwari");
+    expect(container.querySelector("svg")?.getAttribute("aria-label")).toBe(
+      "Ask Shamwari",
+    );
   });
 
   it("goes decorative when marked aria-hidden, dropping role and label", () => {
@@ -42,7 +44,9 @@ describe("ShamwariIcon", () => {
   it("skips animation when animate=false", () => {
     const { container } = render(<ShamwariIcon animate={false} />);
     const svg = container.querySelector("svg");
-    expect(svg?.getAttribute("style") ?? "").not.toContain("shamwari-icon-pulse");
+    expect(svg?.getAttribute("style") ?? "").not.toContain(
+      "shamwari-icon-pulse",
+    );
   });
 
   it("respects a forced size prop", () => {

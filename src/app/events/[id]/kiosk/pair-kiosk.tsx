@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Monitor, CheckCircle2, ExternalLink, Copy, Check } from "lucide-react";
+import {
+  Loader2,
+  Monitor,
+  CheckCircle2,
+  ExternalLink,
+  Copy,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QRCode } from "@/components/ui/qr-code";
@@ -55,7 +62,7 @@ export function PairKiosk({ eventId }: PairKioskProps) {
             : err.message.includes("already")
               ? "Code already used."
               : "Pairing failed. Try again."
-          : "Pairing failed."
+          : "Pairing failed.",
       );
     } finally {
       setLoading(false);
@@ -90,7 +97,9 @@ export function PairKiosk({ eventId }: PairKioskProps) {
         </div>
         <div>
           <h3 className="font-semibold">Pair Check-In Kiosk</h3>
-          <p className="text-xs text-text-tertiary">Open the kiosk on a tablet, then enter its code below</p>
+          <p className="text-xs text-text-tertiary">
+            Open the kiosk on a tablet, then enter its code below
+          </p>
         </div>
       </div>
 
@@ -105,7 +114,9 @@ export function PairKiosk({ eventId }: PairKioskProps) {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="mb-1 text-sm font-medium text-foreground">Scan to open the kiosk</p>
+          <p className="mb-1 text-sm font-medium text-foreground">
+            Scan to open the kiosk
+          </p>
           <p className="mb-2 text-xs text-text-tertiary">
             Point an iPad or phone camera at the code, or copy the link:
           </p>
@@ -119,7 +130,11 @@ export function PairKiosk({ eventId }: PairKioskProps) {
               aria-label="Copy kiosk link"
               className="shrink-0 text-text-secondary hover:text-foreground"
             >
-              {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+              {copied ? (
+                <Check className="h-4 w-4 text-primary" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
             </button>
           </div>
           {kioskUrl && (

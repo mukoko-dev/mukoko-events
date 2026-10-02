@@ -9,7 +9,11 @@
  */
 
 import { chat, isGatewayConfigured } from "@/lib/ai/gateway";
-import { semanticSearchEvents, autocompleteEventNames, type SearchMode } from "@/lib/mongo/search";
+import {
+  semanticSearchEvents,
+  autocompleteEventNames,
+  type SearchMode,
+} from "@/lib/mongo/search";
 import type { Event } from "@/lib/api";
 
 export interface SearchEventsResult {
@@ -35,7 +39,13 @@ export async function searchEventsAction(input: {
 }): Promise<SearchEventsResult> {
   const query = input.query?.trim() ?? "";
   if (!query) {
-    return { events: [], query: "", aiSummary: "", totalResults: 0, mode: "text" };
+    return {
+      events: [],
+      query: "",
+      aiSummary: "",
+      totalResults: 0,
+      mode: "text",
+    };
   }
 
   const { events, mode } = await semanticSearchEvents({
@@ -64,7 +74,9 @@ export async function searchEventsAction(input: {
  * returns [] for short/empty prefixes or any backend hiccup, so the UI can call
  * it on every keystroke without guarding.
  */
-export async function autocompleteEventsAction(prefix: string): Promise<string[]> {
+export async function autocompleteEventsAction(
+  prefix: string,
+): Promise<string[]> {
   const q = prefix?.trim() ?? "";
   if (q.length < 2) return [];
   try {
@@ -75,7 +87,11 @@ export async function autocompleteEventsAction(prefix: string): Promise<string[]
 }
 
 /** Ask Qwen for a 2-3 sentence summary of the matches. Best-effort. */
-async function summarize(query: string, events: Event[], fallback: string): Promise<string> {
+async function summarize(
+  query: string,
+  events: Event[],
+  fallback: string,
+): Promise<string> {
   if (events.length === 0 || !isGatewayConfigured()) return fallback;
 
   const list = events
@@ -98,7 +114,8 @@ Be friendly, concise, and highlight what makes these events relevant to the sear
       [
         {
           role: "system",
-          content: "You are a helpful events assistant. Keep responses brief and friendly.",
+          content:
+            "You are a helpful events assistant. Keep responses brief and friendly.",
         },
         { role: "user", content: prompt },
       ],

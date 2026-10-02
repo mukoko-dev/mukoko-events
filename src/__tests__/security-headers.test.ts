@@ -19,7 +19,9 @@ describe("next.config security headers", () => {
   it("sets a Content-Security-Policy that locks down the key directives", async () => {
     const groups = await nextConfig.headers!();
     const root = groups.find((g) => g.source === "/:path*")!;
-    const csp = root.headers.find((h) => h.key === "Content-Security-Policy")?.value ?? "";
+    const csp =
+      root.headers.find((h) => h.key === "Content-Security-Policy")?.value ??
+      "";
 
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("object-src 'none'");
@@ -34,7 +36,9 @@ describe("next.config security headers", () => {
   it("allow-lists OSM + weather origins and drops Google Maps", async () => {
     const groups = await nextConfig.headers!();
     const root = groups.find((g) => g.source === "/:path*")!;
-    const csp = root.headers.find((h) => h.key === "Content-Security-Policy")?.value ?? "";
+    const csp =
+      root.headers.find((h) => h.key === "Content-Security-Policy")?.value ??
+      "";
 
     // Maps + geocoding now run on OpenStreetMap; Google Maps is fully removed.
     expect(csp).not.toContain("maps.googleapis.com");
@@ -59,7 +63,9 @@ describe("next.config security headers", () => {
     expect(byKey["X-Content-Type-Options"]).toBe("nosniff");
     expect(byKey["X-Frame-Options"]).toBe("DENY");
     expect(byKey["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
-    expect(byKey["Cross-Origin-Opener-Policy"]).toBe("same-origin-allow-popups");
+    expect(byKey["Cross-Origin-Opener-Policy"]).toBe(
+      "same-origin-allow-popups",
+    );
     expect(byKey["Cross-Origin-Resource-Policy"]).toBe("same-origin");
     expect(byKey["X-Permitted-Cross-Domain-Policies"]).toBe("none");
     expect(byKey["Strict-Transport-Security"]).toContain("max-age=");
@@ -69,9 +75,15 @@ describe("next.config security headers", () => {
   it("denies powerful browser features via Permissions-Policy", async () => {
     const groups = await nextConfig.headers!();
     const root = groups.find((g) => g.source === "/:path*")!;
-    const pp = root.headers.find((h) => h.key === "Permissions-Policy")?.value ?? "";
+    const pp =
+      root.headers.find((h) => h.key === "Permissions-Policy")?.value ?? "";
 
-    for (const feature of ["camera=()", "microphone=()", "geolocation=()", "browsing-topics=()"]) {
+    for (const feature of [
+      "camera=()",
+      "microphone=()",
+      "geolocation=()",
+      "browsing-topics=()",
+    ]) {
       expect(pp).toContain(feature);
     }
   });

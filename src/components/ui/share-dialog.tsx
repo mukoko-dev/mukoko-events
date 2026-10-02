@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { NyuchiShareCard, type ShareTarget } from "@/components/ui/nyuchi-share-card";
+import {
+  NyuchiShareCard,
+  type ShareTarget,
+} from "@/components/ui/nyuchi-share-card";
 
 interface ShareDialogProps {
   open: boolean;
@@ -64,20 +67,24 @@ function ShareDialog({
       id: "whatsapp",
       label: "WhatsApp",
       icon: "💬",
-      onShare: () => openExternal(`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`),
+      onShare: () =>
+        openExternal(`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`),
     },
     {
       id: "x",
       label: "X",
       icon: "𝕏",
       onShare: () =>
-        openExternal(`https://x.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`),
+        openExternal(
+          `https://x.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+        ),
     },
     {
       id: "email",
       label: "Email",
       icon: "✉️",
-      onShare: () => openExternal(`mailto:?subject=${encodedTitle}&body=${encodedUrl}`),
+      onShare: () =>
+        openExternal(`mailto:?subject=${encodedTitle}&body=${encodedUrl}`),
     },
   ];
 

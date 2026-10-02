@@ -70,7 +70,8 @@ export function downloadICS(event: CalendarEvent, filename?: string): void {
 
   const link = document.createElement("a");
   link.href = url;
-  link.download = filename || `${event.title.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.ics`;
+  link.download =
+    filename || `${event.title.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.ics`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -92,7 +93,8 @@ export function getGoogleCalendarUrl(event: CalendarEvent): string {
     action: "TEMPLATE",
     text: event.title,
     dates: `${formatDateForURL(event.startDate)}/${formatDateForURL(event.endDate)}`,
-    details: event.description + (event.url ? `\n\nEvent page: ${event.url}` : ""),
+    details:
+      event.description + (event.url ? `\n\nEvent page: ${event.url}` : ""),
     location: event.location,
   });
 

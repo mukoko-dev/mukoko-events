@@ -42,7 +42,10 @@ export interface VerifiedToken {
 }
 
 function base64UrlToBytes(input: string): Uint8Array<ArrayBuffer> {
-  const b64 = input.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(input.length / 4) * 4, "=");
+  const b64 = input
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(Math.ceil(input.length / 4) * 4, "=");
   const binary = atob(b64);
   // Back the view with a concrete ArrayBuffer so it satisfies `BufferSource`
   // (a plain `new Uint8Array(len)` infers `ArrayBufferLike`, which Web Crypto rejects).
@@ -58,7 +61,10 @@ function decodeJson(segment: string): Record<string, unknown> {
 
 function jwksUrl(): string {
   const clientId = process.env.WORKOS_CLIENT_ID;
-  if (!clientId) throw new Error("WORKOS_CLIENT_ID is not set — cannot verify bearer tokens.");
+  if (!clientId)
+    throw new Error(
+      "WORKOS_CLIENT_ID is not set — cannot verify bearer tokens.",
+    );
   const host = process.env.WORKOS_API_HOSTNAME || "api.workos.com";
   return `https://${host}/sso/jwks/${clientId}`;
 }
@@ -67,7 +73,9 @@ async function getJwks(): Promise<Jwk[]> {
   if (jwksCache && Date.now() - jwksCache.fetchedAt < JWKS_TTL_MS) {
     return jwksCache.keys;
   }
-  const res = await fetch(jwksUrl(), { headers: { Accept: "application/json" } });
+  const res = await fetch(jwksUrl(), {
+    headers: { Accept: "application/json" },
+  });
   if (!res.ok) throw new Error(`Failed to fetch WorkOS JWKS (${res.status})`);
   const body = (await res.json()) as { keys?: Jwk[] };
   const keys = body.keys ?? [];
@@ -86,7 +94,9 @@ export class TokenVerificationError extends Error {
   }
 }
 
-export async function verifyWorkosAccessToken(token: string): Promise<VerifiedToken> {
+export async function verifyWorkosAccessToken(
+  token: string,
+): Promise<VerifiedToken> {
   const parts = token.split(".");
   if (parts.length !== 3) throw new TokenVerificationError("Malformed token.");
   const [headerB64, payloadB64, signatureB64] = parts;
@@ -100,7 +110,8 @@ export async function verifyWorkosAccessToken(token: string): Promise<VerifiedTo
     throw new TokenVerificationError("Token is not valid JSON.");
   }
 
-  if (header.alg !== "RS256") throw new TokenVerificationError(`Unsupported alg: ${String(header.alg)}`);
+  if (header.alg !== "RS256")
+    throw new TokenVerificationError(`Unsupported alg: ${String(header.alg)}`);
 
   const keys = await getJwks();
   const jwk = keys.find((k) => k.kid === header.kid);
@@ -131,7 +142,8 @@ export async function verifyWorkosAccessToken(token: string): Promise<VerifiedTo
     throw new TokenVerificationError("Token not yet valid.");
   }
   const sub = claims.sub;
-  if (typeof sub !== "string" || !sub) throw new TokenVerificationError("Token has no subject.");
+  if (typeof sub !== "string" || !sub)
+    throw new TokenVerificationError("Token has no subject.");
 
   return {
     workosUserId: sub,
@@ -141,7 +153,9 @@ export async function verifyWorkosAccessToken(token: string): Promise<VerifiedTo
 }
 
 /** Extract + verify a bearer token from an `Authorization` header, or return null. */
-export async function verifyBearer(authorization: string | null): Promise<VerifiedToken | null> {
+export async function verifyBearer(
+  authorization: string | null,
+): Promise<VerifiedToken | null> {
   if (!authorization || !authorization.startsWith("Bearer ")) return null;
   const token = authorization.slice(7).trim();
   if (!token) return null;

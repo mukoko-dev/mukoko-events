@@ -86,21 +86,26 @@ function NyuchiCoverWashHeader({
   const wash = `color-mix(in srgb, ${accentColor} 8%, var(--surface))`;
   const fallbackGradient = `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 40%, transparent), color-mix(in srgb, ${accentColor} 12%, transparent))`;
 
-  const rootStyle = (inheritWash
-    ? { ...animStyle() }
-    : {
-        ...animStyle(),
-        "--event-primary": accentColor,
-        "--wash": wash,
-        background: wash,
-      }) as React.CSSProperties;
+  const rootStyle = (
+    inheritWash
+      ? { ...animStyle() }
+      : {
+          ...animStyle(),
+          "--event-primary": accentColor,
+          "--wash": wash,
+          background: wash,
+        }
+  ) as React.CSSProperties;
 
   if (loading) {
     return (
       <header
         data-slot="nyuchi-cover-wash-header"
         aria-busy="true"
-        className={cn("overflow-hidden rounded-[var(--radius-card,14px)] border", className)}
+        className={cn(
+          "overflow-hidden rounded-[var(--radius-card,14px)] border",
+          className,
+        )}
       >
         <div className="h-52 w-full animate-pulse bg-muted" />
         <div className="space-y-2 p-4">
@@ -119,20 +124,35 @@ function NyuchiCoverWashHeader({
       data-slot="nyuchi-cover-wash-header"
       data-variant={coverImage ? "image" : "gradient"}
       style={rootStyle}
-      className={cn("overflow-hidden rounded-[var(--radius-card,14px)] border", className)}
+      className={cn(
+        "overflow-hidden rounded-[var(--radius-card,14px)] border",
+        className,
+      )}
     >
       {/* Full-bleed cover with legibility scrim + overlaid content */}
       <div className="relative min-h-[13rem] w-full">
         {coverImage ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={coverImage} alt="" aria-hidden className="absolute inset-0 size-full object-cover" />
+          <img
+            src={coverImage}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 size-full object-cover"
+          />
         ) : (
-          <div className="absolute inset-0" style={{ background: coverGradient ?? fallbackGradient }} aria-hidden />
+          <div
+            className="absolute inset-0"
+            style={{ background: coverGradient ?? fallbackGradient }}
+            aria-hidden
+          />
         )}
         {/* Scrim */}
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.15) 55%, transparent)" }}
+          style={{
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.15) 55%, transparent)",
+          }}
           aria-hidden
         />
 
@@ -141,7 +161,9 @@ function NyuchiCoverWashHeader({
             {kicker && (
               <div
                 className="mb-1 text-[13px] font-semibold uppercase leading-none tracking-wide"
-                style={{ color: "color-mix(in srgb, var(--event-primary) 65%, white)" }}
+                style={{
+                  color: "color-mix(in srgb, var(--event-primary) 65%, white)",
+                }}
               >
                 {kicker}
               </div>
@@ -152,7 +174,11 @@ function NyuchiCoverWashHeader({
             >
               {title}
             </h1>
-            {subtitle && <p className="mt-1 max-w-prose text-[15px] leading-snug text-white/85">{subtitle}</p>}
+            {subtitle && (
+              <p className="mt-1 max-w-prose text-[15px] leading-snug text-white/85">
+                {subtitle}
+              </p>
+            )}
           </div>
 
           {(hasMeta || children) && (

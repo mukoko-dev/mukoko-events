@@ -30,9 +30,19 @@ interface InterestCategoryDoc {
 
 /** Interest categories from engagement.interestCategories. */
 export async function listCategories(): Promise<Category[]> {
-  const col = await getCollection<InterestCategoryDoc>(DB.engagement, "interestCategories");
-  const docs = await col.find({ isActive: true }).sort({ sortOrder: 1, name: 1 }).toArray();
-  return docs.map((d) => ({ id: d.slug, name: d.name, group: d.groupName ?? "Categories" }));
+  const col = await getCollection<InterestCategoryDoc>(
+    DB.engagement,
+    "interestCategories",
+  );
+  const docs = await col
+    .find({ isActive: true })
+    .sort({ sortOrder: 1, name: 1 })
+    .toArray();
+  return docs.map((d) => ({
+    id: d.slug,
+    name: d.name,
+    group: d.groupName ?? "Categories",
+  }));
 }
 
 /** A category plus how many upcoming published events currently carry it. */
@@ -47,7 +57,10 @@ export interface CategoryWithCount extends Category {
  * filter matches, so a tile's count agrees with its drill-down).
  */
 export async function listCategoriesWithCounts(): Promise<CategoryWithCount[]> {
-  const [categories, col] = await Promise.all([listCategories(), eventsCollection()]);
+  const [categories, col] = await Promise.all([
+    listCategories(),
+    eventsCollection(),
+  ]);
   const rows = await col
     .aggregate<{ _id: string; count: number }>([
       // Same published-AND-visible gate the /events drill-down applies, so a
@@ -72,10 +85,15 @@ export interface CityWithCount {
  * Cities with live upcoming-event counts, busiest first — powers the
  * /discover "explore by city" cards and the home landing city chips.
  */
-export async function listCitiesWithCounts(limit = 12): Promise<CityWithCount[]> {
+export async function listCitiesWithCounts(
+  limit = 12,
+): Promise<CityWithCount[]> {
   const col = await eventsCollection();
   const rows = await col
-    .aggregate<{ _id: { city: string | null; country: string | null }; count: number }>([
+    .aggregate<{
+      _id: { city: string | null; country: string | null };
+      count: number;
+    }>([
       // Published-AND-visible gate (L1) + the canonical-first city path (M3), so
       // each city card's count matches its `/events?city=` drill-down exactly.
       { $match: publishedVisibleMatch() },
@@ -100,7 +118,9 @@ export async function listCitiesWithCounts(limit = 12): Promise<CityWithCount[]>
 }
 
 /** Distinct cities derived from published events' embedded location. */
-export async function listCities(): Promise<{ addressLocality: string; addressCountry: string }[]> {
+export async function listCities(): Promise<
+  { addressLocality: string; addressCountry: string }[]
+> {
   const col = await eventsCollection();
   const docs = await col
     .find({ status: { $in: ["published", "live"] } })
@@ -108,19 +128,29 @@ export async function listCities(): Promise<{ addressLocality: string; addressCo
     .limit(2000)
     .toArray();
 
-  const byCity = new Map<string, { addressLocality: string; addressCountry: string }>();
+  const byCity = new Map<
+    string,
+    { addressLocality: string; addressCountry: string }
+  >();
   for (const d of docs) {
-    const loc = ((d as { location?: Record<string, unknown> }).location ?? {}) as Record<string, unknown>;
-    const addr = ((loc.address as Record<string, unknown>) ?? loc) as Record<string, unknown>;
+    const loc = ((d as { location?: Record<string, unknown> }).location ??
+      {}) as Record<string, unknown>;
+    const addr = ((loc.address as Record<string, unknown>) ?? loc) as Record<
+      string,
+      unknown
+    >;
     const city = (addr.addressLocality as string) ?? "";
     const country = (addr.addressCountry as string) ?? "";
-    if (city && !byCity.has(city)) byCity.set(city, { addressLocality: city, addressCountry: country });
+    if (city && !byCity.has(city))
+      byCity.set(city, { addressLocality: city, addressCountry: country });
   }
   return [...byCity.values()];
 }
 
 /** Lightweight community stats, optionally scoped to a city. */
-export async function getCommunityStats(city?: string): Promise<CommunityStats> {
+export async function getCommunityStats(
+  city?: string,
+): Promise<CommunityStats> {
   const empty: CommunityStats = {
     addressLocality: city,
     totalEvents: 0,

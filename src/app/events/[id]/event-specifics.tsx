@@ -1,8 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Mountain, Music, Calendar as CalendarIcon, Utensils, Sparkles } from "lucide-react";
-import { listProgrammeItems, type ProgrammeItem } from "@/app/actions/programme";
+import {
+  Mountain,
+  Music,
+  Calendar as CalendarIcon,
+  Utensils,
+  Sparkles,
+} from "lucide-react";
+import {
+  listProgrammeItems,
+  type ProgrammeItem,
+} from "@/app/actions/programme";
 import { NyuchiProgrammeItem } from "@/components/ui/nyuchi-programme-item";
 import { categoryToMineral } from "@/lib/category-mineral";
 import type { Event } from "@/lib/api";
@@ -36,18 +45,57 @@ interface EventSpecificsProps {
 }
 
 const OUTDOOR_CATEGORIES = new Set([
-  "hike", "hiking", "trail", "trail-run", "trail run", "trailrun",
-  "run", "running", "walk", "walking", "marathon", "parkrun",
-  "climb", "climbing", "swim", "swimming", "bike", "cycling", "cycle",
-  "outdoor", "outdoors", "adventure",
+  "hike",
+  "hiking",
+  "trail",
+  "trail-run",
+  "trail run",
+  "trailrun",
+  "run",
+  "running",
+  "walk",
+  "walking",
+  "marathon",
+  "parkrun",
+  "climb",
+  "climbing",
+  "swim",
+  "swimming",
+  "bike",
+  "cycling",
+  "cycle",
+  "outdoor",
+  "outdoors",
+  "adventure",
 ]);
 
-function categoryProgrammeLabel(cat: string): { title: string; Icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }> } {
+function categoryProgrammeLabel(cat: string): {
+  title: string;
+  Icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+} {
   const c = cat.toLowerCase();
-  if (["music", "festival", "concert"].some((m) => c.includes(m))) return { title: "Lineup", Icon: Music };
-  if (["faith", "religious", "service", "worship", "church", "prayer"].some((m) => c.includes(m))) return { title: "Order of service", Icon: CalendarIcon };
-  if (["food", "dinner", "tasting", "menu"].some((m) => c.includes(m))) return { title: "Menu", Icon: Utensils };
-  if (["conference", "workshop", "talk", "lecture", "education", "tech", "summit"].some((m) => c.includes(m))) return { title: "Schedule", Icon: CalendarIcon };
+  if (["music", "festival", "concert"].some((m) => c.includes(m)))
+    return { title: "Lineup", Icon: Music };
+  if (
+    ["faith", "religious", "service", "worship", "church", "prayer"].some((m) =>
+      c.includes(m),
+    )
+  )
+    return { title: "Order of service", Icon: CalendarIcon };
+  if (["food", "dinner", "tasting", "menu"].some((m) => c.includes(m)))
+    return { title: "Menu", Icon: Utensils };
+  if (
+    [
+      "conference",
+      "workshop",
+      "talk",
+      "lecture",
+      "education",
+      "tech",
+      "summit",
+    ].some((m) => c.includes(m))
+  )
+    return { title: "Schedule", Icon: CalendarIcon };
   return { title: "Programme", Icon: Sparkles };
 }
 
@@ -87,7 +135,9 @@ export function EventSpecifics({ event }: EventSpecificsProps) {
   return (
     <section data-slot="event-specifics" className="mt-8 space-y-6">
       {hasTerrain && <TerrainBand event={event} terrain={terrain!} />}
-      {hasProgramme && <ProgrammeCard rows={programme} category={event.category} />}
+      {hasProgramme && (
+        <ProgrammeCard rows={programme} category={event.category} />
+      )}
     </section>
   );
 }
@@ -107,11 +157,25 @@ function readTerrain(about: unknown): TerrainData | null {
   const distance = numOrUndef(o.distance_km ?? o.distance);
   const route = strOrUndef(o.route_summary ?? o.route);
   const surface = strOrUndef(o.surface);
-  const profile = Array.isArray(o.profile) ? (o.profile.filter((n) => typeof n === "number") as number[]) : undefined;
-  if (elevation === undefined && distance === undefined && !route && !surface && !profile) {
+  const profile = Array.isArray(o.profile)
+    ? (o.profile.filter((n) => typeof n === "number") as number[])
+    : undefined;
+  if (
+    elevation === undefined &&
+    distance === undefined &&
+    !route &&
+    !surface &&
+    !profile
+  ) {
     return null;
   }
-  return { elevationM: elevation, distanceKm: distance, routeSummary: route, surface, profile };
+  return {
+    elevationM: elevation,
+    distanceKm: distance,
+    routeSummary: route,
+    surface,
+    profile,
+  };
 }
 function numOrUndef(v: unknown): number | undefined {
   return typeof v === "number" && Number.isFinite(v) ? v : undefined;
@@ -125,13 +189,23 @@ function strOrUndef(v: unknown): string | undefined {
  * Nhimbe.html. Renders a small filled area chart from the profile sample
  * array. No data → no sparkline; the band still shows the headline figures.
  */
-function ElevationSparkline({ data, width = 220, height = 44 }: { data: number[]; width?: number; height?: number }) {
+function ElevationSparkline({
+  data,
+  width = 220,
+  height = 44,
+}: {
+  data: number[];
+  width?: number;
+  height?: number;
+}) {
   if (data.length < 2) return null;
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
   const stepX = width / (data.length - 1);
-  const points = data.map((v, i) => `${i * stepX},${height - ((v - min) / range) * height}`).join(" ");
+  const points = data
+    .map((v, i) => `${i * stepX},${height - ((v - min) / range) * height}`)
+    .join(" ");
   const area = `0,${height} ${points} ${width},${height}`;
   return (
     <svg
@@ -143,12 +217,25 @@ function ElevationSparkline({ data, width = 220, height = 44 }: { data: number[]
       className="block"
     >
       <polygon points={area} fill="var(--nh-savanna)" opacity={0.22} />
-      <polyline points={points} fill="none" stroke="var(--nh-savanna)" strokeWidth={1.6} strokeLinejoin="round" strokeLinecap="round" />
+      <polyline
+        points={points}
+        fill="none"
+        stroke="var(--nh-savanna)"
+        strokeWidth={1.6}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
-function TerrainBand({ event, terrain }: { event: Event; terrain: TerrainData }) {
+function TerrainBand({
+  event,
+  terrain,
+}: {
+  event: Event;
+  terrain: TerrainData;
+}) {
   return (
     <div
       data-slot="terrain-band"
@@ -160,7 +247,11 @@ function TerrainBand({ event, terrain }: { event: Event; terrain: TerrainData })
       }}
     >
       <header className="flex items-center gap-2 mb-3">
-        <Mountain className="w-4 h-4" style={{ color: "var(--nh-savanna)" }} aria-hidden />
+        <Mountain
+          className="w-4 h-4"
+          style={{ color: "var(--nh-savanna)" }}
+          aria-hidden
+        />
         <h3 className="text-sm font-semibold uppercase tracking-[0.04em] text-foreground">
           Terrain
         </h3>
@@ -169,8 +260,18 @@ function TerrainBand({ event, terrain }: { event: Event; terrain: TerrainData })
         </span>
       </header>
       <dl className="grid grid-cols-3 gap-4 mb-3">
-        <Metric label="Distance" value={terrain.distanceKm !== undefined ? `${terrain.distanceKm} km` : "—"} />
-        <Metric label="Elevation" value={terrain.elevationM !== undefined ? `${terrain.elevationM} m` : "—"} />
+        <Metric
+          label="Distance"
+          value={
+            terrain.distanceKm !== undefined ? `${terrain.distanceKm} km` : "—"
+          }
+        />
+        <Metric
+          label="Elevation"
+          value={
+            terrain.elevationM !== undefined ? `${terrain.elevationM} m` : "—"
+          }
+        />
         <Metric label="Surface" value={terrain.surface ?? "—"} />
       </dl>
       {terrain.profile && terrain.profile.length >= 2 && (
@@ -179,7 +280,9 @@ function TerrainBand({ event, terrain }: { event: Event; terrain: TerrainData })
         </div>
       )}
       {terrain.routeSummary && (
-        <p className="mt-3 text-sm text-foreground/70 leading-relaxed">{terrain.routeSummary}</p>
+        <p className="mt-3 text-sm text-foreground/70 leading-relaxed">
+          {terrain.routeSummary}
+        </p>
       )}
     </div>
   );
@@ -188,7 +291,9 @@ function TerrainBand({ event, terrain }: { event: Event; terrain: TerrainData })
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dd className="font-serif text-xl font-bold text-foreground leading-none">{value}</dd>
+      <dd className="font-serif text-xl font-bold text-foreground leading-none">
+        {value}
+      </dd>
       <dt className="text-[10px] font-semibold uppercase tracking-[0.04em] text-muted-foreground mt-1">
         {label}
       </dt>
@@ -196,7 +301,13 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ProgrammeCard({ rows, category }: { rows: ProgrammeItem[]; category: string }) {
+function ProgrammeCard({
+  rows,
+  category,
+}: {
+  rows: ProgrammeItem[];
+  category: string;
+}) {
   const { title, Icon } = categoryProgrammeLabel(category);
   return (
     <div
@@ -234,5 +345,8 @@ function formatProgrammeTime(iso: string | null): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "—";
-  return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  return d.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }

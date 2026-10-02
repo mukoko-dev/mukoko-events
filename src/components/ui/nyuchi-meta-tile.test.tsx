@@ -8,9 +8,15 @@ afterEach(cleanup);
 describe("NyuchiMetaTile", () => {
   it("renders a date chip with primary + secondary lines", () => {
     const { getByText } = render(
-      <NyuchiMetaTile date={{ month: "August", day: 2 }} primary="Sat, Aug 2" secondary="9:00 AM" />,
+      <NyuchiMetaTile
+        date={{ month: "August", day: 2 }}
+        primary="Sat, Aug 2"
+        secondary="9:00 AM"
+      />,
     );
-    expect(document.querySelector('[data-slot="nyuchi-meta-tile"]')).toBeTruthy();
+    expect(
+      document.querySelector('[data-slot="nyuchi-meta-tile"]'),
+    ).toBeTruthy();
     expect(getByText("Aug")).toBeTruthy();
     expect(getByText("2")).toBeTruthy();
     expect(getByText("Sat, Aug 2")).toBeTruthy();

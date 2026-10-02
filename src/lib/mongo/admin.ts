@@ -75,7 +75,12 @@ function clamp(value: number, min: number, max: number): number {
  * `{ $gt: "" }`) where a number is expected; this guarantees a plain integer
  * before it reaches `.skip()` / `.limit()`.
  */
-function toBoundedInt(value: unknown, fallback: number, min: number, max: number): number {
+function toBoundedInt(
+  value: unknown,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
   const n = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(n)) return fallback;
   return clamp(Math.trunc(n), min, max);
@@ -108,7 +113,11 @@ function toDate(value: Date | string | null | undefined): Date | null {
 function formatShortDate(value: Date | string | null | undefined): string {
   const d = toDate(value);
   if (!d) return "";
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 /**
@@ -123,7 +132,8 @@ function adminEventStatus(doc: EventDoc): AdminEvent["status"] {
   const end = toDate(doc.endDate)?.getTime() ?? null;
   if (start !== null && now < start) return "upcoming";
   if (end !== null && now > end) return "past";
-  if (start !== null && end !== null && now >= start && now <= end) return "ongoing";
+  if (start !== null && end !== null && now >= start && now <= end)
+    return "ongoing";
   // Started with no known end — treat as past for the table.
   return "past";
 }
@@ -165,14 +175,15 @@ function toRecentUser(doc: PersonDoc): RecentUser {
  * the retired worker) so they're reported as 0.
  */
 export async function getAdminStats(): Promise<AdminDashboardData> {
-  const [persons, events, rsvps, entities, circles, calendars] = await Promise.all([
-    personsCollection(),
-    eventsCollection(),
-    rsvpsCollection(),
-    entitiesCollection(),
-    circlesCollection(),
-    calendarsCollection(),
-  ]);
+  const [persons, events, rsvps, entities, circles, calendars] =
+    await Promise.all([
+      personsCollection(),
+      eventsCollection(),
+      rsvpsCollection(),
+      entitiesCollection(),
+      circlesCollection(),
+      calendarsCollection(),
+    ]);
 
   const [
     totalUsers,
@@ -283,13 +294,21 @@ export async function listAdminUsers(
   }
   // Constrain the role filter to the known enum — never let an untrusted
   // operator object (e.g. `{ $gt: "" }`) reach the Mongo query.
-  if (typeof params.role === "string" && FILTERABLE_USER_ROLES.has(params.role)) {
+  if (
+    typeof params.role === "string" &&
+    FILTERABLE_USER_ROLES.has(params.role)
+  ) {
     filter.role = params.role as PersonDoc["role"];
   }
 
   const col = await personsCollection();
   const [docs, total] = await Promise.all([
-    col.find(filter).sort({ createdAt: -1 }).skip(offset).limit(limit).toArray(),
+    col
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray(),
     col.countDocuments(filter),
   ]);
 
@@ -347,8 +366,12 @@ function applyStatusFilter(filter: Filter<EventDoc>, status?: string): void {
 async function docsToAdminEvents(docs: EventDoc[]): Promise<AdminEvent[]> {
   if (docs.length === 0) return [];
 
-  const entityIds = unique(docs.map((d) => d.primaryHostEntityId).filter(Boolean));
-  const placeIds = unique(docs.map((d) => d.placeId).filter((v): v is string => !!v));
+  const entityIds = unique(
+    docs.map((d) => d.primaryHostEntityId).filter(Boolean),
+  );
+  const placeIds = unique(
+    docs.map((d) => d.placeId).filter((v): v is string => !!v),
+  );
 
   const [entities, places] = await Promise.all([
     entityIds.length
@@ -366,7 +389,11 @@ async function docsToAdminEvents(docs: EventDoc[]): Promise<AdminEvent[]> {
     entities.map((e) => e.founderPersonId).filter((v): v is string => !!v),
   );
   const persons = founderIds.length
-    ? await (await personsCollection()).find({ _id: { $in: founderIds } }).toArray()
+    ? await (
+        await personsCollection()
+      )
+        .find({ _id: { $in: founderIds } })
+        .toArray()
     : ([] as PersonDoc[]);
   const personById = new Map(persons.map((p) => [p._id, p]));
 
@@ -396,7 +423,9 @@ async function docsToAdminEvents(docs: EventDoc[]): Promise<AdminEvent[]> {
       organizer: { name: api.organizer.name },
       status: adminEventStatus(doc),
       lifecycleStatus: doc.status,
-      featured: Boolean((doc.mukoko as { featured?: unknown } | null | undefined)?.featured),
+      featured: Boolean(
+        (doc.mukoko as { featured?: unknown } | null | undefined)?.featured,
+      ),
       dateCreated: api.dateCreated ?? "",
     };
   });
@@ -421,7 +450,12 @@ export async function listAdminEvents(
 
   const col = await eventsCollection();
   const [docs, total] = await Promise.all([
-    col.find(filter).sort({ startDate: -1 }).skip(offset).limit(limit).toArray(),
+    col
+      .find(filter)
+      .sort({ startDate: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray(),
     col.countDocuments(filter),
   ]);
 
@@ -464,13 +498,20 @@ export async function listAdminEntities(
 
   const col = await entitiesCollection();
   const [docs, total] = await Promise.all([
-    col.find(filter).sort({ createdAt: -1 }).skip(offset).limit(limit).toArray(),
+    col
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray(),
     col.countDocuments(filter),
   ]);
   if (docs.length === 0) return { entities: [], total };
 
   const entityIds = docs.map((d) => d._id);
-  const founderIds = unique(docs.map((d) => d.founderPersonId).filter((v): v is string => !!v));
+  const founderIds = unique(
+    docs.map((d) => d.founderPersonId).filter((v): v is string => !!v),
+  );
 
   const [memberCounts, founders] = await Promise.all([
     (await entityMembershipsCollection())
@@ -489,7 +530,9 @@ export async function listAdminEntities(
 
   return {
     entities: docs.map((doc) => {
-      const founder = doc.founderPersonId ? founderById.get(doc.founderPersonId) : undefined;
+      const founder = doc.founderPersonId
+        ? founderById.get(doc.founderPersonId)
+        : undefined;
       return {
         id: doc._id,
         name: doc.name,
@@ -506,11 +549,15 @@ export async function listAdminEntities(
 }
 
 /** Members of one entity (for the admin entity drill-down). */
-export async function listAdminEntityMembers(entityId: string): Promise<AdminEntityMember[]> {
+export async function listAdminEntityMembers(
+  entityId: string,
+): Promise<AdminEntityMember[]> {
   // Runtime types are erased — reject anything but a plain string id so a
   // crafted client can't slip an operator object into the `entityId` filter.
   if (typeof entityId !== "string" || entityId.length === 0) return [];
-  const memberships: EntityMembershipDoc[] = await (await entityMembershipsCollection())
+  const memberships: EntityMembershipDoc[] = await (
+    await entityMembershipsCollection()
+  )
     .find({ entityId })
     .sort({ joinedAt: 1 })
     .limit(100)
@@ -518,7 +565,11 @@ export async function listAdminEntityMembers(entityId: string): Promise<AdminEnt
   if (memberships.length === 0) return [];
 
   const personIds = unique(memberships.map((m) => m.personId));
-  const persons = await (await personsCollection()).find({ _id: { $in: personIds } }).toArray();
+  const persons = await (
+    await personsCollection()
+  )
+    .find({ _id: { $in: personIds } })
+    .toArray();
   const personById = new Map(persons.map((p) => [p._id, p]));
 
   return memberships.map((m) => {
@@ -566,7 +617,12 @@ export async function listAdminCircles(
 
   const col = await circlesCollection();
   const [docs, total] = await Promise.all([
-    col.find(filter).sort({ createdAt: -1 }).skip(offset).limit(limit).toArray(),
+    col
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray(),
     col.countDocuments(filter),
   ]);
 
@@ -617,7 +673,12 @@ export async function listAdminCalendars(
 
   const col = await calendarsCollection();
   const [docs, total] = await Promise.all([
-    col.find(filter).sort({ followerCount: -1, createdAt: -1 }).skip(offset).limit(limit).toArray(),
+    col
+      .find(filter)
+      .sort({ followerCount: -1, createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray(),
     col.countDocuments(filter),
   ]);
 

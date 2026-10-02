@@ -9,7 +9,12 @@ interface FormFieldRowProps {
   className?: string;
 }
 
-export function FormFieldRow({ icon, onClick, children, className }: FormFieldRowProps) {
+export function FormFieldRow({
+  icon,
+  onClick,
+  children,
+  className,
+}: FormFieldRowProps) {
   return (
     <button
       type="button"

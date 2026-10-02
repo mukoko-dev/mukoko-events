@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   description: "Search for events, venues, and categories on Nhimbe.",
 };
 
-export default function SearchLayout({ children }: { children: React.ReactNode }) {
+export default function SearchLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return children;
 }

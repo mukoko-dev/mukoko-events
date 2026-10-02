@@ -63,7 +63,11 @@ describe("recordFeedback", () => {
   });
 
   it("omits optional fields when not provided", async () => {
-    await recordFeedback({ category: "idea", message: "Do this", authenticated: false });
+    await recordFeedback({
+      category: "idea",
+      message: "Do this",
+      authenticated: false,
+    });
     const doc = feedback.insertOne.mock.calls[0][0];
     expect("path" in doc).toBe(false);
     expect("personId" in doc).toBe(false);
@@ -73,7 +77,11 @@ describe("recordFeedback", () => {
 
   it("never throws — a write failure returns stored:false with the reason", async () => {
     feedback.insertOne.mockRejectedValueOnce(new Error("validator rejected"));
-    const res = await recordFeedback({ category: "other", message: "hi", authenticated: false });
+    const res = await recordFeedback({
+      category: "other",
+      message: "hi",
+      authenticated: false,
+    });
     expect(res.stored).toBe(false);
     expect(res.error).toContain("validator rejected");
   });

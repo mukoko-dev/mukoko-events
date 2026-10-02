@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { CalendarRange, Rss, Users } from "lucide-react";
 import { EventThemeWrapper } from "@/app/events/[id]/event-theme-wrapper";
-import { NyuchiTimeline, type TimelineItem } from "@/components/ui/nyuchi-timeline";
+import {
+  NyuchiTimeline,
+  type TimelineItem,
+} from "@/components/ui/nyuchi-timeline";
 import { FollowButton } from "./follow-button";
 import { OwnerActions } from "./owner-actions";
 import { CalendarDiscuss } from "./calendar-discuss";
@@ -113,16 +116,22 @@ export function CalendarView({
               </p>
             )}
             {calendar.description && (
-              <p className="mt-2 max-w-150 text-text-secondary">{calendar.description}</p>
+              <p className="mt-2 max-w-150 text-text-secondary">
+                {calendar.description}
+              </p>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
-              {calendar.ownerName && <span>Curated by {calendar.ownerName}</span>}
+              {calendar.ownerName && (
+                <span>Curated by {calendar.ownerName}</span>
+              )}
               <span className="inline-flex items-center gap-1">
                 <Users className="size-3.5" aria-hidden />
-                {calendar.followerCount} {calendar.followerCount === 1 ? "follower" : "followers"}
+                {calendar.followerCount}{" "}
+                {calendar.followerCount === 1 ? "follower" : "followers"}
               </span>
               <span>
-                {calendar.eventCount} {calendar.eventCount === 1 ? "event" : "events"}
+                {calendar.eventCount}{" "}
+                {calendar.eventCount === 1 ? "event" : "events"}
               </span>
             </div>
           </div>
@@ -155,13 +164,17 @@ export function CalendarView({
             items={events.map(toTimelineItem)}
             emptyState={
               <p className="text-sm text-text-secondary">
-                No upcoming events on this calendar yet — follow it and be first to know.
+                No upcoming events on this calendar yet — follow it and be first
+                to know.
               </p>
             }
           />
         </section>
 
-        <CalendarDiscuss calendarId={calendar.id} isAuthenticated={isAuthenticated} />
+        <CalendarDiscuss
+          calendarId={calendar.id}
+          isAuthenticated={isAuthenticated}
+        />
       </div>
     </EventThemeWrapper>
   );

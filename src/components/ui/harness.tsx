@@ -28,7 +28,11 @@ export interface ScopedLogger {
   debug: (message: string, data?: Record<string, unknown>) => void;
   info: (message: string, data?: Record<string, unknown>) => void;
   warn: (message: string, data?: Record<string, unknown>) => void;
-  error: (message: string, error?: Error, data?: Record<string, unknown>) => void;
+  error: (
+    message: string,
+    error?: Error,
+    data?: Record<string, unknown>,
+  ) => void;
 }
 
 function createScopedLogger(componentName: string): ScopedLogger {
@@ -48,7 +52,10 @@ export type HealthStatus = "healthy" | "degraded" | "error" | "loading";
 
 /** Read the user's reduced-motion preference (SSR-safe). */
 export function prefersReducedMotion(): boolean {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
     return false;
   }
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -106,7 +113,7 @@ export interface AnimStyleOptions {
  */
 export function animStyle(
   options: AnimStyleOptions = {},
-  reduced: boolean = prefersReducedMotion()
+  reduced: boolean = prefersReducedMotion(),
 ): React.CSSProperties {
   if (reduced) return {};
   const {
@@ -181,12 +188,12 @@ function useTokenVerifier(componentName: string): void {
       "--radius-card",
     ];
     const missing = requiredTokens.filter(
-      (token) => !style.getPropertyValue(token).trim()
+      (token) => !style.getPropertyValue(token).trim(),
     );
     if (missing.length > 0) {
       createLogger(componentName).warn(
         `Missing CSS tokens: ${missing.join(", ")}. Is the theme mounted above this component?`,
-        { data: { missing } }
+        { data: { missing } },
       );
     }
   }, [componentName]);
@@ -212,8 +219,13 @@ export interface ComponentHarnessResult {
  * motion, and a11y (via the shared LiveRegion) into a single hook so
  * branded components stay zero-config.
  */
-export function useNyuchiHarness(componentName: string): ComponentHarnessResult {
-  const log = React.useMemo(() => createScopedLogger(componentName), [componentName]);
+export function useNyuchiHarness(
+  componentName: string,
+): ComponentHarnessResult {
+  const log = React.useMemo(
+    () => createScopedLogger(componentName),
+    [componentName],
+  );
   const motion = React.useMemo(() => getMotionConfig(), []);
   const announce = useAnnounce();
 
@@ -227,7 +239,7 @@ export function useNyuchiHarness(componentName: string): ComponentHarnessResult 
 
   const boundAnimStyle = React.useCallback(
     (options?: AnimStyleOptions) => animStyle(options, motion.prefersReduced),
-    [motion.prefersReduced]
+    [motion.prefersReduced],
   );
 
   return {
@@ -280,10 +292,13 @@ export function NyuchiHarness({
     const raf =
       typeof requestAnimationFrame === "function"
         ? requestAnimationFrame(() => {
-            const duration = Math.round((performance.now() - start) * 100) / 100;
+            const duration =
+              Math.round((performance.now() - start) * 100) / 100;
             const logger = createLogger(name);
-            if (duration > 16) logger.warn(`slow render: ${duration}ms`, { data: { duration } });
-            else logger.debug(`rendered in ${duration}ms`, { data: { duration } });
+            if (duration > 16)
+              logger.warn(`slow render: ${duration}ms`, { data: { duration } });
+            else
+              logger.debug(`rendered in ${duration}ms`, { data: { duration } });
           })
         : 0;
     return () => {
@@ -315,7 +330,11 @@ export function NyuchiHarness({
   }
 
   return (
-    <SectionErrorBoundary section={name} fallback={fallback} className={className}>
+    <SectionErrorBoundary
+      section={name}
+      fallback={fallback}
+      className={className}
+    >
       <div
         data-slot="nyuchi-harness"
         data-section={name}

@@ -26,15 +26,22 @@ export async function GET(
 
   let ctx;
   try {
-    ctx = await requireBearerEventHost(request.headers.get("Authorization"), id);
+    ctx = await requireBearerEventHost(
+      request.headers.get("Authorization"),
+      id,
+    );
   } catch (err) {
-    if (err instanceof ActorError) return NextResponse.json({ error: err.message }, { status: err.status });
+    if (err instanceof ActorError)
+      return NextResponse.json({ error: err.message }, { status: err.status });
     throw err;
   }
 
   try {
     const eventId = ctx.event._id;
-    const [stats, checkin] = await Promise.all([getEventStats(eventId), getCheckinStats(eventId)]);
+    const [stats, checkin] = await Promise.all([
+      getEventStats(eventId),
+      getCheckinStats(eventId),
+    ]);
     return NextResponse.json({
       analytics: {
         eventId,
@@ -49,6 +56,9 @@ export async function GET(
     });
   } catch (err) {
     console.error(`[mukoko] GET /api/events/${id}/analytics failed`, err);
-    return NextResponse.json({ error: "Failed to load analytics" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load analytics" },
+      { status: 500 },
+    );
   }
 }

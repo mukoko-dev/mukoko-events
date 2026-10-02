@@ -16,7 +16,11 @@
  */
 
 import { withAuth } from "@workos-inc/authkit-nextjs";
-import { eventsCollection, personsCollection, rsvpsCollection } from "@/lib/mongo/databases";
+import {
+  eventsCollection,
+  personsCollection,
+  rsvpsCollection,
+} from "@/lib/mongo/databases";
 import { listHostEntitiesForPerson } from "@/lib/mongo/entities";
 import { isDevBypass, DEV_WORKOS_ID } from "@/lib/auth/dev";
 import {
@@ -63,7 +67,9 @@ async function requireEventHost(eventId: string): Promise<PersonDoc> {
 }
 
 /** Resolve the rsvp's event, then enforce the host check against it. */
-async function requireHostForRsvp(rsvpId: string): Promise<{ eventId: string; person: PersonDoc }> {
+async function requireHostForRsvp(
+  rsvpId: string,
+): Promise<{ eventId: string; person: PersonDoc }> {
   const rsvps = await rsvpsCollection();
   const rsvp = await rsvps.findOne({ _id: rsvpId });
   if (!rsvp) throw new Error("Not authorized");
@@ -72,7 +78,9 @@ async function requireHostForRsvp(rsvpId: string): Promise<{ eventId: string; pe
 }
 
 /** Host-only: the event's registrations (attendee PII). */
-export async function getEventRegistrationsAction(eventId: string): Promise<Registration[]> {
+export async function getEventRegistrationsAction(
+  eventId: string,
+): Promise<Registration[]> {
   await requireEventHost(eventId);
   return getEventRegistrations(eventId);
 }
@@ -84,11 +92,16 @@ export async function updateRegistrationStatusAction(
 ): Promise<{ message: string }> {
   await requireHostForRsvp(rsvpId);
   await setRegistrationApproval(rsvpId, status);
-  return { message: status === "approved" ? "Registration approved" : "Registration rejected" };
+  return {
+    message:
+      status === "approved" ? "Registration approved" : "Registration rejected",
+  };
 }
 
 /** Host-only: cancel a registration. */
-export async function cancelRegistrationAction(rsvpId: string): Promise<{ message: string }> {
+export async function cancelRegistrationAction(
+  rsvpId: string,
+): Promise<{ message: string }> {
   await requireHostForRsvp(rsvpId);
   await cancelRegistration(rsvpId);
   return { message: "Registration cancelled" };
@@ -105,7 +118,9 @@ export async function checkinRegistrationAction(
 }
 
 /** Public: aggregate check-in stats for an event (no attendee PII). */
-export async function getCheckinStatsAction(eventId: string): Promise<CheckinStats> {
+export async function getCheckinStatsAction(
+  eventId: string,
+): Promise<CheckinStats> {
   return getCheckinStats(eventId);
 }
 
@@ -127,12 +142,20 @@ export async function canManageEventAction(eventId: string): Promise<boolean> {
 
   const events = await eventsCollection();
   const event = await events.findOne(
-    { $or: [{ _id: eventId }, { slug: eventId }, { "mukoko.shortCode": eventId }] },
+    {
+      $or: [
+        { _id: eventId },
+        { slug: eventId },
+        { "mukoko.shortCode": eventId },
+      ],
+    },
     { projection: { primaryHostEntityId: 1, hostEntityIds: 1 } },
   );
   if (!event) return false;
 
-  const hostIds = new Set((await listHostEntitiesForPerson(person._id)).map((e) => e._id));
+  const hostIds = new Set(
+    (await listHostEntitiesForPerson(person._id)).map((e) => e._id),
+  );
   return (
     hostIds.has(event.primaryHostEntityId) ||
     (event.hostEntityIds ?? []).some((id) => hostIds.has(id))

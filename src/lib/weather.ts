@@ -33,7 +33,10 @@ export function slugifyLocation(city: string): string {
 }
 
 /** Build the Mukoko weather-widget embed URL for a location + widget type. */
-export function weatherEmbedUrl(location: string, type: WeatherWidgetType = "current"): string {
+export function weatherEmbedUrl(
+  location: string,
+  type: WeatherWidgetType = "current",
+): string {
   const slug = slugifyLocation(location);
   const params = new URLSearchParams({ type, location: slug });
   return `${WEATHER_EMBED_ORIGIN}/embed/widget?${params.toString()}`;

@@ -14,7 +14,11 @@
  */
 
 import { withAuth } from "@workos-inc/authkit-nextjs";
-import { eventsCollection, personsCollection, rsvpsCollection } from "@/lib/mongo/databases";
+import {
+  eventsCollection,
+  personsCollection,
+  rsvpsCollection,
+} from "@/lib/mongo/databases";
 import { listHostEntitiesForPerson } from "@/lib/mongo/entities";
 import { getEventsByIds } from "@/lib/mongo/events";
 import { isDevBypass, DEV_WORKOS_ID } from "@/lib/auth/dev";
@@ -85,7 +89,9 @@ export async function getMyEvents(): Promise<MyEventsResult> {
 
   return {
     // Don't double-list an event you're both hosting and attending under both.
-    attending: attendingEvents.filter((e) => isUpcoming(e) && !hostingIdSet.has(e.id)),
+    attending: attendingEvents.filter(
+      (e) => isUpcoming(e) && !hostingIdSet.has(e.id),
+    ),
     hosting: hostingEvents.filter(isUpcoming),
     past: [...pastById.values()],
   };

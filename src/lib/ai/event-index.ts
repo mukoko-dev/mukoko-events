@@ -31,7 +31,9 @@ function cityOf(doc: Pick<EventDoc, "location">): string | null {
 export function buildEventEmbeddingText(
   doc: Pick<EventDoc, "name" | "description" | "tags" | "location">,
 ): string {
-  const tags = (doc.tags ?? []).filter((t): t is string => typeof t === "string");
+  const tags = (doc.tags ?? []).filter(
+    (t): t is string => typeof t === "string",
+  );
   const city = cityOf(doc);
   return [
     doc.name,
@@ -49,7 +51,16 @@ export function buildEventEmbeddingText(
  * gateway is unconfigured or the call failed (never throws).
  */
 export async function indexEventEmbedding(
-  doc: Pick<EventDoc, "_id" | "name" | "description" | "tags" | "location" | "startDate" | "mukoko">,
+  doc: Pick<
+    EventDoc,
+    | "_id"
+    | "name"
+    | "description"
+    | "tags"
+    | "location"
+    | "startDate"
+    | "mukoko"
+  >,
 ): Promise<boolean> {
   if (!isGatewayConfigured()) return false;
   try {
@@ -58,7 +69,9 @@ export async function indexEventEmbedding(
     if (!embedding) return false;
 
     const category =
-      typeof doc.mukoko?.category === "string" ? (doc.mukoko.category as string) : null;
+      typeof doc.mukoko?.category === "string"
+        ? (doc.mukoko.category as string)
+        : null;
 
     const col = await eventEmbeddingsCollection();
     const now = new Date();

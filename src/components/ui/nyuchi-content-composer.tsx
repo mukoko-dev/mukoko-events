@@ -76,9 +76,13 @@ export function NyuchiContentComposer({
           <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-xs font-bold text-muted-foreground">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={userName ?? ""} className="size-full object-cover" />
+              <img
+                src={avatarUrl}
+                alt={userName ?? ""}
+                className="size-full object-cover"
+              />
             ) : (
-              (getInitials(userName, 1) || "?")
+              getInitials(userName, 1) || "?"
             )}
           </div>
         )}

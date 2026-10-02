@@ -28,7 +28,7 @@ function TimelineItem({
       className={cn(
         "relative flex gap-4 pb-8 last:pb-0",
         "before:absolute before:left-[11px] before:top-6 before:bottom-0 before:w-px before:bg-foreground/10 last:before:hidden",
-        className
+        className,
       )}
       {...props}
     >
@@ -59,7 +59,7 @@ function TimelineDot({
       className={cn(
         "relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full border",
         dotColors[color],
-        className
+        className,
       )}
       {...props}
     >
@@ -84,10 +84,7 @@ function TimelineContent({
   );
 }
 
-function TimelineHeading({
-  className,
-  ...props
-}: React.ComponentProps<"h4">) {
+function TimelineHeading({ className, ...props }: React.ComponentProps<"h4">) {
   return (
     <h4
       data-slot="timeline-heading"
@@ -110,10 +107,7 @@ function TimelineDescription({
   );
 }
 
-function TimelineTime({
-  className,
-  ...props
-}: React.ComponentProps<"time">) {
+function TimelineTime({ className, ...props }: React.ComponentProps<"time">) {
   return (
     <time
       data-slot="timeline-time"

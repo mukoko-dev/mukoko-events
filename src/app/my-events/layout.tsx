@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   description: "Your events and registrations on Nhimbe.",
 };
 
-export default function MyEventsLayout({ children }: { children: React.ReactNode }) {
+export default function MyEventsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return children;
 }

@@ -4,7 +4,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // logic and its DB calls can be unit-tested with fake collections.
 vi.mock("server-only", () => ({}));
 
-const trackedLinks = { insertOne: vi.fn(), findOne: vi.fn(), updateOne: vi.fn() };
+const trackedLinks = {
+  insertOne: vi.fn(),
+  findOne: vi.fn(),
+  updateOne: vi.fn(),
+};
 const linkClicks = { insertOne: vi.fn() };
 
 vi.mock("@/lib/mongo/databases", () => ({
@@ -66,12 +70,20 @@ describe("buildTrackedLinkDoc", () => {
     expect(doc.ownerEntityId).toBe("entity-1");
     expect(doc.clickCount).toBe(0);
     expect(doc.isActive).toBe(true);
-    expect(doc.utm).toEqual({ source: "nhimbe", eventId: "event-1", linkType: "meeting_url" });
+    expect(doc.utm).toEqual({
+      source: "nhimbe",
+      eventId: "event-1",
+      linkType: "meeting_url",
+    });
   });
 
   it("omits event/link-type context when absent", () => {
     const doc = buildTrackedLinkDoc(
-      { destinationUrl: "https://x.test", ownerPersonId: "p", ownerEntityId: "e" },
+      {
+        destinationUrl: "https://x.test",
+        ownerPersonId: "p",
+        ownerEntityId: "e",
+      },
       "wxyz2345",
     );
     expect(doc.utm).toEqual({ source: "nhimbe" });
@@ -95,7 +107,9 @@ describe("createTrackedLink", () => {
   });
 
   it("rejects a non-http(s) destination without touching the DB", async () => {
-    await expect(createTrackedLink({ ...base, destinationUrl: "javascript:evil()" })).rejects.toThrow();
+    await expect(
+      createTrackedLink({ ...base, destinationUrl: "javascript:evil()" }),
+    ).rejects.toThrow();
     expect(trackedLinks.insertOne).not.toHaveBeenCalled();
   });
 
@@ -110,7 +124,9 @@ describe("createTrackedLink", () => {
   });
 
   it("propagates a non-collision write error", async () => {
-    trackedLinks.insertOne.mockRejectedValueOnce(Object.assign(new Error("boom"), { code: 121 }));
+    trackedLinks.insertOne.mockRejectedValueOnce(
+      Object.assign(new Error("boom"), { code: 121 }),
+    );
     await expect(createTrackedLink(base)).rejects.toThrow("boom");
   });
 });
@@ -125,7 +141,11 @@ describe("getOrCreateTrackedLink", () => {
   };
 
   it("returns the existing active link without inserting", async () => {
-    trackedLinks.findOne.mockResolvedValueOnce({ _id: "l1", linkSlug: "keepme12", isActive: true });
+    trackedLinks.findOne.mockResolvedValueOnce({
+      _id: "l1",
+      linkSlug: "keepme12",
+      isActive: true,
+    });
 
     const link = await getOrCreateTrackedLink(base);
 
@@ -158,23 +178,35 @@ describe("getOrCreateTrackedLink", () => {
   });
 
   it("rejects a non-http(s) destination up front", async () => {
-    await expect(getOrCreateTrackedLink({ ...base, destinationUrl: "ftp://x" })).rejects.toThrow();
+    await expect(
+      getOrCreateTrackedLink({ ...base, destinationUrl: "ftp://x" }),
+    ).rejects.toThrow();
     expect(trackedLinks.findOne).not.toHaveBeenCalled();
   });
 });
 
 describe("getActiveTrackedLinkBySlug", () => {
   it("queries by slug + active flag", async () => {
-    trackedLinks.findOne.mockResolvedValueOnce({ _id: "l1", linkSlug: "abc23456", isActive: true });
+    trackedLinks.findOne.mockResolvedValueOnce({
+      _id: "l1",
+      linkSlug: "abc23456",
+      isActive: true,
+    });
     const link = await getActiveTrackedLinkBySlug("abc23456");
-    expect(trackedLinks.findOne).toHaveBeenCalledWith({ linkSlug: "abc23456", isActive: true });
+    expect(trackedLinks.findOne).toHaveBeenCalledWith({
+      linkSlug: "abc23456",
+      isActive: true,
+    });
     expect(link?._id).toBe("l1");
   });
 });
 
 describe("recordTrackedLinkClick", () => {
   it("bumps the counter and appends a click row", async () => {
-    await recordTrackedLinkClick({ _id: "l1" }, { referrer: "https://ref.test" });
+    await recordTrackedLinkClick(
+      { _id: "l1" },
+      { referrer: "https://ref.test" },
+    );
 
     expect(trackedLinks.updateOne).toHaveBeenCalledWith(
       { _id: "l1" },

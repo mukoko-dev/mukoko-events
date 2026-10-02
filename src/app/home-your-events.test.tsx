@@ -35,10 +35,18 @@ const EMPTY: MyEventsResult = { attending: [], hosting: [], past: [] };
 describe("HomeYourEvents", () => {
   it("shows the branded empty state pointing at Discover / Host", () => {
     render(<HomeYourEvents events={EMPTY} userFirstName="Rudo" />);
-    expect(screen.getByRole("heading", { name: "Your events" })).toBeInTheDocument();
-    expect(screen.getByText("Nothing on your calendar yet")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Discover gatherings" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Host a gathering" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Your events" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Nothing on your calendar yet"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Discover gatherings" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Host a gathering" }),
+    ).toBeInTheDocument();
   });
 
   it("renders the member's upcoming events on a timeline", () => {
@@ -50,7 +58,9 @@ describe("HomeYourEvents", () => {
     const { container } = render(<HomeYourEvents events={events} />);
     expect(screen.getByText("Poetry Night")).toBeInTheDocument();
     expect(screen.getByText("My Workshop")).toBeInTheDocument();
-    expect(container.querySelector('[data-slot="nyuchi-timeline"]')).not.toBeNull();
+    expect(
+      container.querySelector('[data-slot="nyuchi-timeline"]'),
+    ).not.toBeNull();
     // Hosted events go to the public event page first, same as attending
     // events — manage is one click further, from there, not skipped past.
     const hostRow = screen.getByText("My Workshop").closest("a");

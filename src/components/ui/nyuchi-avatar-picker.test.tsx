@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import {
+  render,
+  cleanup,
+  fireEvent,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { NyuchiAvatarPicker } from "./nyuchi-avatar-picker";
 import { AVATAR_STICKERS } from "@/lib/avatar-stickers";
 
@@ -17,48 +23,101 @@ afterEach(() => {
 describe("NyuchiAvatarPicker", () => {
   it("shows initials when there is no value", () => {
     render(
-      <NyuchiAvatarPicker name="Amai Zw" value={undefined} onChange={vi.fn()} onCheckGravatar={vi.fn()} />,
+      <NyuchiAvatarPicker
+        name="Amai Zw"
+        value={undefined}
+        onChange={vi.fn()}
+        onCheckGravatar={vi.fn()}
+      />,
     );
     expect(screen.getByText("AZ")).toBeInTheDocument();
   });
 
   it("uploads a chosen file and reports the resolved URL", async () => {
-    uploadMedia.mockResolvedValueOnce({ key: "avatars/x.png", url: "avatars/x.png", message: "Uploaded" });
+    uploadMedia.mockResolvedValueOnce({
+      key: "avatars/x.png",
+      url: "avatars/x.png",
+      message: "Uploaded",
+    });
     const onChange = vi.fn();
-    render(<NyuchiAvatarPicker name="Amai" value={undefined} onChange={onChange} onCheckGravatar={vi.fn()} />);
+    render(
+      <NyuchiAvatarPicker
+        name="Amai"
+        value={undefined}
+        onChange={onChange}
+        onCheckGravatar={vi.fn()}
+      />,
+    );
 
-    const input = screen.getByLabelText("Upload a profile photo") as HTMLInputElement;
+    const input = screen.getByLabelText(
+      "Upload a profile photo",
+    ) as HTMLInputElement;
     const file = new File(["x"], "avatar.png", { type: "image/png" });
     fireEvent.change(input, { target: { files: [file] } });
 
-    await waitFor(() => expect(onChange).toHaveBeenCalledWith("https://assets-s001.mukoko.com/avatars/x.png"));
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith(
+        "https://assets-s001.mukoko.com/avatars/x.png",
+      ),
+    );
   });
 
   it("sets the avatar to the found Gravatar URL", async () => {
-    const onCheckGravatar = vi.fn().mockResolvedValueOnce("https://www.gravatar.com/avatar/abc");
+    const onCheckGravatar = vi
+      .fn()
+      .mockResolvedValueOnce("https://www.gravatar.com/avatar/abc");
     const onChange = vi.fn();
-    render(<NyuchiAvatarPicker name="Amai" value={undefined} onChange={onChange} onCheckGravatar={onCheckGravatar} />);
+    render(
+      <NyuchiAvatarPicker
+        name="Amai"
+        value={undefined}
+        onChange={onChange}
+        onCheckGravatar={onCheckGravatar}
+      />,
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /use gravatar/i }));
 
-    await waitFor(() => expect(onChange).toHaveBeenCalledWith("https://www.gravatar.com/avatar/abc"));
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith(
+        "https://www.gravatar.com/avatar/abc",
+      ),
+    );
   });
 
   it("shows a not-found message when there is no Gravatar", async () => {
     const onCheckGravatar = vi.fn().mockResolvedValueOnce(null);
-    render(<NyuchiAvatarPicker name="Amai" value={undefined} onChange={vi.fn()} onCheckGravatar={onCheckGravatar} />);
+    render(
+      <NyuchiAvatarPicker
+        name="Amai"
+        value={undefined}
+        onChange={vi.fn()}
+        onCheckGravatar={onCheckGravatar}
+      />,
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /use gravatar/i }));
 
-    expect(await screen.findByRole("status")).toHaveTextContent(/no gravatar found/i);
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      /no gravatar found/i,
+    );
   });
 
   it("sets the avatar to a clicked sticker", () => {
     const onChange = vi.fn();
-    render(<NyuchiAvatarPicker name="Amai" value={undefined} onChange={onChange} onCheckGravatar={vi.fn()} />);
+    render(
+      <NyuchiAvatarPicker
+        name="Amai"
+        value={undefined}
+        onChange={onChange}
+        onCheckGravatar={vi.fn()}
+      />,
+    );
 
     const sticker = AVATAR_STICKERS[0];
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(sticker.label, "i") }));
+    fireEvent.click(
+      screen.getByRole("button", { name: new RegExp(sticker.label, "i") }),
+    );
 
     expect(onChange).toHaveBeenCalledWith(sticker.dataUri);
   });

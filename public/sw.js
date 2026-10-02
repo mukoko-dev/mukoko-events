@@ -7,9 +7,16 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key)))
-    ).then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_VERSION)
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .then(() => self.clients.claim()),
   );
 });
 
@@ -17,7 +24,8 @@ self.addEventListener("activate", (event) => {
 // blob: and partial/opaque responses must be skipped to avoid runtime errors.
 function isCacheable(request, response) {
   if (!response || !response.ok) return false;
-  if (response.type === "opaque" || response.type === "opaqueredirect") return false;
+  if (response.type === "opaque" || response.type === "opaqueredirect")
+    return false;
   let url;
   try {
     url = new URL(request.url);
@@ -33,7 +41,10 @@ async function networkFirst(request) {
     const response = await fetch(request);
     if (isCacheable(request, response)) {
       const clone = response.clone();
-      caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone)).catch(() => {});
+      caches
+        .open(CACHE_VERSION)
+        .then((cache) => cache.put(request, clone))
+        .catch(() => {});
     }
     return response;
   } catch {
@@ -50,7 +61,10 @@ async function cacheFirst(request) {
     const response = await fetch(request);
     if (isCacheable(request, response)) {
       const clone = response.clone();
-      caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone)).catch(() => {});
+      caches
+        .open(CACHE_VERSION)
+        .then((cache) => cache.put(request, clone))
+        .catch(() => {});
     }
     return response;
   } catch {

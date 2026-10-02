@@ -33,9 +33,7 @@ export async function fallbackChain<T>(
 /**
  * Synchronous version for non-async chains.
  */
-export function fallbackChainSync<T>(
-  ...providers: Array<() => T>
-): T {
+export function fallbackChainSync<T>(...providers: Array<() => T>): T {
   let lastError: unknown;
 
   for (const provider of providers) {

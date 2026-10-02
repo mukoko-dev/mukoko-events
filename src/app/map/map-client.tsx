@@ -39,11 +39,18 @@ interface MapClientProps {
 // food in gold; tech in cobalt. Default uses the malachite lead.
 function pinColor(category?: string): string {
   const c = (category || "").toLowerCase();
-  if (/(hike|trail|run|walk|climb|swim|bike|cycle|marathon|parkrun|outdoor|adventure)/.test(c)) return "var(--nh-savanna)";
+  if (
+    /(hike|trail|run|walk|climb|swim|bike|cycle|marathon|parkrun|outdoor|adventure)/.test(
+      c,
+    )
+  )
+    return "var(--nh-savanna)";
   if (/(music|festival|concert)/.test(c)) return "var(--nh-sunset)";
-  if (/(faith|religious|service|worship|church|prayer)/.test(c)) return "var(--heritage-indigo)";
+  if (/(faith|religious|service|worship|church|prayer)/.test(c))
+    return "var(--heritage-indigo)";
   if (/(food|dinner|tasting|menu)/.test(c)) return "var(--nh-accent)";
-  if (/(tech|conference|workshop|talk|lecture|education|summit)/.test(c)) return "var(--mineral-cobalt-raw)";
+  if (/(tech|conference|workshop|talk|lecture|education|summit)/.test(c))
+    return "var(--mineral-cobalt-raw)";
   return "var(--nh-lead)";
 }
 
@@ -54,7 +61,8 @@ function pinColor(category?: string): string {
 function eventLatLng(ev: Event): [number, number] | null {
   // First preference: a coords blob on the event itself if the worker ever
   // surfaces it (currently doesn't; the read is forward-compat).
-  const fromEvent = (ev as unknown as { latitude?: number; longitude?: number }).latitude;
+  const fromEvent = (ev as unknown as { latitude?: number; longitude?: number })
+    .latitude;
   if (typeof fromEvent === "number") {
     return [fromEvent, (ev as unknown as { longitude: number }).longitude];
   }
@@ -72,14 +80,14 @@ const CITY_CENTROIDS: Record<string, [number, number]> = {
   Pretoria: [-25.7479, 28.2293],
   Nairobi: [-1.2921, 36.8219],
   Lagos: [6.5244, 3.3792],
-  Accra: [5.6037, -0.1870],
+  Accra: [5.6037, -0.187],
   Kampala: [0.3476, 32.5825],
   Dar: [-6.7924, 39.2083],
   "Dar es Salaam": [-6.7924, 39.2083],
   Lusaka: [-15.3875, 28.3228],
   Kigali: [-1.9706, 30.1044],
-  Addis: [9.0320, 38.7469],
-  "Addis Ababa": [9.0320, 38.7469],
+  Addis: [9.032, 38.7469],
+  "Addis Ababa": [9.032, 38.7469],
   Maputo: [-25.9692, 32.5732],
   Gaborone: [-24.6282, 25.9231],
   Mbabane: [-26.3054, 31.1367],
@@ -105,10 +113,14 @@ export function MapClient({ initialEvents }: MapClientProps) {
 
   // Initial placement from event-side fallback (city centroid). The places
   // resolver below upgrades these to real venue coords when a place_id is set.
-  const [resolvedCoords, setResolvedCoords] = useState<Map<string, [number, number]>>(new Map());
+  const [resolvedCoords, setResolvedCoords] = useState<
+    Map<string, [number, number]>
+  >(new Map());
   // Kweli verification tier per event id (read-only, from places.places.bundu)
   // — feeds the selected-pin venue card's tier dot. Absent → unverified.
-  const [resolvedTiers, setResolvedTiers] = useState<Map<string, number>>(new Map());
+  const [resolvedTiers, setResolvedTiers] = useState<Map<string, number>>(
+    new Map(),
+  );
   const placedEvents = useMemo(() => {
     return initialEvents
       .map((ev) => {
@@ -207,8 +219,13 @@ export function MapClient({ initialEvents }: MapClientProps) {
   // existing marker group and rebuild — cheap given the list size and
   // avoids tracking marker identity by id.
   useEffect(() => {
-    const map = mapRef.current as { fitBounds?: (b: unknown, opts?: unknown) => void } | null;
-    const group = markersGroupRef.current as { clearLayers?: () => void; addLayer?: (l: unknown) => void } | null;
+    const map = mapRef.current as {
+      fitBounds?: (b: unknown, opts?: unknown) => void;
+    } | null;
+    const group = markersGroupRef.current as {
+      clearLayers?: () => void;
+      addLayer?: (l: unknown) => void;
+    } | null;
     if (!map || !group) return;
     (async () => {
       const L = (await import("leaflet")).default;
@@ -221,7 +238,12 @@ export function MapClient({ initialEvents }: MapClientProps) {
           box-shadow:0 0 0 3px color-mix(in srgb, ${color} 25%, transparent), 0 4px 10px rgba(0,0,0,0.25);
           border:2px solid #fff;
         "></span>`;
-        const icon = L.divIcon({ className: "nhimbe-pin", html, iconSize: [18, 18], iconAnchor: [9, 9] });
+        const icon = L.divIcon({
+          className: "nhimbe-pin",
+          html,
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        });
         const marker = L.marker(ll, { icon });
         marker.on("click", () => setSelected(ev));
         group.addLayer?.(marker);
@@ -236,14 +258,20 @@ export function MapClient({ initialEvents }: MapClientProps) {
   // Swap base layer when the user picks a different tile style.
   useEffect(() => {
     (async () => {
-      const map = mapRef.current as { addLayer: (l: unknown) => void; removeLayer: (l: unknown) => void } | null;
+      const map = mapRef.current as {
+        addLayer: (l: unknown) => void;
+        removeLayer: (l: unknown) => void;
+      } | null;
       if (!map) return;
       const L = (await import("leaflet")).default;
       if (tileLayerRef.current) {
         map.removeLayer(tileLayerRef.current);
       }
       const cfg = BASE_LAYERS[layer];
-      tileLayerRef.current = L.tileLayer(cfg.url, { attribution: cfg.attribution, maxZoom: cfg.maxZoom }).addTo(map as unknown as L.Map);
+      tileLayerRef.current = L.tileLayer(cfg.url, {
+        attribution: cfg.attribution,
+        maxZoom: cfg.maxZoom,
+      }).addTo(map as unknown as L.Map);
     })();
   }, [layer]);
 
@@ -271,9 +299,18 @@ export function MapClient({ initialEvents }: MapClientProps) {
               onClick={() => setLayer(id)}
               aria-pressed={layer === id}
               className={`inline-flex items-center gap-1.5 px-3 h-8 rounded-full text-xs font-semibold transition-colors ${
-                layer === id ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                layer === id
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
-              style={layer === id ? { background: "var(--nh-lead-soft)", color: "var(--nh-lead)" } : undefined}
+              style={
+                layer === id
+                  ? {
+                      background: "var(--nh-lead-soft)",
+                      color: "var(--nh-lead)",
+                    }
+                  : undefined
+              }
             >
               {id === "terrain" ? (
                 <Mountain className="w-3.5 h-3.5" />
@@ -289,7 +326,12 @@ export function MapClient({ initialEvents }: MapClientProps) {
       </header>
 
       <div className="relative flex-1">
-        <div ref={containerRef} className="absolute inset-0" role="application" aria-label="Events map" />
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+          role="application"
+          aria-label="Events map"
+        />
 
         {selected && (
           <div
@@ -309,9 +351,15 @@ export function MapClient({ initialEvents }: MapClientProps) {
             <NyuchiPlaceCard
               name={selected.location.name || selected.location.addressLocality}
               category={`${selected.date.month} ${selected.date.day} · ${selected.category}`}
-              address={selected.location.name ? selected.location.addressLocality : undefined}
+              address={
+                selected.location.name
+                  ? selected.location.addressLocality
+                  : undefined
+              }
               mineral={categoryToMineral(selected.category)}
-              verificationTier={verificationTierCode(resolvedTiers.get(selected.id))}
+              verificationTier={verificationTierCode(
+                resolvedTiers.get(selected.id),
+              )}
               href={`/events/${selected.id}`}
             />
           </div>

@@ -3,9 +3,21 @@ import { Noto_Sans, Noto_Serif, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const notoSerif = Noto_Serif({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
-const jetBrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+const notoSans = Noto_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+const notoSerif = Noto_Serif({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+});
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { AnimatedBackground } from "@/components/ui/animated-background";
@@ -162,8 +174,13 @@ function DegradedShell() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
       <h1 className="font-serif text-2xl font-bold mb-4">Nhimbe</h1>
-      <p className="text-text-secondary mb-6">Something went wrong loading the app. Please refresh the page.</p>
-      <a href="/" className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold">
+      <p className="text-text-secondary mb-6">
+        Something went wrong loading the app. Please refresh the page.
+      </p>
+      <a
+        href="/"
+        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold"
+      >
         Refresh
       </a>
     </div>
@@ -174,7 +191,9 @@ function MinimalNav() {
   return (
     <header className="sticky top-0 z-50 bg-background/70 backdrop-blur-xl border-b border-elevated/50">
       <div className="max-w-300 mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="/" className="font-serif text-xl font-bold text-primary">Nhimbe</a>
+        <a href="/" className="font-serif text-xl font-bold text-primary">
+          Nhimbe
+        </a>
         <nav className="flex items-center gap-4 text-sm text-text-secondary">
           <a href="/events">Events</a>
           <a href="/search">Search</a>
@@ -199,7 +218,9 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: themeScript }}
         />
       </head>
-      <body className={`${notoSans.variable} ${notoSerif.variable} ${jetBrainsMono.variable} antialiased min-h-dvh flex flex-col`}>
+      <body
+        className={`${notoSans.variable} ${notoSerif.variable} ${jetBrainsMono.variable} antialiased min-h-dvh flex flex-col`}
+      >
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:font-semibold"
@@ -216,8 +237,15 @@ export default function RootLayout({
                       {/* Animated WebGL contour background disabled for now
                           (per feedback) — falls back to the static gradient
                           the component already uses for reduced-motion users. */}
-                      <AnimatedBackground enableAnimation={false} intensity={0.2} speed={0.3} />
-                      <WidgetErrorBoundary fallback={<MinimalNav />} name="Header">
+                      <AnimatedBackground
+                        enableAnimation={false}
+                        intensity={0.2}
+                        speed={0.3}
+                      />
+                      <WidgetErrorBoundary
+                        fallback={<MinimalNav />}
+                        name="Header"
+                      >
                         <Header />
                       </WidgetErrorBoundary>
                       {/* Layered surfaces: the AnimatedBackground sits behind

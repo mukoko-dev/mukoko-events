@@ -40,7 +40,11 @@ describe("NyuchiProfileBlock", () => {
 
   it("renders a custom verified badge slot", () => {
     const { getByText } = render(
-      <NyuchiProfileBlock name="X" verificationTier="community" verifiedBadge={<span>BADGE</span>} />,
+      <NyuchiProfileBlock
+        name="X"
+        verificationTier="community"
+        verifiedBadge={<span>BADGE</span>}
+      />,
     );
     expect(getByText("BADGE")).toBeTruthy();
   });

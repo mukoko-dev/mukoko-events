@@ -36,7 +36,9 @@ const loadCalendar = cache(async (slug: string) => {
   }
 });
 
-export async function generateMetadata({ params }: CalendarPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: CalendarPageProps): Promise<Metadata> {
   const { slug } = await params;
   const calendar = await loadCalendar(slug);
   if (!calendar || calendar.visibility === "private") {
@@ -75,8 +77,12 @@ export default async function CalendarPage({ params }: CalendarPageProps) {
   const [events, ownerEntity, circle, following] = await Promise.all([
     listCalendarEvents(calendar._id, 100).catch(() => []),
     getEntityById(calendar.ownerEntityId).catch(() => null),
-    calendar.circleId ? getCircleSummary(calendar.circleId).catch(() => null) : null,
-    viewer ? isFollowingCalendar(calendar._id, viewer._id).catch(() => false) : false,
+    calendar.circleId
+      ? getCircleSummary(calendar.circleId).catch(() => null)
+      : null,
+    viewer
+      ? isFollowingCalendar(calendar._id, viewer._id).catch(() => false)
+      : false,
   ]);
 
   const view: CalendarViewData = {

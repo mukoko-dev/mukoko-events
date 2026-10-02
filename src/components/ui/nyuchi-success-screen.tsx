@@ -48,16 +48,25 @@ export function NyuchiSuccessScreen({
       data-slot="nyuchi-success-screen"
       role="status"
       aria-live="polite"
-      className={cn("flex flex-col items-center gap-4 px-6 py-12 text-center", className)}
+      className={cn(
+        "flex flex-col items-center gap-4 px-6 py-12 text-center",
+        className,
+      )}
       style={animStyle()}
     >
       <div className="flex size-16 items-center justify-center rounded-full bg-[var(--color-malachite)]/15">
         {icon ?? (
-          <Check className="size-8 text-[var(--color-malachite)]" strokeWidth={2.5} aria-hidden />
+          <Check
+            className="size-8 text-[var(--color-malachite)]"
+            strokeWidth={2.5}
+            aria-hidden
+          />
         )}
       </div>
       <h2 className="font-serif text-xl font-bold text-foreground">{title}</h2>
-      {message && <p className="max-w-sm text-sm text-muted-foreground">{message}</p>}
+      {message && (
+        <p className="max-w-sm text-sm text-muted-foreground">{message}</p>
+      )}
       {detail}
       {(primaryAction || secondaryAction) && (
         <div className="mt-4 flex flex-wrap justify-center gap-3">
@@ -67,7 +76,11 @@ export function NyuchiSuccessScreen({
             </Button>
           )}
           {secondaryAction && (
-            <Button variant="outline" onClick={secondaryAction.onClick} className="rounded-full">
+            <Button
+              variant="outline"
+              onClick={secondaryAction.onClick}
+              className="rounded-full"
+            >
               {secondaryAction.label}
             </Button>
           )}

@@ -102,7 +102,8 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
         category,
         email: user ? undefined : email,
         path: pathname ?? undefined,
-        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+        userAgent:
+          typeof navigator !== "undefined" ? navigator.userAgent : undefined,
         errorDigest,
       });
       if (result.success) {
@@ -112,7 +113,9 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
         setEmail("");
         setErrorDigest(undefined);
       } else {
-        toast.error(result.error || "Could not send feedback. Please try again.");
+        toast.error(
+          result.error || "Could not send feedback. Please try again.",
+        );
       }
     } catch {
       toast.error("Could not send feedback. Please try again.");
@@ -142,11 +145,13 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
                 <SelectValue placeholder="Choose a category" />
               </SelectTrigger>
               <SelectContent>
-                {(Object.keys(CATEGORY_LABELS) as FeedbackCategory[]).map((key) => (
-                  <SelectItem key={key} value={key}>
-                    {CATEGORY_LABELS[key]}
-                  </SelectItem>
-                ))}
+                {(Object.keys(CATEGORY_LABELS) as FeedbackCategory[]).map(
+                  (key) => (
+                    <SelectItem key={key} value={key}>
+                      {CATEGORY_LABELS[key]}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -175,7 +180,9 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
             <div className="space-y-2">
               <Label htmlFor="feedback-email">
                 Your email{" "}
-                <span className="font-normal text-text-tertiary">(optional)</span>
+                <span className="font-normal text-text-tertiary">
+                  (optional)
+                </span>
               </Label>
               <Input
                 id="feedback-email"

@@ -13,10 +13,23 @@
  * components that fetch after mount.
  */
 
-import { listEvents, getEventByIdOrSlug, getTrendingEvents } from "@/lib/mongo/events";
-import { listCategories, listCities, getCommunityStats } from "@/lib/mongo/lookups";
+import {
+  listEvents,
+  getEventByIdOrSlug,
+  getTrendingEvents,
+} from "@/lib/mongo/events";
+import {
+  listCategories,
+  listCities,
+  getCommunityStats,
+} from "@/lib/mongo/lookups";
 import { recordEventView } from "@/lib/mongo/stats";
-import type { Category, CommunityStats, Event, EventsResponse } from "@/lib/api";
+import type {
+  Category,
+  CommunityStats,
+  Event,
+  EventsResponse,
+} from "@/lib/api";
 
 export async function getEventsAction(params?: {
   city?: string;
@@ -47,7 +60,9 @@ export async function trackEventViewAction(eventId: string): Promise<void> {
   await recordEventView(eventId);
 }
 
-export async function getTrendingEventsAction(params?: { limit?: number }): Promise<Event[]> {
+export async function getTrendingEventsAction(params?: {
+  limit?: number;
+}): Promise<Event[]> {
   return getTrendingEvents(params?.limit ?? 10);
 }
 
@@ -55,10 +70,14 @@ export async function getCategoriesAction(): Promise<Category[]> {
   return listCategories();
 }
 
-export async function getCitiesAction(): Promise<{ addressLocality: string; addressCountry: string }[]> {
+export async function getCitiesAction(): Promise<
+  { addressLocality: string; addressCountry: string }[]
+> {
   return listCities();
 }
 
-export async function getCommunityStatsAction(city?: string): Promise<CommunityStats> {
+export async function getCommunityStatsAction(
+  city?: string,
+): Promise<CommunityStats> {
   return getCommunityStats(city);
 }

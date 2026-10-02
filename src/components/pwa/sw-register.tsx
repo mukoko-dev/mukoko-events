@@ -4,7 +4,11 @@ import { useEffect } from "react";
 
 export function ServiceWorkerRegister() {
   useEffect(() => {
-    if (!("serviceWorker" in navigator) || process.env.NODE_ENV !== "production") return;
+    if (
+      !("serviceWorker" in navigator) ||
+      process.env.NODE_ENV !== "production"
+    )
+      return;
 
     navigator.serviceWorker
       .register("/sw.js")
@@ -17,7 +21,10 @@ export function ServiceWorkerRegister() {
           const installing = registration.installing;
           if (!installing) return;
           installing.addEventListener("statechange", () => {
-            if (installing.state === "installed" && navigator.serviceWorker.controller) {
+            if (
+              installing.state === "installed" &&
+              navigator.serviceWorker.controller
+            ) {
               window.location.reload();
             }
           });
