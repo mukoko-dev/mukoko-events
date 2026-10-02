@@ -40,7 +40,8 @@ function originFromEnv(...names: string[]): string | null {
       const url = new URL(
         /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`,
       );
-      if (url.protocol !== "https:" || url.username || url.password) return null;
+      if (url.protocol !== "https:" || url.username || url.password)
+        return null;
       return url.origin;
     } catch {
       return null;
