@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { expect, vi } from 'vitest';
+import { beforeEach, expect, vi } from 'vitest';
 import * as axeMatchers from 'vitest-axe/matchers';
 
 // Register vitest-axe matchers globally (`toHaveNoViolations`, etc.).
