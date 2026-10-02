@@ -6,7 +6,10 @@
 // issue the tokens accepted here, plus supported scopes and bearer methods.
 // Served statically at /.well-known/oauth-protected-resource.
 
-import { workosAuthMetadata } from "@/lib/auth/workos-metadata";
+import {
+  authkitMissingResponse,
+  workosAuthMetadata,
+} from "@/lib/auth/workos-metadata";
 
 // force-dynamic: the authorization server is derived at request time from
 // runtime env (WORKOS_AUTHKIT_DOMAIN), and the `resource` identifier is derived
@@ -40,6 +43,7 @@ function metadata(body: unknown): Response {
 
 export async function GET(request: Request): Promise<Response> {
   const workos = workosAuthMetadata();
+  if (!workos) return authkitMissingResponse();
   const origin = resourceOrigin(request);
   return metadata({
     resource: origin,

@@ -24,8 +24,8 @@ import { NextResponse, type NextRequest } from "next/server";
 //                                     auth.mukoko.com to route all
 //                                     WorkOS API calls through the custom API
 //                                     domain. (The hosted AuthKit sign-in UI is
-//                                     served from accounts.mukoko.com, set in
-//                                     the WorkOS dashboard — not this var.)
+//                                     the AuthKit domain set in the WorkOS
+//                                     dashboard — not this var.)
 const WORKOS_PASSWORD = process.env.WORKOS_COOKIE_PASSWORD;
 const WORKOS_API_KEY = process.env.WORKOS_API_KEY;
 const WORKOS_CLIENT_ID = process.env.WORKOS_CLIENT_ID;

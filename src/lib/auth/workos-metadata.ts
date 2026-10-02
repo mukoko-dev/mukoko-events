@@ -42,30 +42,40 @@ export function workosApiHost(): string {
   return process.env.WORKOS_API_HOSTNAME || "api.workos.com";
 }
 
+/** Message used whenever the AuthKit domain is required and unset. */
+export const AUTHKIT_DOMAIN_MISSING = "WORKOS_AUTHKIT_DOMAIN is not configured";
+
 /**
  * Hosted AuthKit domain — the OAuth 2.1 authorization server MCP clients
- * discover and authenticate against. Override per environment via env.
+ * discover and authenticate against — as a bare host, or `null` when unset.
  *
- * The default is `accounts.mukoko.com`. It was `identity.nyuchi.com` until the
- * 10 Aug 2026 issuer migration, and that host is now GONE — attaching a new
- * custom domain in WorkOS detaches the old one, so it stopped resolving the
- * moment the switch happened (Cloudflare error 1014). A default is not a
- * harmless fallback here: whenever `WORKOS_AUTHKIT_DOMAIN` is unset, every
- * `.well-known` discovery route and `/auth.md` advertises this value to
- * agents, so a stale default silently points them all at a dead issuer.
- *
- * `accounts` (plural) is the issuer. `account.mukoko.com` (singular) is the
- * Mukoko Account app — one character apart, different hosts.
+ * It comes ONLY from configuration (`WORKOS_ISSUER`, or `WORKOS_AUTHKIT_DOMAIN`),
+ * set per environment. There is deliberately no default: a compiled-in host is
+ * what left discovery routes advertising the dead `identity.nyuchi.com` after
+ * the 10 Aug 2026 domain move. Callers answer 503 when this is null.
  */
-export function workosAuthkitDomain(): string {
-  const raw =
+export function workosAuthkitDomain(): string | null {
+  const raw = (
     process.env.WORKOS_ISSUER ||
     process.env.WORKOS_AUTHKIT_DOMAIN ||
-    "accounts.mukoko.com";
+    ""
+  ).trim();
+  if (!raw) return null;
   // Callers prepend `https://`, so accept a value supplied with a scheme and/or
-  // trailing slash (the sibling MCP workers store it as `https://accounts.mukoko.com`)
-  // and normalise to a bare host — otherwise it would double to `https://https://…`.
+  // trailing slash and normalise to a bare host — otherwise it would double to
+  // `https://https://…`.
   return raw.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+}
+
+/** 503 for discovery routes when the AuthKit domain is not configured. */
+export function authkitMissingResponse(): Response {
+  return new Response(JSON.stringify({ error: AUTHKIT_DOMAIN_MISSING }), {
+    status: 503,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+    },
+  });
 }
 
 /** WorkOS client id — the JWKS key-set selector the verifier uses. Empty when unset. */
@@ -106,15 +116,18 @@ export interface WorkosAuthMetadata {
 }
 
 /**
- * The one place discovery endpoints are computed. Pass `{ mcp: true }` when the
+ * The one place discovery endpoints are computed. `null` when the AuthKit
+ * domain is not configured — callers answer `authkitMissingResponse()`. Pass `{ mcp: true }` when the
  * document is being served for the MCP resource (`events.mukoko.com`) so the
  * advertised `clientId` is the dedicated MCP Connect app rather than the app's
  * first-party login client.
  */
 export function workosAuthMetadata(opts?: {
   mcp?: boolean;
-}): WorkosAuthMetadata {
-  const base = `https://${workosAuthkitDomain()}`;
+}): WorkosAuthMetadata | null {
+  const domain = workosAuthkitDomain();
+  if (!domain) return null;
+  const base = `https://${domain}`;
   return {
     issuer: base,
     authorizationEndpoint: `${base}/oauth2/authorize`,
