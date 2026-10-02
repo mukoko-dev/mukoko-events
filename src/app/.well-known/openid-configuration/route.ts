@@ -7,7 +7,10 @@
 // the id_token signing algorithm — WorkOS JWKS is RS256).
 // Served statically at /.well-known/openid-configuration.
 
-import { workosAuthMetadata } from "@/lib/auth/workos-metadata";
+import {
+  authkitMissingResponse,
+  workosAuthMetadata,
+} from "@/lib/auth/workos-metadata";
 
 // force-dynamic: endpoints are derived at request time from runtime env
 // (WORKOS_AUTHKIT_DOMAIN) — no stale host baked when build-time env is absent.
@@ -28,6 +31,7 @@ function metadata(body: unknown): Response {
 
 export async function GET(): Promise<Response> {
   const workos = workosAuthMetadata();
+  if (!workos) return authkitMissingResponse();
   return metadata({
     issuer: workos.issuer,
     authorization_endpoint: workos.authorizationEndpoint,

@@ -9,8 +9,8 @@ import {
 
 /**
  * The published discovery documents describe the AuthKit **OAuth 2.1
- * authorization server** (`WORKOS_AUTHKIT_DOMAIN`, `accounts.mukoko.com` in
- * production) — the host that actually serves authorize/token/register/JWKS and
+ * authorization server** (`WORKOS_AUTHKIT_DOMAIN`, set per environment — no
+ * default in code) — the host that actually serves authorize/token/register/JWKS and
  * its own `/.well-known/oauth-authorization-server`. The bearer-token verifier
  * reads JWKS from the WorkOS **API** domain (`WORKOS_API_HOSTNAME`) instead; that
  * split is safe because a WorkOS environment signs every access token with one
@@ -24,7 +24,9 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
     delete process.env.WORKOS_CLIENT_ID;
     delete process.env.WORKOS_MCP_CLIENT_ID;
     delete process.env.WORKOS_API_HOSTNAME;
-    delete process.env.WORKOS_AUTHKIT_DOMAIN;
+    delete process.env.WORKOS_ISSUER;
+    // Test fixture — the AuthKit domain is configuration, never a code default.
+    process.env.WORKOS_AUTHKIT_DOMAIN = "identity.example.test";
   });
 
   afterEach(() => {
@@ -40,20 +42,22 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
     expect(workosApiHost()).toBe("auth.mukoko.com");
   });
 
-  it("defaults the AuthKit domain to accounts.mukoko.com, overridable via env", () => {
-    expect(workosAuthkitDomain()).toBe("accounts.mukoko.com");
+  it("has no AuthKit domain default — unset means not configured", () => {
+    delete process.env.WORKOS_AUTHKIT_DOMAIN;
+    expect(workosAuthkitDomain()).toBeNull();
+    expect(workosAuthMetadata()).toBeNull();
     process.env.WORKOS_AUTHKIT_DOMAIN = "example.authkit.app";
     expect(workosAuthkitDomain()).toBe("example.authkit.app");
   });
 
   it("normalises a WORKOS_AUTHKIT_DOMAIN supplied with a scheme and/or trailing slash", () => {
-    process.env.WORKOS_AUTHKIT_DOMAIN = "https://accounts.mukoko.com/";
-    expect(workosAuthkitDomain()).toBe("accounts.mukoko.com");
+    process.env.WORKOS_AUTHKIT_DOMAIN = "https://identity.example.test/";
+    expect(workosAuthkitDomain()).toBe("identity.example.test");
     // and the built endpoints don't double the scheme
-    const m = workosAuthMetadata();
-    expect(m.issuer).toBe("https://accounts.mukoko.com");
+    const m = workosAuthMetadata()!;
+    expect(m.issuer).toBe("https://identity.example.test");
     expect(m.registrationEndpoint).toBe(
-      "https://accounts.mukoko.com/oauth2/register",
+      "https://identity.example.test/oauth2/register",
     );
   });
 
@@ -64,7 +68,8 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
   });
 
   it("builds the OAuth 2.1 endpoints on the AuthKit domain", () => {
-    const m = workosAuthMetadata();
+    process.env.WORKOS_AUTHKIT_DOMAIN = "accounts.mukoko.com";
+    const m = workosAuthMetadata()!;
     expect(m.issuer).toBe("https://accounts.mukoko.com");
     expect(m.authorizationEndpoint).toBe(
       "https://accounts.mukoko.com/oauth2/authorize",
@@ -78,7 +83,7 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
 
   it("honours WORKOS_AUTHKIT_DOMAIN across every advertised endpoint", () => {
     process.env.WORKOS_AUTHKIT_DOMAIN = "example.authkit.app";
-    const m = workosAuthMetadata();
+    const m = workosAuthMetadata()!;
     expect(m.issuer).toBe("https://example.authkit.app");
     expect(m.authorizationEndpoint).toBe(
       "https://example.authkit.app/oauth2/authorize",
@@ -92,7 +97,7 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
 
   it("carries the verifier's client id for reference without leaking a hardcoded literal", () => {
     process.env.WORKOS_CLIENT_ID = "client_XYZ";
-    const m = workosAuthMetadata();
+    const m = workosAuthMetadata()!;
     expect(m.clientId).toBe("client_XYZ");
     expect(m.jwksUri).not.toContain("client_01KQBBSMQTSMTBN7HEC9KQBJC0");
   });
@@ -104,7 +109,7 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
     // genuinely wants a distinct client.
     process.env.WORKOS_MCP_CLIENT_ID = "client_MCP";
     expect(workosMcpClientId()).toBe("client_MCP");
-    expect(workosAuthMetadata().clientId).toBe("client_APP");
-    expect(workosAuthMetadata({ mcp: true }).clientId).toBe("client_MCP");
+    expect(workosAuthMetadata()!.clientId).toBe("client_APP");
+    expect(workosAuthMetadata({ mcp: true })!.clientId).toBe("client_MCP");
   });
 });

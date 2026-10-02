@@ -6,7 +6,10 @@
 // authorization/token/JWKS endpoints directly from the nhimbe origin.
 // Served statically at /.well-known/oauth-authorization-server.
 
-import { workosAuthMetadata } from "@/lib/auth/workos-metadata";
+import {
+  authkitMissingResponse,
+  workosAuthMetadata,
+} from "@/lib/auth/workos-metadata";
 
 // force-dynamic: endpoints are derived at request time from runtime env
 // (WORKOS_AUTHKIT_DOMAIN), so the document can never advertise a stale host even
@@ -28,6 +31,7 @@ function metadata(body: unknown): Response {
 
 export async function GET(): Promise<Response> {
   const workos = workosAuthMetadata();
+  if (!workos) return authkitMissingResponse();
   return metadata({
     issuer: workos.issuer,
     authorization_endpoint: workos.authorizationEndpoint,

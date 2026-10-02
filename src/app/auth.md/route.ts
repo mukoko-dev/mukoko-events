@@ -4,6 +4,7 @@
 // APIs via WorkOS AuthKit bearer tokens.
 
 import {
+  authkitMissingResponse,
   workosAuthMetadata,
   workosMcpClientId,
 } from "@/lib/auth/workos-metadata";
@@ -14,8 +15,9 @@ import { SITE_URL } from "@/lib/site-url";
 // the live AuthKit OAuth 2.1 authorization server. Cached 1h.
 export const dynamic = "force-dynamic";
 
-function buildAuthMd(): string {
+function buildAuthMd(): string | null {
   const workos = workosAuthMetadata();
+  if (!workos) return null;
   const mcpClientId = workosMcpClientId();
   return `# auth.md
 
@@ -98,7 +100,9 @@ agent_auth:
 }
 
 export async function GET() {
-  return new Response(buildAuthMd(), {
+  const body = buildAuthMd();
+  if (body === null) return authkitMissingResponse();
+  return new Response(body, {
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
       "Cache-Control": "public, max-age=3600",
