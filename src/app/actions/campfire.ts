@@ -103,8 +103,12 @@ async function campfireDb(): Promise<Db> {
   return client.db("campfire");
 }
 
-async function conversationsCollection(): Promise<Collection<CampfireConversationDoc>> {
-  return (await campfireDb()).collection<CampfireConversationDoc>("conversations");
+async function conversationsCollection(): Promise<
+  Collection<CampfireConversationDoc>
+> {
+  return (await campfireDb()).collection<CampfireConversationDoc>(
+    "conversations",
+  );
 }
 
 async function messagesCollection(): Promise<Collection<CampfireMessageDoc>> {
@@ -144,7 +148,9 @@ async function resolveActingPerson(): Promise<PersonDoc> {
     syncInput = {
       workosUserId: user.id,
       email: user.email ?? null,
-      name: [user.firstName, user.lastName].filter(Boolean).join(" ").trim() || null,
+      name:
+        [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+        null,
       givenName: user.firstName ?? null,
       familyName: user.lastName ?? null,
       picture: user.profilePictureUrl ?? null,
@@ -158,7 +164,8 @@ async function resolveActingPerson(): Promise<PersonDoc> {
     await syncPersonFromWorkos(syncInput);
     person = await persons.findOne({ workosUserId: syncInput.workosUserId });
   }
-  if (!person) throw new Error("Could not resolve your account. Please try again.");
+  if (!person)
+    throw new Error("Could not resolve your account. Please try again.");
   return person;
 }
 
@@ -167,7 +174,11 @@ async function loadAuthors(senderIds: string[]): Promise<CampfireAuthor[]> {
   if (senderIds.length === 0) return [];
   const persons = await personsCollection();
   const docs = await persons.find({ _id: { $in: senderIds } }).toArray();
-  return docs.map((p) => ({ id: p._id, name: personLabel(p), image: p.picture ?? null }));
+  return docs.map((p) => ({
+    id: p._id,
+    name: personLabel(p),
+    image: p.picture ?? null,
+  }));
 }
 
 function toMessageView(doc: CampfireMessageDoc): CampfireMessage {
@@ -175,7 +186,10 @@ function toMessageView(doc: CampfireMessageDoc): CampfireMessage {
     id: doc._id,
     senderPersonId: doc.senderPersonId,
     text: doc.content ?? "",
-    sentAt: (doc.sentAt instanceof Date ? doc.sentAt : new Date(doc.sentAt)).toISOString(),
+    sentAt: (doc.sentAt instanceof Date
+      ? doc.sentAt
+      : new Date(doc.sentAt)
+    ).toISOString(),
   };
 }
 
@@ -208,9 +222,7 @@ export async function getCampfireThread(
       .toArray();
     recent.reverse();
 
-    const views = recent
-      .map(toMessageView)
-      .filter((m) => m.text.length > 0);
+    const views = recent.map(toMessageView).filter((m) => m.text.length > 0);
     const authors = await loadAuthors(
       Array.from(new Set(views.map((m) => m.senderPersonId))),
     );
@@ -226,7 +238,9 @@ export async function getCampfireThread(
  * Resolve (creating on first use) an event's paired group chat. Any
  * signed-in visitor may open it — same openness as posting a message.
  */
-export async function ensureEventChatConversationAction(eventId: string): Promise<string> {
+export async function ensureEventChatConversationAction(
+  eventId: string,
+): Promise<string> {
   const person = await resolveActingPerson();
   const events = await eventsCollection();
   const event = await events.findOne({ _id: eventId });
@@ -257,11 +271,14 @@ export async function postCampfireMessage(
   conversationId: string,
   text: string,
 ): Promise<PostCampfireMessageResult> {
-  if (!conversationId) throw new Error("This event has no campfire to post to.");
+  if (!conversationId)
+    throw new Error("This event has no campfire to post to.");
   const body = (text ?? "").trim();
   if (!body) throw new Error("Write a message before sending.");
   if (body.length > MAX_MESSAGE_LENGTH) {
-    throw new Error(`Messages must be ${MAX_MESSAGE_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Messages must be ${MAX_MESSAGE_LENGTH} characters or fewer.`,
+    );
   }
 
   const person = await resolveActingPerson();
@@ -333,6 +350,10 @@ export async function postCampfireMessage(
 
   return {
     message: toMessageView(doc),
-    author: { id: person._id, name: personLabel(person), image: person.picture ?? null },
+    author: {
+      id: person._id,
+      name: personLabel(person),
+      image: person.picture ?? null,
+    },
   };
 }

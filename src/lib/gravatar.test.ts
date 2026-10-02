@@ -7,7 +7,9 @@ import { gravatarHash, gravatarUrl, findGravatarUrl } from "./gravatar";
 
 describe("gravatarHash", () => {
   it("trims and lowercases before hashing (Gravatar's documented algorithm)", () => {
-    const expected = createHash("sha256").update("someone@example.com").digest("hex");
+    const expected = createHash("sha256")
+      .update("someone@example.com")
+      .digest("hex");
     expect(gravatarHash("  Someone@Example.com  ")).toBe(expected);
     expect(gravatarHash("someone@example.com")).toBe(expected);
   });
@@ -44,7 +46,9 @@ describe("findGravatarUrl", () => {
   });
 
   it("returns null instead of throwing on a network failure", async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("network down"));
+    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("network down"),
+    );
     const url = await findGravatarUrl("someone@example.com");
     expect(url).toBeNull();
   });

@@ -1,10 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { User, Building2, Home, Users, BadgeCheck, Loader2 } from "lucide-react";
+import {
+  User,
+  Building2,
+  Home,
+  Users,
+  BadgeCheck,
+  Loader2,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-context";
-import { getMyHostEntities, type HostEntityOption } from "@/app/actions/host-entities";
+import {
+  getMyHostEntities,
+  type HostEntityOption,
+} from "@/app/actions/host-entities";
 
 export type HostMode = "person" | "organization" | "family";
 
@@ -18,7 +28,8 @@ function isHttpsUrl(url: string): boolean {
 
 function EntityLogo({ src, name }: { src: string; name: string }) {
   const [errored, setErrored] = useState(false);
-  if (errored || !isHttpsUrl(src)) return <Building2 className="w-4 h-4 text-text-secondary" aria-hidden />;
+  if (errored || !isHttpsUrl(src))
+    return <Building2 className="w-4 h-4 text-text-secondary" aria-hidden />;
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -70,7 +81,10 @@ function PickerRow({
         <div className="font-medium flex items-center gap-1.5 truncate">
           {label}
           {verified && (
-            <BadgeCheck className="w-4 h-4 text-primary shrink-0" aria-label="Verified" />
+            <BadgeCheck
+              className="w-4 h-4 text-primary shrink-0"
+              aria-label="Verified"
+            />
           )}
         </div>
         <div className="text-sm text-text-tertiary truncate">{sublabel}</div>
@@ -111,17 +125,24 @@ export function HostModePicker({
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [personId, onEntitiesLoaded]);
 
-  const { orgs, families } = useMemo(() => ({
-    // Communities host the same way organisations do (hostMode has no
-    // separate "community" value — the wire format only distinguishes
-    // personal from through-an-entity; authorization is membership-based
-    // either way) but keep their own icon/label below.
-    orgs: entities.filter((e) => e.entityType === "organization" || e.entityType === "community"),
-    families: entities.filter((e) => e.entityType === "family"),
-  }), [entities]);
+  const { orgs, families } = useMemo(
+    () => ({
+      // Communities host the same way organisations do (hostMode has no
+      // separate "community" value — the wire format only distinguishes
+      // personal from through-an-entity; authorization is membership-based
+      // either way) but keep their own icon/label below.
+      orgs: entities.filter(
+        (e) => e.entityType === "organization" || e.entityType === "community",
+      ),
+      families: entities.filter((e) => e.entityType === "family"),
+    }),
+    [entities],
+  );
   const personLabel = user?.name || "You";
 
   return (
@@ -171,11 +192,19 @@ export function HostModePicker({
               ) : entity.entityType === "community" ? (
                 <Users className="w-4 h-4 text-text-secondary" aria-hidden />
               ) : (
-                <Building2 className="w-4 h-4 text-text-secondary" aria-hidden />
+                <Building2
+                  className="w-4 h-4 text-text-secondary"
+                  aria-hidden
+                />
               )
             }
             label={entity.name}
-            sublabel={entity.description || (entity.entityType === "community" ? "Community host" : "Organisation host")}
+            sublabel={
+              entity.description ||
+              (entity.entityType === "community"
+                ? "Community host"
+                : "Organisation host")
+            }
             verified={entity.verified}
           />
         ))}
@@ -184,7 +213,9 @@ export function HostModePicker({
         {loading && (
           <div className="px-4 py-3.5 flex items-center gap-3 text-text-tertiary">
             <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
-            <span className="text-sm">Loading your families &amp; organisations…</span>
+            <span className="text-sm">
+              Loading your families &amp; organisations…
+            </span>
           </div>
         )}
 
@@ -195,8 +226,12 @@ export function HostModePicker({
               <Building2 className="w-4 h-4 text-text-tertiary" aria-hidden />
             </div>
             <div className="flex-1">
-              <div className="text-sm text-text-secondary">No families, organisations, or communities linked</div>
-              <div className="text-xs text-text-tertiary">Add one in your profile to host as a group.</div>
+              <div className="text-sm text-text-secondary">
+                No families, organisations, or communities linked
+              </div>
+              <div className="text-xs text-text-tertiary">
+                Add one in your profile to host as a group.
+              </div>
             </div>
           </div>
         )}

@@ -15,13 +15,20 @@ const slot = (name: string) => document.querySelector(`[data-slot="${name}"]`);
 
 describe("NyuchiEmptyState", () => {
   it("composes the Empty primitive and renders title/description", () => {
-    render(<NyuchiEmptyState title="No events found" description="Try adjusting filters" />);
+    render(
+      <NyuchiEmptyState
+        title="No events found"
+        description="Try adjusting filters"
+      />,
+    );
     const el = slot("nyuchi-empty-state");
     expect(el).not.toBeNull();
     // Built on the Empty family — reuses the empty parts, not a re-impl.
     expect(el?.getAttribute("data-slot")).toBe("nyuchi-empty-state");
     expect(slot("empty-title")?.textContent).toBe("No events found");
-    expect(slot("empty-description")?.textContent).toBe("Try adjusting filters");
+    expect(slot("empty-description")?.textContent).toBe(
+      "Try adjusting filters",
+    );
   });
 
   it("defaults the mineral cue to tanzanite and fires both actions", () => {
@@ -37,7 +44,9 @@ describe("NyuchiEmptyState", () => {
         onSecondary={onSecondary}
       />,
     );
-    expect(slot("nyuchi-empty-state")?.getAttribute("data-mineral")).toBe("tanzanite");
+    expect(slot("nyuchi-empty-state")?.getAttribute("data-mineral")).toBe(
+      "tanzanite",
+    );
     fireEvent.click(document.querySelector("button")!);
     expect(onAction).toHaveBeenCalledOnce();
   });
@@ -65,8 +74,12 @@ describe("NyuchiAlertBanner", () => {
 
 describe("NyuchiNotificationItem", () => {
   it("renders a loading skeleton", () => {
-    render(<NyuchiNotificationItem type="event" title="x" timestamp="now" loading />);
-    expect(slot("nyuchi-notification-item")?.getAttribute("data-loading")).not.toBeNull();
+    render(
+      <NyuchiNotificationItem type="event" title="x" timestamp="now" loading />,
+    );
+    expect(
+      slot("nyuchi-notification-item")?.getAttribute("data-loading"),
+    ).not.toBeNull();
   });
 
   it("marks unread rows and fires onClick", () => {
@@ -90,7 +103,11 @@ describe("NyuchiOnboardingStep", () => {
   it("renders children in the slot and fires onNext", () => {
     const onNext = vi.fn();
     render(
-      <NyuchiOnboardingStep title="Welcome" description="Let's go" onNext={onNext}>
+      <NyuchiOnboardingStep
+        title="Welcome"
+        description="Let's go"
+        onNext={onNext}
+      >
         <input aria-label="name" />
       </NyuchiOnboardingStep>,
     );
@@ -173,7 +190,13 @@ describe("NyuchiShareCard", () => {
 describe("NyuchiContentComposer", () => {
   it("submits trimmed text and clears the field", () => {
     const onSubmit = vi.fn();
-    render(<NyuchiContentComposer onSubmit={onSubmit} submitLabel="Post" showToolbar={false} />);
+    render(
+      <NyuchiContentComposer
+        onSubmit={onSubmit}
+        submitLabel="Post"
+        showToolbar={false}
+      />,
+    );
     const textarea = document.querySelector("textarea")!;
     fireEvent.change(textarea, { target: { value: "  hello circle  " } });
     const post = Array.from(document.querySelectorAll("button")).find(
@@ -185,7 +208,13 @@ describe("NyuchiContentComposer", () => {
   });
 
   it("disables submit when empty", () => {
-    render(<NyuchiContentComposer onSubmit={() => {}} submitLabel="Post" showToolbar={false} />);
+    render(
+      <NyuchiContentComposer
+        onSubmit={() => {}}
+        submitLabel="Post"
+        showToolbar={false}
+      />,
+    );
     const post = Array.from(document.querySelectorAll("button")).find(
       (b) => b.textContent === "Post",
     ) as HTMLButtonElement;

@@ -112,9 +112,19 @@ export function NyuchiShareCard({
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{title}</p>
-            {subtitle && <p className="truncate text-[11px] text-muted-foreground">{subtitle}</p>}
-            {sourceApp && <p className="mt-0.5 text-[10px] text-muted-foreground">via {sourceApp}</p>}
+            <p className="truncate text-sm font-semibold text-foreground">
+              {title}
+            </p>
+            {subtitle && (
+              <p className="truncate text-[11px] text-muted-foreground">
+                {subtitle}
+              </p>
+            )}
+            {sourceApp && (
+              <p className="mt-0.5 text-[10px] text-muted-foreground">
+                via {sourceApp}
+              </p>
+            )}
           </div>
         </div>
 

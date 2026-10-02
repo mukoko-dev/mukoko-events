@@ -4,7 +4,11 @@ import { NyuchiTicketCard } from "./nyuchi-ticket-card";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 function ticket() {
@@ -14,7 +18,13 @@ function ticket() {
 describe("NyuchiTicketCard", () => {
   it("renders event details, tier, and a valid status", () => {
     const { getByText } = render(
-      <NyuchiTicketCard eventTitle="Jazz Night" eventDate="Jul 20" eventVenue="The Venue" tierName="VIP" ticketCode="ABC123" />,
+      <NyuchiTicketCard
+        eventTitle="Jazz Night"
+        eventDate="Jul 20"
+        eventVenue="The Venue"
+        tierName="VIP"
+        ticketCode="ABC123"
+      />,
     );
     expect(getByText("Jazz Night")).toBeTruthy();
     expect(getByText("Jul 20")).toBeTruthy();
@@ -26,7 +36,9 @@ describe("NyuchiTicketCard", () => {
   });
 
   it("reflects the cancelled status", () => {
-    const { getByText } = render(<NyuchiTicketCard eventTitle="X" eventDate="Y" status="cancelled" />);
+    const { getByText } = render(
+      <NyuchiTicketCard eventTitle="X" eventDate="Y" status="cancelled" />,
+    );
     expect(getByText("Cancelled")).toBeTruthy();
     expect(ticket()?.getAttribute("data-status")).toBe("cancelled");
   });

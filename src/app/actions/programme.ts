@@ -17,7 +17,10 @@
  */
 
 import "server-only";
-import { entitiesCollection, programmeItemsCollection } from "@/lib/mongo/databases";
+import {
+  entitiesCollection,
+  programmeItemsCollection,
+} from "@/lib/mongo/databases";
 import type { ProgrammeItemDoc } from "@/lib/mongo/types";
 
 /**
@@ -52,7 +55,9 @@ function isoOrNull(value: Date | null | undefined): string | null {
  * Returns an empty array when the event has no programme — the EventSpecifics
  * slot collapses cleanly in that case.
  */
-export async function listProgrammeItems(eventId: string): Promise<ProgrammeItem[]> {
+export async function listProgrammeItems(
+  eventId: string,
+): Promise<ProgrammeItem[]> {
   const id = eventId?.trim();
   if (!id) return [];
 
@@ -65,11 +70,17 @@ export async function listProgrammeItems(eventId: string): Promise<ProgrammeItem
 
   // Resolve performer display names in one batched query (avoids N+1).
   const performerIds = [
-    ...new Set(docs.flatMap((d) => d.performerEntityIds ?? []).filter((v): v is string => !!v)),
+    ...new Set(
+      docs
+        .flatMap((d) => d.performerEntityIds ?? [])
+        .filter((v): v is string => !!v),
+    ),
   ];
   const entityNameById = new Map<string, string>();
   if (performerIds.length > 0) {
-    const entities = await (await entitiesCollection())
+    const entities = await (
+      await entitiesCollection()
+    )
       .find({ _id: { $in: performerIds } })
       .toArray();
     for (const e of entities) entityNameById.set(e._id, e.name);
@@ -82,7 +93,9 @@ function toProgrammeItem(
   doc: ProgrammeItemDoc,
   entityNameById: Map<string, string>,
 ): ProgrammeItem {
-  const firstPerformerId = doc.performerEntityIds?.find((pid) => entityNameById.has(pid));
+  const firstPerformerId = doc.performerEntityIds?.find((pid) =>
+    entityNameById.has(pid),
+  );
   return {
     id: doc._id,
     position: typeof doc.sequence === "number" ? doc.sequence : null,
@@ -90,7 +103,9 @@ function toProgrammeItem(
     description: doc.description ?? null,
     startDate: isoOrNull(doc.startTime),
     endDate: isoOrNull(doc.endTime),
-    performer: firstPerformerId ? (entityNameById.get(firstPerformerId) ?? null) : null,
+    performer: firstPerformerId
+      ? (entityNameById.get(firstPerformerId) ?? null)
+      : null,
     track: doc.trackName ?? null,
   };
 }

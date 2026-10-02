@@ -39,7 +39,13 @@ interface NyuchiActionSheetProps {
   className?: string;
 }
 
-export function NyuchiActionSheet({ open, onClose, title, actions, className }: NyuchiActionSheetProps) {
+export function NyuchiActionSheet({
+  open,
+  onClose,
+  title,
+  actions,
+  className,
+}: NyuchiActionSheetProps) {
   const { animStyle } = useNyuchiHarness("action-sheet");
 
   React.useEffect(() => {
@@ -93,7 +99,9 @@ export function NyuchiActionSheet({ open, onClose, title, actions, className }: 
               }}
               className={cn(
                 "flex min-h-[48px] w-full items-center gap-3 rounded-[var(--radius-md,12px)] px-4 py-3.5 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)]",
-                action.destructive ? "text-[var(--color-error)]" : "text-foreground",
+                action.destructive
+                  ? "text-[var(--color-error)]"
+                  : "text-foreground",
               )}
             >
               {action.icon && <span className="text-base">{action.icon}</span>}

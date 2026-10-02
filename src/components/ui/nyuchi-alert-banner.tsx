@@ -43,14 +43,24 @@ const severityConfig: Record<
   AlertSeverity,
   { mineral: string; bg: string; icon: string; label: string }
 > = {
-  watch: { mineral: "var(--color-cobalt)", bg: "var(--color-cobalt)", icon: "👁", label: "Watch" },
+  watch: {
+    mineral: "var(--color-cobalt)",
+    bg: "var(--color-cobalt)",
+    icon: "👁",
+    label: "Watch",
+  },
   moderate: {
     mineral: "var(--color-terracotta)",
     bg: "var(--color-terracotta)",
     icon: "⚠️",
     label: "Moderate",
   },
-  severe: { mineral: "var(--color-error)", bg: "var(--color-error)", icon: "🚨", label: "Severe" },
+  severe: {
+    mineral: "var(--color-error)",
+    bg: "var(--color-error)",
+    icon: "🚨",
+    label: "Severe",
+  },
 };
 
 export function NyuchiAlertBanner({
@@ -74,7 +84,10 @@ export function NyuchiAlertBanner({
       data-slot="nyuchi-alert-banner"
       data-severity={severity}
       role="alert"
-      className={cn("space-y-2 rounded-[var(--radius-lg,14px)] border-l-[3px] p-4", className)}
+      className={cn(
+        "space-y-2 rounded-[var(--radius-lg,14px)] border-l-[3px] p-4",
+        className,
+      )}
       style={{
         borderLeftColor: config.mineral,
         backgroundColor: `color-mix(in srgb, ${config.bg} 8%, var(--card))`,
@@ -103,12 +116,18 @@ export function NyuchiAlertBanner({
         )}
       </div>
 
-      <p className="font-serif text-sm font-semibold text-foreground">{headline}</p>
+      <p className="font-serif text-sm font-semibold text-foreground">
+        {headline}
+      </p>
       {description && (
-        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       )}
       {areas && areas.length > 0 && (
-        <p className="text-[11px] text-muted-foreground">Areas: {areas.join(", ")}</p>
+        <p className="text-[11px] text-muted-foreground">
+          Areas: {areas.join(", ")}
+        </p>
       )}
       {(validFrom || validUntil) && (
         <p className="text-[10px] text-muted-foreground">
@@ -118,7 +137,9 @@ export function NyuchiAlertBanner({
       )}
       {instructions && (
         <div className="rounded-[var(--radius-sm,7px)] bg-muted p-2.5">
-          <p className="text-xs leading-relaxed text-foreground">⚡ {instructions}</p>
+          <p className="text-xs leading-relaxed text-foreground">
+            ⚡ {instructions}
+          </p>
         </div>
       )}
       {onDetails && (

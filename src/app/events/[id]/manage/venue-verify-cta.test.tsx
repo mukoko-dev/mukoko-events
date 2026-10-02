@@ -52,7 +52,9 @@ describe("VenueVerifyCta", () => {
     getPlaceById.mockResolvedValue(placeWithTier(0));
     render(<VenueVerifyCta placeId="place-1" />);
 
-    const link = await screen.findByRole("link", { name: /verify this venue on kweli/i });
+    const link = await screen.findByRole("link", {
+      name: /verify this venue on kweli/i,
+    });
     expect(link).toHaveAttribute(
       "href",
       "https://kweli.mukoko.com/en/verify?place=place-1&source=nhimbe",

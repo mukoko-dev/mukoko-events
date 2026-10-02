@@ -26,11 +26,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getCategoriesAction, getCitiesAction } from "@/app/actions/discovery";
-import { getMyCalendarsAction, type MyCalendarSummary } from "@/app/actions/calendars";
+import {
+  getMyCalendarsAction,
+  type MyCalendarSummary,
+} from "@/app/actions/calendars";
 import { updateEvent } from "@/app/actions/events";
 import { uploadMedia, getMediaUrl, type Category, type Event } from "@/lib/api";
 import { isHttpUrl } from "@/lib/security/request";
-import { zonedTimeToUtcIso, resolveEventTimezone, timezoneLabel } from "@/lib/timezone";
+import {
+  zonedTimeToUtcIso,
+  resolveEventTimezone,
+  timezoneLabel,
+} from "@/lib/timezone";
 import { useToast } from "@/hooks/use-toast";
 
 interface EditEventFormProps {
@@ -65,13 +72,17 @@ export function EditEventForm({ event }: EditEventFormProps) {
   const errorRef = useRef<HTMLDivElement>(null);
 
   const initialStart = new Date(event.startDate);
-  const initialEnd = event.endDate ? new Date(event.endDate) : new Date(initialStart.getTime() + 60 * 60 * 1000);
+  const initialEnd = event.endDate
+    ? new Date(event.endDate)
+    : new Date(initialStart.getTime() + 60 * 60 * 1000);
   const wasOnline = event.eventAttendanceMode === "OnlineEventAttendanceMode";
 
   const [name, setName] = useState(event.name);
   const [description, setDescription] = useState(event.description);
 
-  const [coverImage, setCoverImage] = useState<string | null>(event.image ?? null);
+  const [coverImage, setCoverImage] = useState<string | null>(
+    event.image ?? null,
+  );
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [coverImageRemoved, setCoverImageRemoved] = useState(false);
 
@@ -80,39 +91,66 @@ export function EditEventForm({ event }: EditEventFormProps) {
   const [endTime, setEndTime] = useState(toLocalTimeString(initialEnd));
 
   const [category, setCategory] = useState(event.category);
-  const [tags, setTags] = useState<string[]>(event.keywords.filter((k) => k !== event.category));
+  const [tags, setTags] = useState<string[]>(
+    event.keywords.filter((k) => k !== event.category),
+  );
   const [tagInput, setTagInput] = useState("");
 
   const [isOnline, setIsOnline] = useState(wasOnline);
   const [meetingUrl, setMeetingUrl] = useState(event.meetingUrl ?? "");
-  const [meetingPlatform, setMeetingPlatform] = useState<"zoom" | "google_meet" | "teams" | "other">(
-    (event.meetingPlatform as "zoom" | "google_meet" | "teams" | "other" | undefined) || "zoom",
+  const [meetingPlatform, setMeetingPlatform] = useState<
+    "zoom" | "google_meet" | "teams" | "other"
+  >(
+    (event.meetingPlatform as
+      | "zoom"
+      | "google_meet"
+      | "teams"
+      | "other"
+      | undefined) || "zoom",
   );
   const [venue, setVenue] = useState(wasOnline ? "" : event.location.name);
-  const [address, setAddress] = useState(wasOnline ? "" : (event.location.streetAddress ?? ""));
+  const [address, setAddress] = useState(
+    wasOnline ? "" : (event.location.streetAddress ?? ""),
+  );
   const [addressSearch, setAddressSearch] = useState("");
-  const [selectedCity, setSelectedCity] = useState<{ addressLocality: string; addressCountry: string } | null>(
+  const [selectedCity, setSelectedCity] = useState<{
+    addressLocality: string;
+    addressCountry: string;
+  } | null>(
     !wasOnline && event.location.addressLocality
-      ? { addressLocality: event.location.addressLocality, addressCountry: event.location.addressCountry }
+      ? {
+          addressLocality: event.location.addressLocality,
+          addressCountry: event.location.addressCountry,
+        }
       : null,
   );
   const [selectedTimezone, setSelectedTimezone] = useState<string | null>(
-    !wasOnline ? event.timezone ?? null : null,
+    !wasOnline ? (event.timezone ?? null) : null,
   );
-  const [placeId, setPlaceId] = useState<string | null>(!wasOnline ? event.placeId ?? null : null);
+  const [placeId, setPlaceId] = useState<string | null>(
+    !wasOnline ? (event.placeId ?? null) : null,
+  );
 
-  const [capacity, setCapacity] = useState<number | null>(event.maximumAttendeeCapacity ?? null);
+  const [capacity, setCapacity] = useState<number | null>(
+    event.maximumAttendeeCapacity ?? null,
+  );
   const [isFree, setIsFree] = useState(!event.offers?.url);
   const [ticketUrl, setTicketUrl] = useState(event.offers?.url ?? "");
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [cities, setCities] = useState<{ addressLocality: string; addressCountry: string }[]>([]);
-  const [calendarId, setCalendarId] = useState<string | null>(event.calendarId ?? null);
+  const [cities, setCities] = useState<
+    { addressLocality: string; addressCountry: string }[]
+  >([]);
+  const [calendarId, setCalendarId] = useState<string | null>(
+    event.calendarId ?? null,
+  );
   const [myCalendars, setMyCalendars] = useState<MyCalendarSummary[]>([]);
 
   useEffect(() => {
     let cancelled = false;
-    getCategoriesAction().then((c) => !cancelled && c.length > 0 && setCategories(c));
+    getCategoriesAction().then(
+      (c) => !cancelled && c.length > 0 && setCategories(c),
+    );
     getCitiesAction().then((c) => !cancelled && c.length > 0 && setCities(c));
     getMyCalendarsAction().then((c) => !cancelled && setMyCalendars(c));
     return () => {
@@ -165,17 +203,25 @@ export function EditEventForm({ event }: EditEventFormProps) {
     setCoverImageRemoved(true);
   };
 
-  const categoryLabel = categories.find((c) => c.id === category)?.name || category || "Choose a category";
+  const categoryLabel =
+    categories.find((c) => c.id === category)?.name ||
+    category ||
+    "Choose a category";
 
   const validate = (): string | null => {
     if (!name.trim()) return "Event name is required";
     if (!eventDate) return "Please select a date and time";
     if (endTime <= startTime) return "End time must be after start time";
-    if (!isOnline && (!venue.trim() || !selectedCity)) return "Please add a location or mark as online event";
-    if (isOnline && !meetingUrl.trim()) return "Please add a meeting URL for your online event";
-    if (isOnline && meetingUrl.trim() && !isHttpUrl(meetingUrl.trim())) return "Please enter a valid meeting URL";
-    if (capacity !== null && capacity < 1) return "Capacity must be at least 1 attendee";
-    if (!isFree && ticketUrl.trim() && !isHttpUrl(ticketUrl.trim())) return "Please enter a valid ticket URL";
+    if (!isOnline && (!venue.trim() || !selectedCity))
+      return "Please add a location or mark as online event";
+    if (isOnline && !meetingUrl.trim())
+      return "Please add a meeting URL for your online event";
+    if (isOnline && meetingUrl.trim() && !isHttpUrl(meetingUrl.trim()))
+      return "Please enter a valid meeting URL";
+    if (capacity !== null && capacity < 1)
+      return "Capacity must be at least 1 attendee";
+    if (!isFree && ticketUrl.trim() && !isHttpUrl(ticketUrl.trim()))
+      return "Please enter a valid ticket URL";
     return null;
   };
 
@@ -197,7 +243,11 @@ export function EditEventForm({ event }: EditEventFormProps) {
         uploadedImage = null;
       }
 
-      const isoStart = zonedTimeToUtcIso(eventDate, startTime, effectiveTimezone);
+      const isoStart = zonedTimeToUtcIso(
+        eventDate,
+        startTime,
+        effectiveTimezone,
+      );
       const isoEnd = zonedTimeToUtcIso(eventDate, endTime, effectiveTimezone);
 
       await updateEvent(event.id, {
@@ -235,222 +285,268 @@ export function EditEventForm({ event }: EditEventFormProps) {
   };
 
   return (
-    <EventManageShell eventId={event.id} eventName={event.name} activeKey="edit">
-    <EventThemeWrapper coverGradient={event.coverGradient} themeId={event.themeId}>
-      <div className="max-w-250 mx-auto px-4 sm:px-6 py-6 sm:py-10">
-        <div className="flex items-center justify-between mb-6">
-          <Link
-            href={`/events/${event.id}`}
-            className="inline-flex items-center gap-2 text-sm font-medium text-foreground/60 hover:text-foreground h-10 px-3 -ml-3 rounded-xl hover:bg-surface transition-colors"
-          >
-            <ArrowLeft className="w-4.5 h-4.5" />
-            Cancel
-          </Link>
-          <Button onClick={handleSave} disabled={submitting} className="rounded-full">
-            {submitting ? "Saving…" : "Save changes"}
-          </Button>
-        </div>
-
-        {error && (
-          <div
-            ref={errorRef}
-            className="mb-6 flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400"
-          >
-            <AlertCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" />
-            {error}
-          </div>
-        )}
-
-        <CoverImageUpload
-          coverImage={coverImage}
-          gradient={event.coverGradient || "var(--event-primary)"}
-          onImageUpload={handleImageUpload}
-          onRemoveImage={removeCoverImage}
-        />
-
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Event name"
-          className="!text-2xl sm:!text-3xl font-serif font-bold h-auto py-3 px-4 mb-4 rounded-2xl border-0"
-          style={{ backgroundColor: "var(--event-surface)" }}
-        />
-
-        <button
-          type="button"
-          onClick={() => setShowCategoryModal(true)}
-          className="inline-flex items-center gap-1.5 mb-5 sm:mb-6 rounded-full px-3 py-1.5 text-xs font-medium"
-          style={{ backgroundColor: "var(--event-surface)", color: "var(--event-primary)" }}
-        >
-          {categoryLabel}
-          <Pencil className="w-3 h-3" aria-hidden />
-        </button>
-
-        <button type="button" onClick={() => setShowDateModal(true)} className="block w-full text-left mb-4">
-          <NyuchiMetaTile
-            date={{
-              month: new Date(`${eventDate}T00:00:00`).toLocaleDateString("en-GB", { month: "short" }),
-              day: new Date(`${eventDate}T00:00:00`).getDate(),
-            }}
-            primary={new Date(`${eventDate}T00:00:00`).toLocaleDateString("en-GB", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-            })}
-            secondary={`${startTime} – ${endTime} ${tzLabel}`}
-            trailing={<Pencil className="w-4 h-4 text-muted-foreground" aria-hidden />}
-          />
-        </button>
-
-        <button type="button" onClick={() => setShowLocationModal(true)} className="block w-full text-left mb-6 sm:mb-8">
-          <NyuchiMetaTile
-            icon={isOnline ? Video : MapPin}
-            primary={isOnline ? "Online event" : venue || "Add a venue"}
-            secondary={
-              isOnline
-                ? meetingUrl || "Add a meeting link"
-                : selectedCity
-                  ? `${selectedCity.addressLocality}, ${selectedCity.addressCountry}`
-                  : "Add a city"
-            }
-            trailing={<Pencil className="w-4 h-4 text-muted-foreground" aria-hidden />}
-          />
-        </button>
-
-        {myCalendars.length > 0 && (
-          <div className="mb-6 sm:mb-8">
-            <label htmlFor="edit-event-calendar" className="block text-sm font-medium text-foreground mb-1.5">
-              Calendar <span className="text-text-tertiary">(optional)</span>
-            </label>
-            <Select
-              value={calendarId ?? "none"}
-              onValueChange={(v) => setCalendarId(v === "none" ? null : v)}
+    <EventManageShell
+      eventId={event.id}
+      eventName={event.name}
+      activeKey="edit"
+    >
+      <EventThemeWrapper
+        coverGradient={event.coverGradient}
+        themeId={event.themeId}
+      >
+        <div className="max-w-250 mx-auto px-4 sm:px-6 py-6 sm:py-10">
+          <div className="flex items-center justify-between mb-6">
+            <Link
+              href={`/events/${event.id}`}
+              className="inline-flex items-center gap-2 text-sm font-medium text-foreground/60 hover:text-foreground h-10 px-3 -ml-3 rounded-xl hover:bg-surface transition-colors"
             >
-              <SelectTrigger id="edit-event-calendar" className="w-full">
-                <SelectValue placeholder="No calendar" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No calendar</SelectItem>
-                {myCalendars.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-bold">About This Event</h3>
-            <Button variant="ghost" size="sm" onClick={() => setShowDescriptionModal(true)}>
-              <Pencil className="w-3.5 h-3.5" aria-hidden />
-              Edit
+              <ArrowLeft className="w-4.5 h-4.5" />
+              Cancel
+            </Link>
+            <Button
+              onClick={handleSave}
+              disabled={submitting}
+              className="rounded-full"
+            >
+              {submitting ? "Saving…" : "Save changes"}
             </Button>
           </div>
-          <Textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={6}
-            placeholder="Tell people what to expect…"
-            className="text-[15px] leading-relaxed"
+
+          {error && (
+            <div
+              ref={errorRef}
+              className="mb-6 flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400"
+            >
+              <AlertCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" />
+              {error}
+            </div>
+          )}
+
+          <CoverImageUpload
+            coverImage={coverImage}
+            gradient={event.coverGradient || "var(--event-primary)"}
+            onImageUpload={handleImageUpload}
+            onRemoveImage={removeCoverImage}
           />
+
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Event name"
+            className="!text-2xl sm:!text-3xl font-serif font-bold h-auto py-3 px-4 mb-4 rounded-2xl border-0"
+            style={{ backgroundColor: "var(--event-surface)" }}
+          />
+
+          <button
+            type="button"
+            onClick={() => setShowCategoryModal(true)}
+            className="inline-flex items-center gap-1.5 mb-5 sm:mb-6 rounded-full px-3 py-1.5 text-xs font-medium"
+            style={{
+              backgroundColor: "var(--event-surface)",
+              color: "var(--event-primary)",
+            }}
+          >
+            {categoryLabel}
+            <Pencil className="w-3 h-3" aria-hidden />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowDateModal(true)}
+            className="block w-full text-left mb-4"
+          >
+            <NyuchiMetaTile
+              date={{
+                month: new Date(`${eventDate}T00:00:00`).toLocaleDateString(
+                  "en-GB",
+                  { month: "short" },
+                ),
+                day: new Date(`${eventDate}T00:00:00`).getDate(),
+              }}
+              primary={new Date(`${eventDate}T00:00:00`).toLocaleDateString(
+                "en-GB",
+                {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                },
+              )}
+              secondary={`${startTime} – ${endTime} ${tzLabel}`}
+              trailing={
+                <Pencil className="w-4 h-4 text-muted-foreground" aria-hidden />
+              }
+            />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowLocationModal(true)}
+            className="block w-full text-left mb-6 sm:mb-8"
+          >
+            <NyuchiMetaTile
+              icon={isOnline ? Video : MapPin}
+              primary={isOnline ? "Online event" : venue || "Add a venue"}
+              secondary={
+                isOnline
+                  ? meetingUrl || "Add a meeting link"
+                  : selectedCity
+                    ? `${selectedCity.addressLocality}, ${selectedCity.addressCountry}`
+                    : "Add a city"
+              }
+              trailing={
+                <Pencil className="w-4 h-4 text-muted-foreground" aria-hidden />
+              }
+            />
+          </button>
+
+          {myCalendars.length > 0 && (
+            <div className="mb-6 sm:mb-8">
+              <label
+                htmlFor="edit-event-calendar"
+                className="block text-sm font-medium text-foreground mb-1.5"
+              >
+                Calendar <span className="text-text-tertiary">(optional)</span>
+              </label>
+              <Select
+                value={calendarId ?? "none"}
+                onValueChange={(v) => setCalendarId(v === "none" ? null : v)}
+              >
+                <SelectTrigger id="edit-event-calendar" className="w-full">
+                  <SelectValue placeholder="No calendar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No calendar</SelectItem>
+                  {myCalendars.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-bold">About This Event</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowDescriptionModal(true)}
+              >
+                <Pencil className="w-3.5 h-3.5" aria-hidden />
+                Edit
+              </Button>
+            </div>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={6}
+              placeholder="Tell people what to expect…"
+              className="text-[15px] leading-relaxed"
+            />
+          </div>
+
+          <Card
+            className="border-0 mb-8"
+            style={{ backgroundColor: "var(--event-surface)" }}
+          >
+            <CardContent className="p-0 divide-y divide-elevated">
+              <button
+                type="button"
+                onClick={() => setShowCapacityModal(true)}
+                className="w-full px-4 py-3.5 flex items-center gap-3 hover:bg-elevated/50 transition-colors text-left"
+              >
+                <span className="flex-1 font-medium">Capacity</span>
+                <span className="text-muted-foreground text-sm">
+                  {capacity || "Unlimited"}
+                </span>
+                <Pencil className="w-4 h-4 text-muted-foreground" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowTicketingModal(true)}
+                className="w-full px-4 py-3.5 flex items-center gap-3 hover:bg-elevated/50 transition-colors text-left"
+              >
+                <span className="flex-1 font-medium">Ticketing</span>
+                <span className="text-muted-foreground text-sm">
+                  {isFree ? "Free" : "Paid (external)"}
+                </span>
+                <Pencil className="w-4 h-4 text-muted-foreground" aria-hidden />
+              </button>
+            </CardContent>
+          </Card>
         </div>
 
-        <Card className="border-0 mb-8" style={{ backgroundColor: "var(--event-surface)" }}>
-          <CardContent className="p-0 divide-y divide-elevated">
-            <button
-              type="button"
-              onClick={() => setShowCapacityModal(true)}
-              className="w-full px-4 py-3.5 flex items-center gap-3 hover:bg-elevated/50 transition-colors text-left"
-            >
-              <span className="flex-1 font-medium">Capacity</span>
-              <span className="text-muted-foreground text-sm">{capacity || "Unlimited"}</span>
-              <Pencil className="w-4 h-4 text-muted-foreground" aria-hidden />
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowTicketingModal(true)}
-              className="w-full px-4 py-3.5 flex items-center gap-3 hover:bg-elevated/50 transition-colors text-left"
-            >
-              <span className="flex-1 font-medium">Ticketing</span>
-              <span className="text-muted-foreground text-sm">{isFree ? "Free" : "Paid (external)"}</span>
-              <Pencil className="w-4 h-4 text-muted-foreground" aria-hidden />
-            </button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <DateTimeModal
-        isOpen={showDateModal}
-        onClose={() => setShowDateModal(false)}
-        eventDate={eventDate}
-        setEventDate={setEventDate}
-        startTime={startTime}
-        setStartTime={setStartTime}
-        endTime={endTime}
-        setEndTime={setEndTime}
-      />
-      <LocationModal
-        isOpen={showLocationModal}
-        onClose={() => setShowLocationModal(false)}
-        isOnline={isOnline}
-        setIsOnline={setIsOnline}
-        meetingPlatform={meetingPlatform}
-        setMeetingPlatform={setMeetingPlatform}
-        meetingUrl={meetingUrl}
-        setMeetingUrl={setMeetingUrl}
-        addressSearch={addressSearch}
-        setAddressSearch={setAddressSearch}
-        venue={venue}
-        setVenue={setVenue}
-        address={address}
-        setAddress={setAddress}
-        selectedCity={selectedCity}
-        setSelectedCity={setSelectedCity}
-        placeId={placeId}
-        setPlaceId={setPlaceId}
-        cities={cities}
-        selectedTimezone={selectedTimezone}
-        setSelectedTimezone={setSelectedTimezone}
-      />
-      <CategoryModal
-        isOpen={showCategoryModal}
-        onClose={() => setShowCategoryModal(false)}
-        categories={categories}
-        category={category}
-        setCategory={setCategory}
-        tags={tags}
-        tagInput={tagInput}
-        setTagInput={setTagInput}
-        addTag={addTag}
-        removeTag={removeTag}
-      />
-      <DescriptionModal
-        isOpen={showDescriptionModal}
-        onClose={() => setShowDescriptionModal(false)}
-        description={description}
-        setDescription={setDescription}
-        eventName={name}
-        category={category}
-        isOnline={isOnline}
-      />
-      <CapacityModal
-        isOpen={showCapacityModal}
-        onClose={() => setShowCapacityModal(false)}
-        capacity={capacity}
-        setCapacity={setCapacity}
-      />
-      <TicketingModal
-        isOpen={showTicketingModal}
-        onClose={() => setShowTicketingModal(false)}
-        isFree={isFree}
-        setIsFree={setIsFree}
-        ticketUrl={ticketUrl}
-        setTicketUrl={setTicketUrl}
-      />
-    </EventThemeWrapper>
+        <DateTimeModal
+          isOpen={showDateModal}
+          onClose={() => setShowDateModal(false)}
+          eventDate={eventDate}
+          setEventDate={setEventDate}
+          startTime={startTime}
+          setStartTime={setStartTime}
+          endTime={endTime}
+          setEndTime={setEndTime}
+        />
+        <LocationModal
+          isOpen={showLocationModal}
+          onClose={() => setShowLocationModal(false)}
+          isOnline={isOnline}
+          setIsOnline={setIsOnline}
+          meetingPlatform={meetingPlatform}
+          setMeetingPlatform={setMeetingPlatform}
+          meetingUrl={meetingUrl}
+          setMeetingUrl={setMeetingUrl}
+          addressSearch={addressSearch}
+          setAddressSearch={setAddressSearch}
+          venue={venue}
+          setVenue={setVenue}
+          address={address}
+          setAddress={setAddress}
+          selectedCity={selectedCity}
+          setSelectedCity={setSelectedCity}
+          placeId={placeId}
+          setPlaceId={setPlaceId}
+          cities={cities}
+          selectedTimezone={selectedTimezone}
+          setSelectedTimezone={setSelectedTimezone}
+        />
+        <CategoryModal
+          isOpen={showCategoryModal}
+          onClose={() => setShowCategoryModal(false)}
+          categories={categories}
+          category={category}
+          setCategory={setCategory}
+          tags={tags}
+          tagInput={tagInput}
+          setTagInput={setTagInput}
+          addTag={addTag}
+          removeTag={removeTag}
+        />
+        <DescriptionModal
+          isOpen={showDescriptionModal}
+          onClose={() => setShowDescriptionModal(false)}
+          description={description}
+          setDescription={setDescription}
+          eventName={name}
+          category={category}
+          isOnline={isOnline}
+        />
+        <CapacityModal
+          isOpen={showCapacityModal}
+          onClose={() => setShowCapacityModal(false)}
+          capacity={capacity}
+          setCapacity={setCapacity}
+        />
+        <TicketingModal
+          isOpen={showTicketingModal}
+          onClose={() => setShowTicketingModal(false)}
+          isFree={isFree}
+          setIsFree={setIsFree}
+          ticketUrl={ticketUrl}
+          setTicketUrl={setTicketUrl}
+        />
+      </EventThemeWrapper>
     </EventManageShell>
   );
 }

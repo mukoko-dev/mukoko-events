@@ -1,6 +1,6 @@
-import '@testing-library/jest-dom';
-import { beforeEach, expect, vi } from 'vitest';
-import * as axeMatchers from 'vitest-axe/matchers';
+import "@testing-library/jest-dom";
+import { beforeEach, expect, vi } from "vitest";
+import * as axeMatchers from "vitest-axe/matchers";
 
 // Register vitest-axe matchers globally (`toHaveNoViolations`, etc.).
 // Doing it here avoids re-extending in every test file and keeps the
@@ -8,7 +8,7 @@ import * as axeMatchers from 'vitest-axe/matchers';
 expect.extend(axeMatchers);
 
 // Mock next/navigation
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -16,7 +16,7 @@ vi.mock('next/navigation', () => ({
     back: vi.fn(),
     forward: vi.fn(),
   }),
-  usePathname: () => '/',
+  usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -27,14 +27,14 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 };
-Object.defineProperty(global, 'localStorage', { value: localStorageMock });
+Object.defineProperty(global, "localStorage", { value: localStorageMock });
 
 // Mock fetch
 global.fetch = vi.fn();
 
 // jsdom lacks ResizeObserver — provide a no-op so components that observe
 // element size (e.g. FilterBar's overflow fades) can mount under test.
-if (typeof globalThis.ResizeObserver === 'undefined') {
+if (typeof globalThis.ResizeObserver === "undefined") {
   globalThis.ResizeObserver = class {
     observe() {}
     unobserve() {}
@@ -46,8 +46,8 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
 beforeEach(() => {
   vi.clearAllMocks();
   localStorageMock.getItem.mockReturnValue(null);
-  Object.defineProperty(document, 'cookie', {
+  Object.defineProperty(document, "cookie", {
     writable: true,
-    value: '',
+    value: "",
   });
 });

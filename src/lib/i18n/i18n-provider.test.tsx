@@ -94,13 +94,19 @@ describe("I18nProvider", () => {
       screen.getByTestId("to-sn").click();
     });
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(LOCALE_STORAGE_KEY, "sn");
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      LOCALE_STORAGE_KEY,
+      "sn",
+    );
 
     act(() => {
       screen.getByTestId("to-en").click();
     });
 
-    expect(localStorageMock.setItem).toHaveBeenLastCalledWith(LOCALE_STORAGE_KEY, "en");
+    expect(localStorageMock.setItem).toHaveBeenLastCalledWith(
+      LOCALE_STORAGE_KEY,
+      "en",
+    );
   });
 
   it("falls back to English when a key is missing in the target locale", () => {
@@ -125,7 +131,9 @@ describe("I18nProvider", () => {
     }
     // React logs the error to console; silence it for a clean test run.
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(() => render(<Orphan />)).toThrow(/useT must be used within an I18nProvider/);
+    expect(() => render(<Orphan />)).toThrow(
+      /useT must be used within an I18nProvider/,
+    );
     spy.mockRestore();
   });
 });

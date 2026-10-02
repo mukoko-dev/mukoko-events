@@ -52,21 +52,29 @@ export function CommunityInsights({
   }, [city]);
 
   // Transform API data to component format
-  const trendingCategories: TrendingCategory[] = stats?.trendingCategories?.map((c) => ({
-    name: c.category,
-    change: c.change,
-    events: c.events,
-  })) ?? [];
+  const trendingCategories: TrendingCategory[] =
+    stats?.trendingCategories?.map((c) => ({
+      name: c.category,
+      change: c.change,
+      events: c.events,
+    })) ?? [];
 
-  const popularVenues: PopularVenue[] = stats?.popularVenues?.map((v) => ({
-    name: v.venue,
-    city: city || "Various",
-    eventCount: v.events,
-  })) ?? [];
+  const popularVenues: PopularVenue[] =
+    stats?.popularVenues?.map((v) => ({
+      name: v.venue,
+      city: city || "Various",
+      eventCount: v.events,
+    })) ?? [];
 
   // Parse peak time from string
   const peakTimes: PeakTime[] = stats?.peakTime
-    ? [{ day: stats.peakTime.split(" ")[0], time: stats.peakTime.split(" ").slice(1).join(" "), percentage: 100 }]
+    ? [
+        {
+          day: stats.peakTime.split(" ")[0],
+          time: stats.peakTime.split(" ").slice(1).join(" "),
+          percentage: 100,
+        },
+      ]
     : [];
 
   const totalEvents = stats?.totalEvents ?? 0;
@@ -97,9 +105,7 @@ export function CommunityInsights({
         <TrendingUp className="w-5 h-5 text-primary" />
         <h3 className="font-bold text-lg">Community Insights</h3>
         {city && (
-          <span className="text-sm text-text-secondary ml-auto">
-            in {city}
-          </span>
+          <span className="text-sm text-text-secondary ml-auto">in {city}</span>
         )}
       </div>
 
@@ -133,10 +139,18 @@ export function CommunityInsights({
             >
               <span className="font-medium">{category.name}</span>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-text-tertiary">{category.events} events</span>
-                <span className={`text-sm font-semibold flex items-center gap-1 ${
-                  category.change > 0 ? "text-green-400" : category.change < 0 ? "text-red-400" : "text-text-tertiary"
-                }`}>
+                <span className="text-sm text-text-tertiary">
+                  {category.events} events
+                </span>
+                <span
+                  className={`text-sm font-semibold flex items-center gap-1 ${
+                    category.change > 0
+                      ? "text-green-400"
+                      : category.change < 0
+                        ? "text-red-400"
+                        : "text-text-tertiary"
+                  }`}
+                >
                   {category.change > 0 ? "↑" : category.change < 0 ? "↓" : "→"}
                   {Math.abs(category.change)}%
                 </span>
@@ -157,8 +171,12 @@ export function CommunityInsights({
             <div key={i} className="flex items-center gap-3">
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">{time.day} {time.time}</span>
-                  <span className="text-xs text-text-tertiary">{time.percentage}%</span>
+                  <span className="text-sm font-medium">
+                    {time.day} {time.time}
+                  </span>
+                  <span className="text-xs text-text-tertiary">
+                    {time.percentage}%
+                  </span>
                 </div>
                 <div className="h-1.5 bg-elevated rounded-full overflow-hidden">
                   <div
@@ -185,7 +203,10 @@ export function CommunityInsights({
               className="flex items-center justify-between py-2 px-3 bg-elevated rounded-lg"
             >
               <div className="flex items-center gap-2">
-                <Badge variant="default" className="w-5 h-5 flex items-center justify-center text-xs font-bold">
+                <Badge
+                  variant="default"
+                  className="w-5 h-5 flex items-center justify-center text-xs font-bold"
+                >
                   {i + 1}
                 </Badge>
                 <div>
@@ -193,7 +214,9 @@ export function CommunityInsights({
                   <div className="text-xs text-text-tertiary">{venue.city}</div>
                 </div>
               </div>
-              <span className="text-sm text-text-secondary">{venue.eventCount} events</span>
+              <span className="text-sm text-text-secondary">
+                {venue.eventCount} events
+              </span>
             </div>
           ))}
         </div>
@@ -203,7 +226,13 @@ export function CommunityInsights({
 }
 
 // Compact version for sidebars
-export function CommunityInsightsCompact({ city, className = "" }: { city?: string; className?: string }) {
+export function CommunityInsightsCompact({
+  city,
+  className = "",
+}: {
+  city?: string;
+  className?: string;
+}) {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<CommunityStats | null>(null);
 
@@ -253,23 +282,38 @@ export function CommunityInsightsCompact({ city, className = "" }: { city?: stri
         {topCategory && (
           <div className="flex items-center justify-between">
             <span className="text-sm">{topCategory.category} events</span>
-            <span className={`text-xs font-medium ${
-              topCategory.change > 0 ? "text-green-400" : topCategory.change < 0 ? "text-red-400" : "text-text-tertiary"
-            }`}>
-              {topCategory.change > 0 ? "↑" : topCategory.change < 0 ? "↓" : "→"} {Math.abs(topCategory.change)}%
+            <span
+              className={`text-xs font-medium ${
+                topCategory.change > 0
+                  ? "text-green-400"
+                  : topCategory.change < 0
+                    ? "text-red-400"
+                    : "text-text-tertiary"
+              }`}
+            >
+              {topCategory.change > 0
+                ? "↑"
+                : topCategory.change < 0
+                  ? "↓"
+                  : "→"}{" "}
+              {Math.abs(topCategory.change)}%
             </span>
           </div>
         )}
         {stats.peakTime && (
           <div className="flex items-center justify-between">
             <span className="text-sm">Peak time</span>
-            <span className="text-xs text-text-secondary">{stats.peakTime}</span>
+            <span className="text-xs text-text-secondary">
+              {stats.peakTime}
+            </span>
           </div>
         )}
         {topVenue && (
           <div className="flex items-center justify-between">
             <span className="text-sm">Hot venue</span>
-            <span className="text-xs text-text-secondary">{topVenue.venue}</span>
+            <span className="text-xs text-text-secondary">
+              {topVenue.venue}
+            </span>
           </div>
         )}
       </div>

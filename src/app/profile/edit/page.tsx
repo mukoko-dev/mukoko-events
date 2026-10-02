@@ -26,10 +26,17 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NyuchiAvatarPicker } from "@/components/ui/nyuchi-avatar-picker";
-import { NyuchiProfileSettings, type SettingsSection } from "@/components/ui/nyuchi-profile-settings";
+import {
+  NyuchiProfileSettings,
+  type SettingsSection,
+} from "@/components/ui/nyuchi-profile-settings";
 import { type Category } from "@/lib/api";
 import { getCategoriesAction, getCitiesAction } from "@/app/actions/discovery";
-import { updateMyProfile, getMyGravatarUrlAction, type ProfileFields } from "@/app/actions/profile";
+import {
+  updateMyProfile,
+  getMyGravatarUrlAction,
+  type ProfileFields,
+} from "@/app/actions/profile";
 
 /** A bordered panel on the solid card surface — the shared shell for a labelled
  *  field group so the whole form reads as one system. */
@@ -48,16 +55,28 @@ function Panel({
       aria-labelledby={headingId}
       className="rounded-[var(--radius-xl,17px)] bg-card p-5 ring-1 ring-foreground/10"
     >
-      <h3 id={headingId} className="text-sm font-semibold uppercase tracking-wider text-foreground">
+      <h3
+        id={headingId}
+        className="text-sm font-semibold uppercase tracking-wider text-foreground"
+      >
         {title}
       </h3>
-      {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+      {description && (
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      )}
       <div className="mt-4">{children}</div>
     </section>
   );
 }
 
-const VALID_SECTION_IDS = ["profile", "location", "interests", "notifications", "language", "appearance"];
+const VALID_SECTION_IDS = [
+  "profile",
+  "location",
+  "interests",
+  "notifications",
+  "language",
+  "appearance",
+];
 
 function ProfileEditContent() {
   const router = useRouter();
@@ -88,7 +107,9 @@ function ProfileEditContent() {
   const [eventUpdates, setEventUpdates] = useState(true);
   const [uiLocale, setUiLocale] = useState<Locale>(locale);
 
-  const [cities, setCities] = useState<{ addressLocality: string; addressCountry: string }[]>([]);
+  const [cities, setCities] = useState<
+    { addressLocality: string; addressCountry: string }[]
+  >([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,8 +124,12 @@ function ProfileEditContent() {
   // mount.
   const [defaultSection] = useState(() => {
     if (typeof window === "undefined") return "profile";
-    const requested = new URLSearchParams(window.location.search).get("section");
-    return requested && VALID_SECTION_IDS.includes(requested) ? requested : "profile";
+    const requested = new URLSearchParams(window.location.search).get(
+      "section",
+    );
+    return requested && VALID_SECTION_IDS.includes(requested)
+      ? requested
+      : "profile";
   });
 
   // Pre-populate from the resolved user.
@@ -134,7 +159,9 @@ function ProfileEditContent() {
         setCities(citiesData);
         setCategories(categoriesData);
       })
-      .catch(() => setError("Couldn't load locations and categories. Please try again."));
+      .catch(() =>
+        setError("Couldn't load locations and categories. Please try again."),
+      );
   }, []);
 
   const selectCity = useCallback((value: string) => {
@@ -145,7 +172,9 @@ function ProfileEditContent() {
 
   const toggleInterest = useCallback((categoryId: string) => {
     setInterests((prev) =>
-      prev.includes(categoryId) ? prev.filter((i) => i !== categoryId) : [...prev, categoryId],
+      prev.includes(categoryId)
+        ? prev.filter((i) => i !== categoryId)
+        : [...prev, categoryId],
     );
   }, []);
 
@@ -170,8 +199,10 @@ function ProfileEditContent() {
       const changedFields: ProfileFields = {};
       if (name !== (user.name || "")) changedFields.name = name;
       if (picture !== (user.image || "")) changedFields.picture = picture;
-      if (city !== (user.addressLocality || "")) changedFields.addressLocality = city;
-      if (country !== (user.addressCountry || "")) changedFields.addressCountry = country;
+      if (city !== (user.addressLocality || ""))
+        changedFields.addressLocality = city;
+      if (country !== (user.addressCountry || ""))
+        changedFields.addressCountry = country;
       if (JSON.stringify(interests) !== JSON.stringify(user.interests || [])) {
         changedFields.interests = interests;
       }
@@ -179,8 +210,10 @@ function ProfileEditContent() {
       if (preferredUsername !== (user.preferredUsername || "")) {
         changedFields.preferredUsername = preferredUsername;
       }
-      if (phoneNumber !== (user.phoneNumber || "")) changedFields.phoneNumber = phoneNumber;
-      if (birthdate !== (user.birthdate || "")) changedFields.birthdate = birthdate;
+      if (phoneNumber !== (user.phoneNumber || ""))
+        changedFields.phoneNumber = phoneNumber;
+      if (birthdate !== (user.birthdate || ""))
+        changedFields.birthdate = birthdate;
       if (gender !== (user.gender || "")) changedFields.gender = gender;
       if (eventUpdates !== (user.subscribedToEventUpdates !== false)) {
         changedFields.subscribeToEventUpdates = eventUpdates;
@@ -199,13 +232,20 @@ function ProfileEditContent() {
   };
 
   // Group categories by group for the interests picker.
-  const categoryGroups = categories.reduce<Record<string, Category[]>>((acc, cat) => {
-    if (!acc[cat.group]) acc[cat.group] = [];
-    acc[cat.group].push(cat);
-    return acc;
-  }, {});
+  const categoryGroups = categories.reduce<Record<string, Category[]>>(
+    (acc, cat) => {
+      if (!acc[cat.group]) acc[cat.group] = [];
+      acc[cat.group].push(cat);
+      return acc;
+    },
+    {},
+  );
 
-  const themeOptions: { value: "light" | "dark" | "system"; label: string; icon: typeof Sun }[] = [
+  const themeOptions: {
+    value: "light" | "dark" | "system";
+    label: string;
+    icon: typeof Sun;
+  }[] = [
     { value: "light", label: "Light", icon: Sun },
     { value: "dark", label: "Dark", icon: Moon },
     { value: "system", label: "System", icon: Monitor },
@@ -213,7 +253,10 @@ function ProfileEditContent() {
 
   const profileSection = (
     <div className="space-y-6">
-      <Panel title="Avatar" description="Upload a photo, use your Gravatar, or pick a sticker.">
+      <Panel
+        title="Avatar"
+        description="Upload a photo, use your Gravatar, or pick a sticker."
+      >
         <NyuchiAvatarPicker
           name={name || "User"}
           value={picture}
@@ -222,7 +265,10 @@ function ProfileEditContent() {
         />
       </Panel>
 
-      <Panel title="Name" description="This is how you'll appear to other attendees and hosts.">
+      <Panel
+        title="Name"
+        description="This is how you'll appear to other attendees and hosts."
+      >
         <Label htmlFor={nameFieldId} className="sr-only">
           Your name
         </Label>
@@ -242,7 +288,10 @@ function ProfileEditContent() {
       >
         <div className="space-y-4">
           <div>
-            <Label htmlFor={nicknameFieldId} className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor={nicknameFieldId}
+              className="text-sm font-medium text-foreground"
+            >
               Nickname
             </Label>
             <Input
@@ -256,7 +305,10 @@ function ProfileEditContent() {
             />
           </div>
           <div>
-            <Label htmlFor={usernameFieldId} className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor={usernameFieldId}
+              className="text-sm font-medium text-foreground"
+            >
               Username
             </Label>
             <Input
@@ -270,7 +322,10 @@ function ProfileEditContent() {
             />
           </div>
           <div>
-            <Label htmlFor={phoneFieldId} className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor={phoneFieldId}
+              className="text-sm font-medium text-foreground"
+            >
               Phone number
             </Label>
             <Input
@@ -284,7 +339,10 @@ function ProfileEditContent() {
             />
           </div>
           <div>
-            <Label htmlFor={birthdateFieldId} className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor={birthdateFieldId}
+              className="text-sm font-medium text-foreground"
+            >
               Date of birth
             </Label>
             <Input
@@ -297,7 +355,10 @@ function ProfileEditContent() {
             />
           </div>
           <div>
-            <Label htmlFor={genderFieldId} className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor={genderFieldId}
+              className="text-sm font-medium text-foreground"
+            >
               Gender
             </Label>
             <Input
@@ -321,10 +382,15 @@ function ProfileEditContent() {
       aria-labelledby={locationGroupId}
       className="rounded-[var(--radius-xl,17px)] bg-card p-5 ring-1 ring-foreground/10"
     >
-      <h3 id={locationGroupId} className="text-sm font-semibold uppercase tracking-wider text-foreground">
+      <h3
+        id={locationGroupId}
+        className="text-sm font-semibold uppercase tracking-wider text-foreground"
+      >
         Location
       </h3>
-      <p className="mt-1 text-sm text-muted-foreground">Set your home city so we can surface nearby events.</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Set your home city so we can surface nearby events.
+      </p>
       <RadioGroup
         className="mt-4 max-h-72 gap-2 overflow-y-auto pr-1"
         value={city ? `${city}|${country}` : undefined}
@@ -333,26 +399,44 @@ function ProfileEditContent() {
       >
         {cities.map((loc) => {
           const value = `${loc.addressLocality}|${loc.addressCountry}`;
-          const id = `city-${loc.addressLocality}-${loc.addressCountry}`.replace(/\s+/g, "-");
-          const selected = city === loc.addressLocality && country === loc.addressCountry;
+          const id =
+            `city-${loc.addressLocality}-${loc.addressCountry}`.replace(
+              /\s+/g,
+              "-",
+            );
+          const selected =
+            city === loc.addressLocality && country === loc.addressCountry;
           return (
             <label
               key={value}
               htmlFor={id}
               className={`flex min-h-[44px] cursor-pointer items-center gap-3 rounded-[var(--radius-lg,14px)] border px-4 py-2.5 transition-colors focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-card ${
-                selected ? "border-primary bg-primary/10" : "border-border bg-background hover:border-primary/50"
+                selected
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-background hover:border-primary/50"
               }`}
             >
               <RadioGroupItem id={id} value={value} />
-              <MapPin className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <MapPin
+                className="size-4 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
               <span className="flex-1">
-                <span className="block font-medium text-foreground">{loc.addressLocality}</span>
-                <span className="block text-sm text-muted-foreground">{loc.addressCountry}</span>
+                <span className="block font-medium text-foreground">
+                  {loc.addressLocality}
+                </span>
+                <span className="block text-sm text-muted-foreground">
+                  {loc.addressCountry}
+                </span>
               </span>
             </label>
           );
         })}
-        {cities.length === 0 && <p className="py-2 text-sm text-muted-foreground">Loading locations…</p>}
+        {cities.length === 0 && (
+          <p className="py-2 text-sm text-muted-foreground">
+            Loading locations…
+          </p>
+        )}
       </RadioGroup>
     </div>
   );
@@ -363,7 +447,10 @@ function ProfileEditContent() {
       aria-labelledby={interestsGroupId}
       className="rounded-[var(--radius-xl,17px)] bg-card p-5 ring-1 ring-foreground/10"
     >
-      <h3 id={interestsGroupId} className="text-sm font-semibold uppercase tracking-wider text-foreground">
+      <h3
+        id={interestsGroupId}
+        className="text-sm font-semibold uppercase tracking-wider text-foreground"
+      >
         Interests
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -372,7 +459,9 @@ function ProfileEditContent() {
       <div className="mt-4 space-y-4">
         {Object.entries(categoryGroups).map(([group, cats]) => (
           <div key={group}>
-            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">{group}</p>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {group}
+            </p>
             <div className="flex flex-wrap gap-2">
               {cats.map((category) => {
                 const active = interests.includes(category.id);
@@ -388,7 +477,9 @@ function ProfileEditContent() {
                         : "border-border bg-background text-foreground hover:border-primary/50"
                     }`}
                   >
-                    {active && <Check className="size-3.5" aria-hidden="true" />}
+                    {active && (
+                      <Check className="size-3.5" aria-hidden="true" />
+                    )}
                     {category.name}
                   </button>
                 );
@@ -396,21 +487,32 @@ function ProfileEditContent() {
             </div>
           </div>
         ))}
-        {categories.length === 0 && <p className="text-sm text-muted-foreground">Loading categories…</p>}
+        {categories.length === 0 && (
+          <p className="text-sm text-muted-foreground">Loading categories…</p>
+        )}
       </div>
     </div>
   );
 
   const notificationsSection = (
     <div className="rounded-[var(--radius-xl,17px)] bg-card p-5 ring-1 ring-foreground/10">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">Notifications</h3>
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+        Notifications
+      </h3>
       <div className="mt-4 flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <Label htmlFor={notifyId} className="text-sm font-medium text-foreground">
+          <Label
+            htmlFor={notifyId}
+            className="text-sm font-medium text-foreground"
+          >
             Event update emails
           </Label>
-          <p id={`${notifyId}-desc`} className="mt-1 text-sm text-muted-foreground">
-            Get emails when hosts of events you attend or help run post an update.
+          <p
+            id={`${notifyId}-desc`}
+            className="mt-1 text-sm text-muted-foreground"
+          >
+            Get emails when hosts of events you attend or help run post an
+            update.
           </p>
         </div>
         <Switch
@@ -425,11 +527,19 @@ function ProfileEditContent() {
 
   const languageSection = (
     <div className="rounded-[var(--radius-xl,17px)] bg-card p-5 ring-1 ring-foreground/10">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">Language</h3>
-      <p className="mt-1 text-sm text-muted-foreground">Choose the language for the Nhimbe interface.</p>
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+        Language
+      </h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Choose the language for the Nhimbe interface.
+      </p>
       <fieldset className="mt-4">
         <legend className="sr-only">Interface language</legend>
-        <RadioGroup className="gap-2" value={uiLocale} onValueChange={(v) => onLocaleChange(v as Locale)}>
+        <RadioGroup
+          className="gap-2"
+          value={uiLocale}
+          onValueChange={(v) => onLocaleChange(v as Locale)}
+        >
           {[
             { value: "en" as Locale, label: "English" },
             { value: "sn" as Locale, label: "Shona (chiShona)" },
@@ -441,11 +551,16 @@ function ProfileEditContent() {
                 key={opt.value}
                 htmlFor={id}
                 className={`flex min-h-[44px] cursor-pointer items-center gap-3 rounded-[var(--radius-lg,14px)] border px-4 py-2.5 transition-colors focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-card ${
-                  active ? "border-primary bg-primary/10" : "border-border bg-background hover:border-primary/50"
+                  active
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-background hover:border-primary/50"
                 }`}
               >
                 <RadioGroupItem id={id} value={opt.value} />
-                <Languages className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <Languages
+                  className="size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <span className="font-medium text-foreground">{opt.label}</span>
               </label>
             );
@@ -457,7 +572,9 @@ function ProfileEditContent() {
 
   const appearanceSection = (
     <div className="rounded-[var(--radius-xl,17px)] bg-card p-5 ring-1 ring-foreground/10">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">Appearance</h3>
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+        Appearance
+      </h3>
       <p className="mt-1 text-sm text-muted-foreground">
         &ldquo;System&rdquo; follows your device&apos;s light or dark setting.
       </p>
@@ -477,12 +594,19 @@ function ProfileEditContent() {
                 key={opt.value}
                 htmlFor={id}
                 className={`flex min-h-[44px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--radius-lg,14px)] border px-3 py-4 text-center transition-colors focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-card ${
-                  active ? "border-primary bg-primary/10" : "border-border bg-background hover:border-primary/50"
+                  active
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-background hover:border-primary/50"
                 }`}
               >
                 <RadioGroupItem id={id} value={opt.value} className="sr-only" />
-                <Icon className={`size-5 ${active ? "text-primary" : "text-muted-foreground"}`} aria-hidden="true" />
-                <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                <Icon
+                  className={`size-5 ${active ? "text-primary" : "text-muted-foreground"}`}
+                  aria-hidden="true"
+                />
+                <span className="text-sm font-medium text-foreground">
+                  {opt.label}
+                </span>
               </label>
             );
           })}
@@ -493,11 +617,36 @@ function ProfileEditContent() {
 
   const sections: SettingsSection[] = [
     { id: "profile", label: "Profile", icon: User, content: profileSection },
-    { id: "location", label: "Location", icon: MapPin, content: locationSection },
-    { id: "interests", label: "Interests", icon: Heart, content: interestsSection },
-    { id: "notifications", label: "Notifications", icon: Bell, content: notificationsSection },
-    { id: "language", label: "Language", icon: Languages, content: languageSection },
-    { id: "appearance", label: "Appearance", icon: SlidersHorizontal, content: appearanceSection },
+    {
+      id: "location",
+      label: "Location",
+      icon: MapPin,
+      content: locationSection,
+    },
+    {
+      id: "interests",
+      label: "Interests",
+      icon: Heart,
+      content: interestsSection,
+    },
+    {
+      id: "notifications",
+      label: "Notifications",
+      icon: Bell,
+      content: notificationsSection,
+    },
+    {
+      id: "language",
+      label: "Language",
+      icon: Languages,
+      content: languageSection,
+    },
+    {
+      id: "appearance",
+      label: "Appearance",
+      icon: SlidersHorizontal,
+      content: appearanceSection,
+    },
   ];
 
   return (
@@ -512,8 +661,12 @@ function ProfileEditContent() {
           <ArrowLeft className="size-5" aria-hidden="true" />
         </Link>
         <div>
-          <h1 className="font-serif text-2xl font-bold text-foreground">Profile settings</h1>
-          <p className="text-sm text-muted-foreground">Everything about your account, in one place.</p>
+          <h1 className="font-serif text-2xl font-bold text-foreground">
+            Profile settings
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Everything about your account, in one place.
+          </p>
         </div>
       </div>
 

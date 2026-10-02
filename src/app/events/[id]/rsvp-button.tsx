@@ -29,7 +29,11 @@ interface RSVPButtonProps {
   spotsRemaining?: number | null;
 }
 
-export function RSVPButton({ eventId, price, spotsRemaining }: RSVPButtonProps) {
+export function RSVPButton({
+  eventId,
+  price,
+  spotsRemaining,
+}: RSVPButtonProps) {
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +63,9 @@ export function RSVPButton({ eventId, price, spotsRemaining }: RSVPButtonProps) 
       setRegistered(true);
     } catch (err) {
       const message =
-        err instanceof Error && err.message ? err.message : "Failed to register. Please try again.";
+        err instanceof Error && err.message
+          ? err.message
+          : "Failed to register. Please try again.";
       setError(message);
       console.error("RSVP error:", err);
     } finally {
@@ -116,7 +122,10 @@ export function RSVPButton({ eventId, price, spotsRemaining }: RSVPButtonProps) 
         <p className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
           <Bell className="w-3.5 h-3.5" aria-hidden />
           Subscribed to host updates —{" "}
-          <Link href="/profile/edit" className="underline hover:text-foreground">
+          <Link
+            href="/profile/edit"
+            className="underline hover:text-foreground"
+          >
             manage in preferences
           </Link>
         </p>

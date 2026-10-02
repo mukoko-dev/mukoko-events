@@ -10,7 +10,10 @@
 
 import { NextResponse } from "next/server";
 import { getEventByIdOrSlug } from "@/lib/mongo/events";
-import { updateEventForPerson, type UpdateEventInput } from "@/app/actions/events";
+import {
+  updateEventForPerson,
+  type UpdateEventInput,
+} from "@/app/actions/events";
 import { resolveActorFromBearer, ActorError } from "@/lib/auth/mcp-actor";
 import { readJsonBody } from "@/lib/security/request";
 
@@ -31,7 +34,10 @@ export async function GET(
     return NextResponse.json({ event });
   } catch (err) {
     console.error(`[mukoko] GET /api/events/${id} failed`, err);
-    return NextResponse.json({ error: "Failed to load event" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load event" },
+      { status: 500 },
+    );
   }
 }
 
@@ -46,22 +52,31 @@ export async function PATCH(
   try {
     person = await resolveActorFromBearer(request.headers.get("Authorization"));
   } catch (err) {
-    if (err instanceof ActorError) return NextResponse.json({ error: err.message }, { status: err.status });
+    if (err instanceof ActorError)
+      return NextResponse.json({ error: err.message }, { status: err.status });
     throw err;
   }
 
   const parsed = await readJsonBody<UpdateEventInput>(request);
   if (!parsed.ok) {
-    return NextResponse.json({ error: parsed.error }, { status: parsed.status });
+    return NextResponse.json(
+      { error: parsed.error },
+      { status: parsed.status },
+    );
   }
 
   try {
     const { event } = await updateEventForPerson(person, id, parsed.data);
     return NextResponse.json({ event });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to update event.";
+    const message =
+      err instanceof Error ? err.message : "Failed to update event.";
     // "not a host" → 403; "not found" → 404; validation → 400.
-    const status = /not a host/i.test(message) ? 403 : /could not be found/i.test(message) ? 404 : 400;
+    const status = /not a host/i.test(message)
+      ? 403
+      : /could not be found/i.test(message)
+        ? 404
+        : 400;
     console.error(`[mukoko] PATCH /api/events/${id} failed`, err);
     return NextResponse.json({ error: message }, { status });
   }

@@ -4,7 +4,11 @@ import { NyuchiListingCard } from "./nyuchi-listing-card";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 function card() {
@@ -13,7 +17,14 @@ function card() {
 
 describe("NyuchiListingCard", () => {
   it("renders a row with the mineral left-border accent and links via href", () => {
-    render(<NyuchiListingCard variant="row" title="Sunday Run" mineral="malachite" href="/events/1" />);
+    render(
+      <NyuchiListingCard
+        variant="row"
+        title="Sunday Run"
+        mineral="malachite"
+        href="/events/1"
+      />,
+    );
     const el = card();
     expect(el?.tagName).toBe("A");
     expect(el?.getAttribute("href")).toBe("/events/1");
@@ -23,7 +34,9 @@ describe("NyuchiListingCard", () => {
   });
 
   it("defaults the mineral accent to tanzanite (the brand lead)", () => {
-    render(<NyuchiListingCard variant="row" title="Untagged" href="/events/x" />);
+    render(
+      <NyuchiListingCard variant="row" title="Untagged" href="/events/x" />,
+    );
     expect(card()?.getAttribute("data-mineral")).toBe("tanzanite");
     expect(card()?.className).toContain("border-l-[var(--color-tanzanite)]");
   });
@@ -34,7 +47,10 @@ describe("NyuchiListingCard", () => {
         variant="compact"
         title="Tech Meetup"
         category="Technology"
-        meta={[{ label: "date", value: "Jul 20" }, { label: "venue", value: "Harare" }]}
+        meta={[
+          { label: "date", value: "Jul 20" },
+          { label: "venue", value: "Harare" },
+        ]}
       />,
     );
     expect(getByText("Technology")).toBeTruthy();
@@ -43,13 +59,21 @@ describe("NyuchiListingCard", () => {
   });
 
   it("labels a zero price as Free on the row variant", () => {
-    const { getByText } = render(<NyuchiListingCard variant="row" title="Free Event" price={0} />);
+    const { getByText } = render(
+      <NyuchiListingCard variant="row" title="Free Event" price={0} />,
+    );
     expect(getByText("Free")).toBeTruthy();
   });
 
   it("fires onClick when no href is supplied", () => {
     let clicked = false;
-    render(<NyuchiListingCard variant="row" title="Clickable" onClick={() => (clicked = true)} />);
+    render(
+      <NyuchiListingCard
+        variant="row"
+        title="Clickable"
+        onClick={() => (clicked = true)}
+      />,
+    );
     fireEvent.click(card()!);
     expect(clicked).toBe(true);
   });

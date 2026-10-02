@@ -26,19 +26,33 @@ beforeEach(() => {
 describe("normalizePlatformSettings", () => {
   it("returns the defaults for null/undefined", () => {
     expect(normalizePlatformSettings(null)).toEqual(DEFAULT_PLATFORM_SETTINGS);
-    expect(normalizePlatformSettings(undefined)).toEqual(DEFAULT_PLATFORM_SETTINGS);
+    expect(normalizePlatformSettings(undefined)).toEqual(
+      DEFAULT_PLATFORM_SETTINGS,
+    );
   });
 
   it("clamps negative and non-finite numbers back to the default", () => {
-    const out = normalizePlatformSettings({ maxEventsPerUser: -5, maxAttendeesDefault: Number.NaN });
-    expect(out.maxEventsPerUser).toBe(DEFAULT_PLATFORM_SETTINGS.maxEventsPerUser);
-    expect(out.maxAttendeesDefault).toBe(DEFAULT_PLATFORM_SETTINGS.maxAttendeesDefault);
+    const out = normalizePlatformSettings({
+      maxEventsPerUser: -5,
+      maxAttendeesDefault: Number.NaN,
+    });
+    expect(out.maxEventsPerUser).toBe(
+      DEFAULT_PLATFORM_SETTINGS.maxEventsPerUser,
+    );
+    expect(out.maxAttendeesDefault).toBe(
+      DEFAULT_PLATFORM_SETTINGS.maxAttendeesDefault,
+    );
   });
 
   it("clamps the free-plan blast cap the same way, and allows 0 (unlimited)", () => {
     const out = normalizePlatformSettings({ freeBlastsPerDayPerEvent: -1 });
-    expect(out.freeBlastsPerDayPerEvent).toBe(DEFAULT_PLATFORM_SETTINGS.freeBlastsPerDayPerEvent);
-    expect(normalizePlatformSettings({ freeBlastsPerDayPerEvent: 0 }).freeBlastsPerDayPerEvent).toBe(0);
+    expect(out.freeBlastsPerDayPerEvent).toBe(
+      DEFAULT_PLATFORM_SETTINGS.freeBlastsPerDayPerEvent,
+    );
+    expect(
+      normalizePlatformSettings({ freeBlastsPerDayPerEvent: 0 })
+        .freeBlastsPerDayPerEvent,
+    ).toBe(0);
   });
 
   it("clamps both API-write tiers independently, pro higher than free", () => {
@@ -46,13 +60,19 @@ describe("normalizePlatformSettings", () => {
       freeApiWritesPerDayPerCaller: -1,
       proApiWritesPerDayPerCaller: 10_000,
     });
-    expect(out.freeApiWritesPerDayPerCaller).toBe(DEFAULT_PLATFORM_SETTINGS.freeApiWritesPerDayPerCaller);
+    expect(out.freeApiWritesPerDayPerCaller).toBe(
+      DEFAULT_PLATFORM_SETTINGS.freeApiWritesPerDayPerCaller,
+    );
     expect(out.proApiWritesPerDayPerCaller).toBe(10_000);
-    expect(out.proApiWritesPerDayPerCaller).toBeGreaterThan(out.freeApiWritesPerDayPerCaller);
+    expect(out.proApiWritesPerDayPerCaller).toBeGreaterThan(
+      out.freeApiWritesPerDayPerCaller,
+    );
   });
 
   it("floors fractional numbers", () => {
-    expect(normalizePlatformSettings({ maxEventsPerUser: 12.9 }).maxEventsPerUser).toBe(12);
+    expect(
+      normalizePlatformSettings({ maxEventsPerUser: 12.9 }).maxEventsPerUser,
+    ).toBe(12);
   });
 
   it("coerces wrong-typed values to defaults", () => {
@@ -67,13 +87,20 @@ describe("normalizePlatformSettings", () => {
   });
 
   it("trims strings and falls back to the default site name when blank", () => {
-    const out = normalizePlatformSettings({ siteName: "   ", allowedDomains: "  a.com, b.org " });
+    const out = normalizePlatformSettings({
+      siteName: "   ",
+      allowedDomains: "  a.com, b.org ",
+    });
     expect(out.siteName).toBe(DEFAULT_PLATFORM_SETTINGS.siteName);
     expect(out.allowedDomains).toBe("a.com, b.org");
   });
 
   it("passes valid values through", () => {
-    const valid = { ...DEFAULT_PLATFORM_SETTINGS, siteName: "Mukoko Events", maintenanceMode: true };
+    const valid = {
+      ...DEFAULT_PLATFORM_SETTINGS,
+      siteName: "Mukoko Events",
+      maintenanceMode: true,
+    };
     expect(normalizePlatformSettings(valid)).toEqual(valid);
   });
 });
@@ -86,9 +113,13 @@ describe("getPlatformSettings", () => {
       maxEventsPerUser: -1,
     });
     const out = await getPlatformSettings();
-    expect(platformSettings.findOne).toHaveBeenCalledWith({ _id: PLATFORM_SETTINGS_ID });
+    expect(platformSettings.findOne).toHaveBeenCalledWith({
+      _id: PLATFORM_SETTINGS_ID,
+    });
     expect(out.siteName).toBe("Custom");
-    expect(out.maxEventsPerUser).toBe(DEFAULT_PLATFORM_SETTINGS.maxEventsPerUser);
+    expect(out.maxEventsPerUser).toBe(
+      DEFAULT_PLATFORM_SETTINGS.maxEventsPerUser,
+    );
   });
 
   it("returns defaults when nothing is persisted", async () => {
@@ -98,7 +129,10 @@ describe("getPlatformSettings", () => {
 
 describe("savePlatformSettings", () => {
   it("upserts the singleton and returns the normalized merge", async () => {
-    const result = await savePlatformSettings({ maintenanceMode: true, maxEventsPerUser: 10 });
+    const result = await savePlatformSettings({
+      maintenanceMode: true,
+      maxEventsPerUser: 10,
+    });
 
     expect(platformSettings.updateOne).toHaveBeenCalledTimes(1);
     const [filter, update, opts] = platformSettings.updateOne.mock.calls[0];

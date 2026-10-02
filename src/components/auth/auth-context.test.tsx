@@ -15,7 +15,12 @@ vi.mock("next/navigation", () => ({
 
 // Mock AuthKit. AuthProvider calls useAuth + useAccessToken from @workos-inc/authkit-nextjs/components.
 const mockAuthKitSignOut = vi.fn().mockResolvedValue(undefined);
-let mockWorkosUser: { id: string; email: string; firstName: string | null; lastName: string | null } | null = null;
+let mockWorkosUser: {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+} | null = null;
 let mockAuthLoading = false;
 let mockAccessToken: string | null = null;
 const mockGetAccessToken = vi.fn().mockResolvedValue("mock-access-token");
@@ -41,15 +46,30 @@ vi.mock("@/app/actions/auth", () => ({
 }));
 
 function TestConsumer() {
-  const { user, isAuthenticated, isLoading, profileCompleteness, signIn, signOut } = useAuth();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    profileCompleteness,
+    signIn,
+    signOut,
+  } = useAuth();
   return (
     <div>
       <div data-testid="loading">{isLoading ? "loading" : "not-loading"}</div>
       <div data-testid="authenticated">{isAuthenticated ? "yes" : "no"}</div>
-      <div data-testid="profile-complete">{profileCompleteness.complete ? "yes" : "no"}</div>
-      <div data-testid="profile-name">{profileCompleteness.name ? "yes" : "no"}</div>
-      <div data-testid="profile-city">{profileCompleteness.addressLocality ? "yes" : "no"}</div>
-      <div data-testid="profile-interests">{profileCompleteness.interests ? "yes" : "no"}</div>
+      <div data-testid="profile-complete">
+        {profileCompleteness.complete ? "yes" : "no"}
+      </div>
+      <div data-testid="profile-name">
+        {profileCompleteness.name ? "yes" : "no"}
+      </div>
+      <div data-testid="profile-city">
+        {profileCompleteness.addressLocality ? "yes" : "no"}
+      </div>
+      <div data-testid="profile-interests">
+        {profileCompleteness.interests ? "yes" : "no"}
+      </div>
       <div data-testid="user-name">{user?.name || "no-user"}</div>
       <button onClick={() => signIn("/dashboard")}>Sign In</button>
       <button onClick={() => signOut()}>Sign Out</button>
@@ -58,7 +78,9 @@ function TestConsumer() {
 }
 
 // Build an AppUser as returned by the syncCurrentUser server action.
-function appUser(overrides: Partial<AppUser> & { id: string; workosUserId: string }): AppUser {
+function appUser(
+  overrides: Partial<AppUser> & { id: string; workosUserId: string },
+): AppUser {
   return {
     email: "",
     name: "",
@@ -257,7 +279,9 @@ describe("AuthContext", () => {
       signInButton.click();
     });
 
-    expect(mockPush).toHaveBeenCalledWith("/auth/hosted?return_to=%2Fdashboard");
+    expect(mockPush).toHaveBeenCalledWith(
+      "/auth/hosted?return_to=%2Fdashboard",
+    );
   });
 
   it("signOut calls AuthKit signOut and clears local state", async () => {

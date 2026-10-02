@@ -67,23 +67,31 @@ describe("resolveActorFromBearer", () => {
   });
 
   it("maps a reached quota to a 429 ActorError", async () => {
-    consumeDailyUsage.mockRejectedValue(new FakeUsageLimitExceededError("limit reached"));
+    consumeDailyUsage.mockRejectedValue(
+      new FakeUsageLimitExceededError("limit reached"),
+    );
     await expect(resolveActorFromBearer("Bearer token")).rejects.toMatchObject({
       status: 429,
       message: "limit reached",
     });
-    await expect(resolveActorFromBearer("Bearer token")).rejects.toBeInstanceOf(ActorError);
+    await expect(resolveActorFromBearer("Bearer token")).rejects.toBeInstanceOf(
+      ActorError,
+    );
   });
 
   it("still 401s an invalid token before ever checking the quota", async () => {
     verifyBearer.mockResolvedValueOnce(null);
-    await expect(resolveActorFromBearer("Bearer bad")).rejects.toMatchObject({ status: 401 });
+    await expect(resolveActorFromBearer("Bearer bad")).rejects.toMatchObject({
+      status: 401,
+    });
     expect(consumeDailyUsage).not.toHaveBeenCalled();
   });
 
   it("still 403s an unregistered person before ever checking the quota", async () => {
     persons.findOne.mockResolvedValueOnce(null);
-    await expect(resolveActorFromBearer("Bearer token")).rejects.toMatchObject({ status: 403 });
+    await expect(resolveActorFromBearer("Bearer token")).rejects.toMatchObject({
+      status: 403,
+    });
     expect(consumeDailyUsage).not.toHaveBeenCalled();
   });
 });

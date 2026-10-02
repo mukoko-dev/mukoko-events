@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useSyncExternalStore, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+  useCallback,
+  ReactNode,
+} from "react";
 
 type Theme = "light" | "dark" | "system";
 type ResolvedTheme = "light" | "dark";
@@ -45,26 +52,32 @@ function subscribeToSystemTheme(callback: () => void) {
 // Get current system theme
 function getSystemTheme(): ResolvedTheme {
   if (typeof window === "undefined") return "dark";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
-export function ThemeProvider({ children, defaultTheme = "system" }: ThemeProviderProps) {
+export function ThemeProvider({
+  children,
+  defaultTheme = "system",
+}: ThemeProviderProps) {
   // Use useSyncExternalStore for localStorage - React 19 compliant
   const storedTheme = useSyncExternalStore(
     subscribeToThemeStorage,
     getStoredTheme,
-    () => defaultTheme // Server snapshot
+    () => defaultTheme, // Server snapshot
   );
 
   // Use useSyncExternalStore for system preference
   const systemTheme = useSyncExternalStore(
     subscribeToSystemTheme,
     getSystemTheme,
-    () => "dark" as ResolvedTheme // Server snapshot
+    () => "dark" as ResolvedTheme, // Server snapshot
   );
 
   // Calculate resolved theme
-  const resolvedTheme: ResolvedTheme = storedTheme === "system" ? systemTheme : storedTheme;
+  const resolvedTheme: ResolvedTheme =
+    storedTheme === "system" ? systemTheme : storedTheme;
 
   // Set theme function - updates localStorage which triggers re-render via useSyncExternalStore
   const setTheme = useCallback((newTheme: Theme) => {
@@ -88,7 +101,9 @@ export function ThemeProvider({ children, defaultTheme = "system" }: ThemeProvid
   }, [resolvedTheme]);
 
   return (
-    <ThemeContext.Provider value={{ theme: storedTheme, resolvedTheme, setTheme, cycleTheme }}>
+    <ThemeContext.Provider
+      value={{ theme: storedTheme, resolvedTheme, setTheme, cycleTheme }}
+    >
       {children}
     </ThemeContext.Provider>
   );

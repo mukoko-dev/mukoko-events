@@ -8,7 +8,7 @@ interface UseFocusTrapOptions {
 }
 
 export function useFocusTrap<T extends HTMLElement>(
-  options: UseFocusTrapOptions
+  options: UseFocusTrapOptions,
 ): RefObject<T | null> {
   const ref = useRef<T>(null);
 
@@ -21,7 +21,8 @@ export function useFocusTrap<T extends HTMLElement>(
     const focusableSelector =
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-    const firstFocusable = element.querySelector<HTMLElement>(focusableSelector);
+    const firstFocusable =
+      element.querySelector<HTMLElement>(focusableSelector);
     firstFocusable?.focus();
 
     function handleKeyDown(e: KeyboardEvent) {
@@ -33,7 +34,8 @@ export function useFocusTrap<T extends HTMLElement>(
 
       if (e.key !== "Tab") return;
 
-      const focusable = element.querySelectorAll<HTMLElement>(focusableSelector);
+      const focusable =
+        element.querySelectorAll<HTMLElement>(focusableSelector);
       if (focusable.length === 0) return;
 
       const first = focusable[0];

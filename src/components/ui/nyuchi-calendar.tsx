@@ -64,8 +64,12 @@ function NyuchiCalendar({
 }: NyuchiCalendarProps) {
   // All hooks run unconditionally, before any early return.
   useNyuchiHarness("calendar");
-  const [currentMonth, setCurrentMonth] = React.useState(defaultMonth || new Date());
-  const [selected, setSelected] = React.useState<Date | undefined>(selectedDate);
+  const [currentMonth, setCurrentMonth] = React.useState(
+    defaultMonth || new Date(),
+  );
+  const [selected, setSelected] = React.useState<Date | undefined>(
+    selectedDate,
+  );
 
   React.useEffect(() => {
     if (selectedDate) setSelected(selectedDate);
@@ -74,7 +78,8 @@ function NyuchiCalendar({
   const eventsByDate = React.useMemo(() => {
     const map = new Map<string, CalendarEvent[]>();
     for (const ev of events) {
-      const d = typeof ev.date === "string" ? ev.date.slice(0, 10) : dateKey(ev.date);
+      const d =
+        typeof ev.date === "string" ? ev.date.slice(0, 10) : dateKey(ev.date);
       const existing = map.get(d) || [];
       existing.push(ev);
       map.set(d, existing);
@@ -136,12 +141,20 @@ function NyuchiCalendar({
     return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
 
-  const monthLabel = currentMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = currentMonth.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
   const selectedKey = selected ? dateKey(selected) : null;
   const selectedEvents = selectedKey ? eventsByDate.get(selectedKey) || [] : [];
 
   return (
-    <div data-slot="nyuchi-calendar" role="application" aria-label="Calendar" className={cn("flex flex-col gap-4", className)}>
+    <div
+      data-slot="nyuchi-calendar"
+      role="application"
+      aria-label="Calendar"
+      className={cn("flex flex-col gap-4", className)}
+    >
       {/* Month navigation */}
       <div className="flex items-center justify-between">
         <button
@@ -152,7 +165,9 @@ function NyuchiCalendar({
         >
           <ChevronLeft className="size-5" />
         </button>
-        <span className="text-lg font-semibold text-foreground">{monthLabel}</span>
+        <span className="text-lg font-semibold text-foreground">
+          {monthLabel}
+        </span>
         <button
           type="button"
           onClick={handleNext}
@@ -166,7 +181,10 @@ function NyuchiCalendar({
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-1">
         {DAY_LABELS.map((d) => (
-          <div key={d} className="text-center text-[11px] font-medium uppercase text-muted-foreground">
+          <div
+            key={d}
+            className="text-center text-[11px] font-medium uppercase text-muted-foreground"
+          >
             {d}
           </div>
         ))}
@@ -183,11 +201,17 @@ function NyuchiCalendar({
             const key = dayKey(day);
             const isToday = key === todayKey;
             const isSelected =
-              selected && selected.getDate() === day && selected.getMonth() === month && selected.getFullYear() === year;
+              selected &&
+              selected.getDate() === day &&
+              selected.getMonth() === month &&
+              selected.getFullYear() === year;
             const dayEvents = eventsByDate.get(key) || [];
             const hasEvents = dayEvents.length > 0;
             const dotMineral: Mineral = dayEvents[0]?.mineral || "tanzanite";
-            const dotColor = isToday || isSelected ? "var(--primary-foreground,#fff)" : mineralColorMap[dotMineral];
+            const dotColor =
+              isToday || isSelected
+                ? "var(--primary-foreground,#fff)"
+                : mineralColorMap[dotMineral];
 
             return (
               <button
@@ -206,14 +230,22 @@ function NyuchiCalendar({
                 <span
                   className={cn(
                     "text-sm",
-                    isSelected && "font-semibold text-[var(--primary-foreground,#fff)]",
-                    isToday && !isSelected && "font-semibold text-[var(--color-tanzanite)]",
+                    isSelected &&
+                      "font-semibold text-[var(--primary-foreground,#fff)]",
+                    isToday &&
+                      !isSelected &&
+                      "font-semibold text-[var(--color-tanzanite)]",
                     !isToday && !isSelected && "text-foreground",
                   )}
                 >
                   {day}
                 </span>
-                {hasEvents && <div className="mt-0.5 size-1 rounded-full" style={{ backgroundColor: dotColor }} />}
+                {hasEvents && (
+                  <div
+                    className="mt-0.5 size-1 rounded-full"
+                    style={{ backgroundColor: dotColor }}
+                  />
+                )}
               </button>
             );
           })}
@@ -221,7 +253,11 @@ function NyuchiCalendar({
       </div>
 
       {/* Agenda slot */}
-      {selected && renderAgenda && <div data-slot="nyuchi-calendar-agenda">{renderAgenda(selected, selectedEvents)}</div>}
+      {selected && renderAgenda && (
+        <div data-slot="nyuchi-calendar-agenda">
+          {renderAgenda(selected, selectedEvents)}
+        </div>
+      )}
     </div>
   );
 }

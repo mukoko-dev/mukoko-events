@@ -5,43 +5,59 @@
  * configuration from layout.tsx.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 
 // Default preview image (N11): the shared dynamic OG template at /api/og, never
 // a static file. Kept in sync with DEFAULT_OG_IMAGE in layout.tsx.
 const DEFAULT_OG_IMAGE =
-  '/api/og?type=default&title=Nhimbe&subtitle=' +
-  encodeURIComponent('Together we gather, together we grow') +
-  '&url=' +
-  encodeURIComponent('events.mukoko.com');
+  "/api/og?type=default&title=Nhimbe&subtitle=" +
+  encodeURIComponent("Together we gather, together we grow") +
+  "&url=" +
+  encodeURIComponent("events.mukoko.com");
 
 // Metadata from layout.tsx
 const metadata = {
-  metadataBase: 'https://events.mukoko.com',
+  metadataBase: "https://events.mukoko.com",
   title: {
-    default: 'Nhimbe - Together we gather, together we grow',
-    template: '%s | Nhimbe',
+    default: "Nhimbe - Together we gather, together we grow",
+    template: "%s | Nhimbe",
   },
-  description: 'Discover events and gatherings across Africa. Nhimbe connects communities through cultural celebrations, tech meetups, music festivals, and more. A Mukoko product.',
+  description:
+    "Discover events and gatherings across Africa. Nhimbe connects communities through cultural celebrations, tech meetups, music festivals, and more. A Mukoko product.",
   keywords: [
-    'events', 'gatherings', 'community', 'Mukoko', 'Africa', 'Zimbabwe',
-    'Harare', 'South Africa', 'Kenya', 'Nigeria', 'Ghana',
-    'tech events', 'cultural events', 'music festivals', 'networking', 'celebrations', 'Ubuntu',
+    "events",
+    "gatherings",
+    "community",
+    "Mukoko",
+    "Africa",
+    "Zimbabwe",
+    "Harare",
+    "South Africa",
+    "Kenya",
+    "Nigeria",
+    "Ghana",
+    "tech events",
+    "cultural events",
+    "music festivals",
+    "networking",
+    "celebrations",
+    "Ubuntu",
   ],
   openGraph: {
-    title: 'Nhimbe - Together we gather, together we grow',
-    description: 'Discover events and gatherings across Africa. Connect with your community and celebrate together.',
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://events.mukoko.com',
-    siteName: 'Nhimbe',
+    title: "Nhimbe - Together we gather, together we grow",
+    description:
+      "Discover events and gatherings across Africa. Connect with your community and celebrate together.",
+    type: "website",
+    locale: "en_US",
+    url: "https://events.mukoko.com",
+    siteName: "Nhimbe",
     images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Nhimbe - Together we gather, together we grow',
-    site: '@nhimbe_app',
-    creator: '@mukoko_app',
+    card: "summary_large_image",
+    title: "Nhimbe - Together we gather, together we grow",
+    site: "@nhimbe_app",
+    creator: "@mukoko_app",
     images: [DEFAULT_OG_IMAGE],
   },
   robots: {
@@ -50,13 +66,13 @@ const metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   alternates: {
-    canonical: 'https://events.mukoko.com',
+    canonical: "https://events.mukoko.com",
   },
 };
 
@@ -64,30 +80,32 @@ const metadata = {
 // Basic Metadata
 // ============================================
 
-describe('SEO: Basic Metadata', () => {
-  it('has default page title', () => {
-    expect(metadata.title.default).toBe('Nhimbe - Together we gather, together we grow');
+describe("SEO: Basic Metadata", () => {
+  it("has default page title", () => {
+    expect(metadata.title.default).toBe(
+      "Nhimbe - Together we gather, together we grow",
+    );
   });
 
-  it('title template includes brand', () => {
-    expect(metadata.title.template).toContain('Nhimbe');
-    expect(metadata.title.template).toContain('%s');
+  it("title template includes brand", () => {
+    expect(metadata.title.template).toContain("Nhimbe");
+    expect(metadata.title.template).toContain("%s");
   });
 
-  it('description is between 50-160 characters (optimal length)', () => {
+  it("description is between 50-160 characters (optimal length)", () => {
     expect(metadata.description.length).toBeGreaterThanOrEqual(50);
     expect(metadata.description.length).toBeLessThanOrEqual(200);
   });
 
-  it('includes relevant keywords', () => {
-    expect(metadata.keywords).toContain('events');
-    expect(metadata.keywords).toContain('Africa');
-    expect(metadata.keywords).toContain('community');
-    expect(metadata.keywords).toContain('Mukoko');
+  it("includes relevant keywords", () => {
+    expect(metadata.keywords).toContain("events");
+    expect(metadata.keywords).toContain("Africa");
+    expect(metadata.keywords).toContain("community");
+    expect(metadata.keywords).toContain("Mukoko");
   });
 
-  it('has canonical URL', () => {
-    expect(metadata.alternates.canonical).toBe('https://events.mukoko.com');
+  it("has canonical URL", () => {
+    expect(metadata.alternates.canonical).toBe("https://events.mukoko.com");
   });
 });
 
@@ -95,32 +113,32 @@ describe('SEO: Basic Metadata', () => {
 // Open Graph
 // ============================================
 
-describe('SEO: Open Graph', () => {
-  it('has og:type website', () => {
-    expect(metadata.openGraph.type).toBe('website');
+describe("SEO: Open Graph", () => {
+  it("has og:type website", () => {
+    expect(metadata.openGraph.type).toBe("website");
   });
 
-  it('has og:title', () => {
+  it("has og:title", () => {
     expect(metadata.openGraph.title.length).toBeGreaterThan(0);
   });
 
-  it('has og:description', () => {
+  it("has og:description", () => {
     expect(metadata.openGraph.description.length).toBeGreaterThan(0);
   });
 
-  it('has og:url', () => {
-    expect(metadata.openGraph.url).toBe('https://events.mukoko.com');
+  it("has og:url", () => {
+    expect(metadata.openGraph.url).toBe("https://events.mukoko.com");
   });
 
-  it('has og:site_name', () => {
-    expect(metadata.openGraph.siteName).toBe('Nhimbe');
+  it("has og:site_name", () => {
+    expect(metadata.openGraph.siteName).toBe("Nhimbe");
   });
 
-  it('has og:locale', () => {
-    expect(metadata.openGraph.locale).toBe('en_US');
+  it("has og:locale", () => {
+    expect(metadata.openGraph.locale).toBe("en_US");
   });
 
-  it('has og:image with recommended dimensions', () => {
+  it("has og:image with recommended dimensions", () => {
     const image = metadata.openGraph.images[0];
     expect(image.url).toBe(DEFAULT_OG_IMAGE);
     // Facebook recommends 1200x630
@@ -128,13 +146,13 @@ describe('SEO: Open Graph', () => {
     expect(image.height).toBe(630);
   });
 
-  it('og:image is the dynamic /api/og template, never a static file (N11)', () => {
+  it("og:image is the dynamic /api/og template, never a static file (N11)", () => {
     // A missing /og-image.png resolved to a 404 preview card — the N11
     // "biggest discoverability no-go". The default must be the dynamic route.
     const image = metadata.openGraph.images[0];
     expect(image.url).toMatch(/^\/api\/og\?/);
     expect(metadata.twitter.images[0]).toMatch(/^\/api\/og\?/);
-    expect(image.url).not.toContain('/og-image.png');
+    expect(image.url).not.toContain("/og-image.png");
   });
 });
 
@@ -142,24 +160,24 @@ describe('SEO: Open Graph', () => {
 // Twitter Cards
 // ============================================
 
-describe('SEO: Twitter Cards', () => {
-  it('uses summary_large_image card type', () => {
-    expect(metadata.twitter.card).toBe('summary_large_image');
+describe("SEO: Twitter Cards", () => {
+  it("uses summary_large_image card type", () => {
+    expect(metadata.twitter.card).toBe("summary_large_image");
   });
 
-  it('has twitter:title', () => {
+  it("has twitter:title", () => {
     expect(metadata.twitter.title.length).toBeGreaterThan(0);
   });
 
-  it('has twitter:site', () => {
-    expect(metadata.twitter.site).toBe('@nhimbe_app');
+  it("has twitter:site", () => {
+    expect(metadata.twitter.site).toBe("@nhimbe_app");
   });
 
-  it('has twitter:creator', () => {
-    expect(metadata.twitter.creator).toBe('@mukoko_app');
+  it("has twitter:creator", () => {
+    expect(metadata.twitter.creator).toBe("@mukoko_app");
   });
 
-  it('has twitter:image', () => {
+  it("has twitter:image", () => {
     expect(metadata.twitter.images).toContain(DEFAULT_OG_IMAGE);
   });
 });
@@ -168,20 +186,20 @@ describe('SEO: Twitter Cards', () => {
 // Robots
 // ============================================
 
-describe('SEO: Robots', () => {
-  it('allows indexing', () => {
+describe("SEO: Robots", () => {
+  it("allows indexing", () => {
     expect(metadata.robots.index).toBe(true);
   });
 
-  it('allows following links', () => {
+  it("allows following links", () => {
     expect(metadata.robots.follow).toBe(true);
   });
 
-  it('googleBot is configured for rich results', () => {
+  it("googleBot is configured for rich results", () => {
     expect(metadata.robots.googleBot.index).toBe(true);
     expect(metadata.robots.googleBot.follow).toBe(true);
-    expect(metadata.robots.googleBot['max-image-preview']).toBe('large');
-    expect(metadata.robots.googleBot['max-snippet']).toBe(-1);
+    expect(metadata.robots.googleBot["max-image-preview"]).toBe("large");
+    expect(metadata.robots.googleBot["max-snippet"]).toBe(-1);
   });
 });
 
@@ -189,21 +207,21 @@ describe('SEO: Robots', () => {
 // Brand Consistency
 // ============================================
 
-describe('SEO: Brand Consistency', () => {
-  it('Nhimbe is capitalized (brand rule reversed 2026-07-19)', () => {
-    expect(metadata.title.default).toContain('Nhimbe');
+describe("SEO: Brand Consistency", () => {
+  it("Nhimbe is capitalized (brand rule reversed 2026-07-19)", () => {
+    expect(metadata.title.default).toContain("Nhimbe");
     expect(metadata.title.default).not.toMatch(/\bnhimbe\b/);
   });
 
-  it('tagline is consistent', () => {
-    const tagline = 'Together we gather, together we grow';
+  it("tagline is consistent", () => {
+    const tagline = "Together we gather, together we grow";
     expect(metadata.title.default).toContain(tagline);
     expect(metadata.openGraph.title).toContain(tagline);
     expect(metadata.twitter.title).toContain(tagline);
   });
 
-  it('metadataBase uses production URL', () => {
-    expect(metadata.metadataBase).toBe('https://events.mukoko.com');
+  it("metadataBase uses production URL", () => {
+    expect(metadata.metadataBase).toBe("https://events.mukoko.com");
   });
 });
 
@@ -211,8 +229,8 @@ describe('SEO: Brand Consistency', () => {
 // Theme Configuration (prevents FOUC)
 // ============================================
 
-describe('Theme: Flash of Unstyled Content Prevention', () => {
-  it('theme script handles localStorage theme', () => {
+describe("Theme: Flash of Unstyled Content Prevention", () => {
+  it("theme script handles localStorage theme", () => {
     // From layout.tsx: theme script reads localStorage and applies class
     const themeScript = `
       (function() {
@@ -234,12 +252,12 @@ describe('Theme: Flash of Unstyled Content Prevention', () => {
     expect(themeScript).toContain("localStorage.getItem('nhimbe-theme')");
     expect(themeScript).toContain("'dark'");
     expect(themeScript).toContain("'light'");
-    expect(themeScript).toContain('classList.add');
+    expect(themeScript).toContain("classList.add");
   });
 
-  it('defaults to dark on error', () => {
+  it("defaults to dark on error", () => {
     // The catch block adds 'dark' as fallback
-    const fallbackTheme = 'dark';
-    expect(fallbackTheme).toBe('dark');
+    const fallbackTheme = "dark";
+    expect(fallbackTheme).toBe("dark");
   });
 });

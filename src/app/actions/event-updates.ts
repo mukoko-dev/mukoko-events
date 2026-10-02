@@ -24,7 +24,10 @@ import { withAuth } from "@workos-inc/authkit-nextjs";
 import { eventsCollection, personsCollection } from "@/lib/mongo/databases";
 import { listHostEntitiesForPerson } from "@/lib/mongo/entities";
 import { isDevBypass, DEV_WORKOS_ID } from "@/lib/auth/dev";
-import { writeEventUpdateForHost, type EventUpdateType } from "@/lib/mongo/event-updates";
+import {
+  writeEventUpdateForHost,
+  type EventUpdateType,
+} from "@/lib/mongo/event-updates";
 import type { EventDoc, PersonDoc } from "@/lib/mongo/types";
 
 export type { EventUpdateType };

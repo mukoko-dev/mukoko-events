@@ -18,13 +18,21 @@ export async function GET() {
       .limit(2000)
       .toArray();
 
-    const byCity = new Map<string, { addressLocality: string; addressCountry: string }>();
+    const byCity = new Map<
+      string,
+      { addressLocality: string; addressCountry: string }
+    >();
     for (const d of docs) {
-      const loc = ((d as { location?: Record<string, unknown> }).location ?? {}) as Record<string, unknown>;
-      const addr = ((loc.address as Record<string, unknown>) ?? loc) as Record<string, unknown>;
+      const loc = ((d as { location?: Record<string, unknown> }).location ??
+        {}) as Record<string, unknown>;
+      const addr = ((loc.address as Record<string, unknown>) ?? loc) as Record<
+        string,
+        unknown
+      >;
       const city = (addr.addressLocality as string) ?? "";
       const country = (addr.addressCountry as string) ?? "";
-      if (city && !byCity.has(city)) byCity.set(city, { addressLocality: city, addressCountry: country });
+      if (city && !byCity.has(city))
+        byCity.set(city, { addressLocality: city, addressCountry: country });
     }
     return NextResponse.json({ cities: [...byCity.values()] });
   } catch (err) {

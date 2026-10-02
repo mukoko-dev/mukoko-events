@@ -25,14 +25,21 @@ export function InterestsPrompt() {
   }, []);
 
   useEffect(() => {
-    getCategoriesAction().then(setCategories).catch(() => {});
+    getCategoriesAction()
+      .then(setCategories)
+      .catch(() => {});
   }, []);
 
-  if (!isAuthenticated || (user?.interests && user.interests.length > 0) || dismissed) return null;
+  if (
+    !isAuthenticated ||
+    (user?.interests && user.interests.length > 0) ||
+    dismissed
+  )
+    return null;
 
   const toggleInterest = (id: string) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
@@ -63,7 +70,12 @@ export function InterestsPrompt() {
           <Sparkles className="w-5 h-5 text-primary" />
           <p className="text-sm font-medium">What interests you?</p>
         </div>
-        <Button variant="ghost" size="sm" onClick={handleDismiss} className="text-text-tertiary hover:text-foreground p-1 h-auto min-h-0">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleDismiss}
+          className="text-text-tertiary hover:text-foreground p-1 h-auto min-h-0"
+        >
           <X className="w-4 h-4" />
         </Button>
       </div>

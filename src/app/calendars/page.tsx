@@ -45,8 +45,10 @@ function CalendarRow({ calendar }: { calendar: CalendarListItem }) {
           )}
           <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-tertiary">
             <Users className="w-3 h-3" aria-hidden />
-            {calendar.followerCount} {calendar.followerCount === 1 ? "follower" : "followers"} ·{" "}
-            {calendar.eventCount} {calendar.eventCount === 1 ? "event" : "events"}
+            {calendar.followerCount}{" "}
+            {calendar.followerCount === 1 ? "follower" : "followers"} ·{" "}
+            {calendar.eventCount}{" "}
+            {calendar.eventCount === 1 ? "event" : "events"}
           </span>
         </span>
         {calendar.visibility !== "public" && (

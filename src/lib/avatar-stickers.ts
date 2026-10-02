@@ -22,7 +22,12 @@ function buildStickerDataUri(color: string, emoji: string): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-const STICKER_SOURCE: { id: string; label: string; color: string; emoji: string }[] = [
+const STICKER_SOURCE: {
+  id: string;
+  label: string;
+  color: string;
+  emoji: string;
+}[] = [
   { id: "tanzanite-bee", label: "Bee", color: "#B388FF", emoji: "🐝" },
   { id: "cobalt-wave", label: "Wave", color: "#00B0FF", emoji: "🌊" },
   { id: "malachite-leaf", label: "Leaf", color: "#64FFDA", emoji: "🌿" },

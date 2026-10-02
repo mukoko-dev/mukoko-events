@@ -124,7 +124,11 @@ function generateQRMatrix(data: string): boolean[][] {
   return matrix;
 }
 
-function addFinderPattern(matrix: boolean[][], startX: number, startY: number): void {
+function addFinderPattern(
+  matrix: boolean[][],
+  startX: number,
+  startY: number,
+): void {
   const size = matrix.length;
 
   for (let y = 0; y < 7; y++) {
@@ -155,7 +159,11 @@ function addFinderPattern(matrix: boolean[][], startX: number, startY: number): 
   }
 }
 
-function addAlignmentPattern(matrix: boolean[][], centerX: number, centerY: number): void {
+function addAlignmentPattern(
+  matrix: boolean[][],
+  centerX: number,
+  centerY: number,
+): void {
   for (let y = -2; y <= 2; y++) {
     for (let x = -2; x <= 2; x++) {
       const isOuter = Math.abs(x) === 2 || Math.abs(y) === 2;
@@ -167,7 +175,11 @@ function addAlignmentPattern(matrix: boolean[][], centerX: number, centerY: numb
 
 function isReserved(x: number, y: number, size: number): boolean {
   // Finder patterns + separators
-  if ((x < 9 && y < 9) || (x < 9 && y >= size - 8) || (x >= size - 8 && y < 9)) {
+  if (
+    (x < 9 && y < 9) ||
+    (x < 9 && y >= size - 8) ||
+    (x >= size - 8 && y < 9)
+  ) {
     return true;
   }
   // Timing patterns

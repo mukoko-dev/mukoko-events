@@ -56,7 +56,12 @@ export interface AppUser {
 
 export type AppLocale = "en" | "sn";
 
-const KNOWN_ROLES: ReadonlySet<string> = new Set(["user", "moderator", "admin", "super_admin"]);
+const KNOWN_ROLES: ReadonlySet<string> = new Set([
+  "user",
+  "moderator",
+  "admin",
+  "super_admin",
+]);
 
 const KNOWN_LOCALES: ReadonlySet<string> = new Set(["en", "sn"]);
 
@@ -76,17 +81,25 @@ export function mapPersonToAppUser(doc: PersonDoc): AppUser {
     preferredUsername: doc.preferredUsername ?? undefined,
     phoneNumber: doc.phoneNumber ?? undefined,
     gender: doc.gender ?? undefined,
-    birthdate: doc.birthdate ? doc.birthdate.toISOString().slice(0, 10) : undefined,
+    birthdate: doc.birthdate
+      ? doc.birthdate.toISOString().slice(0, 10)
+      : undefined,
     // Role is an extra (validator-permitted) field set out-of-band on the
     // person doc; unknown/absent values fall back to plain "user".
-    role: doc.role && KNOWN_ROLES.has(doc.role) ? (doc.role as AppUserRole) : "user",
+    role:
+      doc.role && KNOWN_ROLES.has(doc.role)
+        ? (doc.role as AppUserRole)
+        : "user",
     // Heuristic: a synced user with a name has cleared the minimum bar.
     onboardingCompleted: Boolean(doc.name),
     suspended: doc.isActive === false,
     // Opt-out preference: only an explicit false means unsubscribed.
     subscribedToEventUpdates: doc.mukoko?.notifications?.eventUpdates !== false,
     // Preferred language — validated against the known set, English by default.
-    locale: doc.locale && KNOWN_LOCALES.has(doc.locale) ? (doc.locale as AppLocale) : "en",
+    locale:
+      doc.locale && KNOWN_LOCALES.has(doc.locale)
+        ? (doc.locale as AppLocale)
+        : "en",
   };
 }
 
@@ -119,7 +132,10 @@ export interface WorkosUserLike {
 
 /** Map a WorkOS user record onto the person-sync input. Pure. */
 export function syncInputFromWorkosUser(user: WorkosUserLike): SyncPersonInput {
-  const joined = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
+  const joined = [user.firstName, user.lastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
   return {
     workosUserId: user.id,
     email: user.email ?? null,
@@ -127,7 +143,8 @@ export function syncInputFromWorkosUser(user: WorkosUserLike): SyncPersonInput {
     givenName: user.firstName ?? null,
     familyName: user.lastName ?? null,
     picture: user.profilePictureUrl ?? null,
-    emailVerified: typeof user.emailVerified === "boolean" ? user.emailVerified : undefined,
+    emailVerified:
+      typeof user.emailVerified === "boolean" ? user.emailVerified : undefined,
   };
 }
 
@@ -136,7 +153,9 @@ export function syncInputFromWorkosUser(user: WorkosUserLike): SyncPersonInput {
  * `workosUserId`. Returns the resulting person in the app user shape. Idempotent
  * — safe to call on every sign-in / refresh.
  */
-export async function syncPersonFromWorkos(input: SyncPersonInput): Promise<AppUser> {
+export async function syncPersonFromWorkos(
+  input: SyncPersonInput,
+): Promise<AppUser> {
   const col = await personsCollection();
   const now = new Date();
 
@@ -166,7 +185,9 @@ export async function syncPersonFromWorkos(input: SyncPersonInput): Promise<AppU
         _schemaVersion: WRITE_SCHEMA_VERSION,
         // workosUserId is supplied by the filter on insert.
         // emailVerified is required by the validator — default new docs only.
-        ...(typeof input.emailVerified === "boolean" ? {} : { emailVerified: false }),
+        ...(typeof input.emailVerified === "boolean"
+          ? {}
+          : { emailVerified: false }),
         isActive: true,
         phoneNumberVerified: false,
         createdAt: now,
@@ -187,7 +208,9 @@ export async function syncPersonFromWorkos(input: SyncPersonInput): Promise<AppU
  * validator-complete stub that the full sync enriches later; if the person
  * already exists nothing is overwritten. Idempotent.
  */
-export async function ensurePersonForWorkosId(workosUserId: string): Promise<PersonDoc> {
+export async function ensurePersonForWorkosId(
+  workosUserId: string,
+): Promise<PersonDoc> {
   const col = await personsCollection();
   const now = new Date();
   const doc = await col.findOneAndUpdate(
@@ -218,7 +241,9 @@ export async function ensurePersonForWorkosId(workosUserId: string): Promise<Per
  * delete, and never an upsert (deleting an unknown user must not create a
  * doc). Returns whether a person was matched.
  */
-export async function deactivatePersonByWorkosId(workosUserId: string): Promise<boolean> {
+export async function deactivatePersonByWorkosId(
+  workosUserId: string,
+): Promise<boolean> {
   const col = await personsCollection();
   const result = await col.updateOne(
     { workosUserId },
@@ -228,7 +253,9 @@ export async function deactivatePersonByWorkosId(workosUserId: string): Promise<
 }
 
 /** Look up a person by their WorkOS user id. */
-export async function getPersonByWorkosId(workosUserId: string): Promise<AppUser | null> {
+export async function getPersonByWorkosId(
+  workosUserId: string,
+): Promise<AppUser | null> {
   const col = await personsCollection();
   const doc = await col.findOne({ workosUserId });
   return doc ? mapPersonToAppUser(doc) : null;

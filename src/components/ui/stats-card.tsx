@@ -31,13 +31,19 @@ function StatsCard({
   const trendInfo = trend ? trendConfig[trend] : null;
 
   return (
-    <Card data-slot="stats-card" className={cn("border-0 bg-surface", className)}>
+    <Card
+      data-slot="stats-card"
+      className={cn("border-0 bg-surface", className)}
+    >
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-1.5 text-foreground/60">
               {icon && <span className="[&_svg]:size-3.5">{icon}</span>}
-              <span data-slot="stats-card-label" className="text-xs font-medium">
+              <span
+                data-slot="stats-card-label"
+                className="text-xs font-medium"
+              >
                 {label}
               </span>
             </div>
@@ -51,7 +57,7 @@ function StatsCard({
               className={cn(
                 "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
                 trendInfo.bg,
-                trendInfo.color
+                trendInfo.color,
               )}
             >
               <trendInfo.icon className="size-3" />

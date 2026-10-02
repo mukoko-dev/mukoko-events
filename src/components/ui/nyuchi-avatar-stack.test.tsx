@@ -27,7 +27,9 @@ describe("NyuchiAvatarStack", () => {
       { name: "D Four" },
       { name: "E Five" },
     ];
-    const { getByText } = render(<NyuchiAvatarStack people={people} max={3} total={42} label="going" />);
+    const { getByText } = render(
+      <NyuchiAvatarStack people={people} max={3} total={42} label="going" />,
+    );
     // total 42, showing 3 → +39 overflow bubble.
     expect(getByText("+39")).toBeTruthy();
     expect(document.querySelector('[aria-label="42 going"]')).toBeTruthy();

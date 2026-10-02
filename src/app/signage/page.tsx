@@ -1,18 +1,28 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Loader2, Calendar, MapPin, Users, Clock, ChevronRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import {
-  type Event,
-  type CommunityStats,
-} from "@/lib/api";
-import { getEventsAction, getCommunityStatsAction } from "@/app/actions/discovery";
+  Loader2,
+  Calendar,
+  MapPin,
+  Users,
+  Clock,
+  ChevronRight,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { type Event, type CommunityStats } from "@/lib/api";
+import {
+  getEventsAction,
+  getCommunityStatsAction,
+} from "@/app/actions/discovery";
 
 type Orientation = "horizontal" | "vertical";
 
 // ─── useOrientation ──────────────────────────────────────────────────────────
-function useOrientation(): { orientation: Orientation; setOrientation: (o: Orientation) => void } {
+function useOrientation(): {
+  orientation: Orientation;
+  setOrientation: (o: Orientation) => void;
+} {
   const [orientation, setOrientation] = useState<Orientation>(() => {
     if (typeof window === "undefined") return "horizontal";
     return window.innerHeight > window.innerWidth ? "vertical" : "horizontal";
@@ -30,11 +40,19 @@ function OrientationToggle({
 }) {
   return (
     <button
-      onClick={() => onChange(orientation === "horizontal" ? "vertical" : "horizontal")}
+      onClick={() =>
+        onChange(orientation === "horizontal" ? "vertical" : "horizontal")
+      }
       className="fixed top-4 right-4 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
       title={`Switch to ${orientation === "horizontal" ? "vertical" : "horizontal"} layout`}
     >
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg
+        className="w-4 h-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
         <path d="M1 4v6h6M23 20v-6h-6" />
         <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
       </svg>
@@ -43,25 +61,48 @@ function OrientationToggle({
 }
 
 // ─── Event Card for Signage ──────────────────────────────────────────────────
-function SignageEventCard({ event, size }: { event: Event; size: "large" | "medium" | "compact" }) {
+function SignageEventCard({
+  event,
+  size,
+}: {
+  event: Event;
+  size: "large" | "medium" | "compact";
+}) {
   const bgStyle = event.image
-    ? { backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, transparent 100%), url(${event.image})`, backgroundSize: "cover", backgroundPosition: "center" }
+    ? {
+        backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, transparent 100%), url(${event.image})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }
     : event.coverGradient
       ? { background: event.coverGradient }
-      : { background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" };
+      : {
+          background:
+            "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+        };
 
   if (size === "compact") {
     return (
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 flex items-center gap-4" style={!event.image ? {} : undefined}>
-        <div className="w-14 h-14 rounded-lg shrink-0 flex items-center justify-center" style={bgStyle}>
+      <div
+        className="bg-white/5 backdrop-blur-sm rounded-xl p-4 flex items-center gap-4"
+        style={!event.image ? {} : undefined}
+      >
+        <div
+          className="w-14 h-14 rounded-lg shrink-0 flex items-center justify-center"
+          style={bgStyle}
+        >
           {!event.image && <Calendar className="w-6 h-6 text-white/60" />}
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-white truncate">{event.name}</h3>
-          <p className="text-sm text-white/50 truncate">{event.date.full} &middot; {event.location.addressLocality}</p>
+          <p className="text-sm text-white/50 truncate">
+            {event.date.full} &middot; {event.location.addressLocality}
+          </p>
         </div>
         <div className="text-right shrink-0">
-          <div className="text-lg font-bold text-primary">{event.attendeeCount}</div>
+          <div className="text-lg font-bold text-primary">
+            {event.attendeeCount}
+          </div>
           <div className="text-xs text-white/40">going</div>
         </div>
       </div>
@@ -74,10 +115,15 @@ function SignageEventCard({ event, size }: { event: Event; size: "large" | "medi
       style={bgStyle}
     >
       <div className="relative z-10">
-        <Badge variant="secondary" className="mb-3 bg-white/20 text-white border-none">
+        <Badge
+          variant="secondary"
+          className="mb-3 bg-white/20 text-white border-none"
+        >
           {event.category}
         </Badge>
-        <h3 className={`${size === "large" ? "text-3xl" : "text-xl"} font-bold text-white leading-tight mb-2`}>
+        <h3
+          className={`${size === "large" ? "text-3xl" : "text-xl"} font-bold text-white leading-tight mb-2`}
+        >
           {event.name}
         </h3>
         <div className="flex items-center gap-4 text-white/70 text-sm">
@@ -108,7 +154,9 @@ function PlatformStatsBar({ stats }: { stats: CommunityStats }) {
         <div className="text-xs text-white/40">Events</div>
       </div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-white">{stats.totalAttendees}</div>
+        <div className="text-2xl font-bold text-white">
+          {stats.totalAttendees}
+        </div>
         <div className="text-xs text-white/40">Attendees</div>
       </div>
       <div className="text-center">
@@ -119,7 +167,11 @@ function PlatformStatsBar({ stats }: { stats: CommunityStats }) {
         <div className="ml-auto flex items-center gap-2">
           <span className="text-xs text-white/40">Trending:</span>
           {stats.trendingCategories.slice(0, 3).map((cat) => (
-            <Badge key={cat.category} variant="secondary" className="bg-white/10 text-white/80 border-none text-xs">
+            <Badge
+              key={cat.category}
+              variant="secondary"
+              className="bg-white/10 text-white/80 border-none text-xs"
+            >
               {cat.category}
             </Badge>
           ))}
@@ -145,15 +197,28 @@ function FeaturedCarousel({ events }: { events: Event[] }) {
   const event = events[index];
 
   const bgStyle = event.image
-    ? { backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%), url(${event.image})`, backgroundSize: "cover", backgroundPosition: "center" }
+    ? {
+        backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%), url(${event.image})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }
     : event.coverGradient
       ? { background: event.coverGradient }
-      : { background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" };
+      : {
+          background:
+            "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+        };
 
   return (
-    <div className="relative rounded-3xl overflow-hidden min-h-[320px] flex flex-col justify-end p-10" style={bgStyle}>
+    <div
+      className="relative rounded-3xl overflow-hidden min-h-[320px] flex flex-col justify-end p-10"
+      style={bgStyle}
+    >
       <div className="relative z-10 max-w-lg">
-        <Badge variant="secondary" className="mb-4 bg-white/20 text-white border-none">
+        <Badge
+          variant="secondary"
+          className="mb-4 bg-white/20 text-white border-none"
+        >
           {event.category}
         </Badge>
         <h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-3">
@@ -172,7 +237,9 @@ function FeaturedCarousel({ events }: { events: Event[] }) {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-primary" />
-            <span className="text-xl font-bold text-white">{event.attendeeCount}</span>
+            <span className="text-xl font-bold text-white">
+              {event.attendeeCount}
+            </span>
             <span className="text-white/50">attending</span>
           </div>
           {event.organizer && (
@@ -197,7 +264,13 @@ function FeaturedCarousel({ events }: { events: Event[] }) {
 }
 
 // ─── Horizontal Layout ───────────────────────────────────────────────────────
-function HorizontalSignage({ events, stats }: { events: Event[]; stats: CommunityStats | null }) {
+function HorizontalSignage({
+  events,
+  stats,
+}: {
+  events: Event[];
+  stats: CommunityStats | null;
+}) {
   const featured = events.slice(0, 5);
   const upcoming = events.slice(0, 8);
 
@@ -221,11 +294,18 @@ function HorizontalSignage({ events, stats }: { events: Event[]; stats: Communit
           {/* Category highlights from stats */}
           {stats && stats.trendingCategories.length > 0 && (
             <div className="flex items-center gap-4">
-              <span className="text-xs text-white/40 uppercase tracking-wider">Popular Categories</span>
+              <span className="text-xs text-white/40 uppercase tracking-wider">
+                Popular Categories
+              </span>
               {stats.trendingCategories.slice(0, 5).map((cat) => (
-                <div key={cat.category} className="bg-white/5 rounded-lg px-4 py-2 text-center">
+                <div
+                  key={cat.category}
+                  className="bg-white/5 rounded-lg px-4 py-2 text-center"
+                >
                   <div className="text-sm font-semibold">{cat.category}</div>
-                  <div className="text-xs text-white/40">{cat.events} events</div>
+                  <div className="text-xs text-white/40">
+                    {cat.events} events
+                  </div>
                 </div>
               ))}
             </div>
@@ -248,7 +328,8 @@ function HorizontalSignage({ events, stats }: { events: Event[]; stats: Communit
 
       <footer className="px-10 py-3 border-t border-white/10 flex items-center justify-between">
         <div className="text-xs text-white/30">
-          Powered by <span className="text-white/50 font-semibold">Nhimbe</span> &middot; A Mukoko Product
+          Powered by <span className="text-white/50 font-semibold">Nhimbe</span>{" "}
+          &middot; A Mukoko Product
         </div>
         <div className="text-xs text-white/30">
           Discover events at nhimbe.com
@@ -259,7 +340,13 @@ function HorizontalSignage({ events, stats }: { events: Event[]; stats: Communit
 }
 
 // ─── Vertical Layout ─────────────────────────────────────────────────────────
-function VerticalSignage({ events, stats }: { events: Event[]; stats: CommunityStats | null }) {
+function VerticalSignage({
+  events,
+  stats,
+}: {
+  events: Event[];
+  stats: CommunityStats | null;
+}) {
   const featured = events.slice(0, 3);
   const upcoming = events.slice(0, 6);
 
@@ -285,7 +372,9 @@ function VerticalSignage({ events, stats }: { events: Event[]; stats: CommunityS
 
       {/* Upcoming list */}
       <div className="flex-1 px-6 py-4 overflow-y-auto">
-        <h3 className="text-xs uppercase tracking-wider text-white/40 mb-3">Upcoming</h3>
+        <h3 className="text-xs uppercase tracking-wider text-white/40 mb-3">
+          Upcoming
+        </h3>
         <div className="space-y-3">
           {upcoming.map((event) => (
             <SignageEventCard key={event.id} event={event} size="compact" />
@@ -295,7 +384,8 @@ function VerticalSignage({ events, stats }: { events: Event[]; stats: CommunityS
 
       <footer className="px-6 py-3 text-center border-t border-white/10">
         <div className="text-xs text-white/30">
-          Powered by <span className="text-white/50 font-semibold">Nhimbe</span> &middot; A Mukoko Product
+          Powered by <span className="text-white/50 font-semibold">Nhimbe</span>{" "}
+          &middot; A Mukoko Product
         </div>
       </footer>
     </div>
@@ -324,7 +414,9 @@ export default function PublicSignagePage() {
     }
   }, []);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Auto-refresh every 60s
   useEffect(() => {

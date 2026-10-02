@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Globe, Star, MapPin, Accessibility, Mountain, Users } from "lucide-react";
+import {
+  Globe,
+  Star,
+  MapPin,
+  Accessibility,
+  Mountain,
+  Users,
+} from "lucide-react";
 import { getPlaceById, type PlaceDetail } from "@/app/actions/places";
 import { NyuchiVerifiedBadge } from "@/components/ui/verified-badge";
 import { verificationTierCode } from "@/lib/kweli";
@@ -65,12 +72,20 @@ export function EventVenueCard({ placeId }: EventVenueCardProps) {
 
   if (!loaded || !place) return null;
 
-  const fullAddress = [place.streetAddress, place.addressLocality, place.addressRegion, place.postalCode]
+  const fullAddress = [
+    place.streetAddress,
+    place.addressLocality,
+    place.addressRegion,
+    place.postalCode,
+  ]
     .filter(Boolean)
     .join(", ");
 
   return (
-    <section data-slot="event-venue-card" className="mt-8 rounded-[var(--radius-lg)] bg-card border border-border overflow-hidden">
+    <section
+      data-slot="event-venue-card"
+      className="mt-8 rounded-[var(--radius-lg)] bg-card border border-border overflow-hidden"
+    >
       {place.coverImage && (
         <div className="relative w-full h-44">
           <Image
@@ -89,7 +104,10 @@ export function EventVenueCard({ placeId }: EventVenueCardProps) {
             <h3 className="font-serif text-xl font-bold text-foreground leading-tight inline-flex items-center gap-1.5">
               {place.name}
               {/* Kweli-owned verification tier — renders nothing at tier 0. */}
-              <NyuchiVerifiedBadge tier={verificationTierCode(place.verificationTier)} size="md" />
+              <NyuchiVerifiedBadge
+                tier={verificationTierCode(place.verificationTier)}
+                size="md"
+              />
             </h3>
             {fullAddress && (
               <p className="text-sm text-muted-foreground mt-1 flex items-start gap-1.5">
@@ -98,15 +116,23 @@ export function EventVenueCard({ placeId }: EventVenueCardProps) {
               </p>
             )}
           </div>
-          {place.aggregateRatingValue !== null && place.aggregateRatingCount && place.aggregateRatingCount > 0 && (
-            <div className="text-right shrink-0">
-              <div className="inline-flex items-center gap-1 font-serif text-base font-bold">
-                <Star className="w-3.5 h-3.5" style={{ color: "var(--nh-accent)" }} aria-hidden />
-                {place.aggregateRatingValue.toFixed(1)}
+          {place.aggregateRatingValue !== null &&
+            place.aggregateRatingCount &&
+            place.aggregateRatingCount > 0 && (
+              <div className="text-right shrink-0">
+                <div className="inline-flex items-center gap-1 font-serif text-base font-bold">
+                  <Star
+                    className="w-3.5 h-3.5"
+                    style={{ color: "var(--nh-accent)" }}
+                    aria-hidden
+                  />
+                  {place.aggregateRatingValue.toFixed(1)}
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  {place.aggregateRatingCount} reviews
+                </div>
               </div>
-              <div className="text-[10px] text-muted-foreground">{place.aggregateRatingCount} reviews</div>
-            </div>
-          )}
+            )}
         </header>
 
         {/* Quick-fact strip — only renders cells with data */}
@@ -119,41 +145,50 @@ export function EventVenueCard({ placeId }: EventVenueCardProps) {
               tint="var(--nh-savanna)"
             />
           )}
-          {place.communityConfirmations !== null && place.communityConfirmations > 0 && (
-            <Fact
-              Icon={Users}
-              label="Confirmed"
-              value={`${place.communityConfirmations}×`}
-              tint="var(--nh-lead)"
-            />
-          )}
-          {place.accessibilityFeature && place.accessibilityFeature.length > 0 && (
-            <Fact
-              Icon={Accessibility}
-              label="A11y"
-              value={`${place.accessibilityFeature.length} features`}
-              tint="var(--mineral-cobalt-raw)"
-            />
-          )}
+          {place.communityConfirmations !== null &&
+            place.communityConfirmations > 0 && (
+              <Fact
+                Icon={Users}
+                label="Confirmed"
+                value={`${place.communityConfirmations}×`}
+                tint="var(--nh-lead)"
+              />
+            )}
+          {place.accessibilityFeature &&
+            place.accessibilityFeature.length > 0 && (
+              <Fact
+                Icon={Accessibility}
+                label="A11y"
+                value={`${place.accessibilityFeature.length} features`}
+                tint="var(--mineral-cobalt-raw)"
+              />
+            )}
         </dl>
 
         {/* Tags — tourism types + activities */}
-        {(place.tourismType?.length || place.activity?.length) ? (
+        {place.tourismType?.length || place.activity?.length ? (
           <ul className="mt-3 flex flex-wrap gap-1.5">
-            {[...(place.tourismType ?? []), ...(place.activity ?? [])].slice(0, 8).map((t) => (
-              <li
-                key={t}
-                className="inline-flex items-center px-2 h-6 rounded-full text-[11px]"
-                style={{ background: "var(--muted)", color: "var(--foreground)" }}
-              >
-                {t}
-              </li>
-            ))}
+            {[...(place.tourismType ?? []), ...(place.activity ?? [])]
+              .slice(0, 8)
+              .map((t) => (
+                <li
+                  key={t}
+                  className="inline-flex items-center px-2 h-6 rounded-full text-[11px]"
+                  style={{
+                    background: "var(--muted)",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  {t}
+                </li>
+              ))}
           </ul>
         ) : null}
 
         {place.openingHoursText && (
-          <p className="mt-3 text-xs text-muted-foreground">{place.openingHoursText}</p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            {place.openingHoursText}
+          </p>
         )}
 
         {/* Provenance footer */}
@@ -169,10 +204,15 @@ export function EventVenueCard({ placeId }: EventVenueCardProps) {
               Website
             </a>
           )}
-          {place.osmContributed && <OSMAttribution changesetId={place.osmChangesetId} />}
+          {place.osmContributed && (
+            <OSMAttribution changesetId={place.osmChangesetId} />
+          )}
           {place.dataOrigin && !place.osmContributed && (
             <span className="inline-flex items-center gap-1">
-              <span className="w-1 h-1 rounded-full bg-muted-foreground" aria-hidden />
+              <span
+                className="w-1 h-1 rounded-full bg-muted-foreground"
+                aria-hidden
+              />
               {place.dataOrigin}
             </span>
           )}
@@ -201,7 +241,9 @@ function Fact({
           {label}
         </span>
       </span>
-      <span className="font-serif text-sm font-bold text-foreground leading-tight">{value}</span>
+      <span className="font-serif text-sm font-bold text-foreground leading-tight">
+        {value}
+      </span>
     </div>
   );
 }

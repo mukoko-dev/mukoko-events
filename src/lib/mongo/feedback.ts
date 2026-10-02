@@ -25,7 +25,11 @@ const feedbackLog = createLogger("feedback");
 /** Feedback category — a small closed set the form offers. */
 export type FeedbackCategory = "bug" | "idea" | "other";
 
-export const FEEDBACK_CATEGORIES: readonly FeedbackCategory[] = ["bug", "idea", "other"] as const;
+export const FEEDBACK_CATEGORIES: readonly FeedbackCategory[] = [
+  "bug",
+  "idea",
+  "other",
+] as const;
 
 /** Coerce an untrusted value onto a known category (defaults to `other`). */
 export function normalizeFeedbackCategory(value: unknown): FeedbackCategory {
@@ -67,7 +71,8 @@ export interface FeedbackRecord {
   authenticated: boolean;
 }
 
-const feedbackCollection = () => getCollection<FeedbackDoc>(DB.system, "feedback");
+const feedbackCollection = () =>
+  getCollection<FeedbackDoc>(DB.system, "feedback");
 
 /**
  * Persist one feedback submission to `system.feedback`. Best-effort and
@@ -98,7 +103,9 @@ export async function recordFeedback(
   try {
     const col = await feedbackCollection();
     await col.insertOne(doc);
-    feedbackLog.info("Feedback stored", { data: { id, category: record.category } });
+    feedbackLog.info("Feedback stored", {
+      data: { id, category: record.category },
+    });
     return { stored: true, id };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";

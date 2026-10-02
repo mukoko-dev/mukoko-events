@@ -40,15 +40,21 @@ import type {
 
 // ── reads ────────────────────────────────────────────────────────────
 
-export async function getEventReviewsAction(eventId: string): Promise<EventReviewsResponse> {
+export async function getEventReviewsAction(
+  eventId: string,
+): Promise<EventReviewsResponse> {
   return getEventReviews(eventId);
 }
 
-export async function getEventRatingStatsAction(eventId: string): Promise<ReviewStats> {
+export async function getEventRatingStatsAction(
+  eventId: string,
+): Promise<ReviewStats> {
   return getEventRatingStats(eventId);
 }
 
-export async function getEventStatsAction(eventId: string): Promise<EventStats> {
+export async function getEventStatsAction(
+  eventId: string,
+): Promise<EventStats> {
   return getEventStats(eventId);
 }
 
@@ -58,16 +64,22 @@ export async function getEventReferralLeaderboardAction(
   return getReferralLeaderboard(eventId);
 }
 
-export async function getHostReputationAction(userId: string): Promise<HostStats | null> {
+export async function getHostReputationAction(
+  userId: string,
+): Promise<HostStats | null> {
   return getHostReputation(userId);
 }
 
 /** Reviews written about a host entity, across every event it has run. */
-export async function getEntityReviewsAction(entityId: string): Promise<HostReviewsResponse> {
+export async function getEntityReviewsAction(
+  entityId: string,
+): Promise<HostReviewsResponse> {
   return getEntityReviews(entityId);
 }
 
-export async function getUserReferralCodeAction(userId: string): Promise<UserReferralCode | null> {
+export async function getUserReferralCodeAction(
+  userId: string,
+): Promise<UserReferralCode | null> {
   return getUserReferralCode(userId);
 }
 
@@ -89,11 +101,14 @@ export interface SubmitEventReviewActionInput {
 export async function submitEventReviewAction(
   input: SubmitEventReviewActionInput,
 ): Promise<{ reviewId: string }> {
-  const eventId = typeof input?.eventId === "string" ? input.eventId.trim() : "";
+  const eventId =
+    typeof input?.eventId === "string" ? input.eventId.trim() : "";
   if (!eventId) throw new Error("An event id is required.");
   const rating = Number(input?.rating);
 
-  const person = await requireActingPerson("You must be signed in to review an event.");
+  const person = await requireActingPerson(
+    "You must be signed in to review an event.",
+  );
   const reviewerEntityId = await ensureHostEntityForPerson(person);
 
   const { reviewId } = await submitEventReview(person, reviewerEntityId, {
@@ -111,7 +126,9 @@ export async function submitEventReviewAction(
  * Mark a review "helpful" — now that E2E is disabled on engagements, the review
  * carries a plaintext `helpfulCount` we can increment. Best-effort.
  */
-export async function markReviewHelpfulAction(reviewId: string): Promise<{ message: string }> {
+export async function markReviewHelpfulAction(
+  reviewId: string,
+): Promise<{ message: string }> {
   try {
     await markReviewHelpful(reviewId);
   } catch {
@@ -128,7 +145,9 @@ export async function markReviewHelpfulAction(reviewId: string): Promise<{ messa
  * return the person's existing code if one is already on record, else a stable
  * empty-code shape so the caller's UI degrades gracefully.
  */
-export async function generateUserReferralCodeAction(userId: string): Promise<{ code: string }> {
+export async function generateUserReferralCodeAction(
+  userId: string,
+): Promise<{ code: string }> {
   const existing = await getUserReferralCode(userId);
   return { code: existing?.code ?? "" };
 }

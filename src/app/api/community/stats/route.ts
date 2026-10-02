@@ -22,7 +22,9 @@ export async function GET(request: Request) {
   };
   try {
     const col = await eventsCollection();
-    const filter: Record<string, unknown> = { status: { $in: ["published", "live"] } };
+    const filter: Record<string, unknown> = {
+      status: { $in: ["published", "live"] },
+    };
     if (city) filter["location.address.addressLocality"] = city;
     const totalEvents = await col.countDocuments(filter);
     return NextResponse.json({ ...empty, totalEvents });

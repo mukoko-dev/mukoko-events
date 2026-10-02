@@ -53,7 +53,16 @@ export function MoonPhase({ date, size = 10, className }: MoonPhaseProps) {
   let content: React.ReactNode;
   if (phase < 0.03 || phase > 0.97) {
     // new moon — empty outline
-    content = <circle cx={cx} cy={cy} r={r} fill="none" stroke={dim} strokeWidth={0.8} />;
+    content = (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill="none"
+        stroke={dim}
+        strokeWidth={0.8}
+      />
+    );
   } else if (phase >= 0.47 && phase <= 0.53) {
     // full moon — filled gold disc
     content = <circle cx={cx} cy={cy} r={r} fill={fullFill} />;

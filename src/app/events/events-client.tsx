@@ -7,12 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { Badge } from "@/components/ui/badge";
-import { NyuchiTimeline, type TimelineItem } from "@/components/ui/nyuchi-timeline";
+import {
+  NyuchiTimeline,
+  type TimelineItem,
+} from "@/components/ui/nyuchi-timeline";
 import { NyuchiEmptyState } from "@/components/ui/nyuchi-empty-state";
 import { CityDropdown } from "@/components/ui/city-dropdown";
 import { categoryToMineral } from "@/lib/category-mineral";
 import { type Event, type Category, getMediaUrl } from "@/lib/api";
-import { getEventsAction, getCategoriesAction, getCitiesAction } from "@/app/actions/discovery";
+import {
+  getEventsAction,
+  getCategoriesAction,
+  getCitiesAction,
+} from "@/app/actions/discovery";
 import { LocationPrompt } from "@/components/prompts/location-prompt";
 import { InterestsPrompt } from "@/components/prompts/interests-prompt";
 
@@ -35,18 +42,25 @@ export function EventsClient({
 }: EventsClientProps) {
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [cities, setCities] = useState<{ addressLocality: string; addressCountry: string }[]>(initialCities);
+  const [cities, setCities] =
+    useState<{ addressLocality: string; addressCountry: string }[]>(
+      initialCities,
+    );
   const [loading, setLoading] = useState(false);
 
   // Filters — seeded from the URL scope so /discover drill-downs land
   // pre-filtered. The city dropdown speaks "City, Country" values, so map the
   // bare addressLocality from the URL onto that shape when we know the city.
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState(initialCategory || "All");
+  const [activeCategory, setActiveCategory] = useState(
+    initialCategory || "All",
+  );
   const [activeCity, setActiveCity] = useState(() => {
     if (!initialCity) return "All Cities";
     const match = initialCities.find((c) => c.addressLocality === initialCity);
-    return match ? `${match.addressLocality}, ${match.addressCountry}` : "All Cities";
+    return match
+      ? `${match.addressLocality}, ${match.addressCountry}`
+      : "All Cities";
   });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -56,7 +70,8 @@ export function EventsClient({
     const params = new URLSearchParams(window.location.search);
     if (activeCategory !== "All") params.set("category", activeCategory);
     else params.delete("category");
-    if (activeCity !== "All Cities") params.set("city", activeCity.split(",")[0].trim());
+    if (activeCity !== "All Cities")
+      params.set("city", activeCity.split(",")[0].trim());
     else params.delete("city");
     const query = params.toString();
     const next = `${window.location.pathname}${query ? `?${query}` : ""}`;
@@ -92,15 +107,19 @@ export function EventsClient({
   const filteredEvents = useMemo(() => {
     return events.filter((e) => {
       // Match category by ID (new format) or name (legacy)
-      const categoryMatch = activeCategory === "All" || e.category === activeCategory;
+      const categoryMatch =
+        activeCategory === "All" || e.category === activeCategory;
       const cityMatch =
         activeCity === "All Cities" ||
-        `${e.location.addressLocality}, ${e.location.addressCountry}` === activeCity;
+        `${e.location.addressLocality}, ${e.location.addressCountry}` ===
+          activeCity;
       const searchMatch =
         !searchQuery ||
         e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         e.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (e.keywords || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        (e.keywords || []).some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
       return categoryMatch && cityMatch && searchMatch;
     });
   }, [events, activeCategory, activeCity, searchQuery]);
@@ -134,9 +153,7 @@ export function EventsClient({
           </p>
         </div>
         <Button asChild>
-          <Link href="/events/create">
-            Create Event
-          </Link>
+          <Link href="/events/create">Create Event</Link>
         </Button>
       </div>
 
@@ -187,9 +204,7 @@ export function EventsClient({
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filters
-          {activeFiltersCount > 0 && (
-            <Badge>{activeFiltersCount}</Badge>
-          )}
+          {activeFiltersCount > 0 && <Badge>{activeFiltersCount}</Badge>}
         </Button>
 
         {/* Clear Filters */}
@@ -233,21 +248,19 @@ export function EventsClient({
         </div>
       ) : filteredEvents.length > 0 ? (
         <NyuchiTimeline
-          items={filteredEvents.map(
-            (event): TimelineItem => ({
-              id: event.id,
-              date: event.startDate,
-              time: event.date.time,
-              title: event.name,
-              host: event.organizer?.name,
-              location: event.location.name || event.location.addressLocality,
-              attendeeCount: event.attendeeCount,
-              thumbnail: event.image ? getMediaUrl(event.image) : undefined,
-              href: `/events/${event.id}`,
-              mineral: categoryToMineral(event.category),
-              category: event.category,
-            }),
-          )}
+          items={filteredEvents.map((event): TimelineItem => ({
+            id: event.id,
+            date: event.startDate,
+            time: event.date.time,
+            title: event.name,
+            host: event.organizer?.name,
+            location: event.location.name || event.location.addressLocality,
+            attendeeCount: event.attendeeCount,
+            thumbnail: event.image ? getMediaUrl(event.image) : undefined,
+            href: `/events/${event.id}`,
+            mineral: categoryToMineral(event.category),
+            category: event.category,
+          }))}
         />
       ) : (
         <NyuchiEmptyState

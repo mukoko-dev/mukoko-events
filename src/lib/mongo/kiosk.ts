@@ -94,7 +94,9 @@ export async function requestKioskPairing(
  * past its window, `confirmed` (with the bound event + session token) once a
  * host has paired it, otherwise `pending`.
  */
-export async function getKioskPairingStatus(code: string): Promise<KioskPairingStatus> {
+export async function getKioskPairingStatus(
+  code: string,
+): Promise<KioskPairingStatus> {
   const pairings = await pairingsCollection();
   const pairing = await pairings.findOne({ code });
 
@@ -126,13 +128,20 @@ export async function confirmKioskPairing(
   code: string,
   eventId: string,
   personId: string,
-): Promise<{ message: string; eventName: string; screenType: ScreenType; sessionToken: string }> {
+): Promise<{
+  message: string;
+  eventName: string;
+  screenType: ScreenType;
+  sessionToken: string;
+}> {
   const pairings = await pairingsCollection();
   const pairing = await pairings.findOne({ code });
 
   if (!pairing) throw new Error("That pairing code was not found.");
   if (pairing.expiresAt.getTime() < Date.now()) {
-    throw new Error("That pairing code has expired. Generate a new one on the kiosk.");
+    throw new Error(
+      "That pairing code has expired. Generate a new one on the kiosk.",
+    );
   }
   if (pairing.status === "confirmed") {
     throw new Error("That pairing code has already been used.");
@@ -173,13 +182,17 @@ export async function confirmKioskPairing(
  * Resolve a confirmed kiosk/signage session from its token (the pairing `_id`).
  * Throws when the token is unknown, unconfirmed, expired, or its event is gone.
  */
-export async function getKioskSession(token: string): Promise<{ session: KioskSession }> {
+export async function getKioskSession(
+  token: string,
+): Promise<{ session: KioskSession }> {
   const pairings = await pairingsCollection();
   const pairing = await pairings.findOne({ _id: token, status: "confirmed" });
 
   if (!pairing) throw new Error("Kiosk session not found.");
-  if (pairing.expiresAt.getTime() < Date.now()) throw new Error("Kiosk session has expired.");
-  if (!pairing.eventId) throw new Error("Kiosk session is not bound to an event.");
+  if (pairing.expiresAt.getTime() < Date.now())
+    throw new Error("Kiosk session has expired.");
+  if (!pairing.eventId)
+    throw new Error("Kiosk session is not bound to an event.");
 
   const events = await eventsCollection();
   const event = await events.findOne({ _id: pairing.eventId });
@@ -201,11 +214,19 @@ export async function getKioskSession(token: string): Promise<{ session: KioskSe
  * expires it so neither `getKioskSession` nor `getKioskPairingStatus` will honor
  * the token again.
  */
-export async function endKioskSession(token: string): Promise<{ message: string }> {
+export async function endKioskSession(
+  token: string,
+): Promise<{ message: string }> {
   const pairings = await pairingsCollection();
   await pairings.updateOne(
     { _id: token },
-    { $set: { status: "expired", expiresAt: new Date(0), updatedAt: new Date() } },
+    {
+      $set: {
+        status: "expired",
+        expiresAt: new Date(0),
+        updatedAt: new Date(),
+      },
+    },
   );
   return { message: "Kiosk session ended." };
 }
@@ -225,15 +246,20 @@ export async function checkinViaKiosk(
   const pairing = await pairings.findOne({ _id: token, status: "confirmed" });
 
   if (!pairing) throw new Error("Kiosk session not found.");
-  if (pairing.expiresAt.getTime() < Date.now()) throw new Error("Kiosk session has expired.");
-  if (pairing.eventId !== eventId) throw new Error("Kiosk session is not bound to this event.");
+  if (pairing.expiresAt.getTime() < Date.now())
+    throw new Error("Kiosk session has expired.");
+  if (pairing.eventId !== eventId)
+    throw new Error("Kiosk session is not bound to this event.");
 
   const rsvps = await rsvpsCollection();
   const rsvp = await rsvps.findOne({ _id: registrationId, eventId });
   if (!rsvp) throw new Error("Registration not found");
 
   const checkIns = await checkInsCollection();
-  const existing = await checkIns.findOne({ eventId, attendeePersonId: rsvp.attendeePersonId });
+  const existing = await checkIns.findOne({
+    eventId,
+    attendeePersonId: rsvp.attendeePersonId,
+  });
   if (existing) throw new Error("Already checked in");
 
   await checkIns.insertOne({

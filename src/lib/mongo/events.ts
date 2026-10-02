@@ -94,7 +94,8 @@ function publishedFilter(params: ListEventsParams): Filter<EventDoc> {
     // count aggregation's coalescing city expression (see event-filters.ts).
     andClauses.push(cityLocalityFilter(params.city));
   }
-  if (andClauses.length > 0) (filter as Record<string, unknown>).$and = andClauses;
+  if (andClauses.length > 0)
+    (filter as Record<string, unknown>).$and = andClauses;
   return filter;
 }
 
@@ -106,8 +107,12 @@ function publishedFilter(params: ListEventsParams): Filter<EventDoc> {
 async function mapEventsWithRelations(docs: EventDoc[]): Promise<Event[]> {
   if (docs.length === 0) return [];
 
-  const entityIds = [...new Set(docs.map((d) => d.primaryHostEntityId).filter(Boolean))];
-  const placeIds = [...new Set(docs.map((d) => d.placeId).filter((v): v is string => !!v))];
+  const entityIds = [
+    ...new Set(docs.map((d) => d.primaryHostEntityId).filter(Boolean)),
+  ];
+  const placeIds = [
+    ...new Set(docs.map((d) => d.placeId).filter((v): v is string => !!v)),
+  ];
 
   const [entities, places] = await Promise.all([
     entityIds.length
@@ -123,10 +128,16 @@ async function mapEventsWithRelations(docs: EventDoc[]): Promise<Event[]> {
 
   // Resolve the human behind each host entity via founderPersonId (batched).
   const founderIds = [
-    ...new Set(entities.map((e) => e.founderPersonId).filter((v): v is string => !!v)),
+    ...new Set(
+      entities.map((e) => e.founderPersonId).filter((v): v is string => !!v),
+    ),
   ];
   const persons = founderIds.length
-    ? await (await personsCollection()).find({ _id: { $in: founderIds } }).toArray()
+    ? await (
+        await personsCollection()
+      )
+        .find({ _id: { $in: founderIds } })
+        .toArray()
     : ([] as PersonDoc[]);
   const personById = new Map(persons.map((p) => [p._id, p]));
 
@@ -144,7 +155,9 @@ async function mapEventsWithRelations(docs: EventDoc[]): Promise<Event[]> {
 }
 
 /** List public, upcoming events with an authoritative total for pagination. */
-export async function listEvents(params: ListEventsParams = {}): Promise<ListEventsResult> {
+export async function listEvents(
+  params: ListEventsParams = {},
+): Promise<ListEventsResult> {
   const limit = Math.min(Math.max(params.limit ?? 20, 1), 100);
   const offset = Math.max(params.offset ?? 0, 0);
   const filter = publishedFilter(params);
@@ -162,7 +175,10 @@ export async function listEvents(params: ListEventsParams = {}): Promise<ListEve
 export async function getTrendingEvents(limit = 10): Promise<Event[]> {
   const col = await eventsCollection();
   const docs = await col
-    .find({ status: { $in: [...PUBLISHED_STATUSES] }, startDate: { $gte: new Date() } })
+    .find({
+      status: { $in: [...PUBLISHED_STATUSES] },
+      startDate: { $gte: new Date() },
+    })
     .sort({ totalAttendeeCount: -1, startDate: 1 })
     .limit(Math.min(Math.max(limit, 1), 50))
     .toArray();
@@ -174,10 +190,16 @@ export async function getTrendingEvents(limit = 10): Promise<Event[]> {
  * null when not found. Does not enforce publish state — callers (e.g. the
  * host's own manage page) may need drafts; gate visibility at the route.
  */
-export async function getEventByIdOrSlug(idOrSlug: string): Promise<Event | null> {
+export async function getEventByIdOrSlug(
+  idOrSlug: string,
+): Promise<Event | null> {
   const col = await eventsCollection();
   const doc = await col.findOne({
-    $or: [{ _id: idOrSlug }, { slug: idOrSlug }, { "mukoko.shortCode": idOrSlug }],
+    $or: [
+      { _id: idOrSlug },
+      { slug: idOrSlug },
+      { "mukoko.shortCode": idOrSlug },
+    ],
   });
   if (!doc) return null;
   const [mapped] = await mapEventsWithRelations([doc]);

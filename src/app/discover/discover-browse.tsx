@@ -48,7 +48,10 @@ const mineralTint: Record<Mineral, string> = {
   terracotta: "bg-[var(--color-terracotta)]/12 text-[var(--color-terracotta)]",
 };
 
-const mineralIcon: Record<Mineral, React.ComponentType<{ className?: string }>> = {
+const mineralIcon: Record<
+  Mineral,
+  React.ComponentType<{ className?: string }>
+> = {
   cobalt: Zap,
   tanzanite: Sparkles,
   malachite: Leaf,
@@ -81,7 +84,9 @@ function SectionHeader({
         <h2 className="font-serif text-2xl md:text-[26px] font-bold text-foreground leading-tight">
           {title}
         </h2>
-        {subtitle && <p className="text-sm text-text-secondary mt-1">{subtitle}</p>}
+        {subtitle && (
+          <p className="text-sm text-text-secondary mt-1">{subtitle}</p>
+        )}
       </div>
       {viewAllHref && (
         <Link
@@ -96,7 +101,12 @@ function SectionHeader({
   );
 }
 
-export function DiscoverBrowse({ categories, circles, calendars, cities }: DiscoverBrowseProps) {
+export function DiscoverBrowse({
+  categories,
+  circles,
+  calendars,
+  cities,
+}: DiscoverBrowseProps) {
   return (
     <div className="max-w-300 mx-auto px-6 py-8 md:py-10">
       {/* Page header */}
@@ -105,10 +115,14 @@ export function DiscoverBrowse({ categories, circles, calendars, cities }: Disco
           Discover
         </h1>
         <p className="text-text-secondary mt-1.5 max-w-150">
-          Browse by category, find your circles, or explore what&apos;s happening in your city.
+          Browse by category, find your circles, or explore what&apos;s
+          happening in your city.
         </p>
         {/* Quiet secondary entries into the other discovery surfaces */}
-        <nav aria-label="More ways to explore" className="mt-4 flex flex-wrap items-center gap-2">
+        <nav
+          aria-label="More ways to explore"
+          className="mt-4 flex flex-wrap items-center gap-2"
+        >
           {[
             { href: "/events", label: "All events", Icon: CalendarDays },
             { href: "/map", label: "Near me", Icon: MapIcon },
@@ -167,7 +181,9 @@ export function DiscoverBrowse({ categories, circles, calendars, cities }: Disco
             })}
           </div>
         ) : (
-          <p className="text-sm text-text-secondary">Categories are warming up — check back soon.</p>
+          <p className="text-sm text-text-secondary">
+            Categories are warming up — check back soon.
+          </p>
         )}
       </section>
 
@@ -211,7 +227,8 @@ export function DiscoverBrowse({ categories, circles, calendars, cities }: Disco
                     )}
                     <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-tertiary">
                       <Users className="w-3 h-3" aria-hidden />
-                      {c.memberCount} {c.memberCount === 1 ? "member" : "members"}
+                      {c.memberCount}{" "}
+                      {c.memberCount === 1 ? "member" : "members"}
                     </span>
                   </span>
                   <span className="shrink-0 inline-flex items-center h-8 px-3.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
@@ -251,7 +268,9 @@ export function DiscoverBrowse({ categories, circles, calendars, cities }: Disco
                   {/* Cover thumb — the calendar's washed theme gradient. */}
                   <span
                     className="flex size-12 shrink-0 items-center justify-center rounded-xl text-primary-foreground"
-                    style={{ background: getTheme(c.theme ?? undefined).gradient }}
+                    style={{
+                      background: getTheme(c.theme ?? undefined).gradient,
+                    }}
                     aria-hidden
                   >
                     <CalendarRange className="w-5 h-5" />
@@ -267,7 +286,8 @@ export function DiscoverBrowse({ categories, circles, calendars, cities }: Disco
                     )}
                     <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-tertiary">
                       <Users className="w-3 h-3" aria-hidden />
-                      {c.followerCount} {c.followerCount === 1 ? "follower" : "followers"}
+                      {c.followerCount}{" "}
+                      {c.followerCount === 1 ? "follower" : "followers"}
                     </span>
                   </span>
                   {/* Follow is a cue, not a mutation — following happens on
@@ -310,7 +330,8 @@ export function DiscoverBrowse({ categories, circles, calendars, cities }: Disco
                   <span className="truncate">{c.addressLocality}</span>
                 </span>
                 <span className="mt-1 block text-[13px] text-muted-foreground">
-                  {c.eventCount} upcoming {c.eventCount === 1 ? "event" : "events"}
+                  {c.eventCount} upcoming{" "}
+                  {c.eventCount === 1 ? "event" : "events"}
                   {c.addressCountry ? ` · ${c.addressCountry}` : ""}
                 </span>
               </Link>
@@ -319,7 +340,10 @@ export function DiscoverBrowse({ categories, circles, calendars, cities }: Disco
         ) : (
           <p className="text-sm text-text-secondary">
             No cities with upcoming events yet — be the first to{" "}
-            <Link href="/events/create" className="text-primary hover:underline">
+            <Link
+              href="/events/create"
+              className="text-primary hover:underline"
+            >
               host one
             </Link>
             .

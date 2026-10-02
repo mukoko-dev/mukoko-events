@@ -66,7 +66,8 @@ const translations: Record<Locale, TranslationMap> = {
 
     // Circles (communities; formerly labelled "Kraal")
     "circle.title": "Circles",
-    "circle.subtitle": "The communities that keep the fire alive between events.",
+    "circle.subtitle":
+      "The communities that keep the fire alive between events.",
     "circle.view": "View circle",
     "circle.join": "Join circle",
     "circle.tabs.events": "Events",
@@ -179,7 +180,11 @@ function interpolate(template: string, vars?: TranslationVars): string {
  * to the raw key. Pure — no side effects — so it's safe to call from the
  * provider's render path or from utility code.
  */
-export function tStatic(locale: Locale, key: TranslationKey, vars?: TranslationVars): string {
+export function tStatic(
+  locale: Locale,
+  key: TranslationKey,
+  vars?: TranslationVars,
+): string {
   const raw = translations[locale]?.[key] ?? translations.en[key] ?? key;
   return interpolate(raw, vars);
 }

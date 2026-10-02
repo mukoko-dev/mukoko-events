@@ -63,7 +63,11 @@ describe("submitFeedback", () => {
       email: "member@nhimbe.com",
       name: "Ada",
     });
-    await submitFeedback({ message: "Idea!", category: "idea", email: "spoof@evil.com" });
+    await submitFeedback({
+      message: "Idea!",
+      category: "idea",
+      email: "spoof@evil.com",
+    });
 
     const record = recordFeedback.mock.calls[0][0];
     expect(record.authenticated).toBe(true);
@@ -77,7 +81,11 @@ describe("submitFeedback", () => {
   });
 
   it("drops an invalid signed-out email rather than storing it", async () => {
-    await submitFeedback({ message: "hi", category: "other", email: "not-an-email" });
+    await submitFeedback({
+      message: "hi",
+      category: "other",
+      email: "not-an-email",
+    });
     expect(recordFeedback.mock.calls[0][0].contactEmail).toBeUndefined();
   });
 

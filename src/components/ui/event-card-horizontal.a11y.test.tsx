@@ -7,7 +7,14 @@ import { EventCardHorizontal } from "./event-card-horizontal";
 // can evaluate the resulting DOM without a Next runtime.
 vi.mock("next/link", () => ({
   __esModule: true,
-  default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
     <a href={href} {...rest}>
       {children}
     </a>
@@ -26,15 +33,27 @@ describe("EventCardHorizontal accessibility", () => {
   const baseProps = {
     id: "evt_1",
     title: "Mukoko meetup",
-    date: { day: "12", month: "Jun", full: "2026-06-12T18:00:00Z", time: "18:00" },
-    location: { name: "Harare Gardens", addressLocality: "Harare", addressCountry: "Zimbabwe" },
+    date: {
+      day: "12",
+      month: "Jun",
+      full: "2026-06-12T18:00:00Z",
+      time: "18:00",
+    },
+    location: {
+      name: "Harare Gardens",
+      addressLocality: "Harare",
+      addressCountry: "Zimbabwe",
+    },
     attendeeCount: 12,
     maximumAttendeeCapacity: 50,
   };
 
   it("has no a11y violations with cover image", async () => {
     const { container } = render(
-      <EventCardHorizontal {...baseProps} coverImage="https://example.com/cover.jpg" />
+      <EventCardHorizontal
+        {...baseProps}
+        coverImage="https://example.com/cover.jpg"
+      />,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -45,7 +64,7 @@ describe("EventCardHorizontal accessibility", () => {
       <EventCardHorizontal
         {...baseProps}
         coverGradient="linear-gradient(135deg, #004D40, #00796B)"
-      />
+      />,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

@@ -90,19 +90,24 @@ beforeEach(() => {
   vi.clearAllMocks();
   conversations.findOne.mockResolvedValue(null);
   conversations.insertOne.mockResolvedValue({ acknowledged: true });
-  conversations.findOneAndUpdate.mockResolvedValue({ _id: "conv-1", messageCount: 1 });
+  conversations.findOneAndUpdate.mockResolvedValue({
+    _id: "conv-1",
+    messageCount: 1,
+  });
   messages.insertOne.mockResolvedValue({ acknowledged: true });
 });
 
 describe("buildEventConversationDoc", () => {
   it("emits every validator-required field", () => {
-    const doc = buildEventConversationDoc(conversationInput) as unknown as Record<
-      string,
-      unknown
-    >;
+    const doc = buildEventConversationDoc(
+      conversationInput,
+    ) as unknown as Record<string, unknown>;
     for (const field of CONVERSATION_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
   });
 
@@ -136,10 +141,16 @@ describe("buildSystemMessageDoc", () => {
   };
 
   it("emits every validator-required field", () => {
-    const doc = buildSystemMessageDoc(input) as unknown as Record<string, unknown>;
+    const doc = buildSystemMessageDoc(input) as unknown as Record<
+      string,
+      unknown
+    >;
     for (const field of MESSAGE_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
   });
 
@@ -166,7 +177,8 @@ describe("ensureEventConversation (find-or-create, atomic upsert)", () => {
 
     // Scoped to the system conversation, so a live-chat conversation on the
     // same event is never touched by this upsert.
-    const [filter, update, options] = conversations.findOneAndUpdate.mock.calls[0];
+    const [filter, update, options] =
+      conversations.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ eventId: "event-1", conversationType: "system" });
     expect(options).toEqual({ upsert: true, returnDocument: "after" });
     expect(update.$setOnInsert.conversationType).toBe("system");
@@ -178,18 +190,25 @@ describe("ensureEventConversation (find-or-create, atomic upsert)", () => {
   it("seeds every validator-required field only on insert ($setOnInsert)", async () => {
     await ensureEventConversation(conversationInput);
 
-    const seed = conversations.findOneAndUpdate.mock.calls[0][1].$setOnInsert as Record<
-      string,
-      unknown
-    >;
+    const seed = conversations.findOneAndUpdate.mock.calls[0][1]
+      .$setOnInsert as Record<string, unknown>;
     for (const field of CONVERSATION_REQUIRED_FIELDS) {
-      expect(seed, `seed missing required field ${field}`).toHaveProperty(field);
-      expect(seed[field], `seed field ${field} must not be null`).not.toBeNull();
+      expect(seed, `seed missing required field ${field}`).toHaveProperty(
+        field,
+      );
+      expect(
+        seed[field],
+        `seed field ${field} must not be null`,
+      ).not.toBeNull();
     }
   });
 
   it("returns the upserted/matched conversation directly (single atomic call)", async () => {
-    const winner = { _id: "conv-winner", eventId: "event-1", conversationType: "system" };
+    const winner = {
+      _id: "conv-winner",
+      eventId: "event-1",
+      conversationType: "system",
+    };
     conversations.findOneAndUpdate.mockResolvedValueOnce(winner);
 
     const conversation = await ensureEventConversation(conversationInput);
@@ -199,7 +218,11 @@ describe("ensureEventConversation (find-or-create, atomic upsert)", () => {
   it("is idempotent under a simulated race — both callers converge on one row", async () => {
     // Two concurrent announcements: the atomic upsert guarantees both resolve
     // to the same winning system conversation.
-    const winner = { _id: "conv-winner", eventId: "event-1", conversationType: "system" };
+    const winner = {
+      _id: "conv-winner",
+      eventId: "event-1",
+      conversationType: "system",
+    };
     conversations.findOneAndUpdate.mockResolvedValue(winner);
 
     const [a, b] = await Promise.all([
@@ -218,7 +241,9 @@ describe("ensureEventConversation (find-or-create, atomic upsert)", () => {
 
   it("throws when the conversation cannot be resolved after upsert", async () => {
     conversations.findOneAndUpdate.mockResolvedValueOnce(null);
-    await expect(ensureEventConversation(conversationInput)).rejects.toThrow(/could not be resolved/);
+    await expect(ensureEventConversation(conversationInput)).rejects.toThrow(
+      /could not be resolved/,
+    );
   });
 });
 
@@ -230,13 +255,15 @@ const calendarConversationInput = {
 
 describe("buildCalendarConversationDoc", () => {
   it("emits every validator-required field", () => {
-    const doc = buildCalendarConversationDoc(calendarConversationInput) as unknown as Record<
-      string,
-      unknown
-    >;
+    const doc = buildCalendarConversationDoc(
+      calendarConversationInput,
+    ) as unknown as Record<string, unknown>;
     for (const field of CONVERSATION_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
   });
 
@@ -260,26 +287,36 @@ describe("ensureCalendarConversation (find-or-create, atomic upsert)", () => {
 
     await ensureCalendarConversation(calendarConversationInput);
 
-    const [filter, update, options] = conversations.findOneAndUpdate.mock.calls[0];
-    expect(filter).toEqual({ calendarId: "calendar-1", conversationType: "group" });
+    const [filter, update, options] =
+      conversations.findOneAndUpdate.mock.calls[0];
+    expect(filter).toEqual({
+      calendarId: "calendar-1",
+      conversationType: "group",
+    });
     expect(options).toEqual({ upsert: true, returnDocument: "after" });
     expect(update.$setOnInsert.conversationType).toBe("group");
     expect(update.$setOnInsert.calendarId).toBe("calendar-1");
   });
 
   it("returns the upserted/matched conversation directly", async () => {
-    const winner = { _id: "conv-winner", calendarId: "calendar-1", conversationType: "group" };
+    const winner = {
+      _id: "conv-winner",
+      calendarId: "calendar-1",
+      conversationType: "group",
+    };
     conversations.findOneAndUpdate.mockResolvedValueOnce(winner);
 
-    const conversation = await ensureCalendarConversation(calendarConversationInput);
+    const conversation = await ensureCalendarConversation(
+      calendarConversationInput,
+    );
     expect(conversation).toBe(winner);
   });
 
   it("throws when the conversation cannot be resolved after upsert", async () => {
     conversations.findOneAndUpdate.mockResolvedValueOnce(null);
-    await expect(ensureCalendarConversation(calendarConversationInput)).rejects.toThrow(
-      /could not be resolved/,
-    );
+    await expect(
+      ensureCalendarConversation(calendarConversationInput),
+    ).rejects.toThrow(/could not be resolved/);
   });
 });
 
@@ -291,13 +328,15 @@ const circleConversationInput = {
 
 describe("buildCircleConversationDoc", () => {
   it("emits every validator-required field", () => {
-    const doc = buildCircleConversationDoc(circleConversationInput) as unknown as Record<
-      string,
-      unknown
-    >;
+    const doc = buildCircleConversationDoc(
+      circleConversationInput,
+    ) as unknown as Record<string, unknown>;
     for (const field of CONVERSATION_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
   });
 
@@ -320,7 +359,8 @@ describe("ensureCircleConversation (find-or-create, atomic upsert)", () => {
 
     await ensureCircleConversation(circleConversationInput);
 
-    const [filter, update, options] = conversations.findOneAndUpdate.mock.calls[0];
+    const [filter, update, options] =
+      conversations.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ circleId: "circle-1", conversationType: "group" });
     expect(options).toEqual({ upsert: true, returnDocument: "after" });
     expect(update.$setOnInsert.conversationType).toBe("group");
@@ -328,18 +368,24 @@ describe("ensureCircleConversation (find-or-create, atomic upsert)", () => {
   });
 
   it("returns the upserted/matched conversation directly", async () => {
-    const winner = { _id: "conv-winner", circleId: "circle-1", conversationType: "group" };
+    const winner = {
+      _id: "conv-winner",
+      circleId: "circle-1",
+      conversationType: "group",
+    };
     conversations.findOneAndUpdate.mockResolvedValueOnce(winner);
 
-    const conversation = await ensureCircleConversation(circleConversationInput);
+    const conversation = await ensureCircleConversation(
+      circleConversationInput,
+    );
     expect(conversation).toBe(winner);
   });
 
   it("throws when the conversation cannot be resolved after upsert", async () => {
     conversations.findOneAndUpdate.mockResolvedValueOnce(null);
-    await expect(ensureCircleConversation(circleConversationInput)).rejects.toThrow(
-      /could not be resolved/,
-    );
+    await expect(
+      ensureCircleConversation(circleConversationInput),
+    ).rejects.toThrow(/could not be resolved/);
   });
 });
 
@@ -351,13 +397,15 @@ const eventChatConversationInput = {
 
 describe("buildEventChatConversationDoc", () => {
   it("emits every validator-required field", () => {
-    const doc = buildEventChatConversationDoc(eventChatConversationInput) as unknown as Record<
-      string,
-      unknown
-    >;
+    const doc = buildEventChatConversationDoc(
+      eventChatConversationInput,
+    ) as unknown as Record<string, unknown>;
     for (const field of CONVERSATION_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
   });
 
@@ -379,31 +427,41 @@ describe("ensureEventChatConversation (find-or-create, atomic upsert)", () => {
 
     await ensureEventChatConversation(eventChatConversationInput);
 
-    const [filter, update, options] = conversations.findOneAndUpdate.mock.calls[0];
+    const [filter, update, options] =
+      conversations.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ eventId: "event-1", conversationType: "group" });
     expect(options).toEqual({ upsert: true, returnDocument: "after" });
     expect(update.$setOnInsert.conversationType).toBe("group");
   });
 
   it("returns the upserted/matched conversation directly", async () => {
-    const winner = { _id: "conv-winner", eventId: "event-1", conversationType: "group" };
+    const winner = {
+      _id: "conv-winner",
+      eventId: "event-1",
+      conversationType: "group",
+    };
     conversations.findOneAndUpdate.mockResolvedValueOnce(winner);
 
-    const conversation = await ensureEventChatConversation(eventChatConversationInput);
+    const conversation = await ensureEventChatConversation(
+      eventChatConversationInput,
+    );
     expect(conversation).toBe(winner);
   });
 
   it("throws when the conversation cannot be resolved after upsert", async () => {
     conversations.findOneAndUpdate.mockResolvedValueOnce(null);
-    await expect(ensureEventChatConversation(eventChatConversationInput)).rejects.toThrow(
-      /could not be resolved/,
-    );
+    await expect(
+      ensureEventChatConversation(eventChatConversationInput),
+    ).rejects.toThrow(/could not be resolved/);
   });
 });
 
 describe("appendSystemMessage (sequence)", () => {
   it("claims the sequence atomically from the bumped messageCount", async () => {
-    conversations.findOneAndUpdate.mockResolvedValueOnce({ _id: "conv-1", messageCount: 5 });
+    conversations.findOneAndUpdate.mockResolvedValueOnce({
+      _id: "conv-1",
+      messageCount: 5,
+    });
 
     const message = await appendSystemMessage({
       conversationId: "conv-1",
@@ -412,7 +470,8 @@ describe("appendSystemMessage (sequence)", () => {
       content: "Starting in 15 minutes.",
     });
 
-    const [filter, update, options] = conversations.findOneAndUpdate.mock.calls[0];
+    const [filter, update, options] =
+      conversations.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ _id: "conv-1" });
     expect(update.$inc).toEqual({ messageCount: 1 });
     expect(update.$set.lastMessageAt).toBeInstanceOf(Date);
@@ -439,7 +498,11 @@ describe("appendSystemMessage (sequence)", () => {
 describe("notifyAttendeesViaCampfire (the write-through hook)", () => {
   it("routes an announcement end to end: find-or-create, then system message", async () => {
     conversations.findOneAndUpdate
-      .mockResolvedValueOnce({ _id: "conv-1", eventId: "event-1", conversationType: "system" })
+      .mockResolvedValueOnce({
+        _id: "conv-1",
+        eventId: "event-1",
+        conversationType: "system",
+      })
       .mockResolvedValueOnce({ _id: "conv-1", messageCount: 3 });
 
     await notifyAttendeesViaCampfire(notifyInput);
@@ -455,9 +518,13 @@ describe("notifyAttendeesViaCampfire (the write-through hook)", () => {
   });
 
   it("never throws when the upsert fails", async () => {
-    conversations.findOneAndUpdate.mockRejectedValueOnce(new Error("campfire down"));
+    conversations.findOneAndUpdate.mockRejectedValueOnce(
+      new Error("campfire down"),
+    );
 
-    await expect(notifyAttendeesViaCampfire(notifyInput)).resolves.toBeUndefined();
+    await expect(
+      notifyAttendeesViaCampfire(notifyInput),
+    ).resolves.toBeUndefined();
     expect(messages.insertOne).not.toHaveBeenCalled();
     expect(campfireLogger.error).toHaveBeenCalledWith(
       "Campfire announcement write-through failed",
@@ -467,11 +534,17 @@ describe("notifyAttendeesViaCampfire (the write-through hook)", () => {
 
   it("never throws when the message insert fails", async () => {
     conversations.findOneAndUpdate
-      .mockResolvedValueOnce({ _id: "conv-1", eventId: "event-1", conversationType: "system" })
+      .mockResolvedValueOnce({
+        _id: "conv-1",
+        eventId: "event-1",
+        conversationType: "system",
+      })
       .mockResolvedValueOnce({ _id: "conv-1", messageCount: 1 });
     messages.insertOne.mockRejectedValueOnce(new Error("validator rejected"));
 
-    await expect(notifyAttendeesViaCampfire(notifyInput)).resolves.toBeUndefined();
+    await expect(
+      notifyAttendeesViaCampfire(notifyInput),
+    ).resolves.toBeUndefined();
     expect(campfireLogger.error).toHaveBeenCalled();
   });
 });

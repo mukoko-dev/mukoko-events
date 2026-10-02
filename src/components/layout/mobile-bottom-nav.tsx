@@ -22,8 +22,9 @@ export function MobileBottomNav() {
   // Hide on pages that have their own fixed bottom bars or are full-screen
   // (/admin no longer renders here — it redirects to the standalone admin app.)
   const hiddenPaths = ["/events/create", "/signage", "/kiosk", "/profile/edit"];
-  const shouldHide = hiddenPaths.some((p) => pathname.startsWith(p))
-    || pathname.includes("/manage");
+  const shouldHide =
+    hiddenPaths.some((p) => pathname.startsWith(p)) ||
+    pathname.includes("/manage");
 
   if (shouldHide) return null;
 
@@ -59,7 +60,9 @@ export function MobileBottomNav() {
               aria-current={isActive ? "page" : undefined}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium leading-none">{item.label}</span>
+              <span className="text-[10px] font-medium leading-none">
+                {item.label}
+              </span>
             </Link>
           );
         })}

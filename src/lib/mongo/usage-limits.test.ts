@@ -19,7 +19,11 @@ beforeEach(() => {
 
 describe("consumeDailyUsage", () => {
   it("allows and increments the first use of the day", async () => {
-    const count = await consumeDailyUsage({ subjectId: "person-1", counterType: "blast", limit: 5 });
+    const count = await consumeDailyUsage({
+      subjectId: "person-1",
+      counterType: "blast",
+      limit: 5,
+    });
     expect(count).toBe(1);
     expect(usageCounters.findOneAndUpdate).toHaveBeenCalledTimes(1);
     const [filter, update, opts] = usageCounters.findOneAndUpdate.mock.calls[0];
@@ -31,7 +35,11 @@ describe("consumeDailyUsage", () => {
   it("throws UsageLimitExceededError once the daily limit is reached, without incrementing", async () => {
     usageCounters.findOne.mockResolvedValueOnce({ count: 5 });
     await expect(
-      consumeDailyUsage({ subjectId: "event-1", counterType: "blast", limit: 5 }),
+      consumeDailyUsage({
+        subjectId: "event-1",
+        counterType: "blast",
+        limit: 5,
+      }),
     ).rejects.toThrow(UsageLimitExceededError);
     expect(usageCounters.findOneAndUpdate).not.toHaveBeenCalled();
   });
@@ -39,12 +47,20 @@ describe("consumeDailyUsage", () => {
   it("allows one more use right up to the limit boundary", async () => {
     usageCounters.findOne.mockResolvedValueOnce({ count: 4 });
     await expect(
-      consumeDailyUsage({ subjectId: "event-1", counterType: "blast", limit: 5 }),
+      consumeDailyUsage({
+        subjectId: "event-1",
+        counterType: "blast",
+        limit: 5,
+      }),
     ).resolves.toBe(1);
   });
 
   it("treats a limit of 0 as unlimited and never touches the collection", async () => {
-    const count = await consumeDailyUsage({ subjectId: "person-1", counterType: "blast", limit: 0 });
+    const count = await consumeDailyUsage({
+      subjectId: "person-1",
+      counterType: "blast",
+      limit: 0,
+    });
     expect(count).toBe(0);
     expect(usageCounters.findOne).not.toHaveBeenCalled();
     expect(usageCounters.findOneAndUpdate).not.toHaveBeenCalled();

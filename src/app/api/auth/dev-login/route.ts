@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { isDevBypass, DEV_WORKOS_ID, DEV_EMAIL, DEV_NAME } from "@/lib/auth/dev";
+import {
+  isDevBypass,
+  DEV_WORKOS_ID,
+  DEV_EMAIL,
+  DEV_NAME,
+} from "@/lib/auth/dev";
 import { syncPersonFromWorkos } from "@/lib/mongo/users";
 
 /**

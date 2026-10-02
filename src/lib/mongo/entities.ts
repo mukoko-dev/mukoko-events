@@ -45,7 +45,9 @@ export interface HostContact {
  * email. Returns null when nothing usable is on file (caller should skip
  * silently, never throw).
  */
-export async function getHostContactForEntity(entityId: string): Promise<HostContact | null> {
+export async function getHostContactForEntity(
+  entityId: string,
+): Promise<HostContact | null> {
   const entity = await getEntityById(entityId);
   if (!entity) return null;
 
@@ -54,7 +56,10 @@ export async function getHostContactForEntity(entityId: string): Promise<HostCon
     const persons = await personsCollection();
     const founder = await persons.findOne({ _id: entity.founderPersonId });
     if (founder?.email) {
-      return { email: founder.email, name: founder.name ?? entity.name ?? null };
+      return {
+        email: founder.email,
+        name: founder.name ?? entity.name ?? null,
+      };
     }
   }
 
@@ -67,14 +72,21 @@ export async function getHostContactForEntity(entityId: string): Promise<HostCon
 }
 
 /** Membership roles that let a person host events on an entity's behalf. */
-const HOSTABLE_ROLES: EntityMembershipRole[] = ["founder", "admin", "manager", "representative"];
+const HOSTABLE_ROLES: EntityMembershipRole[] = [
+  "founder",
+  "admin",
+  "manager",
+  "representative",
+];
 
 /**
  * List the entities a person can host through — the entities where they hold a
  * hosting-capable, active membership. Batched: memberships in one query, then
  * the entities in one `$in` query.
  */
-export async function listHostEntitiesForPerson(personId: string): Promise<EntityDoc[]> {
+export async function listHostEntitiesForPerson(
+  personId: string,
+): Promise<EntityDoc[]> {
   const memberships = await entityMembershipsCollection();
   const mships = await memberships
     .find({ personId, isActive: true, membershipRole: { $in: HOSTABLE_ROLES } })
@@ -95,7 +107,11 @@ export async function listHostEntitiesForPerson(personId: string): Promise<Entit
 // role on it.
 
 /** Membership roles that may rename/manage a family host entity. */
-const MANAGE_ROLES: readonly EntityMembershipRole[] = ["founder", "admin", "manager"];
+const MANAGE_ROLES: readonly EntityMembershipRole[] = [
+  "founder",
+  "admin",
+  "manager",
+];
 
 /** Rank hostable roles so the highest role a person holds on an entity wins. */
 const ROLE_RANK: Record<string, number> = {
@@ -144,7 +160,10 @@ export async function listHostEntitiesWithRoleForPerson(
   const roleByEntity = new Map<string, EntityMembershipRole>();
   for (const m of mships) {
     const current = roleByEntity.get(m.entityId);
-    if (!current || (ROLE_RANK[m.membershipRole] ?? 0) > (ROLE_RANK[current] ?? 0)) {
+    if (
+      !current ||
+      (ROLE_RANK[m.membershipRole] ?? 0) > (ROLE_RANK[current] ?? 0)
+    ) {
       roleByEntity.set(m.entityId, m.membershipRole);
     }
   }
@@ -152,8 +171,13 @@ export async function listHostEntitiesWithRoleForPerson(
   const entityIds = [...roleByEntity.keys()];
   if (entityIds.length === 0) return [];
   const entities = await entitiesCollection();
-  const docs = await entities.find({ _id: { $in: entityIds }, isActive: true }).toArray();
-  return docs.map((entity) => ({ entity, role: roleByEntity.get(entity._id)! }));
+  const docs = await entities
+    .find({ _id: { $in: entityIds }, isActive: true })
+    .toArray();
+  return docs.map((entity) => ({
+    entity,
+    role: roleByEntity.get(entity._id)!,
+  }));
 }
 
 /**
@@ -167,7 +191,12 @@ export async function getPersonHostRoleForEntity(
 ): Promise<EntityMembershipRole | null> {
   const memberships = await entityMembershipsCollection();
   const mships = await memberships
-    .find({ personId, entityId, isActive: true, membershipRole: { $in: HOSTABLE_ROLES } })
+    .find({
+      personId,
+      entityId,
+      isActive: true,
+      membershipRole: { $in: HOSTABLE_ROLES },
+    })
     .toArray();
   if (mships.length === 0) return null;
   let best: EntityMembershipRole | null = null;
@@ -198,7 +227,10 @@ export async function renameHostEntityForPerson(params: {
   const entity = await getEntityById(params.entityId);
   if (!entity) throw new Error("That entity could not be found.");
 
-  const role = await getPersonHostRoleForEntity(params.personId, params.entityId);
+  const role = await getPersonHostRoleForEntity(
+    params.personId,
+    params.entityId,
+  );
   if (!role || !canManageHostEntity(role, entity.entityType)) {
     throw new Error("You do not have permission to rename this entity.");
   }
@@ -223,14 +255,22 @@ export async function setDefaultHostEntityForPerson(params: {
   personId: string;
   entityId: string;
 }): Promise<void> {
-  const role = await getPersonHostRoleForEntity(params.personId, params.entityId);
+  const role = await getPersonHostRoleForEntity(
+    params.personId,
+    params.entityId,
+  );
   if (!role) {
     throw new Error("You can only default to an entity you host through.");
   }
   const persons = await personsCollection();
   await persons.updateOne(
     { _id: params.personId },
-    { $set: { "bundu.defaultFamilyEntityId": params.entityId, updatedAt: new Date() } },
+    {
+      $set: {
+        "bundu.defaultFamilyEntityId": params.entityId,
+        updatedAt: new Date(),
+      },
+    },
   );
 }
 
@@ -238,7 +278,9 @@ export async function setDefaultHostEntityForPerson(params: {
  * Resolve the entity a person hosts through, creating their default family
  * entity (+ founder membership) on first use. Returns the entity id.
  */
-export async function ensureHostEntityForPerson(person: PersonDoc): Promise<string> {
+export async function ensureHostEntityForPerson(
+  person: PersonDoc,
+): Promise<string> {
   // Reuse the recorded default family entity when it still exists.
   const existingId = person.bundu?.defaultFamilyEntityId;
   if (existingId) {
@@ -307,11 +349,15 @@ export async function createCommunityEntityForPerson(params: {
   const name = params.name.trim();
   if (!name) throw new Error("Give your community a name.");
   if (name.length > MAX_COMMUNITY_NAME_LENGTH) {
-    throw new Error(`Name must be ${MAX_COMMUNITY_NAME_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Name must be ${MAX_COMMUNITY_NAME_LENGTH} characters or fewer.`,
+    );
   }
   const description = params.description?.trim() || null;
   if (description && description.length > MAX_COMMUNITY_DESCRIPTION_LENGTH) {
-    throw new Error(`Description must be ${MAX_COMMUNITY_DESCRIPTION_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Description must be ${MAX_COMMUNITY_DESCRIPTION_LENGTH} characters or fewer.`,
+    );
   }
 
   const entityId = newId();
@@ -385,9 +431,12 @@ const MEMBERSHIP_ROLES: ReadonlySet<string> = new Set([
   "kin",
 ]);
 
-export function workosRoleToMembershipRole(slug: string | null | undefined): EntityMembershipRole {
+export function workosRoleToMembershipRole(
+  slug: string | null | undefined,
+): EntityMembershipRole {
   const normalized = slug?.trim().toLowerCase();
-  if (normalized && MEMBERSHIP_ROLES.has(normalized)) return normalized as EntityMembershipRole;
+  if (normalized && MEMBERSHIP_ROLES.has(normalized))
+    return normalized as EntityMembershipRole;
   return "member";
 }
 

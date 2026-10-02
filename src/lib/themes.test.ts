@@ -14,8 +14,24 @@ import {
  * palette carrying a solved { accent, wash, onWash, gradient } for light+dark.
  */
 describe("washed themes (mzizi 4.2.0)", () => {
-  const HERITAGE = ["baobab", "hematite", "indigo", "kalahari", "river", "savanna", "sunset"];
-  const EXPERIMENTAL = ["acacia", "dusk", "ember", "fern", "lagoon", "protea", "storm"];
+  const HERITAGE = [
+    "baobab",
+    "hematite",
+    "indigo",
+    "kalahari",
+    "river",
+    "savanna",
+    "sunset",
+  ];
+  const EXPERIMENTAL = [
+    "acacia",
+    "dusk",
+    "ember",
+    "fern",
+    "lagoon",
+    "protea",
+    "storm",
+  ];
 
   it("offers tanzanite (default) + heritage + experimental palettes", () => {
     expect(themeIds[0]).toBe("tanzanite");
@@ -53,7 +69,9 @@ describe("washed themes (mzizi 4.2.0)", () => {
   it("returns a 3-colour tuple from getThemeColors", () => {
     const tuple = getThemeColors("storm");
     expect(tuple).toHaveLength(3);
-    expect(tuple.every((c) => typeof c === "string" && c.length > 0)).toBe(true);
+    expect(tuple.every((c) => typeof c === "string" && c.length > 0)).toBe(
+      true,
+    );
   });
 
   it("keeps the legacy mineralThemes / mineralThemeIds aliases resolving", () => {

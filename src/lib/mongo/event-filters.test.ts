@@ -18,7 +18,10 @@ function nestedEvent(city: string, extra: Partial<EventDoc> = {}): EventDoc {
   return {
     status: "published",
     startDate: new Date("2999-01-01T00:00:00Z"),
-    location: { "@type": "Place", address: { addressLocality: city, addressCountry: "ZW" } },
+    location: {
+      "@type": "Place",
+      address: { addressLocality: city, addressCountry: "ZW" },
+    },
     ...extra,
   } as unknown as EventDoc;
 }
@@ -52,7 +55,9 @@ function countByCity(docs: EventDoc[], from: Date): Map<string, number> {
 }
 
 function drillDown(docs: EventDoc[], city: string, from: Date): EventDoc[] {
-  return docs.filter((d) => isPublishedVisibleUpcoming(d, from) && eventMatchesCity(d, city));
+  return docs.filter(
+    (d) => isPublishedVisibleUpcoming(d, from) && eventMatchesCity(d, city),
+  );
 }
 
 const NOW = new Date("2026-07-14T00:00:00Z");
@@ -96,8 +101,12 @@ describe("private events excluded from counts (L1)", () => {
   it("drops private events from both the count and the drill-down, identically", () => {
     const docs = [
       nestedEvent("Harare"),
-      nestedEvent("Harare", { mukoko: { visibility: "private" } } as Partial<EventDoc>),
-      flatEvent("Harare", { mukoko: { visibility: "public" } } as Partial<EventDoc>),
+      nestedEvent("Harare", {
+        mukoko: { visibility: "private" },
+      } as Partial<EventDoc>),
+      flatEvent("Harare", {
+        mukoko: { visibility: "public" },
+      } as Partial<EventDoc>),
     ];
 
     // One private event is excluded on both sides — count stays 2, drill-down 2.
@@ -112,8 +121,12 @@ describe("private events excluded from counts (L1)", () => {
   });
 
   it("excludes past and non-published events too", () => {
-    const past = nestedEvent("Harare", { startDate: new Date("2000-01-01T00:00:00Z") });
-    const draft = nestedEvent("Harare", { status: "draft" } as Partial<EventDoc>);
+    const past = nestedEvent("Harare", {
+      startDate: new Date("2000-01-01T00:00:00Z"),
+    });
+    const draft = nestedEvent("Harare", {
+      status: "draft",
+    } as Partial<EventDoc>);
     expect(isPublishedVisibleUpcoming(past, NOW)).toBe(false);
     expect(isPublishedVisibleUpcoming(draft, NOW)).toBe(false);
   });
@@ -131,9 +144,15 @@ describe("the Mongo builders mirror the JS predicates (lock-step)", () => {
   it("the city group expression and the drill-down filter reference the same two paths", () => {
     // Symmetry: the coalescing count expression and the either-path drill-down
     // filter resolve over the identical canonical-then-legacy path pair.
-    expect(cityLocalityExpr.$ifNull).toEqual([`$${CITY_LOCALITY_PATH}`, `$${CITY_LOCALITY_PATH_LEGACY}`]);
+    expect(cityLocalityExpr.$ifNull).toEqual([
+      `$${CITY_LOCALITY_PATH}`,
+      `$${CITY_LOCALITY_PATH_LEGACY}`,
+    ]);
     expect(cityLocalityFilter("Harare")).toEqual({
-      $or: [{ [CITY_LOCALITY_PATH]: "Harare" }, { [CITY_LOCALITY_PATH_LEGACY]: "Harare" }],
+      $or: [
+        { [CITY_LOCALITY_PATH]: "Harare" },
+        { [CITY_LOCALITY_PATH_LEGACY]: "Harare" },
+      ],
     });
     // The canonical path is the NESTED schema.org address (what createEvent writes).
     expect(CITY_LOCALITY_PATH).toBe("location.address.addressLocality");
@@ -150,6 +169,10 @@ describe("the Mongo builders mirror the JS predicates (lock-step)", () => {
     expect(resolveEventCity(doc)).toBe("Harare");
     expect(resolveEventCountry(doc)).toBe("ZW");
     expect(resolveEventCity(flatEvent("Kadoma"))).toBe("Kadoma");
-    expect(resolveEventCity({ location: { "@type": "VirtualLocation" } } as unknown as EventDoc)).toBeNull();
+    expect(
+      resolveEventCity({
+        location: { "@type": "VirtualLocation" },
+      } as unknown as EventDoc),
+    ).toBeNull();
   });
 });

@@ -24,7 +24,10 @@ export function EventCover({ event, stats, reviewStats }: EventCoverProps) {
         backgroundSize: "cover",
         backgroundPosition: "center",
       }
-    : { background: event.coverGradient || "linear-gradient(135deg, #004D40, #00796B)" };
+    : {
+        background:
+          event.coverGradient || "linear-gradient(135deg, #004D40, #00796B)",
+      };
 
   return (
     <div
@@ -33,14 +36,23 @@ export function EventCover({ event, stats, reviewStats }: EventCoverProps) {
       style={coverStyle}
     >
       {event.image && (
-        <Image src={event.image} alt={event.name} fill className="object-cover" priority />
+        <Image
+          src={event.image}
+          alt={event.name}
+          fill
+          className="object-cover"
+          priority
+        />
       )}
       <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
 
       {/* Top Left Badges */}
       <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex gap-2 sm:gap-3 z-10">
         <div className="bg-black/70 backdrop-blur-sm px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl text-center">
-          <div className="text-xl sm:text-2xl font-extrabold text-white leading-none" style={{ color: "var(--event-primary)" }}>
+          <div
+            className="text-xl sm:text-2xl font-extrabold text-white leading-none"
+            style={{ color: "var(--event-primary)" }}
+          >
             {event.date.day}
           </div>
           <div className="text-[10px] sm:text-[11px] font-semibold text-white/60 uppercase tracking-wide">
@@ -72,23 +84,35 @@ export function EventCover({ event, stats, reviewStats }: EventCoverProps) {
         {stats?.views !== undefined && stats.views > 0 && (
           <div className="hidden sm:flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full">
             <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="text-xs sm:text-sm font-medium">{formatViews(stats.views)} views</span>
+            <span className="text-xs sm:text-sm font-medium">
+              {formatViews(stats.views)} views
+            </span>
           </div>
         )}
-        {reviewStats && reviewStats.averageRating > 0 && reviewStats.totalReviews > 0 && (
-          <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full">
-            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent fill-accent" />
-            <span className="text-xs sm:text-sm font-medium">{reviewStats.averageRating.toFixed(1)}</span>
-            <span className="text-[10px] sm:text-xs text-white/60">({reviewStats.totalReviews})</span>
-          </div>
-        )}
+        {reviewStats &&
+          reviewStats.averageRating > 0 &&
+          reviewStats.totalReviews > 0 && (
+            <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full">
+              <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent fill-accent" />
+              <span className="text-xs sm:text-sm font-medium">
+                {reviewStats.averageRating.toFixed(1)}
+              </span>
+              <span className="text-[10px] sm:text-xs text-white/60">
+                ({reviewStats.totalReviews})
+              </span>
+            </div>
+          )}
       </div>
 
       {/* Bottom Tags */}
       {event.keywords && event.keywords.length > 0 && (
         <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex gap-2 flex-wrap max-w-[80%] z-10">
           {event.keywords.slice(0, 5).map((tag) => (
-            <Badge key={tag} variant="ghost" className="bg-black/50 backdrop-blur-sm text-white/80 border-0 text-[11px]">
+            <Badge
+              key={tag}
+              variant="ghost"
+              className="bg-black/50 backdrop-blur-sm text-white/80 border-0 text-[11px]"
+            >
               #{tag}
             </Badge>
           ))}

@@ -4,7 +4,9 @@ vi.mock("server-only", () => ({}));
 
 // Capture the options /callback hands to handleAuth so the tests can drive
 // its onSuccess hook directly (no WorkOS round-trip).
-const captured = vi.hoisted(() => ({ options: null as Record<string, unknown> | null }));
+const captured = vi.hoisted(() => ({
+  options: null as Record<string, unknown> | null,
+}));
 vi.mock("@workos-inc/authkit-nextjs", () => ({
   handleAuth: vi.fn((options: Record<string, unknown>) => {
     captured.options = options;

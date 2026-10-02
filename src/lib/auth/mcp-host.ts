@@ -41,11 +41,17 @@ export async function requireBearerEventHost(
 
   const events = await eventsCollection();
   const event = await events.findOne({
-    $or: [{ _id: idOrSlug }, { slug: idOrSlug }, { "mukoko.shortCode": idOrSlug }],
+    $or: [
+      { _id: idOrSlug },
+      { slug: idOrSlug },
+      { "mukoko.shortCode": idOrSlug },
+    ],
   });
   if (!event) throw new ActorError("Event not found.", 404);
 
-  const hostIds = new Set((await listHostEntitiesForPerson(person._id)).map((e) => e._id));
+  const hostIds = new Set(
+    (await listHostEntitiesForPerson(person._id)).map((e) => e._id),
+  );
   const hosts =
     hostIds.has(event.primaryHostEntityId) ||
     (event.hostEntityIds ?? []).some((id) => hostIds.has(id));

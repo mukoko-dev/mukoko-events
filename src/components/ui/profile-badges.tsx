@@ -3,9 +3,18 @@
 import { useEffect, useState } from "react";
 import { Award } from "lucide-react";
 import { getProfileBadges, type ProfileBadge } from "@/app/actions/badges";
-import { NyuchiBadgeDisplay, type BadgeItem, type BadgeRarity } from "@/components/ui/nyuchi-badge-display";
+import {
+  NyuchiBadgeDisplay,
+  type BadgeItem,
+  type BadgeRarity,
+} from "@/components/ui/nyuchi-badge-display";
 
-const RARITIES: readonly BadgeRarity[] = ["common", "uncommon", "rare", "legendary"];
+const RARITIES: readonly BadgeRarity[] = [
+  "common",
+  "uncommon",
+  "rare",
+  "legendary",
+];
 
 /** Coerce the free-form `ubuntu.badges.rarity` into the brand palette scale. */
 function toRarity(rarity: string | null): BadgeRarity | undefined {

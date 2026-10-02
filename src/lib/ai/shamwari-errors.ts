@@ -6,7 +6,9 @@
  */
 export class ShamwariProRequiredError extends Error {
   constructor() {
-    super("Shamwari AI is a Mukoko Pro feature. Upgrade to Mukoko Pro to generate and rewrite descriptions.");
+    super(
+      "Shamwari AI is a Mukoko Pro feature. Upgrade to Mukoko Pro to generate and rewrite descriptions.",
+    );
     this.name = "ShamwariProRequiredError";
   }
 }

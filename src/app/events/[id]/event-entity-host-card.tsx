@@ -42,7 +42,12 @@ function HostAvatar({ info }: { info: EventHostInfo }) {
       />
     );
   }
-  const Icon = info.ownerType === "family" ? Home : info.ownerType === "person" ? User : Building2;
+  const Icon =
+    info.ownerType === "family"
+      ? Home
+      : info.ownerType === "person"
+        ? User
+        : Building2;
   return (
     <div className="w-10 h-10 rounded-full bg-elevated flex items-center justify-center shrink-0">
       <Icon className="w-5 h-5 text-text-secondary" aria-hidden />
@@ -50,7 +55,11 @@ function HostAvatar({ info }: { info: EventHostInfo }) {
   );
 }
 
-export function EventEntityHostCard({ eventId, onResolved, reviewStats }: EventEntityHostCardProps) {
+export function EventEntityHostCard({
+  eventId,
+  onResolved,
+  reviewStats,
+}: EventEntityHostCardProps) {
   const [hostInfo, setHostInfo] = useState<EventHostInfo | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [reputation, setReputation] = useState<HostReputation | null>(null);
@@ -83,7 +92,8 @@ export function EventEntityHostCard({ eventId, onResolved, reviewStats }: EventE
       : hostInfo.ownerType === "organization"
         ? "Organisation host"
         : "Personal host";
-  const hasRating = !!reviewStats?.averageRating && reviewStats.averageRating > 0;
+  const hasRating =
+    !!reviewStats?.averageRating && reviewStats.averageRating > 0;
 
   return (
     <Card
@@ -118,7 +128,12 @@ export function EventEntityHostCard({ eventId, onResolved, reviewStats }: EventE
         {(hasRating || hostInfo.url) && (
           <div className="mt-2.5 flex items-center gap-3 text-xs text-muted-foreground">
             {hasRating && (
-              <Rating value={reviewStats!.averageRating} readOnly size="sm" showValue />
+              <Rating
+                value={reviewStats!.averageRating}
+                readOnly
+                size="sm"
+                showValue
+              />
             )}
             {hostInfo.url && (
               <a
@@ -135,15 +150,29 @@ export function EventEntityHostCard({ eventId, onResolved, reviewStats }: EventE
           </div>
         )}
         {/* Reputation strip — person hosts only, only when there's something to show. */}
-        {reputation && (reputation.ubuntuScore > 0 || reputation.eventsOrganized > 0 || reputation.followerCount > 0) && (
-          <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
-            <Stat label="Ubuntu" value={reputation.ubuntuScore.toFixed(1)} Icon={Star} tint="var(--nh-accent)" />
-            <Stat label="Hosted" value={String(reputation.eventsOrganized)} />
-            <Stat label="Following" value={String(reputation.followerCount)} />
-          </dl>
-        )}
+        {reputation &&
+          (reputation.ubuntuScore > 0 ||
+            reputation.eventsOrganized > 0 ||
+            reputation.followerCount > 0) && (
+            <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+              <Stat
+                label="Ubuntu"
+                value={reputation.ubuntuScore.toFixed(1)}
+                Icon={Star}
+                tint="var(--nh-accent)"
+              />
+              <Stat label="Hosted" value={String(reputation.eventsOrganized)} />
+              <Stat
+                label="Following"
+                value={String(reputation.followerCount)}
+              />
+            </dl>
+          )}
 
-        <HostReviewsList entityId={hostInfo.id} className="mt-4 pt-3 border-t border-elevated" />
+        <HostReviewsList
+          entityId={hostInfo.id}
+          className="mt-4 pt-3 border-t border-elevated"
+        />
       </CardContent>
     </Card>
   );

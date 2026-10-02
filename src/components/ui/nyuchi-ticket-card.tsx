@@ -1,7 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { QrCode, Calendar, MapPin, Ticket, Check, X, ArrowRightLeft } from "lucide-react";
+import {
+  QrCode,
+  Calendar,
+  MapPin,
+  Ticket,
+  Check,
+  X,
+  ArrowRightLeft,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNyuchiHarness } from "@/components/ui/harness";
 import type { Mineral } from "@/lib/category-mineral";
@@ -18,12 +26,28 @@ type TicketStatus = "valid" | "used" | "cancelled" | "transferred";
 
 const statusConfig: Record<
   TicketStatus,
-  { label: string; color: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number }> }
+  {
+    label: string;
+    color: string;
+    icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  }
 > = {
-  valid: { label: "Valid", color: "var(--color-malachite, #64FFDA)", icon: Check },
-  used: { label: "Used", color: "var(--muted-foreground, #6B6B66)", icon: Check },
+  valid: {
+    label: "Valid",
+    color: "var(--color-malachite, #64FFDA)",
+    icon: Check,
+  },
+  used: {
+    label: "Used",
+    color: "var(--muted-foreground, #6B6B66)",
+    icon: Check,
+  },
   cancelled: { label: "Cancelled", color: "#F87171", icon: X },
-  transferred: { label: "Transferred", color: "var(--color-cobalt,#00B0FF)", icon: ArrowRightLeft },
+  transferred: {
+    label: "Transferred",
+    color: "var(--color-cobalt,#00B0FF)",
+    icon: ArrowRightLeft,
+  },
 };
 
 const mineralColors: Record<Mineral, string> = {
@@ -91,7 +115,9 @@ function NyuchiTicketCard({
       <div className="border-b border-dashed border-border px-4 py-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h4 className="font-serif text-base font-bold text-foreground">{eventTitle}</h4>
+            <h4 className="font-serif text-base font-bold text-foreground">
+              {eventTitle}
+            </h4>
             <div className="mt-1.5 flex flex-col gap-1 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <Calendar className="size-3" />
@@ -107,7 +133,10 @@ function NyuchiTicketCard({
           </div>
           <span
             className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-            style={{ backgroundColor: `color-mix(in srgb, ${sc.color} 15%, transparent)`, color: sc.color }}
+            style={{
+              backgroundColor: `color-mix(in srgb, ${sc.color} 15%, transparent)`,
+              color: sc.color,
+            }}
           >
             <StatusIcon className="size-3" strokeWidth={2.5} />
             {sc.label}
@@ -119,28 +148,47 @@ function NyuchiTicketCard({
       <div className="flex items-center gap-4 px-4 py-3">
         <div
           className="flex size-16 shrink-0 items-center justify-center rounded-[var(--radius-inner,7px)]"
-          style={{ backgroundColor: `color-mix(in srgb, ${accent} 10%, transparent)` }}
+          style={{
+            backgroundColor: `color-mix(in srgb, ${accent} 10%, transparent)`,
+          }}
         >
-          <QrCode className="size-8" style={{ color: accent, opacity: status === "valid" ? 1 : 0.3 }} />
+          <QrCode
+            className="size-8"
+            style={{ color: accent, opacity: status === "valid" ? 1 : 0.3 }}
+          />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <Ticket className="size-3.5" style={{ color: accent }} />
-            <span className="text-sm font-medium text-foreground">{tierName}</span>
+            <span className="text-sm font-medium text-foreground">
+              {tierName}
+            </span>
           </div>
           {tierPrice != null && (
             <div className="mt-0.5 text-xs text-muted-foreground">
-              {typeof tierPrice === "number" ? (tierPrice === 0 ? "Free" : `$${tierPrice}`) : tierPrice}
+              {typeof tierPrice === "number"
+                ? tierPrice === 0
+                  ? "Free"
+                  : `$${tierPrice}`
+                : tierPrice}
             </div>
           )}
           {ticketCode && (
-            <div className="mt-1 font-mono text-[10px] tracking-wider text-muted-foreground/60">{ticketCode}</div>
+            <div className="mt-1 font-mono text-[10px] tracking-wider text-muted-foreground/60">
+              {ticketCode}
+            </div>
           )}
         </div>
       </div>
 
       {/* Mineral accent strip */}
-      <div className="h-1" style={{ backgroundColor: accent, opacity: status === "valid" ? 1 : 0.2 }} />
+      <div
+        className="h-1"
+        style={{
+          backgroundColor: accent,
+          opacity: status === "valid" ? 1 : 0.2,
+        }}
+      />
     </>
   );
 
@@ -153,7 +201,14 @@ function NyuchiTicketCard({
 
   if (href) {
     return (
-      <a data-slot="nyuchi-ticket-card" role="article" data-status={status} href={href} className={classes} style={animStyle()}>
+      <a
+        data-slot="nyuchi-ticket-card"
+        role="article"
+        data-status={status}
+        href={href}
+        className={classes}
+        style={animStyle()}
+      >
         {inner}
       </a>
     );

@@ -1,5 +1,8 @@
 import { handleAuth } from "@workos-inc/authkit-nextjs";
-import { syncInputFromWorkosUser, syncPersonFromWorkos } from "@/lib/mongo/users";
+import {
+  syncInputFromWorkosUser,
+  syncPersonFromWorkos,
+} from "@/lib/mongo/users";
 import { createLogger } from "@/lib/observability";
 
 const log = createLogger("callback");
@@ -19,10 +22,13 @@ export const GET = handleAuth({
     try {
       await syncPersonFromWorkos(syncInputFromWorkosUser(user));
     } catch (error) {
-      log.error("Post-auth person provisioning failed — deferring to webhook/lazy sync", {
-        data: { workosUserId: user.id },
-        error: error instanceof Error ? error : new Error(String(error)),
-      });
+      log.error(
+        "Post-auth person provisioning failed — deferring to webhook/lazy sync",
+        {
+          data: { workosUserId: user.id },
+          error: error instanceof Error ? error : new Error(String(error)),
+        },
+      );
     }
   },
 });

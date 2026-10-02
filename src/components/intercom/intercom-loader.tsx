@@ -10,10 +10,14 @@ import { useEffect } from "react";
 const INTERCOM_PATHS = ["/help", "/contact", "/support"];
 const APP_ID = "f1vga504";
 
-type IntercomWindow = Window & { Intercom?: (command: string, ...args: unknown[]) => void };
+type IntercomWindow = Window & {
+  Intercom?: (command: string, ...args: unknown[]) => void;
+};
 
 function isSupportPath(pathname: string): boolean {
-  return INTERCOM_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  return INTERCOM_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
 }
 
 export function IntercomLoader() {

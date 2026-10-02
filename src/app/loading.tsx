@@ -10,7 +10,10 @@ export default function Loading() {
         {Array.from({ length: 6 }).map((_, i) => (
           // Real event cards are bordered card surfaces; the inner placeholders
           // sit on that card, so they step up to `muted` to stay visible.
-          <div key={i} className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div
+            key={i}
+            className="rounded-2xl border border-border bg-card overflow-hidden"
+          >
             <Skeleton surface="muted" className="h-48 w-full rounded-none" />
             <div className="p-4 space-y-3">
               <Skeleton surface="muted" className="h-5 w-3/4" />

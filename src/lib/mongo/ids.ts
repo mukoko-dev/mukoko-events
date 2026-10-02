@@ -66,5 +66,10 @@ export function stampNew(id: string = newId()): {
   updatedAt: Date;
 } {
   const now = new Date();
-  return { _id: id, _schemaVersion: WRITE_SCHEMA_VERSION, createdAt: now, updatedAt: now };
+  return {
+    _id: id,
+    _schemaVersion: WRITE_SCHEMA_VERSION,
+    createdAt: now,
+    updatedAt: now,
+  };
 }

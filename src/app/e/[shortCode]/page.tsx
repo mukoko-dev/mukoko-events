@@ -14,7 +14,9 @@ interface ShortCodePageProps {
 export const dynamic = "force-dynamic";
 
 // Dynamic metadata for short URL sharing
-export async function generateMetadata({ params }: ShortCodePageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ShortCodePageProps): Promise<Metadata> {
   const { shortCode } = await params;
   const event = await findEventAction(shortCode);
 

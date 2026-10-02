@@ -13,7 +13,10 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NyuchiSidebarNav, type NavItem } from "@/components/ui/nyuchi-sidebar-nav";
+import {
+  NyuchiSidebarNav,
+  type NavItem,
+} from "@/components/ui/nyuchi-sidebar-nav";
 import {
   Sidebar,
   SidebarContent,
@@ -117,7 +120,11 @@ export function EventManageShell({
         </SidebarHeader>
         <SidebarSeparator />
         <SidebarContent>
-          <NyuchiSidebarNav width="w-full" activeKey={activeKey} items={items} />
+          <NyuchiSidebarNav
+            width="w-full"
+            activeKey={activeKey}
+            items={items}
+          />
         </SidebarContent>
       </Sidebar>
       {/* Deliberately a <div>, not the `sidebar` primitive's <SidebarInset>
@@ -133,10 +140,20 @@ export function EventManageShell({
           "relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-[var(--radius-xl,17px)] md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
         )}
       >
-        <div className="flex items-center gap-3 border-b px-4 py-3 sm:px-6" style={{ borderColor: "var(--border)" }}>
+        <div
+          className="flex items-center gap-3 border-b px-4 py-3 sm:px-6"
+          style={{ borderColor: "var(--border)" }}
+        >
           <SidebarTrigger />
-          <h1 className="min-w-0 flex-1 truncate text-foreground text-[15px] font-semibold">{eventName}</h1>
-          <Button asChild variant="secondary" size="sm" className="gap-2 shrink-0">
+          <h1 className="min-w-0 flex-1 truncate text-foreground text-[15px] font-semibold">
+            {eventName}
+          </h1>
+          <Button
+            asChild
+            variant="secondary"
+            size="sm"
+            className="gap-2 shrink-0"
+          >
             <Link href={`/events/${eventId}`}>
               <ExternalLink className="h-4 w-4" />
               <span className="hidden sm:inline">View event</span>

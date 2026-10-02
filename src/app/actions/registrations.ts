@@ -16,18 +16,33 @@
  */
 
 import { withAuth } from "@workos-inc/authkit-nextjs";
-import { eventsCollection, personsCollection, rsvpsCollection } from "@/lib/mongo/databases";
+import {
+  eventsCollection,
+  personsCollection,
+  rsvpsCollection,
+} from "@/lib/mongo/databases";
 import { stampNew } from "@/lib/mongo/ids";
 import {
   rsvpResponseToReservationStatus,
   writeThroughReservation,
 } from "@/lib/mongo/planner";
-import { ensureHostEntityForPerson, getHostContactForEntity } from "@/lib/mongo/entities";
+import {
+  ensureHostEntityForPerson,
+  getHostContactForEntity,
+} from "@/lib/mongo/entities";
 import { SITE_URL } from "@/lib/site-url";
 import { syncPersonFromWorkos, type SyncPersonInput } from "@/lib/mongo/users";
 import { sendEmail } from "@/lib/email/resend";
-import { hostNewRegistration, registrationConfirmed } from "@/lib/email/templates";
-import { isDevBypass, DEV_WORKOS_ID, DEV_EMAIL, DEV_NAME } from "@/lib/auth/dev";
+import {
+  hostNewRegistration,
+  registrationConfirmed,
+} from "@/lib/email/templates";
+import {
+  isDevBypass,
+  DEV_WORKOS_ID,
+  DEV_EMAIL,
+  DEV_NAME,
+} from "@/lib/auth/dev";
 import type { PersonDoc, RsvpDoc } from "@/lib/mongo/types";
 
 const MAX_ADDITIONAL_GUESTS = 20;
@@ -53,14 +68,21 @@ export interface RsvpActionResult {
 async function resolveActingPerson(): Promise<PersonDoc> {
   let syncInput: SyncPersonInput;
   if (isDevBypass()) {
-    syncInput = { workosUserId: DEV_WORKOS_ID, email: DEV_EMAIL, name: DEV_NAME, emailVerified: true };
+    syncInput = {
+      workosUserId: DEV_WORKOS_ID,
+      email: DEV_EMAIL,
+      name: DEV_NAME,
+      emailVerified: true,
+    };
   } else {
     const { user } = await withAuth();
     if (!user) throw new Error("You must be signed in to RSVP.");
     syncInput = {
       workosUserId: user.id,
       email: user.email ?? null,
-      name: [user.firstName, user.lastName].filter(Boolean).join(" ").trim() || null,
+      name:
+        [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+        null,
       givenName: user.firstName ?? null,
       familyName: user.lastName ?? null,
       picture: user.profilePictureUrl ?? null,
@@ -74,17 +96,22 @@ async function resolveActingPerson(): Promise<PersonDoc> {
     await syncPersonFromWorkos(syncInput);
     person = await persons.findOne({ workosUserId: syncInput.workosUserId });
   }
-  if (!person) throw new Error("Could not resolve your account. Please try again.");
+  if (!person)
+    throw new Error("Could not resolve your account. Please try again.");
   return person;
 }
 
-export async function rsvpToEvent(input: RsvpActionInput): Promise<RsvpActionResult> {
+export async function rsvpToEvent(
+  input: RsvpActionInput,
+): Promise<RsvpActionResult> {
   const eventId = input.eventId?.trim();
   if (!eventId) throw new Error("An event id is required.");
 
   const additionalGuests = Math.max(0, Math.trunc(input.additionalGuests ?? 0));
   if (additionalGuests > MAX_ADDITIONAL_GUESTS) {
-    throw new Error(`You can bring at most ${MAX_ADDITIONAL_GUESTS} additional guests.`);
+    throw new Error(
+      `You can bring at most ${MAX_ADDITIONAL_GUESTS} additional guests.`,
+    );
   }
   // Each RSVP consumes one seat for the attendee plus one per additional guest.
   const seats = 1 + additionalGuests;
@@ -100,7 +127,10 @@ export async function rsvpToEvent(input: RsvpActionInput): Promise<RsvpActionRes
 
   // Idempotency: if this person already has an RSVP, don't double-book seats.
   const rsvps = await rsvpsCollection();
-  const existing = await rsvps.findOne({ eventId, attendeePersonId: person._id });
+  const existing = await rsvps.findOne({
+    eventId,
+    attendeePersonId: person._id,
+  });
   if (existing) {
     return { registered: false, alreadyRegistered: true };
   }
@@ -154,17 +184,26 @@ export async function rsvpToEvent(input: RsvpActionInput): Promise<RsvpActionRes
       await events.updateOne(
         { _id: eventId },
         {
-          $inc: { remainingAttendeeCapacity: seats, totalAttendeeCount: -seats },
+          $inc: {
+            remainingAttendeeCapacity: seats,
+            totalAttendeeCount: -seats,
+          },
           $set: { updatedAt: new Date() },
         },
       );
     } else {
       await events.updateOne(
         { _id: eventId },
-        { $inc: { totalAttendeeCount: -seats }, $set: { updatedAt: new Date() } },
+        {
+          $inc: { totalAttendeeCount: -seats },
+          $set: { updatedAt: new Date() },
+        },
       );
     }
-    const racedExisting = await rsvps.findOne({ eventId, attendeePersonId: person._id });
+    const racedExisting = await rsvps.findOne({
+      eventId,
+      attendeePersonId: person._id,
+    });
     if (racedExisting) return { registered: false, alreadyRegistered: true };
     throw err;
   }
@@ -212,16 +251,28 @@ export async function rsvpToEvent(input: RsvpActionInput): Promise<RsvpActionRes
         eventLocation,
         eventUrl,
       });
-      await sendEmail({ to: attendeeEmail, subject: tpl.subject, html: tpl.html, text: tpl.text });
+      await sendEmail({
+        to: attendeeEmail,
+        subject: tpl.subject,
+        html: tpl.html,
+        text: tpl.text,
+      });
     }
 
     // Host notification — skip when the host email is unresolved or when the
     // host RSVP'd to their own event (don't notify them about themselves).
     const host = await getHostContactForEntity(event.primaryHostEntityId);
     if (!host) {
-      console.debug(`[mukoko:email] No host email resolved for event ${eventId}; skipping host notification`);
-    } else if (attendeeEmail && host.email.toLowerCase() === attendeeEmail.toLowerCase()) {
-      console.debug(`[mukoko:email] Host RSVP'd to their own event ${eventId}; skipping self-notification`);
+      console.debug(
+        `[mukoko:email] No host email resolved for event ${eventId}; skipping host notification`,
+      );
+    } else if (
+      attendeeEmail &&
+      host.email.toLowerCase() === attendeeEmail.toLowerCase()
+    ) {
+      console.debug(
+        `[mukoko:email] Host RSVP'd to their own event ${eventId}; skipping self-notification`,
+      );
     } else {
       const tpl = hostNewRegistration({
         hostName: host.name?.trim() || "there",
@@ -230,11 +281,19 @@ export async function rsvpToEvent(input: RsvpActionInput): Promise<RsvpActionRes
         attendeeCount,
         eventUrl,
       });
-      await sendEmail({ to: host.email, subject: tpl.subject, html: tpl.html, text: tpl.text });
+      await sendEmail({
+        to: host.email,
+        subject: tpl.subject,
+        html: tpl.html,
+        text: tpl.text,
+      });
     }
   } catch (emailErr) {
-    const message = emailErr instanceof Error ? emailErr.message : "Unknown error";
-    console.error(`[mukoko:email] Failed to send RSVP notification emails: ${message}`);
+    const message =
+      emailErr instanceof Error ? emailErr.message : "Unknown error";
+    console.error(
+      `[mukoko:email] Failed to send RSVP notification emails: ${message}`,
+    );
   }
 
   return { registered: true, alreadyRegistered: false };

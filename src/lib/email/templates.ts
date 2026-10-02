@@ -209,11 +209,18 @@ export function feedbackReceived(data: {
     `<p class="detail"><strong>Category:</strong> ${escapeHtml(data.category)}</p>`,
     `<p class="detail"><strong>Reporter:</strong> ${escapeHtml(data.reporter || "Anonymous")}</p>`,
   ];
-  if (data.path) rows.push(`<p class="detail"><strong>Path:</strong> ${escapeHtml(data.path)}</p>`);
+  if (data.path)
+    rows.push(
+      `<p class="detail"><strong>Path:</strong> ${escapeHtml(data.path)}</p>`,
+    );
   if (data.errorDigest)
-    rows.push(`<p class="detail"><strong>Error digest:</strong> ${escapeHtml(data.errorDigest)}</p>`);
+    rows.push(
+      `<p class="detail"><strong>Error digest:</strong> ${escapeHtml(data.errorDigest)}</p>`,
+    );
   if (data.userAgent)
-    rows.push(`<p class="detail"><strong>User agent:</strong> ${escapeHtml(data.userAgent)}</p>`);
+    rows.push(
+      `<p class="detail"><strong>User agent:</strong> ${escapeHtml(data.userAgent)}</p>`,
+    );
 
   const textLines = [
     `Category: ${data.category}`,

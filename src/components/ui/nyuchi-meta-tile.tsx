@@ -47,7 +47,8 @@ export function NyuchiMetaTile({
       <div
         className="flex size-12 shrink-0 flex-col items-center justify-center rounded-[var(--radius-md,12px)] border"
         style={{
-          borderColor: "var(--event-surface, color-mix(in srgb, var(--primary) 18%, transparent))",
+          borderColor:
+            "var(--event-surface, color-mix(in srgb, var(--primary) 18%, transparent))",
           backgroundColor: date
             ? "transparent"
             : "var(--event-surface, color-mix(in srgb, var(--primary) 12%, transparent))",
@@ -59,7 +60,10 @@ export function NyuchiMetaTile({
             <span className="text-[10px] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
               {date.month.slice(0, 3)}
             </span>
-            <span className="mt-0.5 text-xl font-bold leading-none" style={{ color: tint }}>
+            <span
+              className="mt-0.5 text-xl font-bold leading-none"
+              style={{ color: tint }}
+            >
               {date.day}
             </span>
           </>
@@ -72,13 +76,22 @@ export function NyuchiMetaTile({
 
       <div className="min-w-0 flex-1">
         {caption && (
-          <div className="text-[13px] font-medium leading-none text-muted-foreground">{caption}</div>
+          <div className="text-[13px] font-medium leading-none text-muted-foreground">
+            {caption}
+          </div>
         )}
-        <div className={cn("truncate text-[16px] font-semibold leading-[1.25] text-foreground", caption && "mt-1")}>
+        <div
+          className={cn(
+            "truncate text-[16px] font-semibold leading-[1.25] text-foreground",
+            caption && "mt-1",
+          )}
+        >
           {primary}
         </div>
         {secondary && (
-          <div className="mt-0.5 truncate text-[13px] text-muted-foreground">{secondary}</div>
+          <div className="mt-0.5 truncate text-[13px] text-muted-foreground">
+            {secondary}
+          </div>
         )}
       </div>
 

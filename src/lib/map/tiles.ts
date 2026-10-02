@@ -23,7 +23,8 @@ export interface BaseLayerConfig {
 export const BASE_LAYERS: Record<BaseLayerId, BaseLayerConfig> = {
   standard: {
     url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     label: "Standard",
     maxZoom: 19,
   },

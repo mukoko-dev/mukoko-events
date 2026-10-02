@@ -11,12 +11,15 @@ import { cn } from "@/lib/utils";
 function formatRelativeDate(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor(
+    (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
+  );
 
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
+  if (diffDays < 30)
+    return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
   return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? "s" : ""} ago`;
 }
 
@@ -36,7 +39,13 @@ interface HostReview {
  * fetched once a viewer expands it, keeping the event-detail page's initial
  * load lean.
  */
-export function HostReviewsList({ entityId, className }: { entityId: string; className?: string }) {
+export function HostReviewsList({
+  entityId,
+  className,
+}: {
+  entityId: string;
+  className?: string;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -75,7 +84,11 @@ export function HostReviewsList({ entityId, className }: { entityId: string; cla
   const filteredReviews = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return reviews.filter((review) => {
-      if (ratingFilter.length > 0 && !ratingFilter.includes(String(review.rating))) return false;
+      if (
+        ratingFilter.length > 0 &&
+        !ratingFilter.includes(String(review.rating))
+      )
+        return false;
       if (!query) return true;
       return (
         review.userName.toLowerCase().includes(query) ||
@@ -94,7 +107,12 @@ export function HostReviewsList({ entityId, className }: { entityId: string; cla
         className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
       >
         Host reviews
-        <ChevronDown className={cn("w-4 h-4 transition-transform", expanded && "rotate-180")} />
+        <ChevronDown
+          className={cn(
+            "w-4 h-4 transition-transform",
+            expanded && "rotate-180",
+          )}
+        />
       </button>
 
       {expanded && (
@@ -158,11 +176,17 @@ export function HostReviewsList({ entityId, className }: { entityId: string; cla
                         reviewer={review.userName}
                         rating={review.rating}
                         text={review.reviewBody}
-                        date={review.eventTitle ? `${review.date} · ${review.eventTitle}` : review.date}
+                        date={
+                          review.eventTitle
+                            ? `${review.date} · ${review.eventTitle}`
+                            : review.date
+                        }
                         helpfulCount={review.helpful + (marked ? 1 : 0)}
                         markedHelpful={marked}
                         onHelpful={() =>
-                          setHelpfulClicked((prev) => new Set([...prev, review.id]))
+                          setHelpfulClicked(
+                            (prev) => new Set([...prev, review.id]),
+                          )
                         }
                       />
                     );

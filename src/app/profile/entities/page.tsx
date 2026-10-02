@@ -43,7 +43,6 @@ function entityTypeLabel(entityType: ManagedHostEntity["entityType"]): string {
   return "Organisation";
 }
 
-
 function EntityRow({
   entity,
   onRename,
@@ -60,7 +59,11 @@ function EntityRow({
   const [saving, setSaving] = useState(false);
 
   const Icon =
-    entity.entityType === "family" ? Home : entity.entityType === "community" ? Users : Building2;
+    entity.entityType === "family"
+      ? Home
+      : entity.entityType === "community"
+        ? Users
+        : Building2;
   const inputId = `entity-name-${entity.id}`;
 
   const startEdit = () => {
@@ -117,7 +120,10 @@ function EntityRow({
                   className="min-h-11 gap-1"
                 >
                   {saving ? (
-                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                    <Loader2
+                      className="size-4 animate-spin"
+                      aria-hidden="true"
+                    />
                   ) : (
                     <Check className="size-4" aria-hidden="true" />
                   )}
@@ -138,23 +144,31 @@ function EntityRow({
           ) : (
             <>
               <div className="flex items-center gap-2">
-                <h3 className="truncate font-medium text-foreground">{entity.name}</h3>
+                <h3 className="truncate font-medium text-foreground">
+                  {entity.name}
+                </h3>
                 {entity.verified && (
-                  <NyuchiVerifiedBadge tier="otp" size="sm" aria-label="Verified entity" />
+                  <NyuchiVerifiedBadge
+                    tier="otp"
+                    size="sm"
+                    aria-label="Verified entity"
+                  />
                 )}
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
                 <span>{entityTypeLabel(entity.entityType)}</span>
                 <span aria-hidden="true">·</span>
                 <span>{roleLabel(entity.role)}</span>
-                {entity.entityType !== "family" && entity.memberCount != null && (
-                  <>
-                    <span aria-hidden="true">·</span>
-                    <span>
-                      {entity.memberCount} member{entity.memberCount === 1 ? "" : "s"}
-                    </span>
-                  </>
-                )}
+                {entity.entityType !== "family" &&
+                  entity.memberCount != null && (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span>
+                        {entity.memberCount} member
+                        {entity.memberCount === 1 ? "" : "s"}
+                      </span>
+                    </>
+                  )}
                 {entity.isDefault && (
                   <Badge variant="default" className="gap-1">
                     <Star className="size-3" aria-hidden="true" />
@@ -226,7 +240,10 @@ function CreateCommunityForm({
   return (
     <div className="bg-surface rounded-xl p-4 space-y-3">
       <div>
-        <Label htmlFor="new-community-name" className="text-xs text-text-secondary">
+        <Label
+          htmlFor="new-community-name"
+          className="text-xs text-text-secondary"
+        >
           Community name
         </Label>
         <Input
@@ -240,7 +257,10 @@ function CreateCommunityForm({
         />
       </div>
       <div>
-        <Label htmlFor="new-community-description" className="text-xs text-text-secondary">
+        <Label
+          htmlFor="new-community-description"
+          className="text-xs text-text-secondary"
+        >
           Description (optional)
         </Label>
         <Textarea
@@ -253,7 +273,12 @@ function CreateCommunityForm({
         />
       </div>
       <div className="flex gap-2">
-        <Button size="sm" onClick={submit} disabled={creating || !name.trim()} className="min-h-11 gap-1">
+        <Button
+          size="sm"
+          onClick={submit}
+          disabled={creating || !name.trim()}
+          className="min-h-11 gap-1"
+        >
           {creating ? (
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
@@ -261,7 +286,13 @@ function CreateCommunityForm({
           )}
           Create
         </Button>
-        <Button size="sm" variant="ghost" onClick={onDone} disabled={creating} className="min-h-11 gap-1">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onDone}
+          disabled={creating}
+          className="min-h-11 gap-1"
+        >
           <X className="size-4" aria-hidden="true" />
           Cancel
         </Button>
@@ -295,7 +326,9 @@ function EntitiesContent() {
         setData(next);
         toast.success("Entity renamed");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not rename entity");
+        toast.error(
+          err instanceof Error ? err.message : "Could not rename entity",
+        );
         throw err;
       } finally {
         setBusy(false);
@@ -312,7 +345,9 @@ function EntitiesContent() {
         setData(next);
         toast.success("Default host entity updated");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not set default");
+        toast.error(
+          err instanceof Error ? err.message : "Could not set default",
+        );
       } finally {
         setBusy(false);
       }
@@ -323,11 +358,18 @@ function EntitiesContent() {
   const handleCreateCommunity = useCallback(
     async (name: string, description: string) => {
       try {
-        const next = await createMyCommunityEntity({ name, description: description || null });
+        const next = await createMyCommunityEntity({
+          name,
+          description: description || null,
+        });
         setData(next);
         toast.success("Community created");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not create that community");
+        toast.error(
+          err instanceof Error
+            ? err.message
+            : "Could not create that community",
+        );
         throw err;
       }
     },
@@ -375,7 +417,10 @@ function EntitiesContent() {
 
       {loading ? (
         <div className="flex min-h-40 items-center justify-center">
-          <Loader2 className="size-6 animate-spin text-primary" aria-hidden="true" />
+          <Loader2
+            className="size-6 animate-spin text-primary"
+            aria-hidden="true"
+          />
           <span className="sr-only">Loading your entities</span>
         </div>
       ) : data && data.entities.length > 0 ? (
@@ -394,7 +439,8 @@ function EntitiesContent() {
         <div className="bg-surface rounded-xl p-8 text-center text-text-secondary">
           <p className="font-medium text-foreground">No host entities yet</p>
           <p className="mt-1 text-sm">
-            Your personal host entity is created the first time you host a gathering.
+            Your personal host entity is created the first time you host a
+            gathering.
           </p>
         </div>
       )}

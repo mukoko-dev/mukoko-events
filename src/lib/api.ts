@@ -13,14 +13,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 // public custom domain — NOT a per-app silo. Reads need no credentials.
 // Override with NEXT_PUBLIC_ASSETS_URL (e.g. https://assets.mukoko.com) if the
 // canonical assets host differs from the bucket's default domain.
-const ASSETS_URL = process.env.NEXT_PUBLIC_ASSETS_URL ?? "https://assets-s001.mukoko.com";
+const ASSETS_URL =
+  process.env.NEXT_PUBLIC_ASSETS_URL ?? "https://assets-s001.mukoko.com";
 
 // Types matching backend (schema.org-aligned)
 export interface EventLocation {
   type?: string;
-  name: string;             // venue name
+  name: string; // venue name
   streetAddress?: string;
-  addressLocality: string;  // city
+  addressLocality: string; // city
   addressCountry: string;
   url?: string;
 }
@@ -36,7 +37,7 @@ export interface EventOrganizer {
   name: string;
   alternateName?: string;
   initials: string;
-  identifier?: string;      // handle/slug
+  identifier?: string; // handle/slug
   eventCount: number;
 }
 
@@ -136,7 +137,10 @@ export interface CitiesResponse {
 const DEFAULT_FETCH_TIMEOUT_MS = 20_000;
 
 export class ApiError extends Error {
-  constructor(public readonly status: number, message: string) {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -169,7 +173,10 @@ async function apiFetch<T>(
     response = await fetch(url, { ...options, headers, signal });
   } catch (err) {
     if (err instanceof DOMException && err.name === "TimeoutError") {
-      throw new ApiError(0, `Request timed out after ${DEFAULT_FETCH_TIMEOUT_MS}ms`);
+      throw new ApiError(
+        0,
+        `Request timed out after ${DEFAULT_FETCH_TIMEOUT_MS}ms`,
+      );
     }
     if (err instanceof DOMException && err.name === "AbortError") {
       throw new ApiError(0, "Request cancelled");
@@ -183,7 +190,7 @@ async function apiFetch<T>(
     // failure might return plain text, so fall back to the status line.
     let message = `${response.status} ${response.statusText}`;
     try {
-      const body = await response.clone().json() as { error?: string };
+      const body = (await response.clone().json()) as { error?: string };
       if (body && typeof body.error === "string" && body.error.length > 0) {
         message = body.error;
       }
@@ -213,7 +220,9 @@ export async function getEvents(params?: {
   return apiFetch<EventsResponse>(`/api/events${query ? `?${query}` : ""}`);
 }
 
-export async function getEventById(id: string): Promise<{ event: Event } | null> {
+export async function getEventById(
+  id: string,
+): Promise<{ event: Event } | null> {
   try {
     return await apiFetch<{ event: Event }>(`/api/events/${id}`);
   } catch {
@@ -221,7 +230,9 @@ export async function getEventById(id: string): Promise<{ event: Event } | null>
   }
 }
 
-export async function getEventByShortCode(shortCode: string): Promise<{ event: Event } | null> {
+export async function getEventByShortCode(
+  shortCode: string,
+): Promise<{ event: Event } | null> {
   try {
     return await apiFetch<{ event: Event }>(`/api/events/${shortCode}`);
   } catch {
@@ -236,7 +247,9 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 // Cities API
-export async function getCities(): Promise<{ addressLocality: string; addressCountry: string }[]> {
+export async function getCities(): Promise<
+  { addressLocality: string; addressCountry: string }[]
+> {
   const response = await apiFetch<CitiesResponse>("/api/cities");
   return response.cities;
 }
@@ -271,26 +284,48 @@ export interface CreateEventInput {
 // Create a new event. The WorkOS access token is required — every write
 // endpoint on the worker derives the actor identity from the JWT now, and
 // `sessionJwt` is the only path to provide it.
-export async function createEvent(event: CreateEventInput, sessionJwt: string): Promise<{ event: Event; message: string }> {
-  return apiFetch<{ event: Event; message: string }>("/api/events", {
-    method: "POST",
-    body: JSON.stringify(event),
-  }, sessionJwt);
+export async function createEvent(
+  event: CreateEventInput,
+  sessionJwt: string,
+): Promise<{ event: Event; message: string }> {
+  return apiFetch<{ event: Event; message: string }>(
+    "/api/events",
+    {
+      method: "POST",
+      body: JSON.stringify(event),
+    },
+    sessionJwt,
+  );
 }
 
 // Update an event. Caller must be the event organizer (worker enforces).
-export async function updateEvent(id: string, updates: Partial<CreateEventInput>, sessionJwt: string): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/api/events/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(updates),
-  }, sessionJwt);
+export async function updateEvent(
+  id: string,
+  updates: Partial<CreateEventInput>,
+  sessionJwt: string,
+): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>(
+    `/api/events/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    },
+    sessionJwt,
+  );
 }
 
 // Delete an event. Caller must be the event organizer (worker enforces).
-export async function deleteEvent(id: string, sessionJwt: string): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/api/events/${id}`, {
-    method: "DELETE",
-  }, sessionJwt);
+export async function deleteEvent(
+  id: string,
+  sessionJwt: string,
+): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>(
+    `/api/events/${id}`,
+    {
+      method: "DELETE",
+    },
+    sessionJwt,
+  );
 }
 
 // ============================================
@@ -301,7 +336,13 @@ export interface Registration {
   id: string;
   eventId: string;
   userId: string;
-  status: "pending" | "registered" | "approved" | "rejected" | "cancelled" | "attended";
+  status:
+    | "pending"
+    | "registered"
+    | "approved"
+    | "rejected"
+    | "cancelled"
+    | "attended";
   ticketType?: string;
   ticketPrice?: number;
   ticketCurrency?: string;
@@ -319,31 +360,46 @@ export interface RegistrationsResponse {
 }
 
 // Get registrations for an event
-export async function getEventRegistrations(eventId: string): Promise<Registration[]> {
-  const response = await apiFetch<RegistrationsResponse>(`/api/registrations?eventId=${eventId}`);
+export async function getEventRegistrations(
+  eventId: string,
+): Promise<Registration[]> {
+  const response = await apiFetch<RegistrationsResponse>(
+    `/api/registrations?eventId=${eventId}`,
+  );
   return response.registrations;
 }
 
 // Get registrations for a user
-export async function getUserRegistrations(userId: string): Promise<Registration[]> {
-  const response = await apiFetch<RegistrationsResponse>(`/api/registrations?userId=${userId}`);
+export async function getUserRegistrations(
+  userId: string,
+): Promise<Registration[]> {
+  const response = await apiFetch<RegistrationsResponse>(
+    `/api/registrations?userId=${userId}`,
+  );
   return response.registrations;
 }
 
 // Register for an event (RSVP). The worker derives the registrant identity
 // from the JWT; `userId` in the body is accepted for back-compat but ignored
 // server-side.
-export async function registerForEvent(data: {
-  eventId: string;
-  userId?: string;
-  ticketType?: string;
-  ticketPrice?: number;
-  ticketCurrency?: string;
-}, sessionJwt: string): Promise<{ id: string; message: string }> {
-  return apiFetch<{ id: string; message: string }>("/api/registrations", {
-    method: "POST",
-    body: JSON.stringify(data),
-  }, sessionJwt);
+export async function registerForEvent(
+  data: {
+    eventId: string;
+    userId?: string;
+    ticketType?: string;
+    ticketPrice?: number;
+    ticketCurrency?: string;
+  },
+  sessionJwt: string,
+): Promise<{ id: string; message: string }> {
+  return apiFetch<{ id: string; message: string }>(
+    "/api/registrations",
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    sessionJwt,
+  );
 }
 
 // Update registration status (approve/reject). Host-only — worker checks
@@ -353,17 +409,28 @@ export async function updateRegistrationStatus(
   status: "approved" | "rejected" | "pending" | "registered",
   sessionJwt: string,
 ): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/api/registrations/${registrationId}`, {
-    method: "PUT",
-    body: JSON.stringify({ status }),
-  }, sessionJwt);
+  return apiFetch<{ message: string }>(
+    `/api/registrations/${registrationId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    },
+    sessionJwt,
+  );
 }
 
 // Cancel a registration. Caller must be the registrant or event organizer.
-export async function cancelRegistration(registrationId: string, sessionJwt: string): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/api/registrations/${registrationId}`, {
-    method: "DELETE",
-  }, sessionJwt);
+export async function cancelRegistration(
+  registrationId: string,
+  sessionJwt: string,
+): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>(
+    `/api/registrations/${registrationId}`,
+    {
+      method: "DELETE",
+    },
+    sessionJwt,
+  );
 }
 
 // ============================================
@@ -417,7 +484,10 @@ export async function createUser(data: {
 // Event Views Tracking
 // ============================================
 
-export async function trackEventView(eventId: string, userId?: string): Promise<void> {
+export async function trackEventView(
+  eventId: string,
+  userId?: string,
+): Promise<void> {
   try {
     await apiFetch("/api/events/" + eventId + "/view", {
       method: "POST",
@@ -455,7 +525,9 @@ export async function uploadMedia(file: File): Promise<UploadMediaResponse> {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: "Upload failed" }));
+    const error = await response
+      .json()
+      .catch(() => ({ error: "Upload failed" }));
     throw new Error(error.error || `Upload failed: ${response.status}`);
   }
 
@@ -467,7 +539,14 @@ export async function uploadMedia(file: File): Promise<UploadMediaResponse> {
  * @param key - The storage key returned from uploadMedia
  * @param options - Optional image transformation options
  */
-export function getMediaUrl(key: string, options?: { width?: number; height?: number; format?: "webp" | "avif" | "jpeg" | "png" }): string {
+export function getMediaUrl(
+  key: string,
+  options?: {
+    width?: number;
+    height?: number;
+    format?: "webp" | "avif" | "jpeg" | "png";
+  },
+): string {
   // Already-absolute URLs (or data URIs) pass through unchanged.
   if (/^(https?:|data:)/i.test(key)) return key;
 
@@ -564,7 +643,9 @@ export interface HostReviewsResponse {
 }
 
 // Get reviews for an event (PUBLIC)
-export async function getEventReviews(eventId: string): Promise<EventReviewsResponse> {
+export async function getEventReviews(
+  eventId: string,
+): Promise<EventReviewsResponse> {
   return apiFetch<EventReviewsResponse>(`/api/events/${eventId}/reviews`);
 }
 
@@ -575,10 +656,14 @@ export async function submitEventReview(
   data: { userId?: string; rating: number; reviewBody?: string },
   sessionJwt: string,
 ): Promise<{ id: string; message: string }> {
-  return apiFetch<{ id: string; message: string }>(`/api/events/${eventId}/reviews`, {
-    method: "POST",
-    body: JSON.stringify(data),
-  }, sessionJwt);
+  return apiFetch<{ id: string; message: string }>(
+    `/api/events/${eventId}/reviews`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    sessionJwt,
+  );
 }
 
 // Mark a review as helpful. Voter identity is derived from the JWT.
@@ -586,10 +671,14 @@ export async function markReviewHelpful(
   reviewId: string,
   sessionJwt: string,
 ): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/api/reviews/${reviewId}/helpful`, {
-    method: "POST",
-    body: JSON.stringify({}),
-  }, sessionJwt);
+  return apiFetch<{ message: string }>(
+    `/api/reviews/${reviewId}/helpful`,
+    {
+      method: "POST",
+      body: JSON.stringify({}),
+    },
+    sessionJwt,
+  );
 }
 
 // Event Stats Types
@@ -609,7 +698,9 @@ export interface EventStats {
 
 // Get stats for an event (PUBLIC - Open Data)
 export async function getEventStats(eventId: string): Promise<EventStats> {
-  const response = await apiFetch<{ stats: EventStats }>(`/api/events/${eventId}/stats`);
+  const response = await apiFetch<{ stats: EventStats }>(
+    `/api/events/${eventId}/stats`,
+  );
   return response.stats;
 }
 
@@ -622,22 +713,30 @@ export interface TrackedLink {
 // Create a tracked link that redirects through nhimbe for click analytics.
 // `createdBy` is derived from the JWT server-side; passing it in the body
 // has no effect.
-export async function createTrackedLink(data: {
-  targetUrl: string;
-  eventId: string;
-  linkType: "meeting_url" | "directions" | "ticket" | "website";
-}, sessionJwt: string): Promise<TrackedLink> {
-  return apiFetch<TrackedLink>("/api/links", {
-    method: "POST",
-    body: JSON.stringify(data),
-  }, sessionJwt);
+export async function createTrackedLink(
+  data: {
+    targetUrl: string;
+    eventId: string;
+    linkType: "meeting_url" | "directions" | "ticket" | "website";
+  },
+  sessionJwt: string,
+): Promise<TrackedLink> {
+  return apiFetch<TrackedLink>(
+    "/api/links",
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    sessionJwt,
+  );
 }
 
 // Get the full tracked URL for a code
 export function getTrackedUrl(code: string): string {
   // On the client, share from whatever domain the user is on (dual-domain);
   // on the server, fall back to the primary origin.
-  const siteUrl = typeof window !== "undefined" ? window.location.origin : SITE_URL;
+  const siteUrl =
+    typeof window !== "undefined" ? window.location.origin : SITE_URL;
   return `${siteUrl}/r/${code}`;
 }
 
@@ -711,42 +810,57 @@ export interface KioskSession {
 
 // Request a pairing code for kiosk or signage screen
 export async function requestKioskPairing(
-  screenType: ScreenType = "kiosk"
+  screenType: ScreenType = "kiosk",
 ): Promise<{ code: string; expiresIn: number; screenType: ScreenType }> {
   return apiFetch<{ code: string; expiresIn: number; screenType: ScreenType }>(
     "/api/kiosk/pair/request",
-    { method: "POST", body: JSON.stringify({ screenType }) }
+    { method: "POST", body: JSON.stringify({ screenType }) },
   );
 }
 
 // Poll for pairing status
-export async function getKioskPairingStatus(code: string): Promise<KioskPairingStatus> {
+export async function getKioskPairingStatus(
+  code: string,
+): Promise<KioskPairingStatus> {
   return apiFetch<KioskPairingStatus>(`/api/kiosk/pair/${code}/status`);
 }
 
 // Host confirms pairing
 export async function confirmKioskPairing(
   code: string,
-  eventId: string
-): Promise<{ message: string; eventName: string; screenType: string; sessionToken: string }> {
-  return apiFetch<{ message: string; eventName: string; screenType: string; sessionToken: string }>(
-    `/api/kiosk/pair/${code}/confirm`,
-    { method: "POST", body: JSON.stringify({ eventId }) }
-  );
+  eventId: string,
+): Promise<{
+  message: string;
+  eventName: string;
+  screenType: string;
+  sessionToken: string;
+}> {
+  return apiFetch<{
+    message: string;
+    eventName: string;
+    screenType: string;
+    sessionToken: string;
+  }>(`/api/kiosk/pair/${code}/confirm`, {
+    method: "POST",
+    body: JSON.stringify({ eventId }),
+  });
 }
 
 // Validate a session
-export async function getKioskSession(token: string): Promise<{ session: KioskSession }> {
+export async function getKioskSession(
+  token: string,
+): Promise<{ session: KioskSession }> {
   return apiFetch<{ session: KioskSession }>(`/api/kiosk/session/${token}`);
 }
 
 // End a session
-export async function endKioskSession(token: string): Promise<{ message: string }> {
+export async function endKioskSession(
+  token: string,
+): Promise<{ message: string }> {
   return apiFetch<{ message: string }>(`/api/kiosk/session/${token}`, {
     method: "DELETE",
   });
 }
-
 
 // Referral Types
 export interface ReferralLeaderboardEntry {
@@ -759,8 +873,12 @@ export interface ReferralLeaderboardEntry {
 }
 
 // Get referral leaderboard for an event (PUBLIC)
-export async function getEventReferralLeaderboard(eventId: string): Promise<ReferralLeaderboardEntry[]> {
-  const response = await apiFetch<{ leaderboard: ReferralLeaderboardEntry[] }>(`/api/events/${eventId}/referrals`);
+export async function getEventReferralLeaderboard(
+  eventId: string,
+): Promise<ReferralLeaderboardEntry[]> {
+  const response = await apiFetch<{ leaderboard: ReferralLeaderboardEntry[] }>(
+    `/api/events/${eventId}/referrals`,
+  );
   return response.leaderboard;
 }
 
@@ -784,16 +902,22 @@ export interface UserReferralCode {
 }
 
 // Get user's referral code
-export async function getUserReferralCode(userId: string): Promise<UserReferralCode | null> {
+export async function getUserReferralCode(
+  userId: string,
+): Promise<UserReferralCode | null> {
   try {
-    return await apiFetch<UserReferralCode>(`/api/users/${userId}/referral-code`);
+    return await apiFetch<UserReferralCode>(
+      `/api/users/${userId}/referral-code`,
+    );
   } catch {
     return null;
   }
 }
 
 // Generate a referral code for user
-export async function generateUserReferralCode(userId: string): Promise<{ code: string }> {
+export async function generateUserReferralCode(
+  userId: string,
+): Promise<{ code: string }> {
   return apiFetch<{ code: string }>(`/api/users/${userId}/referral-code`, {
     method: "POST",
   });
@@ -816,9 +940,13 @@ export interface HostStats {
 }
 
 // Get host reputation (PUBLIC)
-export async function getHostReputation(userId: string): Promise<HostStats | null> {
+export async function getHostReputation(
+  userId: string,
+): Promise<HostStats | null> {
   try {
-    const response = await apiFetch<{ host: HostStats }>(`/api/users/${userId}/reputation`);
+    const response = await apiFetch<{ host: HostStats }>(
+      `/api/users/${userId}/reputation`,
+    );
     return response.host;
   } catch {
     return null;
@@ -844,9 +972,13 @@ export interface CommunityStats {
 }
 
 // Get community stats (PUBLIC)
-export async function getCommunityStats(city?: string): Promise<CommunityStats> {
+export async function getCommunityStats(
+  city?: string,
+): Promise<CommunityStats> {
   const params = city ? `?city=${encodeURIComponent(city)}` : "";
-  const response = await apiFetch<{ stats: CommunityStats }>(`/api/community/stats${params}`);
+  const response = await apiFetch<{ stats: CommunityStats }>(
+    `/api/community/stats${params}`,
+  );
   return response.stats;
 }
 
@@ -867,6 +999,8 @@ export async function getTrendingEvents(params?: {
   if (params?.limit) searchParams.set("limit", params.limit.toString());
 
   const query = searchParams.toString();
-  const response = await apiFetch<{ events: TrendingEvent[] }>(`/api/events/trending${query ? `?${query}` : ""}`);
+  const response = await apiFetch<{ events: TrendingEvent[] }>(
+    `/api/events/trending${query ? `?${query}` : ""}`,
+  );
   return response.events;
 }

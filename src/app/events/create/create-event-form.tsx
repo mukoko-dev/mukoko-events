@@ -15,9 +15,16 @@ import {
 import { uploadMedia, getMediaUrl, type Category } from "@/lib/api";
 import { getCategoriesAction, getCitiesAction } from "@/app/actions/discovery";
 import { createEvent as createEventAction } from "@/app/actions/events";
-import { getMyCalendarsAction, type MyCalendarSummary } from "@/app/actions/calendars";
+import {
+  getMyCalendarsAction,
+  type MyCalendarSummary,
+} from "@/app/actions/calendars";
 import { mineralThemes, mineralThemeIds, getThemeColors } from "@/lib/themes";
-import { zonedTimeToUtcIso, resolveEventTimezone, timezoneLabel } from "@/lib/timezone";
+import {
+  zonedTimeToUtcIso,
+  resolveEventTimezone,
+  timezoneLabel,
+} from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -56,45 +63,129 @@ const STEPS: { id: WizardStep; label: string }[] = [
 // shows a different taxonomy than what's actually stored.
 const DEFAULT_CATEGORIES: Category[] = [
   { id: "technology", name: "Technology", group: "Technology & Innovation" },
-  { id: "ai-machine-learning", name: "AI & Machine Learning", group: "Technology & Innovation" },
-  { id: "crypto-web3", name: "Crypto & Web3", group: "Technology & Innovation" },
+  {
+    id: "ai-machine-learning",
+    name: "AI & Machine Learning",
+    group: "Technology & Innovation",
+  },
+  {
+    id: "crypto-web3",
+    name: "Crypto & Web3",
+    group: "Technology & Innovation",
+  },
   { id: "business", name: "Business", group: "Business & Economy" },
-  { id: "fintech-mobile-money", name: "Fintech & Mobile Money", group: "Business & Economy" },
+  {
+    id: "fintech-mobile-money",
+    name: "Fintech & Mobile Money",
+    group: "Business & Economy",
+  },
   { id: "agriculture", name: "Agriculture", group: "Business & Economy" },
   { id: "investment", name: "Investment", group: "Business & Economy" },
   { id: "real-estate", name: "Real Estate", group: "Business & Economy" },
   { id: "music", name: "Music", group: "Entertainment & Media" },
   { id: "film-tv", name: "Film & TV", group: "Entertainment & Media" },
-  { id: "gaming-esports", name: "Gaming & Esports", group: "Entertainment & Media" },
-  { id: "celebrity-pop-culture", name: "Celebrity & Pop Culture", group: "Entertainment & Media" },
+  {
+    id: "gaming-esports",
+    name: "Gaming & Esports",
+    group: "Entertainment & Media",
+  },
+  {
+    id: "celebrity-pop-culture",
+    name: "Celebrity & Pop Culture",
+    group: "Entertainment & Media",
+  },
   { id: "football", name: "Football", group: "Sports" },
   { id: "other-sports", name: "Other Sports", group: "Sports" },
   { id: "fitness-wellness", name: "Fitness & Wellness", group: "Sports" },
-  { id: "african-culture", name: "African Culture", group: "Culture & Society" },
+  {
+    id: "african-culture",
+    name: "African Culture",
+    group: "Culture & Society",
+  },
   { id: "fashion-style", name: "Fashion & Style", group: "Culture & Society" },
   { id: "food-cuisine", name: "Food & Cuisine", group: "Culture & Society" },
-  { id: "travel-tourism", name: "Travel & Tourism", group: "Culture & Society" },
-  { id: "politics-governance", name: "Politics & Governance", group: "News & Current Affairs" },
+  {
+    id: "travel-tourism",
+    name: "Travel & Tourism",
+    group: "Culture & Society",
+  },
+  {
+    id: "politics-governance",
+    name: "Politics & Governance",
+    group: "News & Current Affairs",
+  },
   { id: "world-news", name: "World News", group: "News & Current Affairs" },
   { id: "local-news", name: "Local News", group: "News & Current Affairs" },
   { id: "education", name: "Education", group: "Education & Knowledge" },
-  { id: "science-research", name: "Science & Research", group: "Education & Knowledge" },
+  {
+    id: "science-research",
+    name: "Science & Research",
+    group: "Education & Knowledge",
+  },
   { id: "history", name: "History", group: "Education & Knowledge" },
-  { id: "languages-learning", name: "Languages & Learning", group: "Education & Knowledge" },
-  { id: "relationships-family", name: "Relationships & Family", group: "Lifestyle" },
+  {
+    id: "languages-learning",
+    name: "Languages & Learning",
+    group: "Education & Knowledge",
+  },
+  {
+    id: "relationships-family",
+    name: "Relationships & Family",
+    group: "Lifestyle",
+  },
   { id: "parenting", name: "Parenting", group: "Lifestyle" },
-  { id: "spirituality-faith", name: "Spirituality & Faith", group: "Lifestyle" },
+  {
+    id: "spirituality-faith",
+    name: "Spirituality & Faith",
+    group: "Lifestyle",
+  },
   { id: "visual-arts", name: "Visual Arts", group: "Creative Arts" },
-  { id: "literature-books", name: "Literature & Books", group: "Creative Arts" },
+  {
+    id: "literature-books",
+    name: "Literature & Books",
+    group: "Creative Arts",
+  },
   { id: "comedy-humour", name: "Comedy & Humour", group: "Creative Arts" },
-  { id: "environment-climate", name: "Environment & Climate", group: "Environment" },
-  { id: "diaspora-migration", name: "Diaspora & Migration", group: "Culture & Society" },
-  { id: "housing-urban-development", name: "Housing & Urban Development", group: "Business & Economy" },
-  { id: "wildlife-conservation", name: "Wildlife & Conservation", group: "Environment" },
-  { id: "automotive-transport", name: "Automotive & Transport", group: "Lifestyle" },
-  { id: "mental-health-wellness", name: "Mental Health & Wellness", group: "Lifestyle" },
-  { id: "african-identity", name: "African Identity", group: "Culture & Society" },
-  { id: "maker-culture-diy", name: "Maker Culture & DIY", group: "Creative Arts" },
+  {
+    id: "environment-climate",
+    name: "Environment & Climate",
+    group: "Environment",
+  },
+  {
+    id: "diaspora-migration",
+    name: "Diaspora & Migration",
+    group: "Culture & Society",
+  },
+  {
+    id: "housing-urban-development",
+    name: "Housing & Urban Development",
+    group: "Business & Economy",
+  },
+  {
+    id: "wildlife-conservation",
+    name: "Wildlife & Conservation",
+    group: "Environment",
+  },
+  {
+    id: "automotive-transport",
+    name: "Automotive & Transport",
+    group: "Lifestyle",
+  },
+  {
+    id: "mental-health-wellness",
+    name: "Mental Health & Wellness",
+    group: "Lifestyle",
+  },
+  {
+    id: "african-identity",
+    name: "African Identity",
+    group: "Culture & Society",
+  },
+  {
+    id: "maker-culture-diy",
+    name: "Maker Culture & DIY",
+    group: "Creative Arts",
+  },
 ];
 
 const DEFAULT_CITIES = [
@@ -108,7 +199,12 @@ const DEFAULT_CITIES = [
 
 const mineralThemeList = mineralThemeIds.map((id) => {
   const theme = mineralThemes[id];
-  return { id, name: theme.name, gradient: theme.gradient, colors: getThemeColors(id) };
+  return {
+    id,
+    name: theme.name,
+    gradient: theme.gradient,
+    colors: getThemeColors(id),
+  };
 });
 
 // Basic URL validation
@@ -132,7 +228,11 @@ export default function CreateEventForm() {
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [created, setCreated] = useState<{ id: string; name: string; shortCode?: string } | null>(null);
+  const [created, setCreated] = useState<{
+    id: string;
+    name: string;
+    shortCode?: string;
+  } | null>(null);
 
   // Hosting (step 3)
   const [hostMode, setHostMode] = useState<HostMode>("person");
@@ -160,7 +260,10 @@ export default function CreateEventForm() {
   const [venue, setVenue] = useState("");
   const [address, setAddress] = useState("");
   const [addressSearch, setAddressSearch] = useState("");
-  const [selectedCity, setSelectedCity] = useState<{ addressLocality: string; addressCountry: string } | null>(null);
+  const [selectedCity, setSelectedCity] = useState<{
+    addressLocality: string;
+    addressCountry: string;
+  } | null>(null);
   // The places.places._id behind the venue, when the picker resolved one.
   const [placeId, setPlaceId] = useState<string | null>(null);
   // Resolved from the venue when a location is picked (see LocationModal); an
@@ -169,7 +272,9 @@ export default function CreateEventForm() {
   const [selectedTimezone, setSelectedTimezone] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(false);
   const [meetingUrl, setMeetingUrl] = useState("");
-  const [meetingPlatform, setMeetingPlatform] = useState<"zoom" | "google_meet" | "teams" | "other">("zoom");
+  const [meetingPlatform, setMeetingPlatform] = useState<
+    "zoom" | "google_meet" | "teams" | "other"
+  >("zoom");
 
   // Date/Time
   const [eventDate, setEventDate] = useState("");
@@ -190,7 +295,10 @@ export default function CreateEventForm() {
   // render, then replaced by the live Mongo-backed catalog (/api/categories,
   // /api/cities) once it loads. The static lists keep the form offline-safe.
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
-  const [cities, setCities] = useState<{ addressLocality: string; addressCountry: string }[]>(DEFAULT_CITIES);
+  const [cities, setCities] =
+    useState<{ addressLocality: string; addressCountry: string }[]>(
+      DEFAULT_CITIES,
+    );
 
   useEffect(() => {
     let cancelled = false;
@@ -201,9 +309,12 @@ export default function CreateEventForm() {
         getMyCalendarsAction(),
       ]);
       if (cancelled) return;
-      if (cats.status === "fulfilled" && cats.value.length > 0) setCategories(cats.value);
-      if (cityList.status === "fulfilled" && cityList.value.length > 0) setCities(cityList.value);
-      if (calendarList.status === "fulfilled") setMyCalendars(calendarList.value);
+      if (cats.status === "fulfilled" && cats.value.length > 0)
+        setCategories(cats.value);
+      if (cityList.status === "fulfilled" && cityList.value.length > 0)
+        setCities(cityList.value);
+      if (calendarList.status === "fulfilled")
+        setMyCalendars(calendarList.value);
     })();
     return () => {
       cancelled = true;
@@ -280,7 +391,11 @@ export default function CreateEventForm() {
   const formatDateForDisplay = () => {
     if (!eventDate) return "Select Date & Time";
     const date = new Date(eventDate);
-    return date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+    return date.toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
   };
 
   const validateStep = useCallback(
@@ -292,20 +407,43 @@ export default function CreateEventForm() {
       if (target >= 2) {
         if (!eventDate) return "Please select a date and time for your event";
         if (endTime <= startTime) return "End time must be after start time";
-        if (!isOnline && (!venue || !selectedCity)) return "Please add a location or mark as online event";
-        if (isOnline && !meetingUrl.trim()) return "Please add a meeting URL for your online event";
-        if (isOnline && meetingUrl.trim() && !isValidUrl(meetingUrl.trim())) return "Please enter a valid meeting URL (e.g., https://zoom.us/j/...)";
+        if (!isOnline && (!venue || !selectedCity))
+          return "Please add a location or mark as online event";
+        if (isOnline && !meetingUrl.trim())
+          return "Please add a meeting URL for your online event";
+        if (isOnline && meetingUrl.trim() && !isValidUrl(meetingUrl.trim()))
+          return "Please enter a valid meeting URL (e.g., https://zoom.us/j/...)";
       }
       if (target >= 3) {
-        if (capacity !== null && capacity < 1) return "Capacity must be at least 1 attendee";
-        if (!isFree && ticketUrl.trim() && !isValidUrl(ticketUrl.trim())) return "Please enter a valid ticket URL";
-        if ((hostMode === "organization" || hostMode === "family") && !hostEntityId) {
+        if (capacity !== null && capacity < 1)
+          return "Capacity must be at least 1 attendee";
+        if (!isFree && ticketUrl.trim() && !isValidUrl(ticketUrl.trim()))
+          return "Please enter a valid ticket URL";
+        if (
+          (hostMode === "organization" || hostMode === "family") &&
+          !hostEntityId
+        ) {
           return `Pick which ${hostMode} is hosting, or switch back to a personal host`;
         }
       }
       return null;
     },
-    [eventName, category, eventDate, endTime, startTime, isOnline, venue, selectedCity, meetingUrl, capacity, isFree, ticketUrl, hostMode, hostEntityId],
+    [
+      eventName,
+      category,
+      eventDate,
+      endTime,
+      startTime,
+      isOnline,
+      venue,
+      selectedCity,
+      meetingUrl,
+      capacity,
+      isFree,
+      ticketUrl,
+      hostMode,
+      hostEntityId,
+    ],
   );
 
   const goNext = () => {
@@ -353,7 +491,11 @@ export default function CreateEventForm() {
         }
       }
 
-      const isoStart = zonedTimeToUtcIso(eventDate, startTime, effectiveTimezone);
+      const isoStart = zonedTimeToUtcIso(
+        eventDate,
+        startTime,
+        effectiveTimezone,
+      );
       const isoEnd = zonedTimeToUtcIso(eventDate, endTime, effectiveTimezone);
 
       const result = await createEventAction({
@@ -364,7 +506,9 @@ export default function CreateEventForm() {
         category: category || null,
         keywords: tags,
         image: uploadedCoverImageUrl ?? null,
-        coverGradient: uploadedCoverImageUrl ? null : mineralThemeList[selectedTheme].gradient,
+        coverGradient: uploadedCoverImageUrl
+          ? null
+          : mineralThemeList[selectedTheme].gradient,
         isOnline,
         venue: venue.trim(),
         streetAddress: address.trim(),
@@ -391,14 +535,22 @@ export default function CreateEventForm() {
         shortCode: result.event?.shortCode,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create event. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create event. Please try again.",
+      );
     } finally {
       setSubmitting(false);
       setUploading(false);
     }
   };
 
-  const publishLabel = uploading ? "Uploading image…" : step < 3 ? "Continue" : "Publish Nhimbe";
+  const publishLabel = uploading
+    ? "Uploading image…"
+    : step < 3
+      ? "Continue"
+      : "Publish Nhimbe";
 
   if (created) {
     return (
@@ -409,9 +561,16 @@ export default function CreateEventForm() {
           primaryAction={{
             label: "View event",
             onClick: () =>
-              router.push(created.shortCode ? `/e/${created.shortCode}` : `/events/${created.id}`),
+              router.push(
+                created.shortCode
+                  ? `/e/${created.shortCode}`
+                  : `/events/${created.id}`,
+              ),
           }}
-          secondaryAction={{ label: "My events", onClick: () => router.push("/my-events") }}
+          secondaryAction={{
+            label: "My events",
+            onClick: () => router.push("/my-events"),
+          }}
         />
       </div>
     );
@@ -424,204 +583,376 @@ export default function CreateEventForm() {
     <div className="min-h-dvh bg-background">
       <div className="max-w-150 mx-auto px-4 pb-28">
         <div className="mt-2 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-        <WizardStepIndicator currentStep={step} steps={STEPS} />
+          <WizardStepIndicator currentStep={step} steps={STEPS} />
 
-      {step === 1 && (
-        <section aria-label="About your event" data-slot="wizard-step-1">
-          <CoverImageUpload
-            coverImage={coverImage}
-            gradient={mineralThemeList[selectedTheme].gradient}
-            onImageUpload={handleImageUpload}
-            onRemoveImage={removeCoverImage}
-          />
+          {step === 1 && (
+            <section aria-label="About your event" data-slot="wizard-step-1">
+              <CoverImageUpload
+                coverImage={coverImage}
+                gradient={mineralThemeList[selectedTheme].gradient}
+                onImageUpload={handleImageUpload}
+                onRemoveImage={removeCoverImage}
+              />
 
-          <ThemeSelector
-            themes={mineralThemeList}
-            selectedIndex={selectedTheme}
-            onSelect={(i) => { setSelectedTheme(i); touchForm(); }}
-          />
+              <ThemeSelector
+                themes={mineralThemeList}
+                selectedIndex={selectedTheme}
+                onSelect={(i) => {
+                  setSelectedTheme(i);
+                  touchForm();
+                }}
+              />
 
-          <p className="text-sm text-text-secondary mb-3">
-            What are we gathering for? Give it a name, pick a category, and add the story.
-          </p>
-
-          <div className="mb-4">
-            <label
-              htmlFor="create-event-name"
-              className="block text-sm font-medium text-foreground mb-1.5"
-            >
-              Event name <span className="text-red-500" aria-hidden>*</span>
-            </label>
-            <Input
-              id="create-event-name"
-              type="text"
-              inputMode="text"
-              autoCapitalize="words"
-              enterKeyHint="next"
-              value={eventName}
-              onChange={(e) => { setEventName(e.target.value); touchForm(); }}
-              placeholder="e.g. Harare Tech Meetup"
-              aria-required="true"
-              className="w-full h-auto text-xl font-semibold bg-surface text-foreground rounded-xl border border-border px-4 py-3 shadow-xs placeholder:text-text-tertiary placeholder:font-normal focus-visible:ring-2 focus-visible:ring-ring/50"
-            />
-          </div>
-
-          <FormFieldRow icon={<span className="text-lg" aria-hidden>🏷️</span>} onClick={() => setShowCategoryModal(true)}>
-            <div className={`font-medium ${!category ? "text-text-secondary" : ""}`}>
-              {category ? categories.find((c) => c.id === category)?.name || category : "Select Category"}
-            </div>
-            {tags.length > 0 && (
-              <div className="text-sm text-text-tertiary">
-                {tags.map((t) => `#${t}`).join(" ")}
-              </div>
-            )}
-          </FormFieldRow>
-
-          <FormFieldRow icon={<AlignLeft className="w-5 h-5" />} onClick={() => setShowDescriptionModal(true)} className="mb-2">
-            <span className={`font-medium ${description ? "" : "text-text-secondary"}`}>
-              {description ? description.slice(0, 60) + (description.length > 60 ? "…" : "") : "Add Description"}
-            </span>
-          </FormFieldRow>
-        </section>
-      )}
-
-      {step === 2 && (
-        <section aria-label="When and where" data-slot="wizard-step-2">
-          <p className="text-sm text-text-secondary mb-3">
-            Pick a moment and a place. Online and in-person are both welcome.
-          </p>
-
-          <FormFieldRow icon={<Clock className="w-5 h-5" />} onClick={() => setShowDateModal(true)}>
-            <div className={`font-medium ${!eventDate ? "text-text-secondary" : ""}`}>
-              {formatDateForDisplay()}
-            </div>
-            <div className="text-sm text-text-tertiary">
-              {eventDate ? `${startTime} — ${endTime} ${tzLabel}` : "Select date and time"}
-            </div>
-          </FormFieldRow>
-
-          <FormFieldRow icon={<MapPin className="w-5 h-5" />} onClick={() => setShowLocationModal(true)} className="mb-2">
-            {venue || isOnline ? (
-              <>
-                <div className="font-medium">{isOnline ? "Online Event" : venue}</div>
-                <div className="text-sm text-text-tertiary">
-                  {isOnline ? "Virtual event" : selectedCity ? `${selectedCity.addressLocality}, ${selectedCity.addressCountry}` : address}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="font-medium text-text-secondary">Add Event Location</div>
-                <div className="text-sm text-text-tertiary">Offline location or virtual link</div>
-              </>
-            )}
-          </FormFieldRow>
-        </section>
-      )}
-
-      {step === 3 && (
-        <section aria-label="Hosting" data-slot="wizard-step-3">
-          <p className="text-sm text-text-secondary mb-3">
-            Tell people who&apos;s holding this gathering and how it&apos;s being run.
-          </p>
-
-          <HostModePicker
-            hostMode={hostMode}
-            hostEntityId={hostEntityId}
-            onChange={(mode, entityId) => { setHostMode(mode); setHostEntityId(entityId); touchForm(); }}
-          />
-
-          {/* Optional calendar attach (NYU-25) — only when the host curates
-              any calendars; additive to the wizard state/action pattern. */}
-          {myCalendars.length > 0 && (
-            <div className="mb-4">
-              <label
-                htmlFor="create-event-calendar"
-                className="block text-sm font-medium text-foreground mb-1.5"
-              >
-                Add to calendar <span className="text-text-tertiary">(optional)</span>
-              </label>
-              <Select
-                value={calendarId ?? "none"}
-                onValueChange={(v) => { setCalendarId(v === "none" ? null : v); touchForm(); }}
-              >
-                <SelectTrigger id="create-event-calendar" className="w-full">
-                  <SelectValue placeholder="No calendar" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No calendar</SelectItem>
-                  {myCalendars.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="mt-1 text-xs text-text-tertiary">
-                Followers of that calendar will see this event in its stream.
+              <p className="text-sm text-text-secondary mb-3">
+                What are we gathering for? Give it a name, pick a category, and
+                add the story.
               </p>
-            </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="create-event-name"
+                  className="block text-sm font-medium text-foreground mb-1.5"
+                >
+                  Event name{" "}
+                  <span className="text-red-500" aria-hidden>
+                    *
+                  </span>
+                </label>
+                <Input
+                  id="create-event-name"
+                  type="text"
+                  inputMode="text"
+                  autoCapitalize="words"
+                  enterKeyHint="next"
+                  value={eventName}
+                  onChange={(e) => {
+                    setEventName(e.target.value);
+                    touchForm();
+                  }}
+                  placeholder="e.g. Harare Tech Meetup"
+                  aria-required="true"
+                  className="w-full h-auto text-xl font-semibold bg-surface text-foreground rounded-xl border border-border px-4 py-3 shadow-xs placeholder:text-text-tertiary placeholder:font-normal focus-visible:ring-2 focus-visible:ring-ring/50"
+                />
+              </div>
+
+              <FormFieldRow
+                icon={
+                  <span className="text-lg" aria-hidden>
+                    🏷️
+                  </span>
+                }
+                onClick={() => setShowCategoryModal(true)}
+              >
+                <div
+                  className={`font-medium ${!category ? "text-text-secondary" : ""}`}
+                >
+                  {category
+                    ? categories.find((c) => c.id === category)?.name ||
+                      category
+                    : "Select Category"}
+                </div>
+                {tags.length > 0 && (
+                  <div className="text-sm text-text-tertiary">
+                    {tags.map((t) => `#${t}`).join(" ")}
+                  </div>
+                )}
+              </FormFieldRow>
+
+              <FormFieldRow
+                icon={<AlignLeft className="w-5 h-5" />}
+                onClick={() => setShowDescriptionModal(true)}
+                className="mb-2"
+              >
+                <span
+                  className={`font-medium ${description ? "" : "text-text-secondary"}`}
+                >
+                  {description
+                    ? description.slice(0, 60) +
+                      (description.length > 60 ? "…" : "")
+                    : "Add Description"}
+                </span>
+              </FormFieldRow>
+            </section>
           )}
 
-          <div className="flex gap-2 mb-4">
-            <Button
-              variant="ghost"
-              className="bg-surface rounded-xl px-4 py-3"
-              onClick={() => { setVisibility(visibility === "public" ? "private" : "public"); touchForm(); }}
+          {step === 2 && (
+            <section aria-label="When and where" data-slot="wizard-step-2">
+              <p className="text-sm text-text-secondary mb-3">
+                Pick a moment and a place. Online and in-person are both
+                welcome.
+              </p>
+
+              <FormFieldRow
+                icon={<Clock className="w-5 h-5" />}
+                onClick={() => setShowDateModal(true)}
+              >
+                <div
+                  className={`font-medium ${!eventDate ? "text-text-secondary" : ""}`}
+                >
+                  {formatDateForDisplay()}
+                </div>
+                <div className="text-sm text-text-tertiary">
+                  {eventDate
+                    ? `${startTime} — ${endTime} ${tzLabel}`
+                    : "Select date and time"}
+                </div>
+              </FormFieldRow>
+
+              <FormFieldRow
+                icon={<MapPin className="w-5 h-5" />}
+                onClick={() => setShowLocationModal(true)}
+                className="mb-2"
+              >
+                {venue || isOnline ? (
+                  <>
+                    <div className="font-medium">
+                      {isOnline ? "Online Event" : venue}
+                    </div>
+                    <div className="text-sm text-text-tertiary">
+                      {isOnline
+                        ? "Virtual event"
+                        : selectedCity
+                          ? `${selectedCity.addressLocality}, ${selectedCity.addressCountry}`
+                          : address}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="font-medium text-text-secondary">
+                      Add Event Location
+                    </div>
+                    <div className="text-sm text-text-tertiary">
+                      Offline location or virtual link
+                    </div>
+                  </>
+                )}
+              </FormFieldRow>
+            </section>
+          )}
+
+          {step === 3 && (
+            <section aria-label="Hosting" data-slot="wizard-step-3">
+              <p className="text-sm text-text-secondary mb-3">
+                Tell people who&apos;s holding this gathering and how it&apos;s
+                being run.
+              </p>
+
+              <HostModePicker
+                hostMode={hostMode}
+                hostEntityId={hostEntityId}
+                onChange={(mode, entityId) => {
+                  setHostMode(mode);
+                  setHostEntityId(entityId);
+                  touchForm();
+                }}
+              />
+
+              {/* Optional calendar attach (NYU-25) — only when the host curates
+              any calendars; additive to the wizard state/action pattern. */}
+              {myCalendars.length > 0 && (
+                <div className="mb-4">
+                  <label
+                    htmlFor="create-event-calendar"
+                    className="block text-sm font-medium text-foreground mb-1.5"
+                  >
+                    Add to calendar{" "}
+                    <span className="text-text-tertiary">(optional)</span>
+                  </label>
+                  <Select
+                    value={calendarId ?? "none"}
+                    onValueChange={(v) => {
+                      setCalendarId(v === "none" ? null : v);
+                      touchForm();
+                    }}
+                  >
+                    <SelectTrigger
+                      id="create-event-calendar"
+                      className="w-full"
+                    >
+                      <SelectValue placeholder="No calendar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No calendar</SelectItem>
+                      {myCalendars.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-text-tertiary">
+                    Followers of that calendar will see this event in its
+                    stream.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-2 mb-4">
+                <Button
+                  variant="ghost"
+                  className="bg-surface rounded-xl px-4 py-3"
+                  onClick={() => {
+                    setVisibility(
+                      visibility === "public" ? "private" : "public",
+                    );
+                    touchForm();
+                  }}
+                >
+                  {visibility === "public" ? (
+                    <Globe className="w-4 h-4" aria-hidden />
+                  ) : (
+                    <Lock className="w-4 h-4" aria-hidden />
+                  )}
+                  <span className="text-sm">
+                    {visibility === "public" ? "Public" : "Private"}
+                  </span>
+                  <ChevronDown
+                    className="w-4 h-4 text-text-tertiary"
+                    aria-hidden
+                  />
+                </Button>
+              </div>
+
+              <EventOptionsCard
+                isFree={isFree}
+                requireApproval={requireApproval}
+                capacity={capacity}
+                onRequireApprovalChange={(v) => {
+                  setRequireApproval(v);
+                  touchForm();
+                }}
+                onOpenTicketing={() => setShowPriceModal(true)}
+                onOpenCapacity={() => setShowCapacityModal(true)}
+              />
+            </section>
+          )}
+
+          {error && (
+            <div
+              ref={errorRef}
+              className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3"
+              role="alert"
             >
-              {visibility === "public" ? <Globe className="w-4 h-4" aria-hidden /> : <Lock className="w-4 h-4" aria-hidden />}
-              <span className="text-sm">{visibility === "public" ? "Public" : "Private"}</span>
-              <ChevronDown className="w-4 h-4 text-text-tertiary" aria-hidden />
-            </Button>
-          </div>
-
-          <EventOptionsCard
-            isFree={isFree}
-            requireApproval={requireApproval}
-            capacity={capacity}
-            onRequireApprovalChange={(v) => { setRequireApproval(v); touchForm(); }}
-            onOpenTicketing={() => setShowPriceModal(true)}
-            onOpenCapacity={() => setShowCapacityModal(true)}
-          />
-        </section>
-      )}
-
-      {error && (
-        <div ref={errorRef} className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3" role="alert">
-          <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" aria-hidden />
-          <p className="text-red-400 text-sm">{error}</p>
+              <AlertCircle
+                className="w-5 h-5 text-red-400 shrink-0 mt-0.5"
+                aria-hidden
+              />
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
         </div>
-      )}
-      </div>
 
-      {/* Sticky wizard navigation — branded nyuchi-create-listing PublishBar,
+        {/* Sticky wizard navigation — branded nyuchi-create-listing PublishBar,
           keeping the wizard's goNext/handleSubmit flow and server action. */}
-      <PublishBar
-        label={publishLabel}
-        loading={submitting}
-        disabled={submitting || uploading}
-        onPublish={step < 3 ? goNext : handleSubmit}
-        secondary={
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={goBack}
-            disabled={submitting || uploading}
-            className="rounded-full"
-            aria-label={step === 1 ? "Cancel and go back" : `Back to step ${step - 1}`}
-          >
-            <ChevronLeft className="w-4 h-4" aria-hidden />
-            Back
-          </Button>
-        }
-      />
+        <PublishBar
+          label={publishLabel}
+          loading={submitting}
+          disabled={submitting || uploading}
+          onPublish={step < 3 ? goNext : handleSubmit}
+          secondary={
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={goBack}
+              disabled={submitting || uploading}
+              className="rounded-full"
+              aria-label={
+                step === 1 ? "Cancel and go back" : `Back to step ${step - 1}`
+              }
+            >
+              <ChevronLeft className="w-4 h-4" aria-hidden />
+              Back
+            </Button>
+          }
+        />
 
-      {/* Modals */}
-      <DateTimeModal isOpen={showDateModal} onClose={() => { setShowDateModal(false); touchForm(); }} eventDate={eventDate} setEventDate={setEventDate} startTime={startTime} setStartTime={setStartTime} endTime={endTime} setEndTime={setEndTime} />
-      <LocationModal isOpen={showLocationModal} onClose={() => { setShowLocationModal(false); touchForm(); }} isOnline={isOnline} setIsOnline={setIsOnline} meetingPlatform={meetingPlatform} setMeetingPlatform={setMeetingPlatform} meetingUrl={meetingUrl} setMeetingUrl={setMeetingUrl} addressSearch={addressSearch} setAddressSearch={setAddressSearch} venue={venue} setVenue={setVenue} address={address} setAddress={setAddress} selectedCity={selectedCity} setSelectedCity={setSelectedCity} cities={cities} selectedTimezone={selectedTimezone} setSelectedTimezone={setSelectedTimezone} placeId={placeId} setPlaceId={setPlaceId} />
-      <CategoryModal isOpen={showCategoryModal} onClose={() => { setShowCategoryModal(false); touchForm(); }} categories={categories} category={category} setCategory={setCategory} tags={tags} tagInput={tagInput} setTagInput={setTagInput} addTag={addTag} removeTag={removeTag} />
-      <DescriptionModal isOpen={showDescriptionModal} onClose={() => { setShowDescriptionModal(false); touchForm(); }} description={description} setDescription={setDescription} eventName={eventName} category={category} isOnline={isOnline} />
-      <TicketingModal isOpen={showPriceModal} onClose={() => { setShowPriceModal(false); touchForm(); }} isFree={isFree} setIsFree={setIsFree} ticketUrl={ticketUrl} setTicketUrl={setTicketUrl} />
-      <CapacityModal isOpen={showCapacityModal} onClose={() => { setShowCapacityModal(false); touchForm(); }} capacity={capacity} setCapacity={setCapacity} />
+        {/* Modals */}
+        <DateTimeModal
+          isOpen={showDateModal}
+          onClose={() => {
+            setShowDateModal(false);
+            touchForm();
+          }}
+          eventDate={eventDate}
+          setEventDate={setEventDate}
+          startTime={startTime}
+          setStartTime={setStartTime}
+          endTime={endTime}
+          setEndTime={setEndTime}
+        />
+        <LocationModal
+          isOpen={showLocationModal}
+          onClose={() => {
+            setShowLocationModal(false);
+            touchForm();
+          }}
+          isOnline={isOnline}
+          setIsOnline={setIsOnline}
+          meetingPlatform={meetingPlatform}
+          setMeetingPlatform={setMeetingPlatform}
+          meetingUrl={meetingUrl}
+          setMeetingUrl={setMeetingUrl}
+          addressSearch={addressSearch}
+          setAddressSearch={setAddressSearch}
+          venue={venue}
+          setVenue={setVenue}
+          address={address}
+          setAddress={setAddress}
+          selectedCity={selectedCity}
+          setSelectedCity={setSelectedCity}
+          cities={cities}
+          selectedTimezone={selectedTimezone}
+          setSelectedTimezone={setSelectedTimezone}
+          placeId={placeId}
+          setPlaceId={setPlaceId}
+        />
+        <CategoryModal
+          isOpen={showCategoryModal}
+          onClose={() => {
+            setShowCategoryModal(false);
+            touchForm();
+          }}
+          categories={categories}
+          category={category}
+          setCategory={setCategory}
+          tags={tags}
+          tagInput={tagInput}
+          setTagInput={setTagInput}
+          addTag={addTag}
+          removeTag={removeTag}
+        />
+        <DescriptionModal
+          isOpen={showDescriptionModal}
+          onClose={() => {
+            setShowDescriptionModal(false);
+            touchForm();
+          }}
+          description={description}
+          setDescription={setDescription}
+          eventName={eventName}
+          category={category}
+          isOnline={isOnline}
+        />
+        <TicketingModal
+          isOpen={showPriceModal}
+          onClose={() => {
+            setShowPriceModal(false);
+            touchForm();
+          }}
+          isFree={isFree}
+          setIsFree={setIsFree}
+          ticketUrl={ticketUrl}
+          setTicketUrl={setTicketUrl}
+        />
+        <CapacityModal
+          isOpen={showCapacityModal}
+          onClose={() => {
+            setShowCapacityModal(false);
+            touchForm();
+          }}
+          capacity={capacity}
+          setCapacity={setCapacity}
+        />
       </div>
     </div>
   );

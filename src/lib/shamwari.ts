@@ -22,7 +22,9 @@ const SERVER_NAME = "nhimbe/description_wizard";
 
 /** Mint a client-side grouping id for a wizard session. No DB write yet —
  *  toolUsage rows carry this as `conversationId` so they can be grouped later. */
-export async function startShamwariConversation(personId: string): Promise<string | null> {
+export async function startShamwariConversation(
+  personId: string,
+): Promise<string | null> {
   if (!personId) return null;
   return newId();
 }
@@ -38,7 +40,9 @@ interface LogToolUsageInput {
 }
 
 /** Best-effort log of a wizard tool invocation to shamwari.toolUsage. */
-export async function logShamwariToolUsage(input: LogToolUsageInput): Promise<void> {
+export async function logShamwariToolUsage(
+  input: LogToolUsageInput,
+): Promise<void> {
   if (!input.personId) return;
   try {
     const client = await getMongoClient();
@@ -74,6 +78,8 @@ interface LogFeedbackInput {
 
 /** Feedback capture is deferred to the AI re-platform (no feedback collection
  *  in the v3.1 shamwari schema yet). No-op for now, best-effort by contract. */
-export async function logShamwariFeedback(_input: LogFeedbackInput): Promise<void> {
+export async function logShamwariFeedback(
+  _input: LogFeedbackInput,
+): Promise<void> {
   void _input;
 }

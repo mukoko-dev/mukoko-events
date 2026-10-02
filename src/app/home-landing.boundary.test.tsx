@@ -52,7 +52,10 @@ const featuredEvent: Event = {
   description: "An evening of jazz.",
   startDate: "2026-08-01T18:00:00.000Z",
   date: { day: "1", month: "Aug", time: "6:00 PM" } as Event["date"],
-  location: { name: "National Gallery", addressLocality: "Harare" } as Event["location"],
+  location: {
+    name: "National Gallery",
+    addressLocality: "Harare",
+  } as Event["location"],
   category: "music",
   keywords: [],
   attendeeCount: 42,

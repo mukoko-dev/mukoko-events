@@ -26,7 +26,9 @@ export function PopularityBadge({
 
   if (variant === "minimal") {
     return (
-      <div className={`flex items-center gap-1 text-text-tertiary ${className}`}>
+      <div
+        className={`flex items-center gap-1 text-text-tertiary ${className}`}
+      >
         <Eye className="w-3 h-3" />
         <span className="text-xs">{formatViews(views)}</span>
       </div>
@@ -46,9 +48,7 @@ export function PopularityBadge({
             <span className="text-xs font-medium">+{trend}%</span>
           </div>
         )}
-        {isHot && (
-          <Flame className="w-3.5 h-3.5 text-accent" />
-        )}
+        {isHot && <Flame className="w-3.5 h-3.5 text-accent" />}
       </div>
     );
   }
@@ -62,8 +62,7 @@ export function PopularityBadge({
       </div>
       {trend > 10 && (
         <Badge variant="success" className="flex items-center gap-1">
-          <TrendingUp className="w-3 h-3" />
-          +{trend}%
+          <TrendingUp className="w-3 h-3" />+{trend}%
         </Badge>
       )}
       {isHot && (
@@ -89,11 +88,15 @@ export function TrendingIndicator({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {rank && rank <= 3 && (
-        <div className={`flex items-center justify-center w-6 h-6 rounded-full ${
-          rank === 1 ? "bg-accent/20 text-accent" :
-          rank === 2 ? "bg-gray-300/20 text-gray-300" :
-          "bg-amber-600/20 text-amber-600"
-        }`}>
+        <div
+          className={`flex items-center justify-center w-6 h-6 rounded-full ${
+            rank === 1
+              ? "bg-accent/20 text-accent"
+              : rank === 2
+                ? "bg-gray-300/20 text-gray-300"
+                : "bg-amber-600/20 text-amber-600"
+          }`}
+        >
           <span className="text-xs font-bold">#{rank}</span>
         </div>
       )}
@@ -119,7 +122,10 @@ export function MomentumBadge({
   spotsLeft?: number;
   className?: string;
 }) {
-  const isAlmostFull = spotsLeft !== undefined && totalSpots !== undefined && spotsLeft < totalSpots * 0.2;
+  const isAlmostFull =
+    spotsLeft !== undefined &&
+    totalSpots !== undefined &&
+    spotsLeft < totalSpots * 0.2;
   const hasRecentActivity = recentRSVPs !== undefined && recentRSVPs > 5;
 
   if (!isAlmostFull && !hasRecentActivity) return null;
@@ -128,8 +134,7 @@ export function MomentumBadge({
     <div className={`flex items-center gap-2 ${className}`}>
       {hasRecentActivity && (
         <Badge variant="default" className="flex items-center gap-1">
-          <Zap className="w-3 h-3" />
-          +{recentRSVPs} this week
+          <Zap className="w-3 h-3" />+{recentRSVPs} this week
         </Badge>
       )}
       {isAlmostFull && (

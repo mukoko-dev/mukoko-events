@@ -47,7 +47,11 @@
  */
 
 import "server-only";
-import { embedOne, EMBEDDING_DIMENSIONS, isGatewayConfigured } from "@/lib/ai/gateway";
+import {
+  embedOne,
+  EMBEDDING_DIMENSIONS,
+  isGatewayConfigured,
+} from "@/lib/ai/gateway";
 import { eventEmbeddingsCollection, eventsCollection } from "./databases";
 import { getEventsByIds } from "./events";
 import type { EventDoc } from "./types";
@@ -97,7 +101,10 @@ function escapeRegex(input: string): string {
  * score(id) = Σ weightᵢ / (K + rankᵢ) with rank 1-based. Higher = better.
  * Exported for unit testing.
  */
-export function reciprocalRankFuse(lists: string[][], weights: number[]): string[] {
+export function reciprocalRankFuse(
+  lists: string[][],
+  weights: number[],
+): string[] {
   const scores = new Map<string, number>();
   lists.forEach((ids, i) => {
     const weight = weights[i] ?? 1;
@@ -129,7 +136,10 @@ export async function semanticSearchEvents(
 
   // 1. HYBRID — both retrievers produced hits: fuse and hydrate.
   if (vectorIds.length && textIds.length) {
-    const fused = reciprocalRankFuse([vectorIds, textIds], [1, 1]).slice(0, limit);
+    const fused = reciprocalRankFuse([vectorIds, textIds], [1, 1]).slice(
+      0,
+      limit,
+    );
     const events = (await getEventsByIds(fused)).filter(isPubliclyListable);
     if (events.length) return { events, mode: "hybrid" };
   }
@@ -226,7 +236,10 @@ async function atlasTextSearchIds(
       .toArray();
     return docs.map((d) => d._id);
   } catch (err) {
-    console.warn("[shamwari] atlas $search unavailable, will use regex fallback:", err);
+    console.warn(
+      "[shamwari] atlas $search unavailable, will use regex fallback:",
+      err,
+    );
     return [];
   }
 }
@@ -264,7 +277,10 @@ async function regexSearch(
  * text index is present, else a case-insensitive name-prefix regex. Returns a
  * de-duplicated list of event names; never throws.
  */
-export async function autocompleteEventNames(prefix: string, limit = 6): Promise<string[]> {
+export async function autocompleteEventNames(
+  prefix: string,
+  limit = 6,
+): Promise<string[]> {
   const q = prefix.trim();
   if (q.length < 2) return [];
   const cap = Math.min(Math.max(limit, 1), 10);
@@ -281,7 +297,11 @@ export async function autocompleteEventNames(prefix: string, limit = 6): Promise
         {
           $search: {
             index: TEXT_INDEX,
-            autocomplete: { query: q, path: "name", fuzzy: { maxEdits: 1, prefixLength: 1 } },
+            autocomplete: {
+              query: q,
+              path: "name",
+              fuzzy: { maxEdits: 1, prefixLength: 1 },
+            },
           },
         },
         { $match: match },
@@ -292,14 +312,18 @@ export async function autocompleteEventNames(prefix: string, limit = 6): Promise
     const names = dedupeNames(docs.map((d) => d.name));
     if (names.length) return names;
   } catch (err) {
-    console.warn("[shamwari] autocomplete $search unavailable, using regex:", err);
+    console.warn(
+      "[shamwari] autocomplete $search unavailable, using regex:",
+      err,
+    );
   }
 
   // Regex prefix fallback (anchored, escaped).
   const docs = await col
-    .find({ ...match, name: { $regex: `^${escapeRegex(q)}`, $options: "i" } } as Parameters<
-      typeof col.find
-    >[0])
+    .find({
+      ...match,
+      name: { $regex: `^${escapeRegex(q)}`, $options: "i" },
+    } as Parameters<typeof col.find>[0])
     .limit(cap)
     .project({ _id: 0, name: 1 })
     .toArray();

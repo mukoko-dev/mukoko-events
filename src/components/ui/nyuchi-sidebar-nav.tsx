@@ -82,7 +82,8 @@ export function NyuchiSidebarNav({
       </span>
       {item.disabled && item.trailing
         ? item.trailing
-        : item.badge != null && item.badge > 0 && (
+        : item.badge != null &&
+          item.badge > 0 && (
             <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
               {item.badge}
             </span>
@@ -113,7 +114,12 @@ export function NyuchiSidebarNav({
             const active = activeKey === item.key;
             if (item.disabled) {
               return (
-                <div key={item.key} title={item.title} aria-disabled className={itemClasses(false, true)}>
+                <div
+                  key={item.key}
+                  title={item.title}
+                  aria-disabled
+                  className={itemClasses(false, true)}
+                >
                   {inner(item)}
                 </div>
               );

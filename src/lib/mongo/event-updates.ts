@@ -73,7 +73,9 @@ export async function writeEventUpdateForHost(
   const text = (input.text ?? "").trim();
   if (!text) throw new Error("Write an update before posting.");
   if (text.length > MAX_UPDATE_LENGTH) {
-    throw new Error(`Updates must be ${MAX_UPDATE_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Updates must be ${MAX_UPDATE_LENGTH} characters or fewer.`,
+    );
   }
 
   const updateType: EventUpdateType =
@@ -140,17 +142,33 @@ export async function writeEventUpdateForHost(
       });
       if (recipients.length > 0) {
         const eventUrl = `${SITE_URL}/events/${event._id}`;
-        const template = eventUpdatePosted({ eventName: event.name, updateText: text, eventUrl });
+        const template = eventUpdatePosted({
+          eventName: event.name,
+          updateText: text,
+          eventUrl,
+        });
         const results = await Promise.allSettled(
           recipients.map((r) =>
-            sendEmail({ to: r.email, subject: template.subject, html: template.html, text: template.text }),
+            sendEmail({
+              to: r.email,
+              subject: template.subject,
+              html: template.html,
+              text: template.text,
+            }),
           ),
         );
         const failed = results.filter(
-          (r) => r.status === "rejected" || (r.status === "fulfilled" && !r.value.success),
+          (r) =>
+            r.status === "rejected" ||
+            (r.status === "fulfilled" && !r.value.success),
         ).length;
         updatesLog.info("Event-update emails sent", {
-          data: { eventId: event._id, updateId: doc._id, recipients: recipients.length, failed },
+          data: {
+            eventId: event._id,
+            updateId: doc._id,
+            recipients: recipients.length,
+            failed,
+          },
         });
       }
     } catch (error) {

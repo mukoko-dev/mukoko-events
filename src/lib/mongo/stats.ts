@@ -10,7 +10,11 @@
  */
 
 import "server-only";
-import { checkInsCollection, eventsCollection, rsvpsCollection } from "./databases";
+import {
+  checkInsCollection,
+  eventsCollection,
+  rsvpsCollection,
+} from "./databases";
 import type { EventStats } from "@/lib/api";
 
 /**
@@ -22,7 +26,10 @@ import type { EventStats } from "@/lib/api";
  * current schema. Surface them here once the substrate grows those counters.
  */
 export async function getEventStats(eventId: string): Promise<EventStats> {
-  const [rsvps, checkIns] = await Promise.all([rsvpsCollection(), checkInsCollection()]);
+  const [rsvps, checkIns] = await Promise.all([
+    rsvpsCollection(),
+    checkInsCollection(),
+  ]);
 
   const [rsvpCount, checkinCount] = await Promise.all([
     rsvps.countDocuments({ eventId, rsvpResponse: "RsvpResponseYes" }),
@@ -33,8 +40,12 @@ export async function getEventStats(eventId: string): Promise<EventStats> {
   // deployment may stash one under the free-form `mukoko` bag. Read it if
   // present, else 0 — never invent the field.
   const events = await eventsCollection();
-  const doc = await events.findOne({ _id: eventId }, { projection: { mukoko: 1 } });
-  const rawViews = (doc?.mukoko as Record<string, unknown> | undefined)?.viewCount;
+  const doc = await events.findOne(
+    { _id: eventId },
+    { projection: { mukoko: 1 } },
+  );
+  const rawViews = (doc?.mukoko as Record<string, unknown> | undefined)
+    ?.viewCount;
   const views = typeof rawViews === "number" ? rawViews : 0;
 
   return {

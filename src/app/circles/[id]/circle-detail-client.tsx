@@ -2,12 +2,24 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, CalendarRange, Heart, MessageCircle, Users, Flame, Archive } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  CalendarRange,
+  Heart,
+  MessageCircle,
+  Users,
+  Flame,
+  Archive,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { NyuchiContentComposer } from "@/components/ui/nyuchi-content-composer";
-import { NyuchiTimeline, type TimelineItem } from "@/components/ui/nyuchi-timeline";
+import {
+  NyuchiTimeline,
+  type TimelineItem,
+} from "@/components/ui/nyuchi-timeline";
 import { categoryToMineral } from "@/lib/category-mineral";
 import { getTheme } from "@/lib/themes";
 import { getMediaUrl, type Event } from "@/lib/api";
@@ -38,14 +50,18 @@ interface CircleDetailClientProps {
 
 function authorLabel(p: CirclePerson | null): string {
   if (!p) return "Member";
-  return p.name || [p.givenname, p.familyname].filter(Boolean).join(" ") || "Member";
+  return (
+    p.name || [p.givenname, p.familyname].filter(Boolean).join(" ") || "Member"
+  );
 }
 
 function authorInitial(label: string): string {
   return label.trim().slice(0, 1).toUpperCase() || "•";
 }
 
-export default function CircleDetailClient({ circleId }: CircleDetailClientProps) {
+export default function CircleDetailClient({
+  circleId,
+}: CircleDetailClientProps) {
   const { t } = useT();
   const { user, isAuthenticated } = useAuth();
   const personId = user?.personId ?? null;
@@ -59,7 +75,9 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
   const [archived, setArchived] = useState<CirclePost[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"events" | "stream" | "members" | "calendars" | "archive">("events");
+  const [tab, setTab] = useState<
+    "events" | "stream" | "members" | "calendars" | "archive"
+  >("events");
 
   const isMember = personId
     ? members.some((m) => m.person_id === personId)
@@ -91,7 +109,10 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
         setCalendars(cal);
       })
       .catch((e: unknown) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load this circle");
+        if (!cancelled)
+          setError(
+            e instanceof Error ? e.message : "Failed to load this circle",
+          );
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -114,7 +135,9 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
   // Lazy-load the archive on tab change. We invoke from the tab handler
   // rather than a useEffect-on-tab so we don't trigger setState in an
   // effect body when nothing has actually changed.
-  const onTabChange = (next: "events" | "stream" | "members" | "calendars" | "archive") => {
+  const onTabChange = (
+    next: "events" | "stream" | "members" | "calendars" | "archive",
+  ) => {
     setTab(next);
     if (next === "archive") void loadArchive();
   };
@@ -168,7 +191,10 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId
-            ? { ...p, like_count: (p.like_count ?? 0) + (result === "added" ? 1 : -1) }
+            ? {
+                ...p,
+                like_count: (p.like_count ?? 0) + (result === "added" ? 1 : -1),
+              }
             : p,
         ),
       );
@@ -193,7 +219,10 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
       ) : !circle ? (
         <Card className="border-0 bg-surface">
           <CardContent className="p-8 text-center">
-            <p className="text-text-secondary">This circle isn&apos;t available, or you don&apos;t have access to it.</p>
+            <p className="text-text-secondary">
+              This circle isn&apos;t available, or you don&apos;t have access to
+              it.
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -253,52 +282,77 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
           </header>
 
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-400" role="alert">
+            <div
+              className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-400"
+              role="alert"
+            >
               {error}
             </div>
           )}
 
-          <Tabs value={tab} onValueChange={(v) => onTabChange(v as "events" | "stream" | "members" | "calendars" | "archive")}>
+          <Tabs
+            value={tab}
+            onValueChange={(v) =>
+              onTabChange(
+                v as "events" | "stream" | "members" | "calendars" | "archive",
+              )
+            }
+          >
             <TabsList className="mb-4">
-              <TabsTrigger value="events">{t("circle.tabs.events")}</TabsTrigger>
-              <TabsTrigger value="stream">{t("circle.tabs.stream")}</TabsTrigger>
-              <TabsTrigger value="members">{t("circle.tabs.members")}</TabsTrigger>
+              <TabsTrigger value="events">
+                {t("circle.tabs.events")}
+              </TabsTrigger>
+              <TabsTrigger value="stream">
+                {t("circle.tabs.stream")}
+              </TabsTrigger>
+              <TabsTrigger value="members">
+                {t("circle.tabs.members")}
+              </TabsTrigger>
               <TabsTrigger value="calendars">Calendars</TabsTrigger>
-              <TabsTrigger value="archive">{t("circle.tabs.archive")}</TabsTrigger>
+              <TabsTrigger value="archive">
+                {t("circle.tabs.archive")}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="events">
               {events.length === 0 ? (
                 <Card className="border-0 bg-surface">
                   <CardContent className="p-8 text-center text-text-secondary text-sm">
-                    <CalendarDays className="w-8 h-8 mx-auto mb-2 text-text-tertiary" aria-hidden />
+                    <CalendarDays
+                      className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
+                      aria-hidden
+                    />
                     No upcoming gatherings from this circle yet.
                   </CardContent>
                 </Card>
               ) : (
                 <NyuchiTimeline
-                  items={events.map(
-                    (event): TimelineItem => ({
-                      id: event.id,
-                      date: event.startDate,
-                      time: event.date.time,
-                      title: event.name,
-                      host: event.organizer?.name,
-                      location: event.location.name || event.location.addressLocality,
-                      attendeeCount: event.attendeeCount,
-                      thumbnail: event.image ? getMediaUrl(event.image) : undefined,
-                      href: `/events/${event.id}`,
-                      mineral: categoryToMineral(event.category),
-                      category: event.category,
-                    }),
-                  )}
+                  items={events.map((event): TimelineItem => ({
+                    id: event.id,
+                    date: event.startDate,
+                    time: event.date.time,
+                    title: event.name,
+                    host: event.organizer?.name,
+                    location:
+                      event.location.name || event.location.addressLocality,
+                    attendeeCount: event.attendeeCount,
+                    thumbnail: event.image
+                      ? getMediaUrl(event.image)
+                      : undefined,
+                    href: `/events/${event.id}`,
+                    mineral: categoryToMineral(event.category),
+                    category: event.category,
+                  }))}
                 />
               )}
             </TabsContent>
 
             <TabsContent value="stream">
               {isAuthenticated && isMember && (
-                <CircleDiscuss circleId={circleId} isAuthenticated={isAuthenticated} />
+                <CircleDiscuss
+                  circleId={circleId}
+                  isAuthenticated={isAuthenticated}
+                />
               )}
               {isAuthenticated && isMember && (
                 <NyuchiContentComposer
@@ -336,7 +390,8 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
                                 {authorLabel(post.author)}
                               </div>
                               <div className="text-xs text-text-tertiary">
-                                {post.created_at && new Date(post.created_at).toLocaleString()}
+                                {post.created_at &&
+                                  new Date(post.created_at).toLocaleString()}
                               </div>
                             </div>
                           </div>
@@ -381,7 +436,10 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
                     <li key={m.person_id}>
                       <Card className="border-0 bg-surface">
                         <CardContent className="p-3 flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-elevated flex items-center justify-center font-semibold shrink-0" aria-hidden>
+                          <div
+                            className="w-10 h-10 rounded-full bg-elevated flex items-center justify-center font-semibold shrink-0"
+                            aria-hidden
+                          >
                             {authorInitial(authorLabel(m.person))}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -411,7 +469,10 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
               {calendars.length === 0 ? (
                 <Card className="border-0 bg-surface">
                   <CardContent className="p-8 text-center text-text-secondary text-sm">
-                    <CalendarRange className="w-8 h-8 mx-auto mb-2 text-text-tertiary" aria-hidden />
+                    <CalendarRange
+                      className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
+                      aria-hidden
+                    />
                     No calendars stream through this circle yet.
                   </CardContent>
                 </Card>
@@ -425,7 +486,9 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
                       >
                         <span
                           className="flex size-12 shrink-0 items-center justify-center rounded-xl text-primary-foreground"
-                          style={{ background: getTheme(c.theme ?? undefined).gradient }}
+                          style={{
+                            background: getTheme(c.theme ?? undefined).gradient,
+                          }}
                           aria-hidden
                         >
                           <CalendarRange className="w-5 h-5" />
@@ -441,7 +504,8 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
                           )}
                           <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-tertiary">
                             <Users className="w-3 h-3" aria-hidden />
-                            {c.followerCount} {c.followerCount === 1 ? "follower" : "followers"}
+                            {c.followerCount}{" "}
+                            {c.followerCount === 1 ? "follower" : "followers"}
                           </span>
                         </span>
                       </Link>
@@ -455,7 +519,10 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
               {archived.length === 0 ? (
                 <Card className="border-0 bg-surface">
                   <CardContent className="p-8 text-center text-text-secondary text-sm">
-                    <Archive className="w-8 h-8 mx-auto mb-2 text-text-tertiary" aria-hidden />
+                    <Archive
+                      className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
+                      aria-hidden
+                    />
                     Nothing archived yet.
                   </CardContent>
                 </Card>
@@ -467,7 +534,8 @@ export default function CircleDetailClient({ circleId }: CircleDetailClientProps
                         <CardContent className="p-4">
                           <div className="text-xs text-text-tertiary mb-2">
                             {authorLabel(post.author)} ·{" "}
-                            {post.created_at && new Date(post.created_at).toLocaleDateString()}
+                            {post.created_at &&
+                              new Date(post.created_at).toLocaleDateString()}
                           </div>
                           {post.text && (
                             <p className="text-sm leading-relaxed whitespace-pre-wrap">

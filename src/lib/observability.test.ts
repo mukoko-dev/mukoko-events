@@ -54,12 +54,19 @@ describe("log", () => {
 
   it("uses a [mukoko:module] prefix when a module is provided", () => {
     obs.log.warn("Cache miss", { module: "registry" });
-    expect(spies.warn.mock.calls[0][0]).toBe("[mukoko:registry] WARN Cache miss");
+    expect(spies.warn.mock.calls[0][0]).toBe(
+      "[mukoko:registry] WARN Cache miss",
+    );
   });
 
   it("appends a trace tag, structured data, and error object as extra args", () => {
     const err = new Error("boom");
-    obs.log.error("Failed", { module: "api", traceId: "req-123", data: { port: 3000 }, error: err });
+    obs.log.error("Failed", {
+      module: "api",
+      traceId: "req-123",
+      data: { port: 3000 },
+      error: err,
+    });
     const args = spies.error.mock.calls[0];
     expect(args[0]).toBe("[mukoko:api] ERROR Failed");
     expect(args).toContain("[trace:req-123]");
@@ -85,7 +92,9 @@ describe("createLogger", () => {
   it("routes error through console.error with the bound module", () => {
     const logger = obs.createLogger("registry");
     logger.error("File not found", { error: new Error("ENOENT") });
-    expect(spies.error.mock.calls[0][0]).toBe("[mukoko:registry] ERROR File not found");
+    expect(spies.error.mock.calls[0][0]).toBe(
+      "[mukoko:registry] ERROR File not found",
+    );
   });
 });
 

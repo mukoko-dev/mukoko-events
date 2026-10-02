@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   description: "View events on a calendar on Nhimbe.",
 };
 
-export default function CalendarLayout({ children }: { children: React.ReactNode }) {
+export default function CalendarLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return children;
 }
