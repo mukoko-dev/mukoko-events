@@ -37,7 +37,9 @@ import type {
 const plannerLog = createLogger("planner");
 
 /** Map a v3.1 RSVP response onto the schema.org reservation lifecycle. */
-export function rsvpResponseToReservationStatus(response: RsvpResponse): ReservationStatus {
+export function rsvpResponseToReservationStatus(
+  response: RsvpResponse,
+): ReservationStatus {
   switch (response) {
     case "RsvpResponseYes":
       return "ReservationConfirmed";
@@ -72,7 +74,9 @@ export interface UpsertReservationInput {
  * mapper doctrine (`mappers.ts`): @type/name/startDate(+endDate)/location,
  * dates as BSON dates.
  */
-export function buildReservationFor(event: ReservationEventInput): Record<string, unknown> {
+export function buildReservationFor(
+  event: ReservationEventInput,
+): Record<string, unknown> {
   const snapshot: Record<string, unknown> = {
     "@type": "Event",
     identifier: event._id,
@@ -135,7 +139,9 @@ export function buildReservationWrite(input: UpsertReservationInput): {
  * place. Throws on driver failure — prefer `writeThroughReservation` from the
  * RSVP path.
  */
-export async function upsertEventReservation(input: UpsertReservationInput): Promise<void> {
+export async function upsertEventReservation(
+  input: UpsertReservationInput,
+): Promise<void> {
   if (!input.event.iCalUid) {
     // Without the correlation key the Planner cannot pair the reservation.
     plannerLog.warn("Event has no iCalUid — skipping Planner reservation", {
@@ -160,7 +166,12 @@ export async function cancelEventReservation(params: {
   const reservations = await plannerReservationsCollection();
   await reservations.updateOne(
     { reservedPersonId: params.reservedPersonId, iCalUid: params.iCalUid },
-    { $set: { reservationStatus: "ReservationCancelled", updatedAt: new Date() } },
+    {
+      $set: {
+        reservationStatus: "ReservationCancelled",
+        updatedAt: new Date(),
+      },
+    },
   );
 }
 
@@ -171,7 +182,9 @@ export async function cancelEventReservation(params: {
  * succeeds; any failure here is logged and swallowed so it can never fail the
  * RSVP itself.
  */
-export async function writeThroughReservation(input: UpsertReservationInput): Promise<void> {
+export async function writeThroughReservation(
+  input: UpsertReservationInput,
+): Promise<void> {
   try {
     await upsertEventReservation(input);
   } catch (error) {
@@ -198,9 +211,12 @@ export async function writeThroughReservationCancellation(params: {
       { projection: { iCalUid: 1 } },
     );
     if (!event?.iCalUid) {
-      plannerLog.warn("No iCalUid resolved for cancelled RSVP — skipping Planner update", {
-        data: { eventId: params.eventId },
-      });
+      plannerLog.warn(
+        "No iCalUid resolved for cancelled RSVP — skipping Planner update",
+        {
+          data: { eventId: params.eventId },
+        },
+      );
       return;
     }
     await cancelEventReservation({

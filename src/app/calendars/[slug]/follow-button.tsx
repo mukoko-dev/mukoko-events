@@ -13,7 +13,10 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Check, LogIn, Plus } from "lucide-react";
-import { followCalendarAction, unfollowCalendarAction } from "@/app/actions/calendars";
+import {
+  followCalendarAction,
+  unfollowCalendarAction,
+} from "@/app/actions/calendars";
 import { useT } from "@/lib/i18n/i18n-provider";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +71,11 @@ export function FollowButton({
       } catch (err) {
         setFollowing(wasFollowing);
         setFollowerCount(previousCount);
-        setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again.",
+        );
       }
     });
   };
@@ -94,7 +101,10 @@ export function FollowButton({
         )}
         {following ? t("calendars.following") : t("calendars.follow")}
       </button>
-      <span className="text-[13px] text-muted-foreground" data-slot="calendar-follower-count">
+      <span
+        className="text-[13px] text-muted-foreground"
+        data-slot="calendar-follower-count"
+      >
         {followerCount === 1
           ? t("calendars.follower")
           : t("calendars.followers", { count: followerCount })}

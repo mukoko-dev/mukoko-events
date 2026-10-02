@@ -48,11 +48,17 @@ function emptyDistribution(): ReviewStats["distribution"] {
  * substrate filtered to this event. Only `reviewRating.ratingValue` (plaintext)
  * is read — the review body stays encrypted and untouched.
  */
-export async function getEventRatingStats(eventId: string): Promise<ReviewStats> {
+export async function getEventRatingStats(
+  eventId: string,
+): Promise<ReviewStats> {
   const reviews = await reviewsCollection();
   const docs = await reviews
     .find(
-      { targetReferenceType: "event", targetProductId: eventId, isActive: true },
+      {
+        targetReferenceType: "event",
+        targetProductId: eventId,
+        isActive: true,
+      },
       { projection: { "reviewRating.ratingValue": 1 } },
     )
     .toArray();
@@ -84,7 +90,9 @@ export async function getEventRatingStats(eventId: string): Promise<ReviewStats>
  * star aggregate over the same docs (no second query), and resolves reviewer
  * display names in one batched persons lookup.
  */
-export async function getEventReviews(eventId: string): Promise<EventReviewsResponse> {
+export async function getEventReviews(
+  eventId: string,
+): Promise<EventReviewsResponse> {
   const reviews = await reviewsCollection();
   const docs = await reviews
     .find({
@@ -106,7 +114,8 @@ export async function getEventReviews(eventId: string): Promise<EventReviewsResp
     const raw = d.reviewRating?.ratingValue;
     if (typeof raw !== "number") continue;
     const bucket = Math.round(raw);
-    if (bucket >= 1 && bucket <= 5) distribution[bucket as 1 | 2 | 3 | 4 | 5] += 1;
+    if (bucket >= 1 && bucket <= 5)
+      distribution[bucket as 1 | 2 | 3 | 4 | 5] += 1;
     sum += raw;
     count += 1;
   }
@@ -117,9 +126,15 @@ export async function getEventReviews(eventId: string): Promise<EventReviewsResp
   };
 
   // Batch-resolve reviewer display names.
-  const personIds = [...new Set(docs.map((d) => d.reviewerPersonId).filter(Boolean))];
+  const personIds = [
+    ...new Set(docs.map((d) => d.reviewerPersonId).filter(Boolean)),
+  ];
   const persons = personIds.length
-    ? await (await personsCollection()).find({ _id: { $in: personIds } }).toArray()
+    ? await (
+        await personsCollection()
+      )
+        .find({ _id: { $in: personIds } })
+        .toArray()
     : [];
   const nameById = new Map(persons.map((p) => [p._id, p.name ?? ""]));
 
@@ -151,7 +166,9 @@ export async function getEventReviews(eventId: string): Promise<EventReviewsResp
  * single event, and additionally resolves each review's event title (when it
  * targets an event) so a multi-event host's reviews stay attributable.
  */
-export async function getEntityReviews(entityId: string): Promise<HostReviewsResponse> {
+export async function getEntityReviews(
+  entityId: string,
+): Promise<HostReviewsResponse> {
   const reviews = await reviewsCollection();
   const docs = await reviews
     .find({
@@ -164,9 +181,15 @@ export async function getEntityReviews(entityId: string): Promise<HostReviewsRes
     .limit(100)
     .toArray();
 
-  const personIds = [...new Set(docs.map((d) => d.reviewerPersonId).filter(Boolean))];
+  const personIds = [
+    ...new Set(docs.map((d) => d.reviewerPersonId).filter(Boolean)),
+  ];
   const persons = personIds.length
-    ? await (await personsCollection()).find({ _id: { $in: personIds } }).toArray()
+    ? await (
+        await personsCollection()
+      )
+        .find({ _id: { $in: personIds } })
+        .toArray()
     : [];
   const nameById = new Map(persons.map((p) => [p._id, p.name ?? ""]));
 
@@ -178,7 +201,9 @@ export async function getEntityReviews(entityId: string): Promise<HostReviewsRes
     ),
   ];
   const events = eventIds.length
-    ? await (await eventsCollection())
+    ? await (
+        await eventsCollection()
+      )
         .find({ _id: { $in: eventIds } }, { projection: { name: 1 } })
         .toArray()
     : [];
@@ -244,12 +269,17 @@ export async function submitEventReview(
   if (!event) throw new Error("That event could not be found.");
 
   // Attendance gate: reviews come from attendees, not passers-by.
-  const rsvp = await (await rsvpsCollection()).findOne({
+  const rsvp = await (
+    await rsvpsCollection()
+  ).findOne({
     eventId: input.eventId,
     attendeePersonId: person._id,
   });
-  if (!rsvp) throw new Error("Only attendees can review an event — RSVP first.");
-  const checkedIn = await (await checkInsCollection()).findOne({
+  if (!rsvp)
+    throw new Error("Only attendees can review an event — RSVP first.");
+  const checkedIn = await (
+    await checkInsCollection()
+  ).findOne({
     eventId: input.eventId,
     attendeePersonId: person._id,
   });
@@ -289,7 +319,8 @@ export async function submitEventReview(
     },
     { upsert: true, returnDocument: "after" },
   );
-  if (!result) throw new Error("Your review could not be saved. Please try again.");
+  if (!result)
+    throw new Error("Your review could not be saved. Please try again.");
   return { reviewId: result._id, updated: result.createdAt < now };
 }
 
@@ -326,7 +357,9 @@ export async function getReferralLeaderboard(
  * `personId` is the `identity.persons._id` (the app user id); we also accept a
  * WorkOS id defensively. Returns null when the person can't be found.
  */
-export async function getHostReputation(personId: string): Promise<HostStats | null> {
+export async function getHostReputation(
+  personId: string,
+): Promise<HostStats | null> {
   const persons = await personsCollection();
   const person = await persons.findOne({
     $or: [{ _id: personId }, { workosUserId: personId }],
@@ -366,10 +399,14 @@ export async function getHostReputation(personId: string): Promise<HostStats | n
       )
       .toArray();
     eventsHosted = hosted.length;
-    totalAttendees = hosted.reduce((acc, e) => acc + (e.totalAttendeeCount ?? 0), 0);
+    totalAttendees = hosted.reduce(
+      (acc, e) => acc + (e.totalAttendeeCount ?? 0),
+      0,
+    );
   }
 
-  const avgAttendance = eventsHosted > 0 ? Math.round(totalAttendees / eventsHosted) : 0;
+  const avgAttendance =
+    eventsHosted > 0 ? Math.round(totalAttendees / eventsHosted) : 0;
   const name = person.name ?? "";
 
   return {
@@ -394,7 +431,9 @@ export async function getHostReputation(personId: string): Promise<HostStats | n
  * we do NOT mint one here (see the generate path, which can't safely fabricate
  * the validator-required `referrerEntityId`).
  */
-export async function getUserReferralCode(personId: string): Promise<UserReferralCode | null> {
+export async function getUserReferralCode(
+  personId: string,
+): Promise<UserReferralCode | null> {
   const referrals = await referralsCollection();
   const docs = await referrals
     .find({ referrerPersonId: personId })

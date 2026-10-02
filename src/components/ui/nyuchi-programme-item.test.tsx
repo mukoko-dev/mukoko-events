@@ -4,7 +4,11 @@ import { NyuchiProgrammeItem } from "./nyuchi-programme-item";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 function item() {
@@ -14,7 +18,13 @@ function item() {
 describe("NyuchiProgrammeItem", () => {
   it("renders the time, title, speaker, and role", () => {
     const { getByText } = render(
-      <NyuchiProgrammeItem time="10:00" title="Keynote" speaker="Ada" speakerRole="Host" description="Opening remarks" />,
+      <NyuchiProgrammeItem
+        time="10:00"
+        title="Keynote"
+        speaker="Ada"
+        speakerRole="Host"
+        description="Opening remarks"
+      />,
     );
     expect(getByText("10:00")).toBeTruthy();
     expect(getByText("Keynote")).toBeTruthy();
@@ -31,7 +41,9 @@ describe("NyuchiProgrammeItem", () => {
   });
 
   it("drops the connector line on the last item", () => {
-    const { rerender } = render(<NyuchiProgrammeItem time="9" title="A" isLast={false} />);
+    const { rerender } = render(
+      <NyuchiProgrammeItem time="9" title="A" isLast={false} />,
+    );
     expect(item()?.querySelector(".bg-border")).not.toBeNull();
     rerender(<NyuchiProgrammeItem time="9" title="A" isLast />);
     expect(item()?.querySelector(".bg-border")).toBeNull();

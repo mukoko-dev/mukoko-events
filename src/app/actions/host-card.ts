@@ -67,7 +67,11 @@ function entityLogoUrl(logo: EntityDoc["logo"]): string | null {
   if (!logo) return null;
   if (typeof logo === "string") return logo;
   const obj = logo as Record<string, unknown>;
-  return (obj.url as string | undefined) ?? (obj.contentUrl as string | undefined) ?? null;
+  return (
+    (obj.url as string | undefined) ??
+    (obj.contentUrl as string | undefined) ??
+    null
+  );
 }
 
 /** A family entity whose schema.org type is "Person" stands in for an
@@ -86,7 +90,9 @@ function classifyOwnerType(entity: EntityDoc): HostOwnerType {
 /** Verification status string from the entity's trust tier, mirroring the
  *  legacy `entity.verification_status` the card checked for "verified". */
 function verificationStatus(entity: EntityDoc): string | null {
-  const tier = entity.bundu?.verificationTier ?? entity.bundu?.trustSignals?.verificationTier;
+  const tier =
+    entity.bundu?.verificationTier ??
+    entity.bundu?.trustSignals?.verificationTier;
   if (typeof tier === "number" && tier > 0) return "verified";
   return null;
 }
@@ -103,7 +109,11 @@ async function resolveHostPerson(entity: EntityDoc): Promise<PersonDoc | null> {
 
   const memberships = await entityMembershipsCollection();
   const membership = await memberships.findOne(
-    { entityId: entity._id, isActive: true, membershipRole: { $in: ["founder", "admin"] } },
+    {
+      entityId: entity._id,
+      isActive: true,
+      membershipRole: { $in: ["founder", "admin"] },
+    },
     { sort: { joinedAt: 1 } },
   );
   if (!membership) return null;
@@ -125,7 +135,9 @@ async function countHostedEvents(entityId: string): Promise<number> {
  * flavour. Returns null when the event or its host entity can't be resolved —
  * the card then renders nothing, matching the legacy behaviour.
  */
-export async function getEventHostCard(eventId: string): Promise<EventHostCard | null> {
+export async function getEventHostCard(
+  eventId: string,
+): Promise<EventHostCard | null> {
   if (!eventId) return null;
 
   const events = await eventsCollection();
@@ -143,7 +155,8 @@ export async function getEventHostCard(eventId: string): Promise<EventHostCard |
 
   // For a personal host, prefer the founder person's name + avatar; otherwise
   // present the entity itself.
-  const person = ownerType === "person" ? await resolveHostPerson(entity) : null;
+  const person =
+    ownerType === "person" ? await resolveHostPerson(entity) : null;
 
   const host: EventHostInfo = {
     ownerType,
@@ -152,9 +165,14 @@ export async function getEventHostCard(eventId: string): Promise<EventHostCard |
       (ownerType === "person"
         ? person?.name?.trim() ||
           `${person?.givenName ?? ""} ${person?.familyName ?? ""}`.trim()
-        : entity.name) || entity.name || "Unknown",
+        : entity.name) ||
+      entity.name ||
+      "Unknown",
     description: entity.description ?? null,
-    avatar: ownerType === "person" ? (person?.picture ?? null) : entityLogoUrl(entity.logo),
+    avatar:
+      ownerType === "person"
+        ? (person?.picture ?? null)
+        : entityLogoUrl(entity.logo),
     slug: entity.slug ?? null,
     verificationStatus: verificationStatus(entity),
     url: entity.url && isHttpUrl(entity.url) ? entity.url : null,

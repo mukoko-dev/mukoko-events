@@ -31,13 +31,16 @@ export function sniffImageType(bytes: Uint8Array): string | null {
   if (startsWith(bytes, [0xff, 0xd8, 0xff])) return "image/jpeg";
 
   // PNG: 89 50 4E 47 0D 0A 1A 0A
-  if (startsWith(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return "image/png";
+  if (startsWith(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+    return "image/png";
 
   // GIF: "GIF87a" or "GIF89a"
-  if (startsWith(bytes, ASCII("GIF87a")) || startsWith(bytes, ASCII("GIF89a"))) return "image/gif";
+  if (startsWith(bytes, ASCII("GIF87a")) || startsWith(bytes, ASCII("GIF89a")))
+    return "image/gif";
 
   // WEBP: "RIFF"<4 bytes>"WEBP"
-  if (startsWith(bytes, ASCII("RIFF")) && startsWith(bytes, ASCII("WEBP"), 8)) return "image/webp";
+  if (startsWith(bytes, ASCII("RIFF")) && startsWith(bytes, ASCII("WEBP"), 8))
+    return "image/webp";
 
   // AVIF (ISO-BMFF): bytes 4-7 = "ftyp", brand at 8-11 is "avif"/"avis".
   if (
@@ -51,7 +54,10 @@ export function sniffImageType(bytes: Uint8Array): string | null {
 }
 
 /** True when the buffer's magic bytes match the declared MIME type exactly. */
-export function imageBytesMatchType(bytes: Uint8Array, declaredType: string): boolean {
+export function imageBytesMatchType(
+  bytes: Uint8Array,
+  declaredType: string,
+): boolean {
   const sniffed = sniffImageType(bytes);
   return sniffed !== null && sniffed === declaredType;
 }

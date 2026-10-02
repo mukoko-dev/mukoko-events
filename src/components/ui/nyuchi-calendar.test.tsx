@@ -1,10 +1,22 @@
-import { describe, it, expect, afterEach, beforeAll, afterAll, vi } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  afterEach,
+  beforeAll,
+  afterAll,
+  vi,
+} from "vitest";
 import { render, cleanup, fireEvent, within } from "@testing-library/react";
 import { NyuchiCalendar } from "./nyuchi-calendar";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 const july2026 = new Date(2026, 6, 1);
@@ -24,7 +36,9 @@ afterAll(() => {
 
 describe("NyuchiCalendar", () => {
   it("renders the month label and a full grid of day buttons", () => {
-    const { getByText, getAllByRole } = render(<NyuchiCalendar defaultMonth={july2026} />);
+    const { getByText, getAllByRole } = render(
+      <NyuchiCalendar defaultMonth={july2026} />,
+    );
     expect(getByText("July 2026")).toBeTruthy();
     // 31 day buttons + 2 nav buttons.
     expect(getAllByRole("button").length).toBe(33);
@@ -32,7 +46,10 @@ describe("NyuchiCalendar", () => {
 
   it("marks days that have events with a mineral dot and a11y label", () => {
     const { getByLabelText } = render(
-      <NyuchiCalendar defaultMonth={july2026} events={[{ date: "2026-07-15", mineral: "cobalt" }]} />,
+      <NyuchiCalendar
+        defaultMonth={july2026}
+        events={[{ date: "2026-07-15", mineral: "cobalt" }]}
+      />,
     );
     const day15 = getByLabelText("July 2026 15, 1 event");
     expect(day15).toBeTruthy();
@@ -41,7 +58,9 @@ describe("NyuchiCalendar", () => {
   });
 
   it("navigates months", () => {
-    const { getByText, getByLabelText } = render(<NyuchiCalendar defaultMonth={july2026} />);
+    const { getByText, getByLabelText } = render(
+      <NyuchiCalendar defaultMonth={july2026} />,
+    );
     fireEvent.click(getByLabelText("Next month"));
     expect(getByText("August 2026")).toBeTruthy();
     fireEvent.click(getByLabelText("Previous month"));
@@ -55,7 +74,9 @@ describe("NyuchiCalendar", () => {
         defaultMonth={july2026}
         selectedDate={new Date(2026, 6, 15)}
         events={[{ date: "2026-07-15", mineral: "gold" }]}
-        renderAgenda={(date, evs) => <div data-testid="agenda">{`${date.getDate()}:${evs.length}`}</div>}
+        renderAgenda={(date, evs) => (
+          <div data-testid="agenda">{`${date.getDate()}:${evs.length}`}</div>
+        )}
       />,
     );
     expect(getByTestId("agenda").textContent).toBe("15:1");
@@ -65,7 +86,9 @@ describe("NyuchiCalendar", () => {
     const { getByLabelText, getByTestId } = render(
       <NyuchiCalendar
         defaultMonth={july2026}
-        renderAgenda={(date, evs) => <div data-testid="agenda">{`${date.getDate()}:${evs.length}`}</div>}
+        renderAgenda={(date, evs) => (
+          <div data-testid="agenda">{`${date.getDate()}:${evs.length}`}</div>
+        )}
       />,
     );
     fireEvent.click(getByLabelText("July 2026 9"));

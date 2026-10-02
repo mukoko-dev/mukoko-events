@@ -22,11 +22,17 @@ import {
   listCalendarsByOwner,
   listFollowedCalendars,
 } from "@/lib/mongo/calendars";
-import { ensureHostEntityForPerson, listHostEntitiesForPerson } from "@/lib/mongo/entities";
+import {
+  ensureHostEntityForPerson,
+  listHostEntitiesForPerson,
+} from "@/lib/mongo/entities";
 import { listCirclesByOwner, type OwnedCircle } from "@/lib/mongo/circles";
 import { circlesCollection } from "@/lib/mongo/databases";
 import { ensureCalendarConversation } from "@/lib/mongo/campfire";
-import { requireActingPerson, resolveActingPerson } from "@/lib/auth/current-person";
+import {
+  requireActingPerson,
+  resolveActingPerson,
+} from "@/lib/auth/current-person";
 import { themes } from "@/lib/themes";
 import type { CalendarVisibility } from "@/lib/mongo/types";
 
@@ -56,22 +62,35 @@ export interface CreateCalendarResult {
 export async function createCalendarAction(
   input: CreateCalendarActionInput,
 ): Promise<CreateCalendarResult> {
-  const person = await requireActingPerson("You must be signed in to create a calendar.");
+  const person = await requireActingPerson(
+    "You must be signed in to create a calendar.",
+  );
 
   // Server-side validation — this path is network-callable; never trust the client.
   const name = input.name?.trim() ?? "";
   if (!name) throw new Error("Calendar name is required.");
   if (name.length > MAX_NAME_LENGTH) {
-    throw new Error(`Calendar name must be ${MAX_NAME_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Calendar name must be ${MAX_NAME_LENGTH} characters or fewer.`,
+    );
   }
   if ((input.description?.length ?? 0) > MAX_DESCRIPTION_LENGTH) {
-    throw new Error(`Description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer.`,
+    );
   }
   const visibility = input.visibility ?? "public";
-  if (!VISIBILITIES.includes(visibility)) throw new Error("Invalid calendar visibility.");
-  if (input.theme && !(input.theme in themes)) throw new Error("Unknown calendar theme.");
-  if ((input.hostMode === "organization" || input.hostMode === "family") && !input.hostEntityId) {
-    throw new Error(`Pick which ${input.hostMode} is hosting, or switch back to a personal host.`);
+  if (!VISIBILITIES.includes(visibility))
+    throw new Error("Invalid calendar visibility.");
+  if (input.theme && !(input.theme in themes))
+    throw new Error("Unknown calendar theme.");
+  if (
+    (input.hostMode === "organization" || input.hostMode === "family") &&
+    !input.hostEntityId
+  ) {
+    throw new Error(
+      `Pick which ${input.hostMode} is hosting, or switch back to a personal host.`,
+    );
   }
 
   // A calendar may only attach to a circle the creator owns.
@@ -81,16 +100,22 @@ export async function createCalendarAction(
       { _id: input.circleId, ownerPersonId: person._id, isActive: true },
       { projection: { _id: 1 } },
     );
-    if (!circle) throw new Error("You can only attach a calendar to a circle you own.");
+    if (!circle)
+      throw new Error("You can only attach a calendar to a circle you own.");
   }
 
   // Resolve the host entity: an explicitly picked org/family the person can
   // actually host through, else the person's (lazily created) default entity.
   let ownerEntityId: string;
-  if ((input.hostMode === "organization" || input.hostMode === "family") && input.hostEntityId) {
+  if (
+    (input.hostMode === "organization" || input.hostMode === "family") &&
+    input.hostEntityId
+  ) {
     const hostable = await listHostEntitiesForPerson(person._id);
     if (!hostable.some((e) => e._id === input.hostEntityId)) {
-      throw new Error("You do not have permission to host a calendar through that entity.");
+      throw new Error(
+        "You do not have permission to host a calendar through that entity.",
+      );
     }
     ownerEntityId = input.hostEntityId;
   } else {
@@ -123,8 +148,12 @@ export interface FollowStateResult {
 }
 
 /** Follow a calendar as the signed-in person. Idempotent. */
-export async function followCalendarAction(calendarId: string): Promise<FollowStateResult> {
-  const person = await requireActingPerson("You must be signed in to follow a calendar.");
+export async function followCalendarAction(
+  calendarId: string,
+): Promise<FollowStateResult> {
+  const person = await requireActingPerson(
+    "You must be signed in to follow a calendar.",
+  );
 
   const calendar = await getCalendarById(calendarId);
   if (!calendar || !canViewCalendar(calendar, person._id)) {
@@ -144,8 +173,12 @@ export async function followCalendarAction(calendarId: string): Promise<FollowSt
 }
 
 /** Unfollow a calendar as the signed-in person. Idempotent. */
-export async function unfollowCalendarAction(calendarId: string): Promise<FollowStateResult> {
-  const person = await requireActingPerson("You must be signed in to unfollow a calendar.");
+export async function unfollowCalendarAction(
+  calendarId: string,
+): Promise<FollowStateResult> {
+  const person = await requireActingPerson(
+    "You must be signed in to unfollow a calendar.",
+  );
 
   const calendar = await getCalendarById(calendarId);
   if (!calendar) throw new Error("That calendar could not be found.");
@@ -156,7 +189,10 @@ export async function unfollowCalendarAction(calendarId: string): Promise<Follow
   });
   return {
     following: false,
-    followerCount: Math.max(0, calendar.followerCount - (stoppedFollowing ? 1 : 0)),
+    followerCount: Math.max(
+      0,
+      calendar.followerCount - (stoppedFollowing ? 1 : 0),
+    ),
   };
 }
 
@@ -174,7 +210,10 @@ export async function getMyCalendarsAction(): Promise<MyCalendarSummary[]> {
   const person = await resolveActingPerson();
   if (!person) return [];
   const hostEntities = await listHostEntitiesForPerson(person._id);
-  const docs = await listCalendarsByOwner(person._id, hostEntities.map((e) => e._id));
+  const docs = await listCalendarsByOwner(
+    person._id,
+    hostEntities.map((e) => e._id),
+  );
   return docs.map((d) => ({ id: d._id, name: d.name }));
 }
 
@@ -220,12 +259,17 @@ export async function getMyOwnedCalendarsAction(): Promise<CalendarListItem[]> {
   const person = await resolveActingPerson();
   if (!person) return [];
   const hostEntities = await listHostEntitiesForPerson(person._id);
-  const docs = await listCalendarsByOwner(person._id, hostEntities.map((e) => e._id));
+  const docs = await listCalendarsByOwner(
+    person._id,
+    hostEntities.map((e) => e._id),
+  );
   return docs.map(toListItem);
 }
 
 /** Calendars the signed-in person follows, full card shape. Empty for anonymous visitors. */
-export async function getFollowedCalendarsAction(): Promise<CalendarListItem[]> {
+export async function getFollowedCalendarsAction(): Promise<
+  CalendarListItem[]
+> {
   const person = await resolveActingPerson();
   if (!person) return [];
   const docs = await listFollowedCalendars(person._id);
@@ -245,31 +289,40 @@ export interface UpdateCalendarActionInput {
 export async function updateCalendarAction(
   input: UpdateCalendarActionInput,
 ): Promise<CalendarListItem> {
-  const person = await requireActingPerson("You must be signed in to edit a calendar.");
+  const person = await requireActingPerson(
+    "You must be signed in to edit a calendar.",
+  );
   const calendar = await getCalendarById(input.calendarId);
   if (!calendar || calendar.ownerPersonId !== person._id) {
     throw new Error("You can only edit your own calendars.");
   }
 
   const name = input.name !== undefined ? input.name.trim() : undefined;
-  if (name !== undefined && !name) throw new Error("Calendar name is required.");
+  if (name !== undefined && !name)
+    throw new Error("Calendar name is required.");
   if (name !== undefined && name.length > MAX_NAME_LENGTH) {
-    throw new Error(`Calendar name must be ${MAX_NAME_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Calendar name must be ${MAX_NAME_LENGTH} characters or fewer.`,
+    );
   }
   if ((input.description?.length ?? 0) > MAX_DESCRIPTION_LENGTH) {
-    throw new Error(`Description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer.`,
+    );
   }
   if (input.visibility && !VISIBILITIES.includes(input.visibility)) {
     throw new Error("Invalid calendar visibility.");
   }
-  if (input.theme && !(input.theme in themes)) throw new Error("Unknown calendar theme.");
+  if (input.theme && !(input.theme in themes))
+    throw new Error("Unknown calendar theme.");
   if (input.circleId) {
     const circles = await circlesCollection();
     const circle = await circles.findOne(
       { _id: input.circleId, ownerPersonId: person._id, isActive: true },
       { projection: { _id: 1 } },
     );
-    if (!circle) throw new Error("You can only attach a calendar to a circle you own.");
+    if (!circle)
+      throw new Error("You can only attach a calendar to a circle you own.");
   }
 
   const updated = await updateCalendarWrite(input.calendarId, {
@@ -285,7 +338,9 @@ export async function updateCalendarAction(
 
 /** Archive (soft-delete) a calendar. Owner-only. */
 export async function archiveCalendarAction(calendarId: string): Promise<void> {
-  const person = await requireActingPerson("You must be signed in to archive a calendar.");
+  const person = await requireActingPerson(
+    "You must be signed in to archive a calendar.",
+  );
   const calendar = await getCalendarById(calendarId);
   if (!calendar || calendar.ownerPersonId !== person._id) {
     throw new Error("You can only archive your own calendars.");
@@ -297,8 +352,12 @@ export async function archiveCalendarAction(calendarId: string): Promise<void> {
  * Resolve (creating on first use) the calendar's paired "Discuss" campfire
  * conversation. Any signed-in visitor who can view the calendar may open it.
  */
-export async function ensureCalendarConversationAction(calendarId: string): Promise<string> {
-  const person = await requireActingPerson("You must be signed in to discuss a calendar.");
+export async function ensureCalendarConversationAction(
+  calendarId: string,
+): Promise<string> {
+  const person = await requireActingPerson(
+    "You must be signed in to discuss a calendar.",
+  );
   const calendar = await getCalendarById(calendarId);
   if (!calendar || !canViewCalendar(calendar, person._id)) {
     throw new Error("That calendar could not be found.");

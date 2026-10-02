@@ -21,7 +21,7 @@ describe("ResponsiveModal accessibility", () => {
         description="Tell guests what to expect"
       >
         <p>Modal body</p>
-      </ResponsiveModal>
+      </ResponsiveModal>,
     );
     const results = await axe(baseElement);
     expect(results).toHaveNoViolations();
@@ -30,9 +30,13 @@ describe("ResponsiveModal accessibility", () => {
   it("desktop dialog without description still has accessible name", async () => {
     mockUseIsMobile.mockReturnValue(false);
     const { baseElement } = render(
-      <ResponsiveModal open onOpenChange={() => {}} title="Untitled-ish but titled">
+      <ResponsiveModal
+        open
+        onOpenChange={() => {}}
+        title="Untitled-ish but titled"
+      >
         <p>Body</p>
-      </ResponsiveModal>
+      </ResponsiveModal>,
     );
     const results = await axe(baseElement);
     expect(results).toHaveNoViolations();
@@ -48,7 +52,7 @@ describe("ResponsiveModal accessibility", () => {
         description="Helps guests find your event"
       >
         <p>Drawer body</p>
-      </ResponsiveModal>
+      </ResponsiveModal>,
     );
     const results = await axe(baseElement);
     expect(results).toHaveNoViolations();

@@ -46,11 +46,17 @@ export function WeatherEmbed({
   return (
     <div
       className={`relative overflow-hidden rounded-xl ${className}`}
-      style={{ height, backgroundColor: "var(--event-surface, rgba(255,255,255,0.04))" }}
+      style={{
+        height,
+        backgroundColor: "var(--event-surface, rgba(255,255,255,0.04))",
+      }}
     >
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Loader2 className="w-5 h-5 animate-spin text-text-tertiary" aria-hidden />
+          <Loader2
+            className="w-5 h-5 animate-spin text-text-tertiary"
+            aria-hidden
+          />
           <span className="sr-only">Loading weather…</span>
         </div>
       )}

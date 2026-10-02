@@ -3,7 +3,10 @@
 // recognise it. Describes how AI agents authenticate to nhimbe's protected
 // APIs via WorkOS AuthKit bearer tokens.
 
-import { workosAuthMetadata, workosMcpClientId } from "@/lib/auth/workos-metadata";
+import {
+  workosAuthMetadata,
+  workosMcpClientId,
+} from "@/lib/auth/workos-metadata";
 import { SITE_URL } from "@/lib/site-url";
 
 // force-dynamic: derived at request time from runtime env (WORKOS_AUTHKIT_DOMAIN)

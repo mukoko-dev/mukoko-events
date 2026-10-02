@@ -14,7 +14,9 @@ describe("WeatherEmbed", () => {
   });
 
   it("passes through the widget type and a custom title", () => {
-    render(<WeatherEmbed location="Bulawayo" type="5day" title="5-day forecast" />);
+    render(
+      <WeatherEmbed location="Bulawayo" type="5day" title="5-day forecast" />,
+    );
     const frame = screen.getByTitle("5-day forecast");
     expect(frame.getAttribute("src")).toContain("type=5day");
   });

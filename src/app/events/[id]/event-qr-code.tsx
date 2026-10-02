@@ -28,12 +28,19 @@ export function EventQRCode({ shortCode, title }: EventQRCodeProps) {
     <div className="flex flex-col items-center">
       {/* QR Code */}
       <div className="bg-white p-3 rounded-lg mb-3">
-        <QRCode value={fullUrl} size={140} bgColor="#FFFFFF" fgColor="#0A0A0A" />
+        <QRCode
+          value={fullUrl}
+          size={140}
+          bgColor="#FFFFFF"
+          fgColor="#0A0A0A"
+        />
       </div>
 
       {/* Short URL */}
       <div className="flex items-center gap-2 bg-background rounded-lg px-3 py-2 w-full">
-        <span className="text-sm text-foreground/80 flex-1 truncate">{shortUrl}</span>
+        <span className="text-sm text-foreground/80 flex-1 truncate">
+          {shortUrl}
+        </span>
         <button
           onClick={handleCopy}
           className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-primary hover:text-primary/80 transition-colors"

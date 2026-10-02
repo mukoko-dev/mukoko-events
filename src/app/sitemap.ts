@@ -86,18 +86,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const response = await listEvents({ limit: 500 });
     eventPages = response.events.map((event) => ({
       url: `${BASE_URL}/events/${event.id}`,
-      lastModified: event.dateModified ? new Date(event.dateModified) : new Date(),
+      lastModified: event.dateModified
+        ? new Date(event.dateModified)
+        : new Date(),
       changeFrequency: "daily" as const,
       priority: 0.8,
     }));
 
     // Also add short URLs for events
-    const shortUrlPages: MetadataRoute.Sitemap = response.events.map((event) => ({
-      url: `${BASE_URL}/e/${event.shortCode}`,
-      lastModified: event.dateModified ? new Date(event.dateModified) : new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.7,
-    }));
+    const shortUrlPages: MetadataRoute.Sitemap = response.events.map(
+      (event) => ({
+        url: `${BASE_URL}/e/${event.shortCode}`,
+        lastModified: event.dateModified
+          ? new Date(event.dateModified)
+          : new Date(),
+        changeFrequency: "daily" as const,
+        priority: 0.7,
+      }),
+    );
 
     eventPages = [...eventPages, ...shortUrlPages];
   } catch (error) {

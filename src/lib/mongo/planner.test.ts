@@ -4,7 +4,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // write-through can be unit-tested with fake collections (no cluster here).
 vi.mock("server-only", () => ({}));
 
-const reservations = { updateOne: vi.fn(), insertOne: vi.fn(), findOne: vi.fn() };
+const reservations = {
+  updateOne: vi.fn(),
+  insertOne: vi.fn(),
+  findOne: vi.fn(),
+};
 const events = { findOne: vi.fn() };
 
 vi.mock("@/lib/mongo/databases", () => ({
@@ -77,21 +81,31 @@ const baseInput: UpsertReservationInput = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  reservations.updateOne.mockResolvedValue({ acknowledged: true, matchedCount: 0, upsertedCount: 1 });
+  reservations.updateOne.mockResolvedValue({
+    acknowledged: true,
+    matchedCount: 0,
+    upsertedCount: 1,
+  });
   events.findOne.mockResolvedValue({ _id: "event-1", iCalUid: event.iCalUid });
 });
 
 describe("rsvpResponseToReservationStatus", () => {
   it("maps yes → ReservationConfirmed", () => {
-    expect(rsvpResponseToReservationStatus("RsvpResponseYes")).toBe("ReservationConfirmed");
+    expect(rsvpResponseToReservationStatus("RsvpResponseYes")).toBe(
+      "ReservationConfirmed",
+    );
   });
 
   it("maps maybe → ReservationHold", () => {
-    expect(rsvpResponseToReservationStatus("RsvpResponseMaybe")).toBe("ReservationHold");
+    expect(rsvpResponseToReservationStatus("RsvpResponseMaybe")).toBe(
+      "ReservationHold",
+    );
   });
 
   it("maps no → ReservationCancelled", () => {
-    expect(rsvpResponseToReservationStatus("RsvpResponseNo")).toBe("ReservationCancelled");
+    expect(rsvpResponseToReservationStatus("RsvpResponseNo")).toBe(
+      "ReservationCancelled",
+    );
   });
 });
 
@@ -110,7 +124,10 @@ describe("buildReservationWrite", () => {
 
   it("is keyed by (reservedPersonId, iCalUid) — the idempotency identity", () => {
     const { filter } = buildReservationWrite(baseInput);
-    expect(filter).toEqual({ reservedPersonId: "person-1", iCalUid: "ical-abc@nhimbe.com" });
+    expect(filter).toEqual({
+      reservedPersonId: "person-1",
+      iCalUid: "ical-abc@nhimbe.com",
+    });
   });
 
   it("sets the v3.1 conventions: string UUID _id, _schemaVersion, BSON dates", () => {
@@ -177,7 +194,10 @@ describe("upsertEventReservation", () => {
 
     expect(reservations.updateOne).toHaveBeenCalledTimes(1);
     const [filter, , options] = reservations.updateOne.mock.calls[0];
-    expect(filter).toEqual({ reservedPersonId: "person-1", iCalUid: "ical-abc@nhimbe.com" });
+    expect(filter).toEqual({
+      reservedPersonId: "person-1",
+      iCalUid: "ical-abc@nhimbe.com",
+    });
     expect(options).toEqual({ upsert: true });
     // Never a bare insert — duplication is impossible by construction.
     expect(reservations.insertOne).not.toHaveBeenCalled();
@@ -190,31 +210,43 @@ describe("upsertEventReservation", () => {
       matchedCount: 1,
       upsertedCount: 0,
     });
-    await upsertEventReservation({ ...baseInput, reservationStatus: "ReservationHold" });
+    await upsertEventReservation({
+      ...baseInput,
+      reservationStatus: "ReservationHold",
+    });
 
     expect(reservations.updateOne).toHaveBeenCalledTimes(2);
     const [firstFilter] = reservations.updateOne.mock.calls[0];
     const [secondFilter, secondUpdate] = reservations.updateOne.mock.calls[1];
     expect(secondFilter).toEqual(firstFilter);
-    expect((secondUpdate.$set as Record<string, unknown>).reservationStatus).toBe(
-      "ReservationHold",
-    );
+    expect(
+      (secondUpdate.$set as Record<string, unknown>).reservationStatus,
+    ).toBe("ReservationHold");
     expect(reservations.insertOne).not.toHaveBeenCalled();
   });
 
   it("skips (without writing) when the event has no iCalUid to correlate on", async () => {
-    await upsertEventReservation({ ...baseInput, event: { ...event, iCalUid: "" } });
+    await upsertEventReservation({
+      ...baseInput,
+      event: { ...event, iCalUid: "" },
+    });
     expect(reservations.updateOne).not.toHaveBeenCalled();
   });
 });
 
 describe("cancelEventReservation", () => {
   it("flips the status without upserting a row that never existed", async () => {
-    await cancelEventReservation({ reservedPersonId: "person-1", iCalUid: "ical-abc@nhimbe.com" });
+    await cancelEventReservation({
+      reservedPersonId: "person-1",
+      iCalUid: "ical-abc@nhimbe.com",
+    });
 
     expect(reservations.updateOne).toHaveBeenCalledTimes(1);
     const [filter, update, options] = reservations.updateOne.mock.calls[0];
-    expect(filter).toEqual({ reservedPersonId: "person-1", iCalUid: "ical-abc@nhimbe.com" });
+    expect(filter).toEqual({
+      reservedPersonId: "person-1",
+      iCalUid: "ical-abc@nhimbe.com",
+    });
     expect(update.$set.reservationStatus).toBe("ReservationCancelled");
     expect(update.$set.updatedAt).toBeInstanceOf(Date);
     expect(options).toBeUndefined();
@@ -250,7 +282,10 @@ describe("writeThroughReservationCancellation (never-throw contract)", () => {
       { projection: { iCalUid: 1 } },
     );
     const [filter, update] = reservations.updateOne.mock.calls[0];
-    expect(filter).toEqual({ reservedPersonId: "person-1", iCalUid: "ical-abc@nhimbe.com" });
+    expect(filter).toEqual({
+      reservedPersonId: "person-1",
+      iCalUid: "ical-abc@nhimbe.com",
+    });
     expect(update.$set.reservationStatus).toBe("ReservationCancelled");
   });
 
@@ -268,7 +303,10 @@ describe("writeThroughReservationCancellation (never-throw contract)", () => {
     events.findOne.mockRejectedValueOnce(new Error("cluster unreachable"));
 
     await expect(
-      writeThroughReservationCancellation({ reservedPersonId: "person-1", eventId: "event-1" }),
+      writeThroughReservationCancellation({
+        reservedPersonId: "person-1",
+        eventId: "event-1",
+      }),
     ).resolves.toBeUndefined();
     expect(plannerLogger.error).toHaveBeenCalledWith(
       "Planner reservation cancellation write-through failed",

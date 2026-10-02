@@ -31,16 +31,22 @@ describe("escapeIcsText (RFC 5545 §3.3.11)", () => {
 
 describe("formatIcsDateUtc", () => {
   it("renders a UTC instant as YYYYMMDDTHHMMSSZ", () => {
-    expect(formatIcsDateUtc(new Date("2026-08-01T09:05:07Z"))).toBe("20260801T090507Z");
+    expect(formatIcsDateUtc(new Date("2026-08-01T09:05:07Z"))).toBe(
+      "20260801T090507Z",
+    );
   });
 
   it("normalizes offset instants to UTC", () => {
     // 18:30 at +02:00 is 16:30 UTC.
-    expect(formatIcsDateUtc(new Date("2026-12-24T18:30:00+02:00"))).toBe("20261224T163000Z");
+    expect(formatIcsDateUtc(new Date("2026-12-24T18:30:00+02:00"))).toBe(
+      "20261224T163000Z",
+    );
   });
 
   it("zero-pads every component", () => {
-    expect(formatIcsDateUtc(new Date("2026-01-02T03:04:05Z"))).toBe("20260102T030405Z");
+    expect(formatIcsDateUtc(new Date("2026-01-02T03:04:05Z"))).toBe(
+      "20260102T030405Z",
+    );
   });
 });
 
@@ -101,7 +107,11 @@ describe("buildCalendarIcs", () => {
   ];
 
   it("emits a complete VCALENDAR wrapper with the calendar identity", () => {
-    const ics = buildCalendarIcs({ name: "Harare Live, Music", events: [], now });
+    const ics = buildCalendarIcs({
+      name: "Harare Live, Music",
+      events: [],
+      now,
+    });
     expect(ics.startsWith("BEGIN:VCALENDAR\r\n")).toBe(true);
     expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true);
     expect(ics).toContain("VERSION:2.0");
@@ -113,7 +123,12 @@ describe("buildCalendarIcs", () => {
   });
 
   it("emits one VEVENT per event with UID, UTC dates, and escaped text", () => {
-    const ics = buildCalendarIcs({ name: "Markets", description: "Weekly; fresh", events, now });
+    const ics = buildCalendarIcs({
+      name: "Markets",
+      description: "Weekly; fresh",
+      events,
+      now,
+    });
     expect(ics).toContain("X-WR-CALDESC:Weekly\\; fresh");
     expect(ics).toContain("BEGIN:VEVENT");
     expect(ics).toContain("UID:event-1@nhimbe.com");
@@ -172,7 +187,10 @@ describe("buildCalendarIcs", () => {
   it("keeps building the rest of the feed when one event lacks an end", () => {
     const ics = buildCalendarIcs({
       name: "Markets",
-      events: [{ ...events[0], uid: "no-end@nhimbe.com", end: null }, events[0]],
+      events: [
+        { ...events[0], uid: "no-end@nhimbe.com", end: null },
+        events[0],
+      ],
       now,
     });
     // Both events render; only the complete one carries a DTEND.

@@ -1,14 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowLeft, Loader2, RefreshCw, Check, X } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  Loader2,
+  RefreshCw,
+  Check,
+  X,
+} from "lucide-react";
 import { Button } from "./button";
 import { Textarea } from "./textarea";
 import { Badge } from "./badge";
 import { ShamwariIcon } from "./shamwari-icon";
 import { UpgradeToProAlert } from "./upgrade-to-pro-alert";
 import type { DescriptionContext, GeneratedDescription } from "@/lib/api";
-import { generateEventDescription, regenerateEventDescription } from "@/app/actions/ai";
+import {
+  generateEventDescription,
+  regenerateEventDescription,
+} from "@/app/actions/ai";
 import { useAuth } from "@/components/auth/auth-context";
 import {
   logShamwariFeedback,
@@ -31,25 +41,30 @@ interface WizardStep {
 const WIZARD_STEPS: WizardStep[] = [
   {
     question: "What type of gathering is this?",
-    placeholder: "e.g., workshop, networking mixer, concert, community cleanup, tech talk...",
+    placeholder:
+      "e.g., workshop, networking mixer, concert, community cleanup, tech talk...",
     helpText: "This helps set the tone and format expectations",
     key: "eventType",
   },
   {
     question: "Who should attend this event?",
-    placeholder: "e.g., entrepreneurs, music lovers, families with kids, tech professionals...",
-    helpText: "Describe your ideal attendees so the right people find your event",
+    placeholder:
+      "e.g., entrepreneurs, music lovers, families with kids, tech professionals...",
+    helpText:
+      "Describe your ideal attendees so the right people find your event",
     key: "targetAudience",
   },
   {
     question: "What will attendees gain or experience?",
-    placeholder: "e.g., learn new skills, meet like-minded people, enjoy live music...",
+    placeholder:
+      "e.g., learn new skills, meet like-minded people, enjoy live music...",
     helpText: "Focus on the value and benefits for attendees",
     key: "keyTakeaways",
   },
   {
     question: "Any special highlights or unique aspects?",
-    placeholder: "e.g., guest speaker, free food, networking session, live demo...",
+    placeholder:
+      "e.g., guest speaker, free food, networking session, live demo...",
     helpText: "What makes your event stand out? (Optional)",
     key: "highlights",
   },
@@ -78,7 +93,8 @@ export function AIDescriptionWizard({
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedResult, setGeneratedResult] = useState<GeneratedDescription | null>(null);
+  const [generatedResult, setGeneratedResult] =
+    useState<GeneratedDescription | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [regenerateFeedback, setRegenerateFeedback] = useState("");
   const [showRegenerateInput, setShowRegenerateInput] = useState(false);
@@ -108,7 +124,8 @@ export function AIDescriptionWizard({
 
   const step = WIZARD_STEPS[currentStep];
   const isLastStep = currentStep === WIZARD_STEPS.length - 1;
-  const canProceed = currentStep === WIZARD_STEPS.length - 1 || answers[step.key]?.trim();
+  const canProceed =
+    currentStep === WIZARD_STEPS.length - 1 || answers[step.key]?.trim();
 
   const handleNext = async () => {
     if (isLastStep) {
@@ -143,7 +160,8 @@ export function AIDescriptionWizard({
 
     // Lazy-init the Shamwari conversation on the first generate.
     if (viewerPersonId && !conversationIdRef.current) {
-      conversationIdRef.current = await startShamwariConversation(viewerPersonId);
+      conversationIdRef.current =
+        await startShamwariConversation(viewerPersonId);
     }
 
     const startedAt = performance.now();
@@ -164,7 +182,8 @@ export function AIDescriptionWizard({
         });
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to generate description";
+      const message =
+        err instanceof Error ? err.message : "Failed to generate description";
       setError(message);
       if (viewerPersonId) {
         void logShamwariToolUsage({
@@ -229,7 +248,8 @@ export function AIDescriptionWizard({
         });
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to regenerate description";
+      const message =
+        err instanceof Error ? err.message : "Failed to regenerate description";
       setError(message);
       if (viewerPersonId) {
         void logShamwariToolUsage({
@@ -279,10 +299,17 @@ export function AIDescriptionWizard({
                 </div>
                 <div>
                   <h3 className="font-semibold">Shamwari</h3>
-                  <p className="text-sm text-text-secondary">Your AI friend created this for you</p>
+                  <p className="text-sm text-text-secondary">
+                    Your AI friend created this for you
+                  </p>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={onClose} className="p-2 hover:bg-elevated rounded-lg h-auto min-h-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="p-2 hover:bg-elevated rounded-lg h-auto min-h-0"
+              >
                 <X className="w-5 h-5" />
               </Button>
             </div>
@@ -298,19 +325,25 @@ export function AIDescriptionWizard({
             </div>
 
             {/* Suggestions */}
-            {generatedResult.suggestions && generatedResult.suggestions.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-text-secondary">Suggestions to improve:</h4>
-                <ul className="space-y-1.5">
-                  {generatedResult.suggestions.map((suggestion, index) => (
-                    <li key={index} className="text-sm text-text-secondary flex items-start gap-2">
-                      <span className="text-primary mt-0.5">-</span>
-                      {suggestion}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {generatedResult.suggestions &&
+              generatedResult.suggestions.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-text-secondary">
+                    Suggestions to improve:
+                  </h4>
+                  <ul className="space-y-1.5">
+                    {generatedResult.suggestions.map((suggestion, index) => (
+                      <li
+                        key={index}
+                        className="text-sm text-text-secondary flex items-start gap-2"
+                      >
+                        <span className="text-primary mt-0.5">-</span>
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
             {/* Regenerate input */}
             {showRegenerateInput && (
@@ -352,20 +385,23 @@ export function AIDescriptionWizard({
               </div>
             )}
 
-            {error && (
-              isProGateMessage(error) ? (
+            {error &&
+              (isProGateMessage(error) ? (
                 <UpgradeToProAlert message={error} />
               ) : (
                 <div className="bg-red-500/10 text-red-500 px-4 py-3 rounded-xl text-sm">
                   {error}
                 </div>
-              )
-            )}
+              ))}
           </div>
 
           {/* Footer */}
           <div className="p-6 border-t border-elevated flex gap-3">
-            <Button variant="ghost" onClick={handleBack} className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              className="flex items-center gap-2"
+            >
               <ArrowLeft className="w-4 h-4" />
               Back
             </Button>
@@ -380,7 +416,10 @@ export function AIDescriptionWizard({
                   <RefreshCw className="w-4 h-4" />
                   Adjust
                 </Button>
-                <Button onClick={handleAccept} className="flex items-center gap-2">
+                <Button
+                  onClick={handleAccept}
+                  className="flex items-center gap-2"
+                >
                   <Check className="w-4 h-4" />
                   Use This
                 </Button>
@@ -407,11 +446,17 @@ export function AIDescriptionWizard({
               <div>
                 <h3 className="font-semibold">Shamwari</h3>
                 <p className="text-sm text-text-secondary">
-                  Step {currentStep + 1} of {WIZARD_STEPS.length} - Let me help you
+                  Step {currentStep + 1} of {WIZARD_STEPS.length} - Let me help
+                  you
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose} className="p-2 hover:bg-elevated rounded-lg h-auto min-h-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="p-2 hover:bg-elevated rounded-lg h-auto min-h-0"
+            >
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -420,7 +465,9 @@ export function AIDescriptionWizard({
           <div className="mt-4 h-1 bg-elevated rounded-full overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${((currentStep + 1) / WIZARD_STEPS.length) * 100}%` }}
+              style={{
+                width: `${((currentStep + 1) / WIZARD_STEPS.length) * 100}%`,
+              }}
             />
           </div>
         </div>
@@ -430,27 +477,30 @@ export function AIDescriptionWizard({
           <div>
             <h4 className="text-lg font-medium mb-2">{step.question}</h4>
             {step.helpText && (
-              <p className="text-sm text-text-secondary mb-4">{step.helpText}</p>
+              <p className="text-sm text-text-secondary mb-4">
+                {step.helpText}
+              </p>
             )}
           </div>
 
           <Textarea
             value={answers[step.key] || ""}
-            onChange={(e) => setAnswers((prev) => ({ ...prev, [step.key]: e.target.value }))}
+            onChange={(e) =>
+              setAnswers((prev) => ({ ...prev, [step.key]: e.target.value }))
+            }
             placeholder={step.placeholder}
             className="w-full px-4 py-3 bg-surface rounded-xl border-none outline-none resize-none h-32"
             autoFocus
           />
 
-          {error && (
-            isProGateMessage(error) ? (
+          {error &&
+            (isProGateMessage(error) ? (
               <UpgradeToProAlert message={error} />
             ) : (
               <div className="bg-red-500/10 text-red-500 px-4 py-3 rounded-xl text-sm">
                 {error}
               </div>
-            )
-          )}
+            ))}
         </div>
 
         {/* Footer */}
@@ -528,7 +578,10 @@ export function AIDescriptionBadge({
       >
         <ShamwariIcon className="w-3.5 h-3.5" aria-hidden="true" />
         Ask Shamwari
-        <Badge variant="default" className="ml-0.5 px-1.5 py-0 text-[10px] leading-4">
+        <Badge
+          variant="default"
+          className="ml-0.5 px-1.5 py-0 text-[10px] leading-4"
+        >
           Pro
         </Badge>
       </Button>

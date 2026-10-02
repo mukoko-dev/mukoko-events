@@ -47,12 +47,22 @@ const updatesLogger = vi.hoisted(() => ({
   warn: vi.fn(),
   error: vi.fn(),
 }));
-vi.mock("@/lib/observability", () => ({ createLogger: vi.fn(() => updatesLogger) }));
+vi.mock("@/lib/observability", () => ({
+  createLogger: vi.fn(() => updatesLogger),
+}));
 
 import { postEventUpdate } from "./event-updates";
 
-const person = { _id: "person-1", workosUserId: "workos-dev", name: "Dev Person" };
-const event = { _id: "event-1", name: "Harare Farmers Market", primaryHostEntityId: "entity-1" };
+const person = {
+  _id: "person-1",
+  workosUserId: "workos-dev",
+  name: "Dev Person",
+};
+const event = {
+  _id: "event-1",
+  name: "Harare Farmers Market",
+  primaryHostEntityId: "entity-1",
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -117,7 +127,9 @@ describe("postEventUpdate", () => {
   });
 
   it("a Campfire failure can never fail the update", async () => {
-    notifyAttendeesViaCampfire.mockRejectedValueOnce(new Error("campfire down"));
+    notifyAttendeesViaCampfire.mockRejectedValueOnce(
+      new Error("campfire down"),
+    );
 
     const result = await postEventUpdate({
       eventId: "event-1",
@@ -133,17 +145,27 @@ describe("postEventUpdate", () => {
   });
 
   it("rejects a non-host without writing anything", async () => {
-    listHostEntitiesForPerson.mockResolvedValueOnce([{ _id: "someone-elses-entity" }]);
+    listHostEntitiesForPerson.mockResolvedValueOnce([
+      { _id: "someone-elses-entity" },
+    ]);
 
     await expect(
-      postEventUpdate({ eventId: "event-1", text: "hijack", notifyAttendees: true }),
+      postEventUpdate({
+        eventId: "event-1",
+        text: "hijack",
+        notifyAttendees: true,
+      }),
     ).rejects.toThrow("Not authorized");
     expect(updates.insertOne).not.toHaveBeenCalled();
     expect(notifyAttendeesViaCampfire).not.toHaveBeenCalled();
   });
 
   it("checks the free-plan blast cap before writing, keyed by event", async () => {
-    await postEventUpdate({ eventId: "event-1", text: "Gates open at 8am.", notifyAttendees: true });
+    await postEventUpdate({
+      eventId: "event-1",
+      text: "Gates open at 8am.",
+      notifyAttendees: true,
+    });
 
     expect(consumeDailyUsage).toHaveBeenCalledWith({
       subjectId: "event-1",
@@ -157,24 +179,34 @@ describe("postEventUpdate", () => {
   });
 
   it("does not check the blast cap for a plain update (no notify)", async () => {
-    await postEventUpdate({ eventId: "event-1", text: "Minor note.", notifyAttendees: false });
+    await postEventUpdate({
+      eventId: "event-1",
+      text: "Minor note.",
+      notifyAttendees: false,
+    });
     expect(consumeDailyUsage).not.toHaveBeenCalled();
   });
 
   it("refuses to blast once the free-plan daily cap is reached, writing nothing", async () => {
-    consumeDailyUsage.mockRejectedValueOnce(new FakeUsageLimitExceededError("limit reached"));
+    consumeDailyUsage.mockRejectedValueOnce(
+      new FakeUsageLimitExceededError("limit reached"),
+    );
 
     await expect(
-      postEventUpdate({ eventId: "event-1", text: "Another blast.", notifyAttendees: true }),
+      postEventUpdate({
+        eventId: "event-1",
+        text: "Another blast.",
+        notifyAttendees: true,
+      }),
     ).rejects.toThrow("limit reached");
     expect(updates.insertOne).not.toHaveBeenCalled();
     expect(notifyAttendeesViaCampfire).not.toHaveBeenCalled();
   });
 
   it("rejects empty text and falls back to announcement for unknown types", async () => {
-    await expect(postEventUpdate({ eventId: "event-1", text: "   " })).rejects.toThrow(
-      /update before posting/,
-    );
+    await expect(
+      postEventUpdate({ eventId: "event-1", text: "   " }),
+    ).rejects.toThrow(/update before posting/);
 
     await postEventUpdate({
       eventId: "event-1",

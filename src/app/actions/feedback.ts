@@ -69,9 +69,14 @@ function normalizeEmail(value: unknown): string | undefined {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : undefined;
 }
 
-export async function submitFeedback(input: FeedbackInput): Promise<FeedbackResult> {
+export async function submitFeedback(
+  input: FeedbackInput,
+): Promise<FeedbackResult> {
   try {
-    const message = typeof input.message === "string" ? input.message.trim().slice(0, MESSAGE_MAX) : "";
+    const message =
+      typeof input.message === "string"
+        ? input.message.trim().slice(0, MESSAGE_MAX)
+        : "";
     if (!message) {
       return { success: false, error: "Please enter a message." };
     }
@@ -101,7 +106,9 @@ export async function submitFeedback(input: FeedbackInput): Promise<FeedbackResu
 
     const authenticated = Boolean(personId);
     // Signed-in reporters use their account email; signed-out may supply one.
-    const contactEmail = authenticated ? personEmail : normalizeEmail(input.email);
+    const contactEmail = authenticated
+      ? personEmail
+      : normalizeEmail(input.email);
 
     // Sink 1 — persist (best-effort, never-throw).
     const stored = await recordFeedback({
@@ -141,7 +148,8 @@ export async function submitFeedback(input: FeedbackInput): Promise<FeedbackResu
       });
       return {
         success: false,
-        error: "We couldn't send your feedback right now. Please try again later.",
+        error:
+          "We couldn't send your feedback right now. Please try again later.",
       };
     }
 
@@ -153,7 +161,8 @@ export async function submitFeedback(input: FeedbackInput): Promise<FeedbackResu
     });
     return {
       success: false,
-      error: "We couldn't send your feedback right now. Please try again later.",
+      error:
+        "We couldn't send your feedback right now. Please try again later.",
     };
   }
 }

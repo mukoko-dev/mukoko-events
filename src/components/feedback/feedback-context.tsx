@@ -37,7 +37,9 @@ export interface FeedbackContextValue {
   openForm: (prefill?: FeedbackPrefill) => void;
 }
 
-export const FeedbackContext = React.createContext<FeedbackContextValue | null>(null);
+export const FeedbackContext = React.createContext<FeedbackContextValue | null>(
+  null,
+);
 
 /**
  * Access the global feedback opener. Returns a no-op-safe object even outside

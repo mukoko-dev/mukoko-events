@@ -15,7 +15,10 @@ interface UpgradeToProAlertProps {
   className?: string;
 }
 
-export function UpgradeToProAlert({ message, className }: UpgradeToProAlertProps) {
+export function UpgradeToProAlert({
+  message,
+  className,
+}: UpgradeToProAlertProps) {
   return (
     <div
       role="alert"

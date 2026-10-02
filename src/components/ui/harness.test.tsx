@@ -82,7 +82,9 @@ describe("useNyuchiHarness", () => {
     mockMatchMedia(false);
     render(<HookProbe />);
     expect(screen.getByTestId("reduced").textContent).toBe("false");
-    expect(screen.getByTestId("anim").textContent).toContain("nyuchi-fade-slide-up");
+    expect(screen.getByTestId("anim").textContent).toContain(
+      "nyuchi-fade-slide-up",
+    );
     expect(screen.getByTestId("types").textContent).toBe("function:function");
   });
 
@@ -108,7 +110,7 @@ describe("NyuchiHarness", () => {
     render(
       <NyuchiHarness name="feed">
         <p>hello</p>
-      </NyuchiHarness>
+      </NyuchiHarness>,
     );
     expect(screen.getByText("hello")).toBeInTheDocument();
     const root = document.querySelector('[data-slot="nyuchi-harness"]');
@@ -121,7 +123,7 @@ describe("NyuchiHarness", () => {
     render(
       <NyuchiHarness name="feed" loading>
         <p>hello</p>
-      </NyuchiHarness>
+      </NyuchiHarness>,
     );
     const root = document.querySelector('[data-slot="nyuchi-harness"]');
     expect(root?.getAttribute("data-status")).toBe("loading");
@@ -138,7 +140,7 @@ describe("NyuchiHarness", () => {
     render(
       <NyuchiHarness name="crashy">
         <Boom />
-      </NyuchiHarness>
+      </NyuchiHarness>,
     );
     expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.getByText(/crashy failed to load/i)).toBeInTheDocument();

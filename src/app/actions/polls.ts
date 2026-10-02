@@ -68,10 +68,15 @@ interface PollVote {
  * on the read path — a missing person just means "can't vote".
  */
 async function resolveViewerPersonId(): Promise<string | null> {
-  const workosUserId = isDevBypass() ? DEV_WORKOS_ID : (await withAuth()).user?.id ?? null;
+  const workosUserId = isDevBypass()
+    ? DEV_WORKOS_ID
+    : ((await withAuth()).user?.id ?? null);
   if (!workosUserId) return null;
   const persons = await personsCollection();
-  const person = await persons.findOne({ workosUserId }, { projection: { _id: 1 } });
+  const person = await persons.findOne(
+    { workosUserId },
+    { projection: { _id: 1 } },
+  );
   return person?._id ?? null;
 }
 
@@ -103,7 +108,8 @@ function readVotes(raw: unknown): PollVote[] {
   return raw.flatMap((v): PollVote[] => {
     if (!v || typeof v !== "object") return [];
     const obj = v as Record<string, unknown>;
-    if (typeof obj.personId !== "string" || typeof obj.optionId !== "string") return [];
+    if (typeof obj.personId !== "string" || typeof obj.optionId !== "string")
+      return [];
     return [
       {
         personId: obj.personId,
@@ -136,7 +142,7 @@ function toView(doc: PollDoc, viewerPersonId: string | null): PollView {
     isClosed: isClosed(doc),
     tally: tallyOf(votes),
     myOptionId: viewerPersonId
-      ? votes.find((v) => v.personId === viewerPersonId)?.optionId ?? null
+      ? (votes.find((v) => v.personId === viewerPersonId)?.optionId ?? null)
       : null,
   };
 }
@@ -157,8 +163,12 @@ export async function getEventPolls(eventId: string): Promise<EventPollsView> {
  * Cast (or change) the viewer's vote on a poll. Idempotent re-clicks are a
  * no-op. Returns the recomputed tally and the viewer's current option.
  */
-export async function castVote(pollId: string, optionId: string): Promise<CastVoteResult> {
-  if (!pollId || !optionId) throw new Error("A poll and an option are required.");
+export async function castVote(
+  pollId: string,
+  optionId: string,
+): Promise<CastVoteResult> {
+  if (!pollId || !optionId)
+    throw new Error("A poll and an option are required.");
 
   const viewerPersonId = await resolveViewerPersonId();
   if (!viewerPersonId) throw new Error("You must be signed in to vote.");
@@ -182,14 +192,23 @@ export async function castVote(pollId: string, optionId: string): Promise<CastVo
   }
 
   const now = new Date();
-  const nextVote: PollVote = { personId: viewerPersonId, optionId, votedAt: now };
+  const nextVote: PollVote = {
+    personId: viewerPersonId,
+    optionId,
+    votedAt: now,
+  };
 
   // Pull any prior vote(s) by this person, then push the new one. Two stages so
   // a change-vote can't transiently leave the person with two live votes.
   if (prior) {
     await col.updateOne(
       { _id: pollId },
-      { $pull: { votes: { personId: viewerPersonId } } as Record<string, unknown> },
+      {
+        $pull: { votes: { personId: viewerPersonId } } as Record<
+          string,
+          unknown
+        >,
+      },
     );
   }
   const updated = await col.findOneAndUpdate(
@@ -201,10 +220,15 @@ export async function castVote(pollId: string, optionId: string): Promise<CastVo
     { returnDocument: "after" },
   );
 
-  const finalVotes = updated ? readVotes(updated.votes) : [...existing.filter((v) => v.personId !== viewerPersonId), nextVote];
+  const finalVotes = updated
+    ? readVotes(updated.votes)
+    : [...existing.filter((v) => v.personId !== viewerPersonId), nextVote];
 
   // Keep the denormalised counter consistent with the embedded votes.
-  await col.updateOne({ _id: pollId }, { $set: { totalResponseCount: finalVotes.length } });
+  await col.updateOne(
+    { _id: pollId },
+    { $set: { totalResponseCount: finalVotes.length } },
+  );
 
   return { pollId, tally: tallyOf(finalVotes), myOptionId: optionId };
 }

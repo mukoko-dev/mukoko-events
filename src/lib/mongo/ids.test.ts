@@ -9,9 +9,16 @@ import { describe, it, expect, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { newId, slugify, shortLinkSlug, stampNew, WRITE_SCHEMA_VERSION } from "./ids";
+import {
+  newId,
+  slugify,
+  shortLinkSlug,
+  stampNew,
+  WRITE_SCHEMA_VERSION,
+} from "./ids";
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 describe("newId", () => {
   it("returns a well-formed UUID", () => {
@@ -74,7 +81,9 @@ describe("shortLinkSlug", () => {
   });
 
   it("never emits the confusable characters 0 O 1 I l", () => {
-    const joined = Array.from({ length: 100 }, () => shortLinkSlug(16)).join("");
+    const joined = Array.from({ length: 100 }, () => shortLinkSlug(16)).join(
+      "",
+    );
     expect(joined).not.toMatch(/[01oil]/);
   });
 

@@ -50,7 +50,9 @@ const CONTENT_SECURITY_POLICY = [
  * environment (build-time, like all next.config redirects); temporary (307)
  * so the destination can move without poisoning browser caches.
  */
-const ADMIN_URL = (process.env.ADMIN_URL || "https://admin.events.mukoko.com").replace(/\/+$/, "");
+const ADMIN_URL = (
+  process.env.ADMIN_URL || "https://admin.events.mukoko.com"
+).replace(/\/+$/, "");
 
 const nextConfig: NextConfig = {
   // Don't advertise the framework via the `X-Powered-By: Next.js` response
@@ -80,8 +82,16 @@ const nextConfig: NextConfig = {
       // Old in-app paths map onto the standalone app's routes (/admin/users
       // moved to /people there, so path passthrough is deliberately not used).
       { source: "/admin", destination: ADMIN_URL, permanent: false },
-      { source: "/admin/users", destination: `${ADMIN_URL}/people`, permanent: false },
-      { source: "/admin/:path*", destination: `${ADMIN_URL}/:path*`, permanent: false },
+      {
+        source: "/admin/users",
+        destination: `${ADMIN_URL}/people`,
+        permanent: false,
+      },
+      {
+        source: "/admin/:path*",
+        destination: `${ADMIN_URL}/:path*`,
+        permanent: false,
+      },
     ];
   },
   images: {
@@ -115,7 +125,10 @@ const nextConfig: NextConfig = {
           // so opener-based tab-nabbing and Spectre-style cross-origin reads
           // are contained. `same-origin-allow-popups` keeps the WorkOS/OAuth
           // popup and window.open flows working.
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups",
+          },
           { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
           { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
           {

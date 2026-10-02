@@ -29,7 +29,12 @@ import {
 } from "./databases";
 import { WRITE_SCHEMA_VERSION, newId, slugify } from "./ids";
 import { listEvents } from "./events";
-import type { CalendarDoc, CalendarFollowDoc, CalendarVisibility, EventDoc } from "./types";
+import type {
+  CalendarDoc,
+  CalendarFollowDoc,
+  CalendarVisibility,
+  EventDoc,
+} from "./types";
 import type { Event } from "@/lib/api";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -85,7 +90,9 @@ export function buildCalendarDoc(input: CreateCalendarInput): CalendarDoc {
 }
 
 /** Insert a new calendar. Returns the persisted document. */
-export async function createCalendar(input: CreateCalendarInput): Promise<CalendarDoc> {
+export async function createCalendar(
+  input: CreateCalendarInput,
+): Promise<CalendarDoc> {
   const doc = buildCalendarDoc(input);
   const col = await calendarsCollection();
   await col.insertOne(doc);
@@ -108,23 +115,33 @@ export async function updateCalendar(
   const col = await calendarsCollection();
   const $set: Record<string, unknown> = { updatedAt: new Date() };
   if (input.name !== undefined) $set.name = input.name.trim();
-  if (input.description !== undefined) $set.description = input.description?.trim() || null;
+  if (input.description !== undefined)
+    $set.description = input.description?.trim() || null;
   if (input.visibility !== undefined) $set.visibility = input.visibility;
   if (input.theme !== undefined) $set.theme = input.theme;
   if (input.circleId !== undefined) $set.circleId = input.circleId;
-  return col.findOneAndUpdate({ _id: calendarId }, { $set }, { returnDocument: "after" });
+  return col.findOneAndUpdate(
+    { _id: calendarId },
+    { $set },
+    { returnDocument: "after" },
+  );
 }
 
 /** Soft-archive a calendar (never a hard delete — followers/events keep history). */
 export async function archiveCalendar(calendarId: string): Promise<void> {
   const col = await calendarsCollection();
-  await col.updateOne({ _id: calendarId }, { $set: { isActive: false, updatedAt: new Date() } });
+  await col.updateOne(
+    { _id: calendarId },
+    { $set: { isActive: false, updatedAt: new Date() } },
+  );
 }
 
 // ── reads ────────────────────────────────────────────────────────────
 
 /** Fetch an active calendar by its unique slug (any visibility — gate at the route). */
-export async function getCalendarBySlug(slug: string): Promise<CalendarDoc | null> {
+export async function getCalendarBySlug(
+  slug: string,
+): Promise<CalendarDoc | null> {
   const col = await calendarsCollection();
   return col.findOne({ slug, isActive: true });
 }
@@ -176,7 +193,9 @@ function toFeatured(d: CalendarDoc): FeaturedCalendar {
  * `discover_featured` index (visibility + isActive + followerCount desc).
  * Unlisted and private calendars never appear here.
  */
-export async function listFeaturedCalendars(limit = 6): Promise<FeaturedCalendar[]> {
+export async function listFeaturedCalendars(
+  limit = 6,
+): Promise<FeaturedCalendar[]> {
   const col = await calendarsCollection();
   const docs = await col
     .find({ visibility: "public", isActive: true })
@@ -199,16 +218,25 @@ export async function listCalendarsByOwner(
   const col = await calendarsCollection();
   const filter =
     hostEntityIds.length > 0
-      ? { isActive: true, $or: [{ ownerPersonId }, { ownerEntityId: { $in: hostEntityIds } }] }
+      ? {
+          isActive: true,
+          $or: [{ ownerPersonId }, { ownerEntityId: { $in: hostEntityIds } }],
+        }
       : { ownerPersonId, isActive: true };
   return col.find(filter).sort({ createdAt: -1 }).toArray();
 }
 
 /** A circle's discoverable calendars (private ones stay with their owner). */
-export async function listCalendarsByCircle(circleId: string): Promise<CalendarDoc[]> {
+export async function listCalendarsByCircle(
+  circleId: string,
+): Promise<CalendarDoc[]> {
   const col = await calendarsCollection();
   return col
-    .find({ circleId, isActive: true, visibility: { $in: ["public", "unlisted"] } })
+    .find({
+      circleId,
+      isActive: true,
+      visibility: { $in: ["public", "unlisted"] },
+    })
     .sort({ followerCount: -1 })
     .toArray();
 }
@@ -222,7 +250,11 @@ export async function listPublicCalendars(
     .find({ visibility: "public", isActive: true })
     .sort({ followerCount: -1 })
     .limit(limit)
-    .project<{ slug: string; updatedAt: Date }>({ slug: 1, updatedAt: 1, _id: 0 })
+    .project<{ slug: string; updatedAt: Date }>({
+      slug: 1,
+      updatedAt: 1,
+      _id: 0,
+    })
     .toArray();
 }
 
@@ -232,7 +264,10 @@ export async function listPublicCalendars(
  * The calendar's upcoming published events, mapped to the API shape with
  * hosts/venues resolved (reuses the batched fan-out in `events.ts`).
  */
-export async function listCalendarEvents(calendarId: string, limit = 100): Promise<Event[]> {
+export async function listCalendarEvents(
+  calendarId: string,
+  limit = 100,
+): Promise<Event[]> {
   const { events } = await listEvents({ calendarId, limit });
   return events;
 }
@@ -241,7 +276,10 @@ export async function listCalendarEvents(calendarId: string, limit = 100): Promi
  * Raw upcoming published event docs for the ICS feed — the feed needs storage
  * fields (`iCalUid`, BSON dates, embedded location) the API mapper folds away.
  */
-export async function listCalendarEventDocs(calendarId: string, limit = 250): Promise<EventDoc[]> {
+export async function listCalendarEventDocs(
+  calendarId: string,
+  limit = 250,
+): Promise<EventDoc[]> {
   const col = await eventsCollection();
   return col
     .find({
@@ -261,7 +299,10 @@ export async function listCalendarEventDocs(calendarId: string, limit = 250): Pr
  * re-attaching to the same calendar is a no-op (no double-increment); moving
  * between calendars increments the new one and decrements the old.
  */
-export async function attachEventToCalendar(eventId: string, calendarId: string): Promise<void> {
+export async function attachEventToCalendar(
+  eventId: string,
+  calendarId: string,
+): Promise<void> {
   const events = await eventsCollection();
   const now = new Date();
   // Only matches when the event exists AND isn't already on this calendar —
@@ -388,7 +429,11 @@ export async function unfollowCalendar(params: {
   const follows = await calendarFollowsCollection();
   const now = new Date();
   const before = await follows.findOneAndUpdate(
-    { calendarId: params.calendarId, followerPersonId: params.followerPersonId, isActive: true },
+    {
+      calendarId: params.calendarId,
+      followerPersonId: params.followerPersonId,
+      isActive: true,
+    },
     { $set: { isActive: false, unfollowedAt: now, updatedAt: now } },
     { returnDocument: "before" },
   );
@@ -405,7 +450,9 @@ export async function unfollowCalendar(params: {
 }
 
 /** Calendars a person actively follows, most recently followed first. */
-export async function listFollowedCalendars(followerPersonId: string): Promise<CalendarDoc[]> {
+export async function listFollowedCalendars(
+  followerPersonId: string,
+): Promise<CalendarDoc[]> {
   const follows = await calendarFollowsCollection();
   const rows = await follows
     .find({ followerPersonId, isActive: true })
@@ -418,7 +465,9 @@ export async function listFollowedCalendars(followerPersonId: string): Promise<C
     .find({ _id: { $in: rows.map((r) => r.calendarId) }, isActive: true })
     .toArray();
   const byId = new Map(docs.map((d) => [d._id, d]));
-  return rows.map((r) => byId.get(r.calendarId)).filter((d): d is CalendarDoc => d !== undefined);
+  return rows
+    .map((r) => byId.get(r.calendarId))
+    .filter((d): d is CalendarDoc => d !== undefined);
 }
 
 /** Is this person an active follower of the calendar? */

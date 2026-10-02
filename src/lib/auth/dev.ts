@@ -19,5 +19,7 @@ export const DEV_EMAIL = "dev@nhimbe.local";
 export const DEV_NAME = "Dev User";
 
 export function isDevBypass(): boolean {
-  return process.env.NODE_ENV !== "production" && process.env.DEV_AUTH_BYPASS === "1";
+  return (
+    process.env.NODE_ENV !== "production" && process.env.DEV_AUTH_BYPASS === "1"
+  );
 }

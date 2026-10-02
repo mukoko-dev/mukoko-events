@@ -53,7 +53,12 @@ function NyuchiProgrammeItem({
 
   if (loading) {
     return (
-      <div data-slot="nyuchi-programme-item" data-loading role="listitem" className="flex animate-pulse gap-3 py-2">
+      <div
+        data-slot="nyuchi-programme-item"
+        data-loading
+        role="listitem"
+        className="flex animate-pulse gap-3 py-2"
+      >
         <div className="mt-1.5 size-2.5 rounded-full bg-muted" />
         <div className="flex-1 space-y-1.5">
           <div className="h-3 w-1/4 rounded bg-muted" />
@@ -66,11 +71,19 @@ function NyuchiProgrammeItem({
   const color = mineralColors[mineral];
 
   return (
-    <div data-slot="nyuchi-programme-item" role="listitem" className={cn("flex gap-3", className)} style={animStyle()}>
+    <div
+      data-slot="nyuchi-programme-item"
+      role="listitem"
+      className={cn("flex gap-3", className)}
+      style={animStyle()}
+    >
       {/* Timeline column */}
       <div className="flex flex-col items-center">
         <div
-          className={cn("size-3 shrink-0 rounded-full ring-2 ring-card", isActive && "scale-125")}
+          className={cn(
+            "size-3 shrink-0 rounded-full ring-2 ring-card",
+            isActive && "scale-125",
+          )}
           style={{ backgroundColor: color }}
         />
         {!isLast && <div className="w-px flex-1 bg-border" />}
@@ -78,10 +91,23 @@ function NyuchiProgrammeItem({
       {/* Content */}
       <div className={cn("min-w-0 flex-1 pb-6", isLast && "pb-0")}>
         <div className="flex items-baseline justify-between gap-2">
-          <span className="text-xs font-medium text-muted-foreground">{time}</span>
-          {duration && <span className="text-[10px] text-muted-foreground/60">{duration}</span>}
+          <span className="text-xs font-medium text-muted-foreground">
+            {time}
+          </span>
+          {duration && (
+            <span className="text-[10px] text-muted-foreground/60">
+              {duration}
+            </span>
+          )}
         </div>
-        <h4 className={cn("mt-1 text-sm font-medium", isActive ? "text-foreground" : "text-foreground/80")}>{title}</h4>
+        <h4
+          className={cn(
+            "mt-1 text-sm font-medium",
+            isActive ? "text-foreground" : "text-foreground/80",
+          )}
+        >
+          {title}
+        </h4>
         {speaker && (
           <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
             <User className="size-3" />
@@ -89,7 +115,11 @@ function NyuchiProgrammeItem({
             {speakerRole && <span className="opacity-60">· {speakerRole}</span>}
           </div>
         )}
-        {description && <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground/70">{description}</p>}
+        {description && (
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground/70">
+            {description}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -50,10 +50,18 @@ vi.mock("@/lib/auth/dev", () => ({
   DEV_NAME: "Dev Person",
 }));
 
-import { createEventForPerson, updateEventForPerson, type CreateEventActionInput } from "./events";
+import {
+  createEventForPerson,
+  updateEventForPerson,
+  type CreateEventActionInput,
+} from "./events";
 import type { PersonDoc } from "@/lib/mongo/types";
 
-const person = { _id: "person-1", workosUserId: "workos-1", name: "Dev Person" } as PersonDoc;
+const person = {
+  _id: "person-1",
+  workosUserId: "workos-1",
+  name: "Dev Person",
+} as PersonDoc;
 
 const baseInput: CreateEventActionInput = {
   name: "Harare Farmers Market",
@@ -83,7 +91,10 @@ beforeEach(() => {
   events.findOne.mockResolvedValue(existingEvent);
   events.updateOne.mockResolvedValue({ acknowledged: true });
   ensureHostEntityForPerson.mockResolvedValue("default-entity-1");
-  getEntityById.mockResolvedValue({ _id: "default-entity-1", name: "Dev Person" });
+  getEntityById.mockResolvedValue({
+    _id: "default-entity-1",
+    name: "Dev Person",
+  });
   listHostEntitiesForPerson.mockResolvedValue([{ _id: "org-entity-1" }]);
   attachEventToCalendar.mockResolvedValue(undefined);
   detachEventFromCalendar.mockResolvedValue(undefined);
@@ -136,15 +147,26 @@ describe("createEventForPerson — host entity authorization", () => {
 
 describe("createEventForPerson — calendar attach authorization", () => {
   it("allows attaching to a calendar the person personally owns", async () => {
-    getCalendarById.mockResolvedValue({ _id: "cal-1", ownerPersonId: "person-1", ownerEntityId: "someone-else" });
+    getCalendarById.mockResolvedValue({
+      _id: "cal-1",
+      ownerPersonId: "person-1",
+      ownerEntityId: "someone-else",
+    });
 
     await createEventForPerson(person, { ...baseInput, calendarId: "cal-1" });
 
-    expect(attachEventToCalendar).toHaveBeenCalledWith(expect.any(String), "cal-1");
+    expect(attachEventToCalendar).toHaveBeenCalledWith(
+      expect.any(String),
+      "cal-1",
+    );
   });
 
   it("allows attaching to a calendar owned by the entity being hosted through", async () => {
-    getCalendarById.mockResolvedValue({ _id: "cal-1", ownerPersonId: "someone-else", ownerEntityId: "org-entity-1" });
+    getCalendarById.mockResolvedValue({
+      _id: "cal-1",
+      ownerPersonId: "someone-else",
+      ownerEntityId: "org-entity-1",
+    });
 
     await createEventForPerson(person, {
       ...baseInput,
@@ -153,11 +175,18 @@ describe("createEventForPerson — calendar attach authorization", () => {
       calendarId: "cal-1",
     });
 
-    expect(attachEventToCalendar).toHaveBeenCalledWith(expect.any(String), "cal-1");
+    expect(attachEventToCalendar).toHaveBeenCalledWith(
+      expect.any(String),
+      "cal-1",
+    );
   });
 
   it("rejects a calendar owned by neither the person nor the hosting entity", async () => {
-    getCalendarById.mockResolvedValue({ _id: "cal-1", ownerPersonId: "someone-else", ownerEntityId: "another-entity" });
+    getCalendarById.mockResolvedValue({
+      _id: "cal-1",
+      ownerPersonId: "someone-else",
+      ownerEntityId: "another-entity",
+    });
 
     await expect(
       createEventForPerson(person, { ...baseInput, calendarId: "cal-1" }),
@@ -171,7 +200,11 @@ describe("createEventForPerson — calendar attach authorization", () => {
     // listHostEntitiesForPerson, the personal path never resolves an
     // explicit hostEntityId — so a calendar owned by that entity must not
     // be treated as attachable.
-    getCalendarById.mockResolvedValue({ _id: "cal-1", ownerPersonId: "someone-else", ownerEntityId: "org-entity-1" });
+    getCalendarById.mockResolvedValue({
+      _id: "cal-1",
+      ownerPersonId: "someone-else",
+      ownerEntityId: "org-entity-1",
+    });
 
     await expect(
       createEventForPerson(person, { ...baseInput, calendarId: "cal-1" }),
@@ -213,7 +246,11 @@ describe("createEventForPerson — venue placeId", () => {
 
 describe("updateEventForPerson — calendar move/detach", () => {
   it("attaches to a calendar owned by the entity already hosting the event", async () => {
-    getCalendarById.mockResolvedValue({ _id: "cal-1", ownerPersonId: "someone-else", ownerEntityId: "org-entity-1" });
+    getCalendarById.mockResolvedValue({
+      _id: "cal-1",
+      ownerPersonId: "someone-else",
+      ownerEntityId: "org-entity-1",
+    });
 
     await updateEventForPerson(person, "event-1", { calendarId: "cal-1" });
 
@@ -222,7 +259,11 @@ describe("updateEventForPerson — calendar move/detach", () => {
   });
 
   it("attaches to a calendar the person personally owns", async () => {
-    getCalendarById.mockResolvedValue({ _id: "cal-1", ownerPersonId: "person-1", ownerEntityId: "someone-else" });
+    getCalendarById.mockResolvedValue({
+      _id: "cal-1",
+      ownerPersonId: "person-1",
+      ownerEntityId: "someone-else",
+    });
 
     await updateEventForPerson(person, "event-1", { calendarId: "cal-1" });
 
@@ -230,7 +271,11 @@ describe("updateEventForPerson — calendar move/detach", () => {
   });
 
   it("rejects a calendar owned by neither the person nor the event's host entity", async () => {
-    getCalendarById.mockResolvedValue({ _id: "cal-1", ownerPersonId: "someone-else", ownerEntityId: "another-entity" });
+    getCalendarById.mockResolvedValue({
+      _id: "cal-1",
+      ownerPersonId: "someone-else",
+      ownerEntityId: "another-entity",
+    });
 
     await expect(
       updateEventForPerson(person, "event-1", { calendarId: "cal-1" }),

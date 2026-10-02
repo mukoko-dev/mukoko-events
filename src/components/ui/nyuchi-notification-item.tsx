@@ -115,7 +115,8 @@ function NyuchiNotificationItem({
 
   const config = typeConfig[type] ?? typeConfig.system;
   const Icon = config.icon;
-  const time = typeof timestamp === "string" ? timestamp : timestamp.toLocaleDateString();
+  const time =
+    typeof timestamp === "string" ? timestamp : timestamp.toLocaleDateString();
   const initials = getInitials(actorName);
 
   return (
@@ -138,9 +139,15 @@ function NyuchiNotificationItem({
           <div className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-muted">
             {actorAvatar ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={actorAvatar} alt="" className="size-full object-cover" />
+              <img
+                src={actorAvatar}
+                alt=""
+                className="size-full object-cover"
+              />
             ) : (
-              <span className="text-xs font-semibold text-muted-foreground">{initials}</span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                {initials}
+              </span>
             )}
           </div>
           <div
@@ -153,21 +160,34 @@ function NyuchiNotificationItem({
       ) : (
         <div
           className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-sm,7px)]"
-          style={{ backgroundColor: `color-mix(in srgb, ${config.color} 15%, transparent)` }}
+          style={{
+            backgroundColor: `color-mix(in srgb, ${config.color} 15%, transparent)`,
+          }}
         >
           <Icon className="size-5" style={{ color: config.color }} />
         </div>
       )}
 
       <div className="min-w-0 flex-1">
-        <div className={cn("text-sm", read ? "text-muted-foreground" : "font-medium text-foreground")}>
+        <div
+          className={cn(
+            "text-sm",
+            read ? "text-muted-foreground" : "font-medium text-foreground",
+          )}
+        >
           {title}
         </div>
-        {message && <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{message}</div>}
+        {message && (
+          <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+            {message}
+          </div>
+        )}
         <div className="mt-1 text-[10px] text-muted-foreground/60">{time}</div>
       </div>
 
-      {!read && <div className="mt-2 size-2 shrink-0 rounded-full bg-primary" />}
+      {!read && (
+        <div className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
+      )}
     </div>
   );
 }

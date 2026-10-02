@@ -37,7 +37,10 @@ import "server-only";
  * event chat), which owns its own reads/writes for user-authored messages.
  */
 
-import { campfireConversationsCollection, campfireMessagesCollection } from "./databases";
+import {
+  campfireConversationsCollection,
+  campfireMessagesCollection,
+} from "./databases";
 import { WRITE_SCHEMA_VERSION, newId } from "./ids";
 import { createLogger } from "@/lib/observability";
 import type { CampfireConversationDoc, CampfireMessageDoc } from "./types";
@@ -56,7 +59,9 @@ interface PairedConversationParams {
   createdByPersonId: string;
 }
 
-function buildPairedConversationDoc(params: PairedConversationParams): CampfireConversationDoc {
+function buildPairedConversationDoc(
+  params: PairedConversationParams,
+): CampfireConversationDoc {
   const now = new Date();
   return {
     _id: newId(),
@@ -84,7 +89,10 @@ async function ensurePairedConversation(
   params: PairedConversationParams & { notFoundLabel: string },
 ): Promise<CampfireConversationDoc> {
   const conversations = await campfireConversationsCollection();
-  const filter = { [params.ownerField]: params.ownerId, conversationType: params.conversationType };
+  const filter = {
+    [params.ownerField]: params.ownerId,
+    conversationType: params.conversationType,
+  };
 
   const conversation = await conversations.findOneAndUpdate(
     filter,
@@ -135,7 +143,9 @@ export interface SystemMessageInput {
  * Pure builder for an announcement system message. Exported so tests can
  * assert every `campfire.messages` validator-required field is set.
  */
-export function buildSystemMessageDoc(input: SystemMessageInput): CampfireMessageDoc {
+export function buildSystemMessageDoc(
+  input: SystemMessageInput,
+): CampfireMessageDoc {
   const now = new Date();
   return {
     _id: newId(),
@@ -192,7 +202,9 @@ export async function appendSystemMessage(params: {
     { returnDocument: "after" },
   );
   if (!bumped) {
-    throw new Error(`Campfire conversation ${params.conversationId} not found.`);
+    throw new Error(
+      `Campfire conversation ${params.conversationId} not found.`,
+    );
   }
 
   const doc = buildSystemMessageDoc({
@@ -343,7 +355,9 @@ export interface CampfireNotifyInput {
  * `events.updates` write succeeds; any failure here is logged and swallowed
  * so it can never fail the update itself.
  */
-export async function notifyAttendeesViaCampfire(input: CampfireNotifyInput): Promise<void> {
+export async function notifyAttendeesViaCampfire(
+  input: CampfireNotifyInput,
+): Promise<void> {
   try {
     const conversation = await ensureEventConversation({
       eventId: input.eventId,

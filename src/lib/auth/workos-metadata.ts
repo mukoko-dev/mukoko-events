@@ -111,7 +111,9 @@ export interface WorkosAuthMetadata {
  * advertised `clientId` is the dedicated MCP Connect app rather than the app's
  * first-party login client.
  */
-export function workosAuthMetadata(opts?: { mcp?: boolean }): WorkosAuthMetadata {
+export function workosAuthMetadata(opts?: {
+  mcp?: boolean;
+}): WorkosAuthMetadata {
   const base = `https://${workosAuthkitDomain()}`;
   return {
     issuer: base,

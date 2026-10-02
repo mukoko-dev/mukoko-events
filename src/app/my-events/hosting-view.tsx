@@ -1,9 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { LayoutGrid, Rows3, CalendarRange, ArrowUpDown, Users, Clock } from "lucide-react";
+import {
+  LayoutGrid,
+  Rows3,
+  CalendarRange,
+  ArrowUpDown,
+  Users,
+  Clock,
+} from "lucide-react";
 import { NyuchiListingCard } from "@/components/ui/nyuchi-listing-card";
-import { NyuchiTimeline, type TimelineItem } from "@/components/ui/nyuchi-timeline";
+import {
+  NyuchiTimeline,
+  type TimelineItem,
+} from "@/components/ui/nyuchi-timeline";
 import { NyuchiEmptyState } from "@/components/ui/nyuchi-empty-state";
 import {
   Table,
@@ -33,11 +43,20 @@ interface HostingViewProps {
 }
 
 /** Simple lifecycle label from the schema.org eventStatus string. */
-function statusLabel(event: Event): { label: string; variant: "default" | "secondary" | "destructive" } {
-  const status = (event.eventStatus ?? "").replace(/^https?:\/\/schema\.org\//, "");
-  if (status === "EventCancelled") return { label: "Cancelled", variant: "destructive" };
-  if (status === "EventPostponed") return { label: "Postponed", variant: "secondary" };
-  if (event.isPublished === false) return { label: "Draft", variant: "secondary" };
+function statusLabel(event: Event): {
+  label: string;
+  variant: "default" | "secondary" | "destructive";
+} {
+  const status = (event.eventStatus ?? "").replace(
+    /^https?:\/\/schema\.org\//,
+    "",
+  );
+  if (status === "EventCancelled")
+    return { label: "Cancelled", variant: "destructive" };
+  if (status === "EventPostponed")
+    return { label: "Postponed", variant: "secondary" };
+  if (event.isPublished === false)
+    return { label: "Draft", variant: "secondary" };
   return { label: "Published", variant: "default" };
 }
 
@@ -70,7 +89,8 @@ export function HostingView({ events }: HostingViewProps) {
 
   useEffect(() => {
     const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
-    if (stored === "card" || stored === "table" || stored === "timeline") setView(stored);
+    if (stored === "card" || stored === "table" || stored === "timeline")
+      setView(stored);
   }, []);
 
   const setViewAndPersist = (next: ViewMode) => {
@@ -96,7 +116,9 @@ export function HostingView({ events }: HostingViewProps) {
           return a.attendeeCount - b.attendeeCount;
         case "date":
         default:
-          return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+          return (
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+          );
       }
     });
     return sortDir === "asc" ? sorted : sorted.reverse();
@@ -141,8 +163,16 @@ export function HostingView({ events }: HostingViewProps) {
               mineral={categoryToMineral(event.category)}
               image={event.image ? getMediaUrl(event.image) : undefined}
               meta={[
-                { label: "date", value: `${event.date.month} ${event.date.day}`, icon: Clock },
-                { label: "going", value: `${event.attendeeCount} going`, icon: Users },
+                {
+                  label: "date",
+                  value: `${event.date.month} ${event.date.day}`,
+                  icon: Clock,
+                },
+                {
+                  label: "going",
+                  value: `${event.attendeeCount} going`,
+                  icon: Users,
+                },
               ]}
             />
           ))}
@@ -155,18 +185,30 @@ export function HostingView({ events }: HostingViewProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>
-                  <button type="button" onClick={() => toggleSort("name")} className="inline-flex items-center gap-1 hover:text-foreground">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("name")}
+                    className="inline-flex items-center gap-1 hover:text-foreground"
+                  >
                     Event <ArrowUpDown className="w-3 h-3" aria-hidden />
                   </button>
                 </TableHead>
                 <TableHead>
-                  <button type="button" onClick={() => toggleSort("date")} className="inline-flex items-center gap-1 hover:text-foreground">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("date")}
+                    className="inline-flex items-center gap-1 hover:text-foreground"
+                  >
                     Date <ArrowUpDown className="w-3 h-3" aria-hidden />
                   </button>
                 </TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>
-                  <button type="button" onClick={() => toggleSort("attendees")} className="inline-flex items-center gap-1 hover:text-foreground">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("attendees")}
+                    className="inline-flex items-center gap-1 hover:text-foreground"
+                  >
                     Attendees <ArrowUpDown className="w-3 h-3" aria-hidden />
                   </button>
                 </TableHead>
@@ -177,16 +219,26 @@ export function HostingView({ events }: HostingViewProps) {
               {sortedEvents.map((event) => {
                 const status = statusLabel(event);
                 return (
-                  <TableRow key={event.id} className="cursor-pointer" onClick={() => (window.location.href = `/events/${event.id}`)}>
+                  <TableRow
+                    key={event.id}
+                    className="cursor-pointer"
+                    onClick={() =>
+                      (window.location.href = `/events/${event.id}`)
+                    }
+                  >
                     <TableCell className="font-medium">{event.name}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {event.date.month} {event.date.day}
                       {event.date.time ? ` · ${event.date.time}` : ""}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{event.category || "—"}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {event.category || "—"}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {event.attendeeCount}
-                      {event.maximumAttendeeCapacity ? ` / ${event.maximumAttendeeCapacity}` : ""}
+                      {event.maximumAttendeeCapacity
+                        ? ` / ${event.maximumAttendeeCapacity}`
+                        : ""}
                     </TableCell>
                     <TableCell>
                       <Badge variant={status.variant}>{status.label}</Badge>
@@ -203,7 +255,11 @@ export function HostingView({ events }: HostingViewProps) {
         <NyuchiTimeline
           items={sortedEvents.map(toTimelineItem)}
           emptyState={
-            <NyuchiEmptyState icon={<Users />} title="No events hosted yet" description="Create your first event to see it here." />
+            <NyuchiEmptyState
+              icon={<Users />}
+              title="No events hosted yet"
+              description="Create your first event to see it here."
+            />
           }
         />
       )}

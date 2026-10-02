@@ -63,7 +63,10 @@ function NyuchiBadgeDisplay({
         className="flex animate-pulse gap-2"
       >
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="size-12 rounded-[var(--radius-md,12px)] bg-muted" />
+          <div
+            key={i}
+            className="size-12 rounded-[var(--radius-md,12px)] bg-muted"
+          />
         ))}
       </div>
     );
@@ -88,8 +91,13 @@ function NyuchiBadgeDisplay({
               key={b.id}
               role="listitem"
               title={`${b.name}${b.locked ? " (Locked)" : ""}`}
-              className={cn("flex size-9 items-center justify-center rounded-full", b.locked && "opacity-30")}
-              style={{ backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)` }}
+              className={cn(
+                "flex size-9 items-center justify-center rounded-full",
+                b.locked && "opacity-30",
+              )}
+              style={{
+                backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
+              }}
             >
               {b.locked ? (
                 <Lock className="size-4 text-muted-foreground" />
@@ -100,7 +108,9 @@ function NyuchiBadgeDisplay({
           );
         })}
         {remaining > 0 && (
-          <span className="text-xs font-medium text-muted-foreground">+{remaining}</span>
+          <span className="text-xs font-medium text-muted-foreground">
+            +{remaining}
+          </span>
         )}
       </div>
     );
@@ -128,7 +138,9 @@ function NyuchiBadgeDisplay({
           >
             <div
               className="flex size-10 items-center justify-center rounded-full"
-              style={{ backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)` }}
+              style={{
+                backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
+              }}
             >
               {b.locked ? (
                 <Lock className="size-5 text-muted-foreground" />
@@ -136,9 +148,14 @@ function NyuchiBadgeDisplay({
                 <Award className="size-5" style={{ color }} />
               )}
             </div>
-            <span className="line-clamp-1 text-[10px] font-medium text-foreground">{b.name}</span>
+            <span className="line-clamp-1 text-[10px] font-medium text-foreground">
+              {b.name}
+            </span>
             {b.rarity && !b.locked && (
-              <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color }}>
+              <span
+                className="text-[8px] font-semibold uppercase tracking-wider"
+                style={{ color }}
+              >
                 {b.rarity}
               </span>
             )}

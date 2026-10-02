@@ -38,12 +38,17 @@ interface EventActionsProps {
 function createCalendarEvent(event: EventActionsProps["event"]): CalendarEvent {
   const startDate = new Date(event.startDate);
   const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // 2 hours default
-  const eventPageUrl = typeof window !== "undefined" ? `${window.location.origin}/e/${event.shortCode}` : undefined;
+  const eventPageUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/e/${event.shortCode}`
+      : undefined;
 
   // Build a rich description that links back to nhimbe
   const descLines = [event.description.slice(0, 500)];
   descLines.push("");
-  descLines.push(`View event details, RSVP, and explore more: ${eventPageUrl || SITE_URL}`);
+  descLines.push(
+    `View event details, RSVP, and explore more: ${eventPageUrl || SITE_URL}`,
+  );
   descLines.push("Powered by Nhimbe — Together we gather, together we grow");
 
   return {
@@ -65,10 +70,13 @@ export function EventActions({ event }: EventActionsProps) {
 
   const handleGetDirections = () => {
     const address = encodeURIComponent(
-      `${event.location.name}, ${event.location.streetAddress}, ${event.location.addressLocality}, ${event.location.addressCountry}`
+      `${event.location.name}, ${event.location.streetAddress}, ${event.location.addressLocality}, ${event.location.addressCountry}`,
     );
     // Open in OpenStreetMap (works on all platforms, no API key)
-    window.open(`https://www.openstreetmap.org/search?query=${address}`, "_blank");
+    window.open(
+      `https://www.openstreetmap.org/search?query=${address}`,
+      "_blank",
+    );
   };
 
   const handleShare = async () => {
@@ -121,7 +129,11 @@ export function EventActions({ event }: EventActionsProps) {
       </Button>
 
       {/* Share button */}
-      <Button onClick={handleShare} variant="secondary" className="flex-1 py-2.5 text-sm">
+      <Button
+        onClick={handleShare}
+        variant="secondary"
+        className="flex-1 py-2.5 text-sm"
+      >
         <Share2 className="w-4 h-4" />
         {copySuccess ? "Copied!" : "Share"}
       </Button>
@@ -137,7 +149,10 @@ export function AddToCalendarButton({ event }: EventActionsProps) {
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setShowDropdown(false);
       }
     }
@@ -176,7 +191,9 @@ export function AddToCalendarButton({ event }: EventActionsProps) {
       >
         <Calendar className="w-4 h-4" />
         Add to Calendar
-        <ChevronDown className={`w-3 h-3 transition-transform ${showDropdown ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`w-3 h-3 transition-transform ${showDropdown ? "rotate-180" : ""}`}
+        />
       </Button>
 
       {showDropdown && (
@@ -189,7 +206,9 @@ export function AddToCalendarButton({ event }: EventActionsProps) {
             <Download className="w-4 h-4 text-text-tertiary" />
             <div>
               <div className="font-medium">Download .ics</div>
-              <div className="text-xs text-text-tertiary">Apple Calendar, etc.</div>
+              <div className="text-xs text-text-tertiary">
+                Apple Calendar, etc.
+              </div>
             </div>
           </Button>
           <Button
@@ -240,9 +259,12 @@ export function AddToCalendarButton({ event }: EventActionsProps) {
 export function GetDirectionsButton({ event }: EventActionsProps) {
   const handleGetDirections = () => {
     const address = encodeURIComponent(
-      `${event.location.name}, ${event.location.streetAddress}, ${event.location.addressLocality}, ${event.location.addressCountry}`
+      `${event.location.name}, ${event.location.streetAddress}, ${event.location.addressLocality}, ${event.location.addressCountry}`,
     );
-    window.open(`https://www.openstreetmap.org/search?query=${address}`, "_blank");
+    window.open(
+      `https://www.openstreetmap.org/search?query=${address}`,
+      "_blank",
+    );
   };
 
   return (
@@ -288,7 +310,11 @@ export function ShareButton({ event }: EventActionsProps) {
   };
 
   return (
-    <Button onClick={handleShare} variant="secondary" className="flex-1 py-2.5 text-sm">
+    <Button
+      onClick={handleShare}
+      variant="secondary"
+      className="flex-1 py-2.5 text-sm"
+    >
       <Share2 className="w-4 h-4" />
       {copySuccess ? "Copied!" : "Share"}
     </Button>

@@ -6,10 +6,25 @@ import { cn } from "@/lib/utils";
 import { ShamwariIcon } from "@/components/ui/shamwari-icon";
 import { useNyuchiHarness } from "@/components/ui/harness";
 import { FilterBar, type FilterOption } from "@/components/ui/filter-bar";
-import { NyuchiListingCard, type NyuchiListingMeta } from "@/components/ui/nyuchi-listing-card";
-import { NyuchiTimeline, type TimelineItem } from "@/components/ui/nyuchi-timeline";
-import { NyuchiPlaceCard, type PlaceVerification } from "@/components/ui/nyuchi-place-card";
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import {
+  NyuchiListingCard,
+  type NyuchiListingMeta,
+} from "@/components/ui/nyuchi-listing-card";
+import {
+  NyuchiTimeline,
+  type TimelineItem,
+} from "@/components/ui/nyuchi-timeline";
+import {
+  NyuchiPlaceCard,
+  type PlaceVerification,
+} from "@/components/ui/nyuchi-place-card";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
 import type { Mineral } from "@/lib/category-mineral";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -122,7 +137,11 @@ export function NyuchiSearchView({
   const showResults = hasQuery || activeCategories.length > 0;
 
   return (
-    <div data-slot="nyuchi-search-view" style={animStyle()} className={cn("space-y-4", className)}>
+    <div
+      data-slot="nyuchi-search-view"
+      style={animStyle()}
+      className={cn("space-y-4", className)}
+    >
       {/* Search input — pill, per the 4.1.0 doctrine. */}
       <div className="relative">
         <Search
@@ -162,7 +181,10 @@ export function NyuchiSearchView({
       {/* Shamwari AI summary */}
       {aiSummary && (
         <div className="flex items-start gap-3 rounded-[var(--radius-lg,14px)] border border-primary/20 bg-primary/10 p-4">
-          <ShamwariIcon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+          <ShamwariIcon
+            className="mt-0.5 size-5 shrink-0 text-primary"
+            aria-hidden
+          />
           <p className="text-sm leading-relaxed text-foreground">{aiSummary}</p>
         </div>
       )}
@@ -177,7 +199,9 @@ export function NyuchiSearchView({
       ) : showResults ? (
         <div>
           <p className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-            {searching && <Loader2 className="size-3.5 animate-spin" aria-hidden />}
+            {searching && (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            )}
             {results.length} result{results.length !== 1 ? "s" : ""}
             {hasQuery ? <> for &ldquo;{query}&rdquo;</> : null}
           </p>
@@ -244,7 +268,9 @@ export function NyuchiSearchView({
                   <Search />
                 </EmptyMedia>
                 <EmptyTitle>No results found</EmptyTitle>
-                <EmptyDescription>Try different keywords or browse by category.</EmptyDescription>
+                <EmptyDescription>
+                  Try different keywords or browse by category.
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}
@@ -255,7 +281,9 @@ export function NyuchiSearchView({
           {recentSearches.length > 0 && (
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Recent</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Recent
+                </p>
                 {onClearRecent && (
                   <button
                     type="button"
@@ -307,4 +335,9 @@ export function NyuchiSearchView({
   );
 }
 
-export type { NyuchiSearchViewProps, SearchResultItem, SearchListingResult, SearchPlaceResult };
+export type {
+  NyuchiSearchViewProps,
+  SearchResultItem,
+  SearchListingResult,
+  SearchPlaceResult,
+};

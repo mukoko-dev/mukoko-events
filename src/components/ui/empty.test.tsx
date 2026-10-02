@@ -20,10 +20,12 @@ describe("Empty", () => {
             <svg data-testid="icon" />
           </EmptyMedia>
           <EmptyTitle>No events yet</EmptyTitle>
-          <EmptyDescription>Create your first event to get started.</EmptyDescription>
+          <EmptyDescription>
+            Create your first event to get started.
+          </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>content</EmptyContent>
-      </Empty>
+      </Empty>,
     );
     expect(screen.getByText("No events yet")).toBeInTheDocument();
     expect(screen.getByText(/Create your first event/)).toBeInTheDocument();
@@ -34,7 +36,7 @@ describe("Empty", () => {
     const { container } = render(
       <Empty>
         <EmptyTitle>t</EmptyTitle>
-      </Empty>
+      </Empty>,
     );
     expect(container.querySelector('[data-slot="empty"]')).not.toBeNull();
     expect(container.querySelector('[data-slot="empty-title"]')).not.toBeNull();
@@ -44,7 +46,7 @@ describe("Empty", () => {
     const { container } = render(
       <EmptyMedia variant="icon">
         <svg />
-      </EmptyMedia>
+      </EmptyMedia>,
     );
     const media = container.querySelector('[data-slot="empty-icon"]');
     expect(media?.getAttribute("data-variant")).toBe("icon");

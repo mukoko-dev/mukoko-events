@@ -86,7 +86,10 @@ function NyuchiProfileSettings({
       className={cn("flex flex-col gap-6 md:flex-row", className)}
     >
       <aside className="w-full shrink-0 md:w-56">
-        <nav className="flex flex-row gap-1 overflow-x-auto md:flex-col" aria-label="Settings sections">
+        <nav
+          className="flex flex-row gap-1 overflow-x-auto md:flex-col"
+          aria-label="Settings sections"
+        >
           {sections.map((section) => {
             const Icon = section.icon;
             const isActive = section.id === active;

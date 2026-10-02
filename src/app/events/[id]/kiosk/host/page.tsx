@@ -28,11 +28,7 @@ import {
   checkinRegistrationAction,
   getCheckinStatsAction,
 } from "@/app/actions/host-registrations";
-import {
-  type Event,
-  type Registration,
-  type CheckinStats,
-} from "@/lib/api";
+import { type Event, type Registration, type CheckinStats } from "@/lib/api";
 
 function HostKioskContent() {
   const { id } = useParams<{ id: string }>();
@@ -43,7 +39,10 @@ function HostKioskContent() {
   const [filter, setFilter] = useState<string>("unchecked");
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState<string | null>(null);
-  const [lastCheckin, setLastCheckin] = useState<{ name: string; time: string } | null>(null);
+  const [lastCheckin, setLastCheckin] = useState<{
+    name: string;
+    time: string;
+  } | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
@@ -96,15 +95,22 @@ function HostKioskContent() {
         await checkinRegistrationAction(id, registration.id);
         setLastCheckin({
           name: registration.userName || "Guest",
-          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         });
         // Update local state
         setRegistrations((prev) =>
           prev.map((r) =>
             r.id === registration.id
-              ? { ...r, status: "attended", checkedInAt: new Date().toISOString() }
-              : r
-          )
+              ? {
+                  ...r,
+                  status: "attended",
+                  checkedInAt: new Date().toISOString(),
+                }
+              : r,
+          ),
         );
         // Refresh stats
         const checkinStats = await getCheckinStatsAction(id);
@@ -115,7 +121,7 @@ function HostKioskContent() {
         setChecking(null);
       }
     },
-    [id, checking]
+    [id, checking],
   );
 
   // Filter and search
@@ -136,7 +142,9 @@ function HostKioskContent() {
       );
     });
 
-  const uncheckedCount = registrations.filter((r) => !r.checkedInAt && r.status !== "cancelled").length;
+  const uncheckedCount = registrations.filter(
+    (r) => !r.checkedInAt && r.status !== "cancelled",
+  ).length;
   const checkedCount = registrations.filter((r) => !!r.checkedInAt).length;
 
   if (loading) {
@@ -172,7 +180,9 @@ function HostKioskContent() {
           </Button>
           <div>
             <h1 className="text-xl font-bold">{event.name}</h1>
-            <p className="text-sm text-text-secondary">Host Check-In Dashboard</p>
+            <p className="text-sm text-text-secondary">
+              Host Check-In Dashboard
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -188,7 +198,9 @@ function HostKioskContent() {
             onClick={handleRefresh}
             disabled={refreshing}
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+            />
           </Button>
         </div>
       </header>
@@ -201,8 +213,12 @@ function HostKioskContent() {
             <>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-text-secondary">Check-in Progress</span>
-                  <span className="text-2xl font-bold text-primary">{stats.rate}%</span>
+                  <span className="text-sm text-text-secondary">
+                    Check-in Progress
+                  </span>
+                  <span className="text-2xl font-bold text-primary">
+                    {stats.rate}%
+                  </span>
                 </div>
                 <Progress value={stats.rate} className="h-3" />
                 <div className="flex justify-between mt-2 text-xs text-text-tertiary">
@@ -219,7 +235,9 @@ function HostKioskContent() {
                 </div>
                 <div className="bg-surface rounded-xl p-3 text-center">
                   <UserCheck className="w-5 h-5 mx-auto mb-1 text-primary" />
-                  <div className="text-xl font-bold text-primary">{stats.attended}</div>
+                  <div className="text-xl font-bold text-primary">
+                    {stats.attended}
+                  </div>
                   <div className="text-xs text-text-tertiary">In</div>
                 </div>
                 <div className="bg-surface rounded-xl p-3 text-center">
@@ -236,10 +254,14 @@ function HostKioskContent() {
             <div className="bg-primary/10 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle2 className="w-4 h-4 text-primary" />
-                <span className="text-xs text-text-secondary">Last check-in</span>
+                <span className="text-xs text-text-secondary">
+                  Last check-in
+                </span>
               </div>
               <div className="font-semibold">{lastCheckin.name}</div>
-              <div className="text-xs text-text-tertiary">{lastCheckin.time}</div>
+              <div className="text-xs text-text-tertiary">
+                {lastCheckin.time}
+              </div>
             </div>
           )}
 
@@ -275,7 +297,10 @@ function HostKioskContent() {
             </div>
             <FilterBar
               options={[
-                { id: "unchecked", label: `Not checked in (${uncheckedCount})` },
+                {
+                  id: "unchecked",
+                  label: `Not checked in (${uncheckedCount})`,
+                },
                 { id: "checked", label: `Checked in (${checkedCount})` },
               ]}
               selected={[filter]}

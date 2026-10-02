@@ -4,7 +4,11 @@ import { NyuchiCoverWashHeader } from "./nyuchi-cover-wash-header";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 describe("NyuchiCoverWashHeader", () => {
@@ -19,13 +23,17 @@ describe("NyuchiCoverWashHeader", () => {
         host="Harare Runners"
       />,
     );
-    const root = document.querySelector('[data-slot="nyuchi-cover-wash-header"]') as HTMLElement;
+    const root = document.querySelector(
+      '[data-slot="nyuchi-cover-wash-header"]',
+    ) as HTMLElement;
     expect(root).toBeTruthy();
     expect(getByText("Harare Jazz Night")).toBeTruthy();
     expect(getByText("An evening of live music")).toBeTruthy();
     expect(getByText("Sat, Aug 2")).toBeTruthy();
     // The whole point of the component: it seeds --event-primary + --wash.
-    expect(root.style.getPropertyValue("--event-primary")).toContain("--color-tanzanite");
+    expect(root.style.getPropertyValue("--event-primary")).toContain(
+      "--color-tanzanite",
+    );
     expect(root.style.getPropertyValue("--wash")).toContain("color-mix");
   });
 
@@ -35,7 +43,9 @@ describe("NyuchiCoverWashHeader", () => {
         <button>RSVP</button>
       </NyuchiCoverWashHeader>,
     );
-    const root = document.querySelector('[data-slot="nyuchi-cover-wash-header"]') as HTMLElement;
+    const root = document.querySelector(
+      '[data-slot="nyuchi-cover-wash-header"]',
+    ) as HTMLElement;
     expect(root.getAttribute("data-variant")).toBe("gradient");
     expect(getByText("RSVP")).toBeTruthy();
   });

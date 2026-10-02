@@ -91,7 +91,9 @@ function NyuchiLeaderboardRow({
       <div
         className={cn(
           "flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-          isPodium ? "text-background" : "text-muted-foreground ring-1 ring-foreground/10",
+          isPodium
+            ? "text-background"
+            : "text-muted-foreground ring-1 ring-foreground/10",
         )}
         style={isPodium ? { backgroundColor: podiumColor } : undefined}
       >
@@ -102,13 +104,18 @@ function NyuchiLeaderboardRow({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={avatar} alt="" className="size-full object-cover" />
         ) : (
-          <span className="text-xs font-semibold text-muted-foreground">{initials}</span>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {initials}
+          </span>
         )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <span
-            className={cn("truncate text-sm text-foreground", isCurrentUser ? "font-bold" : "font-medium")}
+            className={cn(
+              "truncate text-sm text-foreground",
+              isCurrentUser ? "font-bold" : "font-medium",
+            )}
           >
             {name}
           </span>

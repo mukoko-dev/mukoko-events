@@ -15,11 +15,17 @@ interface ThemeSelectorProps {
   onSelect: (index: number) => void;
 }
 
-export function ThemeSelector({ themes, selectedIndex, onSelect }: ThemeSelectorProps) {
+export function ThemeSelector({
+  themes,
+  selectedIndex,
+  onSelect,
+}: ThemeSelectorProps) {
   const current = themes[selectedIndex];
 
-  const prev = () => onSelect(selectedIndex > 0 ? selectedIndex - 1 : themes.length - 1);
-  const next = () => onSelect(selectedIndex < themes.length - 1 ? selectedIndex + 1 : 0);
+  const prev = () =>
+    onSelect(selectedIndex > 0 ? selectedIndex - 1 : themes.length - 1);
+  const next = () =>
+    onSelect(selectedIndex < themes.length - 1 ? selectedIndex + 1 : 0);
   const randomize = () => onSelect(Math.floor(Math.random() * themes.length));
 
   return (

@@ -26,7 +26,9 @@ import type { DescriptionContext, GeneratedDescription } from "@/lib/api";
  * Mukoko app checks, not a nhimbe-local plan.
  */
 async function requireShamwariAccess(): Promise<void> {
-  const person = await requireActingPerson("You must be signed in to use Shamwari.");
+  const person = await requireActingPerson(
+    "You must be signed in to use Shamwari.",
+  );
   if (!isMukokoPro(person)) {
     throw new ShamwariProRequiredError();
   }
@@ -158,7 +160,9 @@ async function generateSuggestions(description: string): Promise<string[]> {
     if (match) {
       const parsed: unknown = JSON.parse(match[0]);
       if (Array.isArray(parsed)) {
-        return parsed.filter((s): s is string => typeof s === "string").slice(0, 3);
+        return parsed
+          .filter((s): s is string => typeof s === "string")
+          .slice(0, 3);
       }
     }
   } catch {
@@ -170,12 +174,18 @@ async function generateSuggestions(description: string): Promise<string[]> {
 /** Deterministic description used when the gateway is unavailable. */
 function fallbackDescription(context: DescriptionContext): string {
   const parts: string[] = [];
-  parts.push(context.eventType ? `Join us for ${context.eventType.toLowerCase()}` : "Join us for this gathering");
-  if (context.targetAudience) parts.push(`designed for ${context.targetAudience.toLowerCase()}`);
+  parts.push(
+    context.eventType
+      ? `Join us for ${context.eventType.toLowerCase()}`
+      : "Join us for this gathering",
+  );
+  if (context.targetAudience)
+    parts.push(`designed for ${context.targetAudience.toLowerCase()}`);
 
   let description = parts.join(" ") + ".";
   if (context.keyTakeaways) description += ` ${context.keyTakeaways}`;
-  if (context.highlights) description += `\n\nHighlights: ${context.highlights}`;
+  if (context.highlights)
+    description += `\n\nHighlights: ${context.highlights}`;
   description += "\n\nWe look forward to seeing you there!";
   return description;
 }

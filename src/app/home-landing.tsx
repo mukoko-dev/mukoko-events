@@ -37,7 +37,9 @@ export function HomeLanding({ featuredEvent, cities = [] }: HomeLandingProps) {
         <div className="max-w-300 mx-auto px-6">
           <p
             className="font-serif italic text-lg md:text-xl mb-4"
-            style={{ color: "color-mix(in srgb, var(--foreground) 70%, transparent)" }}
+            style={{
+              color: "color-mix(in srgb, var(--foreground) 70%, transparent)",
+            }}
           >
             &ldquo;Together we gather, together we grow.&rdquo;
           </p>
@@ -45,26 +47,36 @@ export function HomeLanding({ featuredEvent, cities = [] }: HomeLandingProps) {
             Find your <span className="text-primary">people</span>.
           </h1>
           <p className="text-lg text-text-secondary max-w-150 mb-8">
-            Cultural celebrations, faith gatherings, tech meetups, music, family days — Nhimbe is
-            where your community comes together.
+            Cultural celebrations, faith gatherings, tech meetups, music, family
+            days — Nhimbe is where your community comes together.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 mb-10">
-            <Button asChild className="rounded-full h-[var(--touch-target-lg)] px-7">
+            <Button
+              asChild
+              className="rounded-full h-[var(--touch-target-lg)] px-7"
+            >
               <Link href="/discover">
                 <Compass className="w-4 h-4" aria-hidden />
                 Explore gatherings
                 <ArrowRight className="w-4 h-4" aria-hidden />
               </Link>
             </Button>
-            <Button asChild variant="outline" className="rounded-full h-[var(--touch-target-lg)] px-7">
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full h-[var(--touch-target-lg)] px-7"
+            >
               <Link href="/events/create">Host a gathering</Link>
             </Button>
           </div>
 
           {/* City entry chips — straight into the scoped /events timeline */}
           {cities.length > 0 && (
-            <nav aria-label="Explore by city" className="flex flex-wrap items-center gap-2">
+            <nav
+              aria-label="Explore by city"
+              className="flex flex-wrap items-center gap-2"
+            >
               {cities.map((c) => (
                 <Link
                   key={c.addressLocality}
@@ -73,7 +85,9 @@ export function HomeLanding({ featuredEvent, cities = [] }: HomeLandingProps) {
                 >
                   <MapPin className="w-3.5 h-3.5" aria-hidden />
                   {c.addressLocality}
-                  <span className="text-xs text-text-tertiary">{c.eventCount}</span>
+                  <span className="text-xs text-text-tertiary">
+                    {c.eventCount}
+                  </span>
                 </Link>
               ))}
               <Link
@@ -111,7 +125,11 @@ export function HomeLanding({ featuredEvent, cities = [] }: HomeLandingProps) {
                 title={featuredEvent.name}
                 category={featuredEvent.category}
                 mineral={categoryToMineral(featuredEvent.category)}
-                image={featuredEvent.image ? getMediaUrl(featuredEvent.image) : undefined}
+                image={
+                  featuredEvent.image
+                    ? getMediaUrl(featuredEvent.image)
+                    : undefined
+                }
                 // Plain, serializable meta only — this is a server component
                 // feeding the "use client" NyuchiListingCard, so no function
                 // (a Lucide icon is a forwardRef object) may cross the
@@ -124,7 +142,9 @@ export function HomeLanding({ featuredEvent, cities = [] }: HomeLandingProps) {
                   {
                     label: "location",
                     value:
-                      featuredEvent.location.name || featuredEvent.location.addressLocality || "",
+                      featuredEvent.location.name ||
+                      featuredEvent.location.addressLocality ||
+                      "",
                   },
                 ]}
               />
@@ -139,8 +159,8 @@ export function HomeLanding({ featuredEvent, cities = [] }: HomeLandingProps) {
           <Users className="w-6 h-6 mx-auto mb-3 text-primary" aria-hidden />
           <h2 className="text-2xl font-bold mb-3">Bring people together</h2>
           <p className="text-text-secondary mb-6 max-w-md mx-auto">
-            Whether it&apos;s a birthday, a workshop, or a community gathering — create something
-            meaningful.
+            Whether it&apos;s a birthday, a workshop, or a community gathering —
+            create something meaningful.
           </p>
           <Button asChild size="lg" className="rounded-full">
             <Link href="/events/create">
@@ -149,7 +169,8 @@ export function HomeLanding({ featuredEvent, cities = [] }: HomeLandingProps) {
             </Link>
           </Button>
           <p className="text-sm text-text-tertiary mt-8">
-            A <span className="text-secondary font-semibold">Mukoko</span> product
+            A <span className="text-secondary font-semibold">Mukoko</span>{" "}
+            product
           </p>
         </div>
       </section>

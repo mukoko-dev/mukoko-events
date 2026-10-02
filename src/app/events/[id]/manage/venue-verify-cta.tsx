@@ -18,7 +18,11 @@ import { kweliVerifyUrl } from "@/lib/kweli";
  *
  * Rendered ONLY on the event-manage (host) surface — never on public pages.
  */
-export function VenueVerifyCta({ placeId }: { placeId: string | null | undefined }) {
+export function VenueVerifyCta({
+  placeId,
+}: {
+  placeId: string | null | undefined;
+}) {
   const [unverified, setUnverified] = useState(false);
 
   useEffect(() => {
@@ -26,7 +30,8 @@ export function VenueVerifyCta({ placeId }: { placeId: string | null | undefined
     let cancelled = false;
     getPlaceById(placeId)
       .then((place) => {
-        if (!cancelled) setUnverified(place !== null && place.verificationTier === 0);
+        if (!cancelled)
+          setUnverified(place !== null && place.verificationTier === 0);
       })
       .catch(() => {
         // Best-effort read — on failure simply don't nudge.

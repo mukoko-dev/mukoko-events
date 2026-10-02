@@ -26,7 +26,12 @@ import {
 import { stampNew } from "@/lib/mongo/ids";
 import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
 import { syncPersonFromWorkos, type SyncPersonInput } from "@/lib/mongo/users";
-import { isDevBypass, DEV_WORKOS_ID, DEV_EMAIL, DEV_NAME } from "@/lib/auth/dev";
+import {
+  isDevBypass,
+  DEV_WORKOS_ID,
+  DEV_EMAIL,
+  DEV_NAME,
+} from "@/lib/auth/dev";
 import { listEvents } from "@/lib/mongo/events";
 import { listCalendarsByCircle } from "@/lib/mongo/calendars";
 import { ensureCircleConversation } from "@/lib/mongo/campfire";
@@ -130,7 +135,9 @@ function mapPost(doc: CirclePostDoc, author: CirclePerson | null): CirclePost {
 }
 
 /** Resolve a batch of persons keyed by `_id` for author/member hydration. */
-async function hydratePersons(ids: string[]): Promise<Map<string, CirclePerson>> {
+async function hydratePersons(
+  ids: string[],
+): Promise<Map<string, CirclePerson>> {
   const unique = [...new Set(ids.filter(Boolean))];
   if (unique.length === 0) return new Map();
   const persons = await personsCollection();
@@ -145,14 +152,21 @@ async function hydratePersons(ids: string[]): Promise<Map<string, CirclePerson>>
 async function resolveActingPerson(): Promise<PersonDoc> {
   let syncInput: SyncPersonInput;
   if (isDevBypass()) {
-    syncInput = { workosUserId: DEV_WORKOS_ID, email: DEV_EMAIL, name: DEV_NAME, emailVerified: true };
+    syncInput = {
+      workosUserId: DEV_WORKOS_ID,
+      email: DEV_EMAIL,
+      name: DEV_NAME,
+      emailVerified: true,
+    };
   } else {
     const { user } = await withAuth();
     if (!user) throw new Error("You must be signed in to do that.");
     syncInput = {
       workosUserId: user.id,
       email: user.email ?? null,
-      name: [user.firstName, user.lastName].filter(Boolean).join(" ").trim() || null,
+      name:
+        [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+        null,
       givenName: user.firstName ?? null,
       familyName: user.lastName ?? null,
       picture: user.profilePictureUrl ?? null,
@@ -166,13 +180,16 @@ async function resolveActingPerson(): Promise<PersonDoc> {
     await syncPersonFromWorkos(syncInput);
     person = await persons.findOne({ workosUserId: syncInput.workosUserId });
   }
-  if (!person) throw new Error("Could not resolve your account. Please try again.");
+  if (!person)
+    throw new Error("Could not resolve your account. Please try again.");
   return person;
 }
 
 // ── Reads ───────────────────────────────────────────────────────────────────
 
-export async function getCircle(circleId: string): Promise<CircleDetail | null> {
+export async function getCircle(
+  circleId: string,
+): Promise<CircleDetail | null> {
   try {
     const circles = await circlesCollection();
     const doc = await circles.findOne({ _id: circleId, isActive: true });
@@ -188,7 +205,10 @@ export async function getCircle(circleId: string): Promise<CircleDetail | null> 
  * nhimbe presents a circle through. Public listing rules apply (published,
  * non-private, upcoming), so this is safe to show pre-join.
  */
-export async function getCircleEvents(circleId: string, limit = 50): Promise<Event[]> {
+export async function getCircleEvents(
+  circleId: string,
+  limit = 50,
+): Promise<Event[]> {
   try {
     const { events } = await listEvents({ circleId, limit });
     return events;
@@ -210,7 +230,9 @@ export interface CircleCalendarSummary {
 }
 
 /** Public/unlisted calendars streaming through this circle. */
-export async function getCircleCalendars(circleId: string): Promise<CircleCalendarSummary[]> {
+export async function getCircleCalendars(
+  circleId: string,
+): Promise<CircleCalendarSummary[]> {
   try {
     const docs = await listCalendarsByCircle(circleId);
     return docs.map((d) => ({
@@ -235,8 +257,11 @@ export async function getCirclePosts(
 ): Promise<CirclePost[]> {
   try {
     const posts = await circlePostsCollection();
-    const moderationStatus: CirclePostDoc["moderationStatus"] | { $ne: CirclePostDoc["moderationStatus"] } =
-      archived ? "removed" : { $ne: "removed" };
+    const moderationStatus:
+      | CirclePostDoc["moderationStatus"]
+      | { $ne: CirclePostDoc["moderationStatus"] } = archived
+      ? "removed"
+      : { $ne: "removed" };
     const docs = await posts
       .find({ circleId, moderationStatus })
       .sort({ datePublished: -1, createdAt: -1 })
@@ -250,7 +275,10 @@ export async function getCirclePosts(
   }
 }
 
-export async function getCircleMembers(circleId: string, limit = 50): Promise<CircleMember[]> {
+export async function getCircleMembers(
+  circleId: string,
+  limit = 50,
+): Promise<CircleMember[]> {
   try {
     const memberships = await circleMembershipsCollection();
     const docs = await memberships
@@ -326,7 +354,9 @@ export async function createCirclePost(input: {
  * WhatsApp-style Discuss channel, distinct from the persistent post stream
  * above. Any signed-in visitor may open it (same openness as posting).
  */
-export async function ensureCircleConversationAction(circleId: string): Promise<string> {
+export async function ensureCircleConversationAction(
+  circleId: string,
+): Promise<string> {
   const person = await resolveActingPerson();
   const circles = await circlesCollection();
   const circle = await circles.findOne({ _id: circleId, isActive: true });
@@ -385,7 +415,11 @@ export async function joinCircle(input: { circleId: string }): Promise<void> {
   await bumpMemberCount(input.circleId, 1, now);
 }
 
-async function bumpMemberCount(circleId: string, delta: number, now: Date): Promise<void> {
+async function bumpMemberCount(
+  circleId: string,
+  delta: number,
+  now: Date,
+): Promise<void> {
   const circles = await circlesCollection();
   await circles.updateOne(
     { _id: circleId },
@@ -414,24 +448,18 @@ export async function togglePostReaction(input: {
   } as Record<string, unknown>);
 
   if (already) {
-    await posts.updateOne(
-      { _id: input.postId },
-      {
-        $pull: { reactorPersonIds: person._id },
-        $inc: { reactionCount: -1 },
-        $set: { updatedAt: now },
-      } as Record<string, unknown>,
-    );
+    await posts.updateOne({ _id: input.postId }, {
+      $pull: { reactorPersonIds: person._id },
+      $inc: { reactionCount: -1 },
+      $set: { updatedAt: now },
+    } as Record<string, unknown>);
     return "removed";
   }
 
-  await posts.updateOne(
-    { _id: input.postId },
-    {
-      $addToSet: { reactorPersonIds: person._id },
-      $inc: { reactionCount: 1 },
-      $set: { updatedAt: now },
-    } as Record<string, unknown>,
-  );
+  await posts.updateOne({ _id: input.postId }, {
+    $addToSet: { reactorPersonIds: person._id },
+    $inc: { reactionCount: 1 },
+    $set: { updatedAt: now },
+  } as Record<string, unknown>);
   return "added";
 }

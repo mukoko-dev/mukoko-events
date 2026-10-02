@@ -12,7 +12,9 @@ describe("FileUpload accessibility", () => {
 
   it("renders an explicit browse button as the keyboard affordance", () => {
     const { container } = render(<FileUpload onFiles={() => {}} />);
-    const dropzone = container.querySelector('[data-slot="file-upload-dropzone"]');
+    const dropzone = container.querySelector(
+      '[data-slot="file-upload-dropzone"]',
+    );
     const browseBtn = dropzone?.querySelector("button");
     expect(browseBtn).not.toBeNull();
     expect(browseBtn?.textContent).toMatch(/browse/i);

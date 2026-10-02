@@ -18,15 +18,45 @@ type RSVPStatus = "none" | "pending" | "confirmed" | "waitlisted" | "declined";
 
 const statusDisplay: Record<
   RSVPStatus,
-  { label: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; bg: string; fg: string }
+  {
+    label: string;
+    icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+    bg: string;
+    fg: string;
+  }
 > = {
   // Idle CTA derives from the active event theme when present (event detail),
   // falling back to the brand tanzanite primary everywhere else.
-  none: { label: "RSVP", icon: Ticket, bg: "var(--event-primary, var(--color-tanzanite))", fg: "var(--primary-foreground, #fff)" },
-  pending: { label: "Pending", icon: Clock, bg: "rgba(251,191,36,0.15)", fg: "#B45309" },
-  confirmed: { label: "Confirmed", icon: Check, bg: "rgba(74,222,128,0.15)", fg: "#15803D" },
-  waitlisted: { label: "Waitlisted", icon: Users, bg: "rgba(179,136,255,0.15)", fg: "var(--color-tanzanite,#B388FF)" },
-  declined: { label: "Declined", icon: X, bg: "rgba(248,113,113,0.15)", fg: "#B91C1C" },
+  none: {
+    label: "RSVP",
+    icon: Ticket,
+    bg: "var(--event-primary, var(--color-tanzanite))",
+    fg: "var(--primary-foreground, #fff)",
+  },
+  pending: {
+    label: "Pending",
+    icon: Clock,
+    bg: "rgba(251,191,36,0.15)",
+    fg: "#B45309",
+  },
+  confirmed: {
+    label: "Confirmed",
+    icon: Check,
+    bg: "rgba(74,222,128,0.15)",
+    fg: "#15803D",
+  },
+  waitlisted: {
+    label: "Waitlisted",
+    icon: Users,
+    bg: "rgba(179,136,255,0.15)",
+    fg: "var(--color-tanzanite,#B388FF)",
+  },
+  declined: {
+    label: "Declined",
+    icon: X,
+    bg: "rgba(248,113,113,0.15)",
+    fg: "#B91C1C",
+  },
 };
 
 interface NyuchiRSVPButtonProps {
@@ -70,7 +100,10 @@ function NyuchiRSVPButton({
 
   const priceLabel =
     typeof price === "number"
-      ? new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(price)
+      ? new Intl.NumberFormat(undefined, {
+          style: "currency",
+          currency: "USD",
+        }).format(price)
       : price;
 
   const label = loading
@@ -82,7 +115,10 @@ function NyuchiRSVPButton({
       : config.label;
 
   return (
-    <div data-slot="nyuchi-rsvp-button" className={cn("flex flex-col gap-1.5", full && "w-full", className)}>
+    <div
+      data-slot="nyuchi-rsvp-button"
+      className={cn("flex flex-col gap-1.5", full && "w-full", className)}
+    >
       <button
         type="button"
         onClick={isActioned ? onCancel : onRSVP}
@@ -96,11 +132,16 @@ function NyuchiRSVPButton({
         )}
         style={{ backgroundColor: config.bg, color: config.fg }}
       >
-        <Icon className={cn("size-5 shrink-0", loading && "animate-spin")} strokeWidth={2.2} />
+        <Icon
+          className={cn("size-5 shrink-0", loading && "animate-spin")}
+          strokeWidth={2.2}
+        />
         <span className="truncate">{label}</span>
       </button>
       {spotsRemaining != null && status === "none" && (
-        <span className="text-center text-[11px] text-muted-foreground">{spotsRemaining} spots remaining</span>
+        <span className="text-center text-[11px] text-muted-foreground">
+          {spotsRemaining} spots remaining
+        </span>
       )}
     </div>
   );

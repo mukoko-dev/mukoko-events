@@ -50,7 +50,10 @@ function FilterBar({
     el.addEventListener("scroll", checkScroll, { passive: true });
     const ro = new ResizeObserver(checkScroll);
     ro.observe(el);
-    return () => { el.removeEventListener("scroll", checkScroll); ro.disconnect(); };
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      ro.disconnect();
+    };
   }, [options.length]);
 
   function handleSelect(id: string) {
@@ -60,7 +63,7 @@ function FilterBar({
       onChange(
         selected.includes(id)
           ? selected.filter((s) => s !== id)
-          : [...selected, id]
+          : [...selected, id],
       );
     }
   }
@@ -91,7 +94,7 @@ function FilterBar({
               "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 min-h-[var(--touch-target-sm)] text-sm font-medium transition-colors",
               allSelected
                 ? "bg-primary text-primary-foreground"
-                : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
+                : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10",
             )}
             onClick={() => onChange([])}
           >
@@ -110,7 +113,7 @@ function FilterBar({
                 "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 min-h-[var(--touch-target-sm)] text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
+                  : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10",
               )}
               onClick={() => handleSelect(option.id)}
             >

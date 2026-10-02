@@ -20,7 +20,11 @@ import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
 import { getOrCreateTrackedLink, isHttpUrl } from "@/lib/mongo/tracked-links";
 import { trackError } from "@/lib/observability";
 
-export type TrackedLinkType = "meeting_url" | "directions" | "ticket" | "website";
+export type TrackedLinkType =
+  | "meeting_url"
+  | "directions"
+  | "ticket"
+  | "website";
 
 export interface CreateTrackedLinkActionInput {
   targetUrl: string;

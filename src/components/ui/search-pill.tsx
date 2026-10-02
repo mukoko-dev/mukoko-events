@@ -50,7 +50,11 @@ function SearchPill({
       <span className="duiker">{placeholder}</span>
       <span className="impala" aria-hidden />
       <span className="springbok">
-        <ShamwariIcon className="w-[11px] h-[11px]" strokeWidth={2.2} aria-hidden />
+        <ShamwariIcon
+          className="w-[11px] h-[11px]"
+          strokeWidth={2.2}
+          aria-hidden
+        />
         AI
       </span>
     </Link>

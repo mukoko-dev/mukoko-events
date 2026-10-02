@@ -47,7 +47,8 @@ function formatRelativeDate(dateStr: string): string {
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
+  if (diffDays < 30)
+    return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
   return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? "s" : ""} ago`;
 }
 
@@ -115,7 +116,11 @@ export function EventRatings({
       setFormBody("");
       await fetchReviews();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Your review could not be saved.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Your review could not be saved.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -123,19 +128,32 @@ export function EventRatings({
 
   const averageRating = stats?.averageRating ?? 0;
   const totalReviews = stats?.totalReviews ?? 0;
-  const ratingDistribution = stats?.distribution ?? { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  const ratingDistribution = stats?.distribution ?? {
+    5: 0,
+    4: 0,
+    3: 0,
+    2: 0,
+    1: 0,
+  };
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [helpfulClicked, setHelpfulClicked] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [ratingFilter, setRatingFilter] = useState<string[]>([]);
 
-  const totalRatings = Object.values(ratingDistribution).reduce((a, b) => a + b, 0);
+  const totalRatings = Object.values(ratingDistribution).reduce(
+    (a, b) => a + b,
+    0,
+  );
 
   const isFiltering = searchQuery.trim() !== "" || ratingFilter.length > 0;
   const filteredReviews = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return reviews.filter((review) => {
-      if (ratingFilter.length > 0 && !ratingFilter.includes(String(review.rating))) return false;
+      if (
+        ratingFilter.length > 0 &&
+        !ratingFilter.includes(String(review.rating))
+      )
+        return false;
       if (!query) return true;
       return (
         review.userName.toLowerCase().includes(query) ||
@@ -145,7 +163,11 @@ export function EventRatings({
   }, [reviews, searchQuery, ratingFilter]);
 
   const ratingSize = (size: "sm" | "md" | "lg" = "md") =>
-    size === "sm" ? "sm" as const : size === "lg" ? "lg" as const : "default" as const;
+    size === "sm"
+      ? ("sm" as const)
+      : size === "lg"
+        ? ("lg" as const)
+        : ("default" as const);
 
   const handleHelpful = async (reviewId: string) => {
     if (helpfulClicked.has(reviewId)) return;
@@ -193,11 +215,24 @@ export function EventRatings({
         rows={3}
       />
       <div className="flex items-center gap-2 justify-end">
-        <Button variant="ghost" size="sm" onClick={() => setShowForm(false)} disabled={submitting}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowForm(false)}
+          disabled={submitting}
+        >
           Cancel
         </Button>
-        <Button size="sm" onClick={handleSubmitReview} disabled={submitting || formRating < 1}>
-          {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4" />}
+        <Button
+          size="sm"
+          onClick={handleSubmitReview}
+          disabled={submitting || formRating < 1}
+        >
+          {submitting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Star className="w-4 h-4" />
+          )}
           Post review
         </Button>
       </div>
@@ -232,7 +267,9 @@ export function EventRatings({
           <h3 className="font-bold text-lg">Community Feedback</h3>
         </div>
         <div className="text-center py-8">
-          <p className="text-text-secondary mb-4">No reviews yet. Be the first to share your experience!</p>
+          <p className="text-text-secondary mb-4">
+            No reviews yet. Be the first to share your experience!
+          </p>
           {userCanReview && isPastEvent && !showForm && (
             <Button
               onClick={() => setShowForm(true)}
@@ -265,7 +302,9 @@ export function EventRatings({
       <div className="flex gap-6 mb-6">
         {/* Average Rating */}
         <div className="text-center">
-          <div className="text-4xl font-bold mb-1">{averageRating.toFixed(1)}</div>
+          <div className="text-4xl font-bold mb-1">
+            {averageRating.toFixed(1)}
+          </div>
           <Rating value={averageRating} readOnly size="lg" />
           <div className="text-sm text-text-secondary mt-1">
             {totalReviews} reviews
@@ -276,7 +315,8 @@ export function EventRatings({
         <div className="flex-1 space-y-1">
           {([5, 4, 3, 2, 1] as const).map((stars) => {
             const count = ratingDistribution[stars] || 0;
-            const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0;
+            const percentage =
+              totalRatings > 0 ? (count / totalRatings) * 100 : 0;
 
             return (
               <div key={stars} className="flex items-center gap-2">
@@ -339,24 +379,24 @@ export function EventRatings({
           No reviews match your search.
         </p>
       ) : (
-      <div className="space-y-3">
-        {displayedReviews.map((review) => {
-          const marked = helpfulClicked.has(review.id);
-          return (
-            <NyuchiReviewCard
-              key={review.id}
-              reviewer={review.userName}
-              rating={review.rating}
-              text={review.reviewBody}
-              date={review.date}
-              verificationTier={review.verifiedAttendee ? 1 : 0}
-              helpfulCount={review.helpful + (marked ? 1 : 0)}
-              markedHelpful={marked}
-              onHelpful={() => handleHelpful(review.id)}
-            />
-          );
-        })}
-      </div>
+        <div className="space-y-3">
+          {displayedReviews.map((review) => {
+            const marked = helpfulClicked.has(review.id);
+            return (
+              <NyuchiReviewCard
+                key={review.id}
+                reviewer={review.userName}
+                rating={review.rating}
+                text={review.reviewBody}
+                date={review.date}
+                verificationTier={review.verifiedAttendee ? 1 : 0}
+                helpfulCount={review.helpful + (marked ? 1 : 0)}
+                markedHelpful={marked}
+                onHelpful={() => handleHelpful(review.id)}
+              />
+            );
+          })}
+        </div>
       )}
 
       {/* Show More / Write Review */}
@@ -368,7 +408,9 @@ export function EventRatings({
             onClick={() => setShowAllReviews(!showAllReviews)}
             className="text-sm text-primary font-medium hover:underline p-0 h-auto min-h-0"
           >
-            {showAllReviews ? "Show less" : `View all ${reviews.length} reviews`}
+            {showAllReviews
+              ? "Show less"
+              : `View all ${reviews.length} reviews`}
           </Button>
         )}
         {userCanReview && isPastEvent && !showForm && (
@@ -386,8 +428,8 @@ export function EventRatings({
       {/* Open Data Note */}
       <div className="mt-4 p-3 bg-background rounded-xl">
         <p className="text-xs text-text-tertiary text-center">
-          <span className="text-primary font-medium">Transparent feedback</span> - Real reviews from
-          real attendees help you choose great events.
+          <span className="text-primary font-medium">Transparent feedback</span>{" "}
+          - Real reviews from real attendees help you choose great events.
         </p>
       </div>
     </div>

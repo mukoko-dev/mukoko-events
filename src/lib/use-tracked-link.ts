@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createTrackedLinkAction, type TrackedLinkType } from "@/app/actions/tracked-links";
+import {
+  createTrackedLinkAction,
+  type TrackedLinkType,
+} from "@/app/actions/tracked-links";
 import { useAuth } from "@/components/auth/auth-context";
 
 /**
@@ -35,10 +38,15 @@ export function useTrackedLink(
 
     (async () => {
       try {
-        const result = await createTrackedLinkAction({ targetUrl, eventId, linkType });
+        const result = await createTrackedLinkAction({
+          targetUrl,
+          eventId,
+          linkType,
+        });
         if (cancelled) return;
         if (result) {
-          const origin = typeof window !== "undefined" ? window.location.origin : "";
+          const origin =
+            typeof window !== "undefined" ? window.location.origin : "";
           setTrackedUrl(`${origin}/r/${result.slug}`);
         } else {
           setTrackedUrl(targetUrl);

@@ -51,9 +51,12 @@ describe("tStatic", () => {
   it("leaves unknown placeholders intact and stringifies provided values", () => {
     // tStatic falls back to the raw key when unknown, so a key that is itself a
     // template exercises interpolation directly.
-    expect(tStatic("en", "Hello {name}, you have {n} messages", { name: "Ada", n: 2 })).toBe(
-      "Hello Ada, you have 2 messages",
-    );
+    expect(
+      tStatic("en", "Hello {name}, you have {n} messages", {
+        name: "Ada",
+        n: 2,
+      }),
+    ).toBe("Hello Ada, you have 2 messages");
     expect(tStatic("en", "Missing {who} here", {})).toBe("Missing {who} here");
   });
 });

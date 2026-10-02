@@ -11,7 +11,11 @@
 
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import { personsCollection } from "@/lib/mongo/databases";
-import { mapPersonToAppUser, type AppUser, type AppLocale } from "@/lib/mongo/users";
+import {
+  mapPersonToAppUser,
+  type AppUser,
+  type AppLocale,
+} from "@/lib/mongo/users";
 import { isDevBypass, DEV_WORKOS_ID } from "@/lib/auth/dev";
 import { findGravatarUrl } from "@/lib/gravatar";
 import { log } from "@/lib/observability";
@@ -48,14 +52,19 @@ async function resolveActingWorkosUserId(): Promise<string | null> {
   return user?.id ?? null;
 }
 
-export async function updateMyProfile(fields: ProfileFields): Promise<AppUser | null> {
+export async function updateMyProfile(
+  fields: ProfileFields,
+): Promise<AppUser | null> {
   const workosUserId = await resolveActingWorkosUserId();
-  if (!workosUserId) throw new Error("You must be signed in to update your profile.");
+  if (!workosUserId)
+    throw new Error("You must be signed in to update your profile.");
 
   const set: Record<string, unknown> = { updatedAt: new Date() };
   if (typeof fields.name === "string") set.name = fields.name.trim();
-  if (typeof fields.addressLocality === "string") set.addressLocality = fields.addressLocality.trim();
-  if (typeof fields.addressCountry === "string") set.addressCountry = fields.addressCountry.trim();
+  if (typeof fields.addressLocality === "string")
+    set.addressLocality = fields.addressLocality.trim();
+  if (typeof fields.addressCountry === "string")
+    set.addressCountry = fields.addressCountry.trim();
   if (Array.isArray(fields.interests)) set.interests = fields.interests;
   if (typeof fields.subscribeToEventUpdates === "boolean") {
     set["mukoko.notifications.eventUpdates"] = fields.subscribeToEventUpdates;
@@ -66,11 +75,13 @@ export async function updateMyProfile(fields: ProfileFields): Promise<AppUser | 
     set.locale = fields.locale;
   }
   if (typeof fields.picture === "string") set.picture = fields.picture;
-  if (typeof fields.nickname === "string") set.nickname = fields.nickname.trim();
+  if (typeof fields.nickname === "string")
+    set.nickname = fields.nickname.trim();
   if (typeof fields.preferredUsername === "string") {
     set.preferredUsername = fields.preferredUsername.trim();
   }
-  if (typeof fields.phoneNumber === "string") set.phoneNumber = fields.phoneNumber.trim();
+  if (typeof fields.phoneNumber === "string")
+    set.phoneNumber = fields.phoneNumber.trim();
   if (typeof fields.gender === "string") set.gender = fields.gender.trim();
   // Only a well-formed calendar date reaches the store as a real Date.
   if (typeof fields.birthdate === "string" && ISO_DATE.test(fields.birthdate)) {
@@ -98,7 +109,8 @@ export async function updateMyProfile(fields: ProfileFields): Promise<AppUser | 
  */
 export async function getMyGravatarUrlAction(): Promise<string | null> {
   const workosUserId = await resolveActingWorkosUserId();
-  if (!workosUserId) throw new Error("You must be signed in to look up a Gravatar.");
+  if (!workosUserId)
+    throw new Error("You must be signed in to look up a Gravatar.");
 
   const persons = await personsCollection();
   const doc = await persons.findOne({ workosUserId });

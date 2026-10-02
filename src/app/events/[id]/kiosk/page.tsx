@@ -16,10 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import {
-  type CheckinStats,
-  type KioskSession,
-} from "@/lib/api";
+import { type CheckinStats, type KioskSession } from "@/lib/api";
 import {
   checkinViaKioskAction,
   requestKioskPairingAction,
@@ -37,7 +34,11 @@ type CheckinResult = {
 };
 
 // ─── Pairing Screen ─────────────────────────────────────────────────────────
-function PairingScreen({ onPaired }: { onPaired: (session: KioskSession, token: string) => void }) {
+function PairingScreen({
+  onPaired,
+}: {
+  onPaired: (session: KioskSession, token: string) => void;
+}) {
   const [code, setCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<number>(0);
@@ -56,13 +57,18 @@ function PairingScreen({ onPaired }: { onPaired: (session: KioskSession, token: 
   }, []);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- initial fetch on mount
-  useEffect(() => { requestCode(); }, [requestCode]);
+  useEffect(() => {
+    requestCode();
+  }, [requestCode]);
 
   // Countdown timer
   useEffect(() => {
     if (!expiresAt) return;
     const interval = setInterval(() => {
-      const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+      const remaining = Math.max(
+        0,
+        Math.floor((expiresAt - Date.now()) / 1000),
+      );
       setTimeLeft(remaining);
       if (remaining === 0) {
         clearInterval(interval);
@@ -83,7 +89,8 @@ function PairingScreen({ onPaired }: { onPaired: (session: KioskSession, token: 
         if (status.status === "confirmed" && status.sessionToken) {
           if (pollRef.current) clearInterval(pollRef.current);
           const { session } = await getKioskSessionAction(status.sessionToken);
-          if (typeof window !== "undefined") sessionStorage.setItem("nhimbe_kiosk_token", status.sessionToken);
+          if (typeof window !== "undefined")
+            sessionStorage.setItem("nhimbe_kiosk_token", status.sessionToken);
           onPaired(session, status.sessionToken);
         }
       } catch {
@@ -153,7 +160,8 @@ function PairingScreen({ onPaired }: { onPaired: (session: KioskSession, token: 
       </div>
 
       <footer className="absolute bottom-6 text-xs text-text-tertiary">
-        Powered by <span className="text-secondary font-semibold">Nhimbe</span> &middot; A Mukoko Product
+        Powered by <span className="text-secondary font-semibold">Nhimbe</span>{" "}
+        &middot; A Mukoko Product
       </footer>
     </div>
   );
@@ -204,7 +212,7 @@ function QRScanner({
           },
           () => {
             // QR code not found in frame — this is normal
-          }
+          },
         );
       } catch (err) {
         if (mounted) {
@@ -213,7 +221,7 @@ function QRScanner({
               ? err.message.includes("Permission")
                 ? "Camera access denied. Please allow camera permissions."
                 : "Could not start camera. Make sure no other app is using it."
-              : "Camera error"
+              : "Camera error",
           );
         }
       }
@@ -251,7 +259,13 @@ function QRScanner({
 }
 
 // ─── Checkin Screen (QR-based) ──────────────────────────────────────────────
-function CheckinScreen({ session, token }: { session: KioskSession; token: string }) {
+function CheckinScreen({
+  session,
+  token,
+}: {
+  session: KioskSession;
+  token: string;
+}) {
   const [stats, setStats] = useState<CheckinStats | null>(null);
   const [result, setResult] = useState<CheckinResult | null>(null);
   const [scanning, setScanning] = useState(true);
@@ -261,13 +275,17 @@ function CheckinScreen({ session, token }: { session: KioskSession; token: strin
 
   // Load stats
   useEffect(() => {
-    getCheckinStatsAction(session.eventId).then(setStats).catch(() => {});
+    getCheckinStatsAction(session.eventId)
+      .then(setStats)
+      .catch(() => {});
   }, [session.eventId]);
 
   // Auto-refresh stats every 15s
   useEffect(() => {
     const interval = setInterval(() => {
-      getCheckinStatsAction(session.eventId).then(setStats).catch(() => {});
+      getCheckinStatsAction(session.eventId)
+        .then(setStats)
+        .catch(() => {});
     }, 15000);
     return () => clearInterval(interval);
   }, [session.eventId]);
@@ -295,7 +313,9 @@ function CheckinScreen({ session, token }: { session: KioskSession; token: strin
         const url = new URL(data);
         const pathParts = url.pathname.split("/").filter(Boolean);
         // Look for /checkin/:id or /c/:id pattern
-        const checkinIdx = pathParts.findIndex((p) => p === "checkin" || p === "c");
+        const checkinIdx = pathParts.findIndex(
+          (p) => p === "checkin" || p === "c",
+        );
         if (checkinIdx >= 0 && pathParts[checkinIdx + 1]) {
           registrationId = pathParts[checkinIdx + 1];
         } else {
@@ -326,7 +346,9 @@ function CheckinScreen({ session, token }: { session: KioskSession; token: strin
           message: "Welcome! You're checked in.",
         });
         // Refresh stats
-        getCheckinStatsAction(session.eventId).then(setStats).catch(() => {});
+        getCheckinStatsAction(session.eventId)
+          .then(setStats)
+          .catch(() => {});
       } catch (err) {
         const message =
           err instanceof Error && err.message.includes("Already")
@@ -343,7 +365,7 @@ function CheckinScreen({ session, token }: { session: KioskSession; token: strin
         setProcessing(false);
       }
     },
-    [session.eventId, processing]
+    [session.eventId, processing],
   );
 
   return (
@@ -362,10 +384,20 @@ function CheckinScreen({ session, token }: { session: KioskSession; token: strin
             </div>
             <div className="flex items-center gap-2">
               <UserCheck className="w-4 h-4 text-primary" />
-              <span className="font-semibold text-primary">{stats.attended}</span>
+              <span className="font-semibold text-primary">
+                {stats.attended}
+              </span>
             </div>
             <Progress value={stats.rate} className="w-24 h-2" />
-            <Badge variant={stats.rate > 75 ? "success" : stats.rate > 25 ? "warning" : "secondary"}>
+            <Badge
+              variant={
+                stats.rate > 75
+                  ? "success"
+                  : stats.rate > 25
+                    ? "warning"
+                    : "secondary"
+              }
+            >
               {stats.rate}%
             </Badge>
           </div>
@@ -423,7 +455,9 @@ function CheckinScreen({ session, token }: { session: KioskSession; token: strin
 
       <footer className="border-t border-elevated px-6 py-3 text-center">
         <p className="text-xs text-text-tertiary">
-          Powered by <span className="text-secondary font-semibold">Nhimbe</span> &middot; A Mukoko Product
+          Powered by{" "}
+          <span className="text-secondary font-semibold">Nhimbe</span> &middot;
+          A Mukoko Product
         </p>
       </footer>
     </div>
@@ -439,14 +473,18 @@ export default function KioskPage() {
   // Check for existing kiosk session on mount
   useEffect(() => {
     async function checkExisting() {
-      const token = typeof window !== "undefined" ? sessionStorage.getItem("nhimbe_kiosk_token") : null;
+      const token =
+        typeof window !== "undefined"
+          ? sessionStorage.getItem("nhimbe_kiosk_token")
+          : null;
       if (token) {
         try {
           const { session: existing } = await getKioskSessionAction(token);
           setSession(existing);
           setSessionToken(token);
         } catch {
-          if (typeof window !== "undefined") sessionStorage.removeItem("nhimbe_kiosk_token");
+          if (typeof window !== "undefined")
+            sessionStorage.removeItem("nhimbe_kiosk_token");
         }
       }
       setChecking(false);
@@ -454,10 +492,13 @@ export default function KioskPage() {
     checkExisting();
   }, []);
 
-  const handlePaired = useCallback((newSession: KioskSession, token: string) => {
-    setSession(newSession);
-    setSessionToken(token);
-  }, []);
+  const handlePaired = useCallback(
+    (newSession: KioskSession, token: string) => {
+      setSession(newSession);
+      setSessionToken(token);
+    },
+    [],
+  );
 
   // Kiosks live on shared/public hardware. If the tab is hidden for 30+ min
   // (operator walked away, screen locked, etc.), clear the paired session so
@@ -469,7 +510,8 @@ export default function KioskPage() {
     let hiddenSince: number | null = null;
 
     function clearSession() {
-      if (typeof window !== "undefined") sessionStorage.removeItem("nhimbe_kiosk_token");
+      if (typeof window !== "undefined")
+        sessionStorage.removeItem("nhimbe_kiosk_token");
       setSession(null);
       setSessionToken(null);
     }
@@ -477,7 +519,10 @@ export default function KioskPage() {
     function onVisibilityChange() {
       if (document.visibilityState === "hidden") {
         hiddenSince = Date.now();
-      } else if (document.visibilityState === "visible" && hiddenSince !== null) {
+      } else if (
+        document.visibilityState === "visible" &&
+        hiddenSince !== null
+      ) {
         const hiddenFor = Date.now() - hiddenSince;
         hiddenSince = null;
         if (hiddenFor >= HIDDEN_TIMEOUT_MS) clearSession();
@@ -485,7 +530,8 @@ export default function KioskPage() {
     }
 
     document.addEventListener("visibilitychange", onVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [sessionToken]);
 
   if (checking) {

@@ -51,7 +51,10 @@ const MAX_SLUG_ATTEMPTS = 5;
  * DB): the event/link-type context lives under the free-form `utm` bag rather
  * than inventing top-level fields the shared validator would reject.
  */
-export function buildTrackedLinkDoc(input: CreateTrackedLinkInput, slug: string): TrackedLinkDoc {
+export function buildTrackedLinkDoc(
+  input: CreateTrackedLinkInput,
+  slug: string,
+): TrackedLinkDoc {
   const utm: Record<string, unknown> = { source: "nhimbe" };
   if (input.eventId) utm.eventId = input.eventId;
   if (input.linkType) utm.linkType = input.linkType;
@@ -73,7 +76,9 @@ export function buildTrackedLinkDoc(input: CreateTrackedLinkInput, slug: string)
  * slug collision. Throws for a non-http(s) destination — callers should treat a
  * throw as "fall back to the raw URL".
  */
-export async function createTrackedLink(input: CreateTrackedLinkInput): Promise<TrackedLinkDoc> {
+export async function createTrackedLink(
+  input: CreateTrackedLinkInput,
+): Promise<TrackedLinkDoc> {
   if (!isHttpUrl(input.destinationUrl)) {
     throw new Error("A tracked link needs a valid http(s) destination.");
   }
@@ -105,7 +110,9 @@ export async function createTrackedLink(input: CreateTrackedLinkInput): Promise<
  * the same outbound URL. Matches on the owning person, the exact destination,
  * and (when given) the event context stashed in `utm.eventId`.
  */
-export async function getOrCreateTrackedLink(input: CreateTrackedLinkInput): Promise<TrackedLinkDoc> {
+export async function getOrCreateTrackedLink(
+  input: CreateTrackedLinkInput,
+): Promise<TrackedLinkDoc> {
   if (!isHttpUrl(input.destinationUrl)) {
     throw new Error("A tracked link needs a valid http(s) destination.");
   }
@@ -123,7 +130,9 @@ export async function getOrCreateTrackedLink(input: CreateTrackedLinkInput): Pro
 }
 
 /** Resolve an active tracked link by its public slug (used by `/r/[code]`). */
-export async function getActiveTrackedLinkBySlug(slug: string): Promise<TrackedLinkDoc | null> {
+export async function getActiveTrackedLinkBySlug(
+  slug: string,
+): Promise<TrackedLinkDoc | null> {
   const col = await trackedLinksCollection();
   return col.findOne({ linkSlug: slug, isActive: true });
 }
@@ -137,9 +146,15 @@ export async function recordTrackedLinkClick(
   link: Pick<TrackedLinkDoc, "_id">,
   meta: { referrer?: string | null; clickerPersonId?: string | null } = {},
 ): Promise<void> {
-  const [links, clicks] = await Promise.all([trackedLinksCollection(), linkClicksCollection()]);
+  const [links, clicks] = await Promise.all([
+    trackedLinksCollection(),
+    linkClicksCollection(),
+  ]);
   await Promise.allSettled([
-    links.updateOne({ _id: link._id }, { $inc: { clickCount: 1 }, $set: { updatedAt: new Date() } }),
+    links.updateOne(
+      { _id: link._id },
+      { $inc: { clickCount: 1 }, $set: { updatedAt: new Date() } },
+    ),
     clicks.insertOne({
       _id: newId(),
       _schemaVersion: WRITE_SCHEMA_VERSION,

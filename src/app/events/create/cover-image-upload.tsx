@@ -21,9 +21,7 @@ export function CoverImageUpload({
       data-slot="cover-image-upload"
       className="relative h-40 sm:h-50 rounded-2xl overflow-hidden mb-4 group"
       style={{
-        background: coverImage
-          ? `url(${coverImage}) center/cover`
-          : gradient,
+        background: coverImage ? `url(${coverImage}) center/cover` : gradient,
       }}
     >
       <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />

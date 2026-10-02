@@ -5,13 +5,21 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // reaches its DB through the shared client handle, so we mock getMongoClient.
 vi.mock("server-only", () => ({}));
 
-const conversations = { findOne: vi.fn(), findOneAndUpdate: vi.fn(), updateOne: vi.fn() };
+const conversations = {
+  findOne: vi.fn(),
+  findOneAndUpdate: vi.fn(),
+  updateOne: vi.fn(),
+};
 const messages = { insertOne: vi.fn(), find: vi.fn() };
 const readReceipts = { updateOne: vi.fn() };
 
 const campfireDb = {
   collection: (name: string) =>
-    name === "conversations" ? conversations : name === "messages" ? messages : readReceipts,
+    name === "conversations"
+      ? conversations
+      : name === "messages"
+        ? messages
+        : readReceipts,
 };
 
 vi.mock("@/lib/mongo/client", () => ({
@@ -45,19 +53,36 @@ vi.mock("@workos-inc/authkit-nextjs", () => ({
   withAuth: vi.fn(async () => ({ user: null })),
 }));
 
-import { postCampfireMessage, ensureEventChatConversationAction } from "./campfire";
+import {
+  postCampfireMessage,
+  ensureEventChatConversationAction,
+} from "./campfire";
 
-const person = { _id: "person-1", workosUserId: "workos-dev", name: "Dev Person" };
+const person = {
+  _id: "person-1",
+  workosUserId: "workos-dev",
+  name: "Dev Person",
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
   persons.findOne.mockResolvedValue(person);
-  conversations.findOne.mockResolvedValue({ _id: "conv-1", isActive: true, messageCount: 4 });
-  conversations.findOneAndUpdate.mockResolvedValue({ _id: "conv-1", messageCount: 5 });
+  conversations.findOne.mockResolvedValue({
+    _id: "conv-1",
+    isActive: true,
+    messageCount: 4,
+  });
+  conversations.findOneAndUpdate.mockResolvedValue({
+    _id: "conv-1",
+    messageCount: 5,
+  });
   messages.insertOne.mockResolvedValue({ acknowledged: true });
   readReceipts.updateOne.mockResolvedValue({ acknowledged: true });
   ensureHostEntityForPerson.mockResolvedValue("entity-1");
-  events.findOne.mockResolvedValue({ _id: "event-1", name: "Harare Farmers Market" });
+  events.findOne.mockResolvedValue({
+    _id: "event-1",
+    name: "Harare Farmers Market",
+  });
   ensureEventChatConversation.mockResolvedValue({ _id: "conv-9" });
 });
 
@@ -65,7 +90,8 @@ describe("postCampfireMessage (atomic sequence — L2)", () => {
   it("claims the sequence via an atomic $inc findOneAndUpdate", async () => {
     const result = await postCampfireMessage("conv-1", "Hello campfire!");
 
-    const [filter, update, options] = conversations.findOneAndUpdate.mock.calls[0];
+    const [filter, update, options] =
+      conversations.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ _id: "conv-1" });
     expect(update.$inc).toEqual({ messageCount: 1 });
     expect(update.$set.lastMessageAt).toBeInstanceOf(Date);
@@ -105,7 +131,9 @@ describe("postCampfireMessage (atomic sequence — L2)", () => {
 
   it("refuses to post when the bump finds no conversation", async () => {
     conversations.findOneAndUpdate.mockResolvedValueOnce(null);
-    await expect(postCampfireMessage("conv-gone", "hi")).rejects.toThrow(/no longer available/);
+    await expect(postCampfireMessage("conv-gone", "hi")).rejects.toThrow(
+      /no longer available/,
+    );
     expect(messages.insertOne).not.toHaveBeenCalled();
   });
 });

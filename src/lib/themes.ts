@@ -83,7 +83,11 @@ function experimental(
  * ~14% dark) and the on-container is still solved to an AAA-safe foreground.
  * color-mix keeps the wash surface-relative so it adapts to light/dark.
  */
-function heritage(name: string, lightHex: string, darkHex: string): WashedTheme {
+function heritage(
+  name: string,
+  lightHex: string,
+  darkHex: string,
+): WashedTheme {
   const onL = `color-mix(in srgb, ${lightHex} 82%, black)`;
   const onD = `color-mix(in srgb, ${darkHex} 48%, white)`;
   const light: ModeColors = {
@@ -133,13 +137,69 @@ export const themes: Record<string, WashedTheme> = {
   sunset: heritage("Sunset", "#D84315", "#FF7043"),
 
   // Experimental palette (mzizi styling-experimental) — fully solved washes.
-  acacia: experimental("Acacia", "#7E8C22", "#768420", "#E9EBDB", "#333521", "#48510E", "#B6CE23"),
-  dusk: experimental("Dusk", "#A35DD8", "#9749D3", "#E4DBEB", "#2D2135", "#661B9E", "#CC9FEF"),
-  ember: experimental("Ember", "#CD5F33", "#BB562D", "#EBDFDB", "#352721", "#7A3115", "#EBA68A"),
-  fern: experimental("Fern", "#259725", "#228D22", "#DBEBDB", "#213521", "#0F570F", "#28DB28"),
-  lagoon: experimental("Lagoon", "#249383", "#218A7A", "#DBEBE9", "#213532", "#0E554B", "#24D6BC"),
-  protea: experimental("Protea", "#D34998", "#CA3188", "#EBDBE4", "#35212D", "#841656", "#ED98C9"),
-  storm: experimental("Storm", "#577BD6", "#426CD1", "#DBE0EB", "#212735", "#1A409B", "#99B2EE"),
+  acacia: experimental(
+    "Acacia",
+    "#7E8C22",
+    "#768420",
+    "#E9EBDB",
+    "#333521",
+    "#48510E",
+    "#B6CE23",
+  ),
+  dusk: experimental(
+    "Dusk",
+    "#A35DD8",
+    "#9749D3",
+    "#E4DBEB",
+    "#2D2135",
+    "#661B9E",
+    "#CC9FEF",
+  ),
+  ember: experimental(
+    "Ember",
+    "#CD5F33",
+    "#BB562D",
+    "#EBDFDB",
+    "#352721",
+    "#7A3115",
+    "#EBA68A",
+  ),
+  fern: experimental(
+    "Fern",
+    "#259725",
+    "#228D22",
+    "#DBEBDB",
+    "#213521",
+    "#0F570F",
+    "#28DB28",
+  ),
+  lagoon: experimental(
+    "Lagoon",
+    "#249383",
+    "#218A7A",
+    "#DBEBE9",
+    "#213532",
+    "#0E554B",
+    "#24D6BC",
+  ),
+  protea: experimental(
+    "Protea",
+    "#D34998",
+    "#CA3188",
+    "#EBDBE4",
+    "#35212D",
+    "#841656",
+    "#ED98C9",
+  ),
+  storm: experimental(
+    "Storm",
+    "#577BD6",
+    "#426CD1",
+    "#DBE0EB",
+    "#212735",
+    "#1A409B",
+    "#99B2EE",
+  ),
 };
 
 /** Theme IDs for iteration (tanzanite first). */

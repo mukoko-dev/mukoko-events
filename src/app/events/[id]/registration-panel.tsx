@@ -5,7 +5,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Check, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NyuchiRegistrationCard, type RegistrationTier } from "@/components/ui/nyuchi-registration-card";
+import {
+  NyuchiRegistrationCard,
+  type RegistrationTier,
+} from "@/components/ui/nyuchi-registration-card";
 import { NamePrompt } from "@/components/prompts/name-prompt";
 import { rsvpToEvent } from "@/app/actions/registrations";
 import { trackEventViewAction } from "@/app/actions/discovery";
@@ -35,7 +38,11 @@ const MAX_PARTY = 21;
  * stripped (border-0 / transparent / no padding) so it sits inside the themed
  * ticket card; the CTA fill uses the event's --event-primary.
  */
-export function RegistrationPanel({ eventId, price, spotsRemaining }: RegistrationPanelProps) {
+export function RegistrationPanel({
+  eventId,
+  price,
+  spotsRemaining,
+}: RegistrationPanelProps) {
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +57,10 @@ export function RegistrationPanel({ eventId, price, spotsRemaining }: Registrati
   }, [eventId]);
 
   const isFree = !price?.price;
-  const max = spotsRemaining != null ? Math.max(1, Math.min(MAX_PARTY, spotsRemaining)) : MAX_PARTY;
+  const max =
+    spotsRemaining != null
+      ? Math.max(1, Math.min(MAX_PARTY, spotsRemaining))
+      : MAX_PARTY;
   const tiers: RegistrationTier[] = [
     {
       id: "ga",
@@ -71,7 +81,9 @@ export function RegistrationPanel({ eventId, price, spotsRemaining }: Registrati
       setRegistered(true);
     } catch (err) {
       setError(
-        err instanceof Error && err.message ? err.message : "Failed to register. Please try again.",
+        err instanceof Error && err.message
+          ? err.message
+          : "Failed to register. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -104,7 +116,8 @@ export function RegistrationPanel({ eventId, price, spotsRemaining }: Registrati
         data-slot="registration-confirmed"
         className="flex flex-wrap items-center justify-center gap-2 rounded-3xl px-4 py-3 text-[15px] font-semibold"
         style={{
-          backgroundColor: "color-mix(in srgb, var(--event-primary) 14%, transparent)",
+          backgroundColor:
+            "color-mix(in srgb, var(--event-primary) 14%, transparent)",
           color: "var(--event-primary)",
         }}
       >
@@ -112,7 +125,10 @@ export function RegistrationPanel({ eventId, price, spotsRemaining }: Registrati
         {quantity > 1 ? `You're going · party of ${quantity}` : "You're going"}
         <p className="basis-full text-center text-xs font-normal text-muted-foreground">
           Subscribed to host updates —{" "}
-          <Link href="/profile/edit" className="underline hover:text-foreground">
+          <Link
+            href="/profile/edit"
+            className="underline hover:text-foreground"
+          >
             manage in preferences
           </Link>
         </p>
@@ -139,7 +155,9 @@ export function RegistrationPanel({ eventId, price, spotsRemaining }: Registrati
         onQuantityChange={setQuantity}
         loading={loading}
         accent="var(--event-primary)"
-        onSubmit={({ quantity: q }) => (needsName ? setShowNamePrompt(true) : doRsvp(q))}
+        onSubmit={({ quantity: q }) =>
+          needsName ? setShowNamePrompt(true) : doRsvp(q)
+        }
       />
       {error && (
         <div className="mt-2 rounded-lg bg-red-500/10 p-2">

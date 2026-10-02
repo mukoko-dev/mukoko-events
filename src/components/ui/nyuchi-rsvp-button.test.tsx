@@ -4,7 +4,11 @@ import { NyuchiRSVPButton } from "./nyuchi-rsvp-button";
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "matchMedia", { writable: true, configurable: true, value: undefined });
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    configurable: true,
+    value: undefined,
+  });
 });
 
 describe("NyuchiRSVPButton", () => {
@@ -26,7 +30,9 @@ describe("NyuchiRSVPButton", () => {
 
   it("calls onRSVP when idle and onCancel when actioned", () => {
     const onRSVP = vi.fn();
-    const { getByRole, rerender } = render(<NyuchiRSVPButton status="none" onRSVP={onRSVP} />);
+    const { getByRole, rerender } = render(
+      <NyuchiRSVPButton status="none" onRSVP={onRSVP} />,
+    );
     fireEvent.click(getByRole("button"));
     expect(onRSVP).toHaveBeenCalledOnce();
 
@@ -41,11 +47,15 @@ describe("NyuchiRSVPButton", () => {
     const btn = getByRole("button") as HTMLButtonElement;
     expect(btn.disabled).toBe(true);
     expect(btn.textContent).toContain("Processing");
-    expect(btn.querySelector("svg")?.getAttribute("class")).toContain("animate-spin");
+    expect(btn.querySelector("svg")?.getAttribute("class")).toContain(
+      "animate-spin",
+    );
   });
 
   it("surfaces remaining spots on the idle state", () => {
-    const { getByText } = render(<NyuchiRSVPButton status="none" spotsRemaining={7} />);
+    const { getByText } = render(
+      <NyuchiRSVPButton status="none" spotsRemaining={7} />,
+    );
     expect(getByText("7 spots remaining")).toBeTruthy();
   });
 });

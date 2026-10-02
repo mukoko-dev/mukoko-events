@@ -4,7 +4,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // can be unit-tested with fake collections (no cluster here).
 vi.mock("server-only", () => ({}));
 
-const persons = { findOne: vi.fn(), findOneAndUpdate: vi.fn(), updateOne: vi.fn() };
+const persons = {
+  findOne: vi.fn(),
+  findOneAndUpdate: vi.fn(),
+  updateOne: vi.fn(),
+};
 
 vi.mock("@/lib/mongo/databases", () => ({
   personsCollection: vi.fn(async () => persons),
@@ -52,7 +56,9 @@ describe("mapPersonToAppUser", () => {
   });
 
   it("reads an explicit event-update opt-out", () => {
-    const user = mapPersonToAppUser(baseDoc({ mukoko: { notifications: { eventUpdates: false } } }));
+    const user = mapPersonToAppUser(
+      baseDoc({ mukoko: { notifications: { eventUpdates: false } } }),
+    );
     expect(user.subscribedToEventUpdates).toBe(false);
   });
 });
@@ -71,7 +77,10 @@ const PERSON_REQUIRED_FIELDS = [
 /** Union the keys a keyed upsert would materialize on insert. */
 function insertedShape(
   filter: Record<string, unknown>,
-  update: { $set?: Record<string, unknown>; $setOnInsert?: Record<string, unknown> },
+  update: {
+    $set?: Record<string, unknown>;
+    $setOnInsert?: Record<string, unknown>;
+  },
 ): Record<string, unknown> {
   return { ...filter, ...(update.$setOnInsert ?? {}), ...(update.$set ?? {}) };
 }
@@ -154,7 +163,10 @@ describe("syncPersonFromWorkos", () => {
     const doc = insertedShape(filter, update);
     for (const field of PERSON_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
     expect(update.$setOnInsert._schemaVersion).toBe("v3.1");
     expect(update.$setOnInsert.createdAt).toBeInstanceOf(Date);
@@ -163,7 +175,11 @@ describe("syncPersonFromWorkos", () => {
   });
 
   it("defaults emailVerified only on insert when the claim is absent", async () => {
-    await syncPersonFromWorkos({ workosUserId: "user_123", email: null, name: null });
+    await syncPersonFromWorkos({
+      workosUserId: "user_123",
+      email: null,
+      name: null,
+    });
     const [, update] = persons.findOneAndUpdate.mock.calls[0];
     // A momentarily-missing claim must not regress a verified user.
     expect(update.$set).not.toHaveProperty("emailVerified");
@@ -174,13 +190,21 @@ describe("syncPersonFromWorkos", () => {
     // WorkOS rarely carries a profile picture, and this sync runs on every
     // sign-in/refresh — an unconditional $set would clobber a custom avatar
     // (upload/Gravatar/sticker) set via the profile-edit page moments later.
-    await syncPersonFromWorkos({ workosUserId: "user_123", email: null, name: null, picture: null });
+    await syncPersonFromWorkos({
+      workosUserId: "user_123",
+      email: null,
+      name: null,
+      picture: null,
+    });
     const [, update] = persons.findOneAndUpdate.mock.calls[0];
     expect(update.$set).not.toHaveProperty("picture");
   });
 
   it("writes the picture when WorkOS actually returns one", async () => {
-    await syncPersonFromWorkos({ ...input, picture: "https://img.example/a.png" });
+    await syncPersonFromWorkos({
+      ...input,
+      picture: "https://img.example/a.png",
+    });
     const [, update] = persons.findOneAndUpdate.mock.calls[0];
     expect(update.$set.picture).toBe("https://img.example/a.png");
   });
@@ -206,7 +230,10 @@ describe("ensurePersonForWorkosId", () => {
     const doc = insertedShape(filter, update);
     for (const field of PERSON_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
-      expect(doc[field], `required field ${field} must not be undefined/null`).not.toBeNull();
+      expect(
+        doc[field],
+        `required field ${field} must not be undefined/null`,
+      ).not.toBeNull();
     }
     expect(update.$setOnInsert.isActive).toBe(true);
     expect(update.$setOnInsert.emailVerified).toBe(false);
@@ -233,7 +260,12 @@ describe("deactivatePersonByWorkosId", () => {
   });
 
   it("reports false when no person matched", async () => {
-    persons.updateOne.mockResolvedValueOnce({ matchedCount: 0, modifiedCount: 0 });
-    await expect(deactivatePersonByWorkosId("user_unknown")).resolves.toBe(false);
+    persons.updateOne.mockResolvedValueOnce({
+      matchedCount: 0,
+      modifiedCount: 0,
+    });
+    await expect(deactivatePersonByWorkosId("user_unknown")).resolves.toBe(
+      false,
+    );
   });
 });

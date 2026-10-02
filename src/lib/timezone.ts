@@ -25,7 +25,10 @@ export function getUserTimezone(): UserTimezone {
 }
 
 // Format time for display in user's timezone
-export function formatTime(date: Date | string, options?: Intl.DateTimeFormatOptions): string {
+export function formatTime(
+  date: Date | string,
+  options?: Intl.DateTimeFormatOptions,
+): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -36,7 +39,10 @@ export function formatTime(date: Date | string, options?: Intl.DateTimeFormatOpt
 }
 
 // Format date for display
-export function formatDate(date: Date | string, options?: Intl.DateTimeFormatOptions): string {
+export function formatDate(
+  date: Date | string,
+  options?: Intl.DateTimeFormatOptions,
+): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString("en-US", {
     weekday: "short",
@@ -52,14 +58,20 @@ export function getRelativeDate(date: Date | string): string {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const targetDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const diffDays = Math.floor((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor(
+    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
 
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Tomorrow";
   if (diffDays > 1 && diffDays <= 6) {
     return d.toLocaleDateString("en-US", { weekday: "long" });
   }
-  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  return d.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 // Format event datetime for card display (e.g., "Tomorrow, 3:00 PM" or "Sat, Jan 10, 9:00 AM")
@@ -118,10 +130,12 @@ function tzOffsetMinutes(utcGuess: Date, timeZone: string): number {
     minute: "2-digit",
     second: "2-digit",
   });
-  const parts = dtf.formatToParts(utcGuess).reduce<Record<string, string>>((acc, p) => {
-    acc[p.type] = p.value;
-    return acc;
-  }, {});
+  const parts = dtf
+    .formatToParts(utcGuess)
+    .reduce<Record<string, string>>((acc, p) => {
+      acc[p.type] = p.value;
+      return acc;
+    }, {});
   const asIfUtc = Date.UTC(
     Number(parts.year),
     Number(parts.month) - 1,
@@ -138,7 +152,11 @@ function tzOffsetMinutes(utcGuess: Date, timeZone: string): number {
  * `timeZone` and return the equivalent UTC ISO string. Falls back to treating
  * the input as already-UTC if `timeZone` isn't a recognised IANA name.
  */
-export function zonedTimeToUtcIso(dateStr: string, timeStr: string, timeZone: string): string {
+export function zonedTimeToUtcIso(
+  dateStr: string,
+  timeStr: string,
+  timeZone: string,
+): string {
   const naiveUtcGuess = new Date(`${dateStr}T${timeStr}:00Z`);
   if (Number.isNaN(naiveUtcGuess.getTime())) return naiveUtcGuess.toISOString();
   let offsetMinutes = 0;
@@ -147,7 +165,9 @@ export function zonedTimeToUtcIso(dateStr: string, timeStr: string, timeZone: st
   } catch {
     offsetMinutes = 0; // Unknown zone name — treat the input as UTC.
   }
-  return new Date(naiveUtcGuess.getTime() - offsetMinutes * 60000).toISOString();
+  return new Date(
+    naiveUtcGuess.getTime() - offsetMinutes * 60000,
+  ).toISOString();
 }
 
 /**
@@ -168,8 +188,13 @@ export function getBrowserTimezoneName(): string {
  * rule (venue timezone when picked and in-person, else the organiser's own)
  * never drifts between the two.
  */
-export function resolveEventTimezone(isOnline: boolean, selectedTimezone: string | null): string {
-  return !isOnline && selectedTimezone ? selectedTimezone : getBrowserTimezoneName();
+export function resolveEventTimezone(
+  isOnline: boolean,
+  selectedTimezone: string | null,
+): string {
+  return !isOnline && selectedTimezone
+    ? selectedTimezone
+    : getBrowserTimezoneName();
 }
 
 /** Short display label for a resolved timezone, e.g. "Africa/Harare" -> "Harare". */

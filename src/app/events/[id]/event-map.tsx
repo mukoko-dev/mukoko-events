@@ -26,11 +26,15 @@ interface EventMapProps {
  * load and would break Next.js's SSR pass otherwise.
  */
 export function EventMap({ venue, address, city, country }: EventMapProps) {
-  const fullAddress = [venue, address, city, country].filter(Boolean).join(", ");
+  const fullAddress = [venue, address, city, country]
+    .filter(Boolean)
+    .join(", ");
   const encodedAddress = encodeURIComponent(fullAddress);
 
   const [coords, setCoords] = useState<[number, number] | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<unknown>(null);
 
@@ -87,7 +91,10 @@ export function EventMap({ venue, address, city, country }: EventMapProps) {
       mapRef.current = map;
 
       const cfg = BASE_LAYERS.standard;
-      L.tileLayer(cfg.url, { attribution: cfg.attribution, maxZoom: cfg.maxZoom }).addTo(map);
+      L.tileLayer(cfg.url, {
+        attribution: cfg.attribution,
+        maxZoom: cfg.maxZoom,
+      }).addTo(map);
 
       const icon = L.divIcon({
         className: "nhimbe-venue-pin",
@@ -113,7 +120,10 @@ export function EventMap({ venue, address, city, country }: EventMapProps) {
         style={{ backgroundColor: "var(--event-surface)" }}
       >
         <div className="p-6 text-center">
-          <MapPin className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--event-primary)" }} />
+          <MapPin
+            className="w-8 h-8 mx-auto mb-3"
+            style={{ color: "var(--event-primary)" }}
+          />
           <h4 className="font-semibold mb-1">{venue}</h4>
           <p className="text-sm text-foreground/60 mb-4">
             {address && `${address}, `}
@@ -125,7 +135,10 @@ export function EventMap({ venue, address, city, country }: EventMapProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-              style={{ backgroundColor: "var(--event-primary)", color: "#0A0A0A" }}
+              style={{
+                backgroundColor: "var(--event-primary)",
+                color: "#0A0A0A",
+              }}
             >
               <ExternalLink className="w-4 h-4" />
               View on OpenStreetMap
@@ -147,7 +160,10 @@ export function EventMap({ venue, address, city, country }: EventMapProps) {
         style={{ borderColor: "var(--event-surface)" }}
       >
         <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4" style={{ color: "var(--event-primary)" }} />
+          <MapPin
+            className="w-4 h-4"
+            style={{ color: "var(--event-primary)" }}
+          />
           <span className="font-semibold text-sm">Event Location</span>
         </div>
         <div className="flex gap-2">
@@ -156,7 +172,10 @@ export function EventMap({ venue, address, city, country }: EventMapProps) {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium hover:opacity-80 transition-opacity"
-            style={{ backgroundColor: "var(--event-primary)", color: "#0A0A0A" }}
+            style={{
+              backgroundColor: "var(--event-primary)",
+              color: "#0A0A0A",
+            }}
           >
             <Navigation className="w-3.5 h-3.5" />
             Directions

@@ -43,7 +43,11 @@ beforeEach(() => {
 describe("AddressAutocomplete accessibility", () => {
   it("renders an accessible combobox in its idle state", async () => {
     const { container } = render(
-      <AddressAutocomplete value="" onChange={() => {}} onPlaceSelect={() => {}} />,
+      <AddressAutocomplete
+        value=""
+        onChange={() => {}}
+        onPlaceSelect={() => {}}
+      />,
     );
     const input = screen.getByRole("combobox");
     expect(input).toHaveAttribute("aria-expanded", "false");
@@ -54,7 +58,11 @@ describe("AddressAutocomplete accessibility", () => {
   it("exposes an accessible listbox of suggestions", async () => {
     geocodeAddress.mockResolvedValue([DB_HIT, OSM_HIT]);
     const { container } = render(
-      <AddressAutocomplete value="Harare venue" onChange={() => {}} onPlaceSelect={() => {}} />,
+      <AddressAutocomplete
+        value="Harare venue"
+        onChange={() => {}}
+        onPlaceSelect={() => {}}
+      />,
     );
     const listbox = await screen.findByRole("listbox");
     expect(listbox).toBeInTheDocument();
@@ -67,7 +75,13 @@ describe("AddressAutocomplete accessibility", () => {
 describe("AddressAutocomplete behavior", () => {
   it("debounces then queries the geocoder and lists DB hits above OSM hits", async () => {
     geocodeAddress.mockResolvedValue([DB_HIT, OSM_HIT]);
-    render(<AddressAutocomplete value="Rainbow" onChange={() => {}} onPlaceSelect={() => {}} />);
+    render(
+      <AddressAutocomplete
+        value="Rainbow"
+        onChange={() => {}}
+        onPlaceSelect={() => {}}
+      />,
+    );
     await waitFor(() => expect(geocodeAddress).toHaveBeenCalledWith("Rainbow"));
     const options = await screen.findAllByRole("option");
     expect(options[0]).toHaveTextContent("In catalogue");
@@ -75,7 +89,13 @@ describe("AddressAutocomplete behavior", () => {
   });
 
   it("does not query for queries shorter than 3 characters", async () => {
-    render(<AddressAutocomplete value="ab" onChange={() => {}} onPlaceSelect={() => {}} />);
+    render(
+      <AddressAutocomplete
+        value="ab"
+        onChange={() => {}}
+        onPlaceSelect={() => {}}
+      />,
+    );
     await new Promise((r) => setTimeout(r, 600));
     expect(geocodeAddress).not.toHaveBeenCalled();
   });
@@ -85,7 +105,11 @@ describe("AddressAutocomplete behavior", () => {
     const onPlaceSelect = vi.fn();
     const onChange = vi.fn();
     render(
-      <AddressAutocomplete value="Rainbow" onChange={onChange} onPlaceSelect={onPlaceSelect} />,
+      <AddressAutocomplete
+        value="Rainbow"
+        onChange={onChange}
+        onPlaceSelect={onPlaceSelect}
+      />,
     );
     const option = await screen.findByRole("option");
     fireEvent.mouseDown(option);

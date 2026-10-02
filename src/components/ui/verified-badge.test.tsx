@@ -30,7 +30,9 @@ describe("NyuchiVerifiedBadge", () => {
     expect(el?.getAttribute("data-trust")).toBe("0.5");
     expect(el?.getAttribute("aria-label")).toBe("Licensed Professional");
     // Tanzanite mineral drives the icon colour.
-    expect(el?.querySelector("svg")?.getAttribute("style")).toContain("--color-tanzanite");
+    expect(el?.querySelector("svg")?.getAttribute("style")).toContain(
+      "--color-tanzanite",
+    );
   });
 
   it("shows a suspended overlay instead of the tier icon", () => {
@@ -42,7 +44,9 @@ describe("NyuchiVerifiedBadge", () => {
   });
 
   it("shows a memorial overlay for ancestral status", () => {
-    render(<NyuchiVerifiedBadge tier="community" status="verified_ancestral" />);
+    render(
+      <NyuchiVerifiedBadge tier="community" status="verified_ancestral" />,
+    );
     const el = badge();
     expect(el?.getAttribute("aria-label")).toContain("Memorial");
     expect(el?.className).toContain("opacity-60");
@@ -76,7 +80,9 @@ describe("NyuchiVerifiedBadge", () => {
     });
     render(<NyuchiVerifiedBadge tier="government" />);
     // Reduced motion on: no animation in the inline style.
-    expect(badge()?.getAttribute("style") ?? "").not.toContain("nyuchi-fade-slide-up");
+    expect(badge()?.getAttribute("style") ?? "").not.toContain(
+      "nyuchi-fade-slide-up",
+    );
   });
 });
 
@@ -88,6 +94,8 @@ describe("computeTrustScore", () => {
 
   it("freezes trust at the status modifier for suspended/ancestral accounts", () => {
     expect(computeTrustScore("licensed", "suspended")).toBeCloseTo(-0.05);
-    expect(computeTrustScore("licensed", "verified_ancestral")).toBeCloseTo(0.05);
+    expect(computeTrustScore("licensed", "verified_ancestral")).toBeCloseTo(
+      0.05,
+    );
   });
 });

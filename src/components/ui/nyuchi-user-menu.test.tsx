@@ -8,7 +8,9 @@ const trigger = () => document.querySelector('[data-slot="nyuchi-user-menu"]');
 
 describe("NyuchiUserMenu", () => {
   it("renders an accessible trigger with the user name and initials", () => {
-    const { getByText } = render(<NyuchiUserMenu name="Tendai Moyo" email="t@example.com" />);
+    const { getByText } = render(
+      <NyuchiUserMenu name="Tendai Moyo" email="t@example.com" />,
+    );
     expect(trigger()?.getAttribute("aria-label")).toBe("Account menu");
     expect(getByText("TM")).toBeTruthy();
     expect(getByText("Tendai Moyo")).toBeTruthy();
@@ -22,7 +24,9 @@ describe("NyuchiUserMenu", () => {
   });
 
   it("renders the compact (icon-only) trigger without name text", () => {
-    const { queryByText } = render(<NyuchiUserMenu name="Tendai Moyo" compact />);
+    const { queryByText } = render(
+      <NyuchiUserMenu name="Tendai Moyo" compact />,
+    );
     // Initials fallback is always present; the name label block is omitted in compact mode.
     expect(queryByText("Tendai Moyo")).toBeNull();
   });

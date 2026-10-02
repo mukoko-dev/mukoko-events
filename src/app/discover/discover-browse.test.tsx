@@ -33,7 +33,12 @@ vi.mock("@/components/auth/auth-context", () => ({
 }));
 
 const categories: CategoryWithCount[] = [
-  { id: "tech", name: "Tech & Innovation", group: "Categories", eventCount: 12 },
+  {
+    id: "tech",
+    name: "Tech & Innovation",
+    group: "Categories",
+    eventCount: 12,
+  },
   { id: "music", name: "Music", group: "Categories", eventCount: 1 },
 ];
 
@@ -107,11 +112,21 @@ function renderBrowse(
 describe("DiscoverBrowse", () => {
   it("renders the four browse sections", () => {
     renderBrowse();
-    expect(screen.getByRole("heading", { name: "Discover" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Browse by category" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Featured circles" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Featured calendars" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Explore by city" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Discover" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Browse by category" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Featured circles" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Featured calendars" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Explore by city" }),
+    ).toBeInTheDocument();
   });
 
   it("links category tiles into the /events drill-down with live counts", () => {
@@ -120,19 +135,26 @@ describe("DiscoverBrowse", () => {
     expect(tile).toHaveAttribute("href", "/events?category=tech");
     expect(tile).toHaveTextContent("12 events");
     // Singular form (anchored — "Harare Live Music" is a calendar, not this tile)
-    expect(screen.getByRole("link", { name: /^Music/ })).toHaveTextContent("1 event");
+    expect(screen.getByRole("link", { name: /^Music/ })).toHaveTextContent(
+      "1 event",
+    );
   });
 
   it("presents circles as communities with a circleType-appropriate join affordance", () => {
     renderBrowse();
     const publicRow = screen.getByRole("link", { name: /Harare Runners/ });
-    expect(publicRow).toHaveAttribute("href", "/circles/11111111-1111-4111-8111-111111111111");
+    expect(publicRow).toHaveAttribute(
+      "href",
+      "/circles/11111111-1111-4111-8111-111111111111",
+    );
     expect(publicRow).toHaveTextContent("Join");
     expect(publicRow).toHaveTextContent("48 members");
-    expect(screen.getByRole("link", { name: /Founders Table/ })).toHaveTextContent(
-      "Request to join",
-    );
-    expect(screen.getByRole("link", { name: /City Arts Wire/ })).toHaveTextContent("Follow");
+    expect(
+      screen.getByRole("link", { name: /Founders Table/ }),
+    ).toHaveTextContent("Request to join");
+    expect(
+      screen.getByRole("link", { name: /City Arts Wire/ }),
+    ).toHaveTextContent("Follow");
     // Circles are communities: circle rows count members, never followers,
     // and never mention calendars.
     expect(publicRow).not.toHaveTextContent(/calendar/i);
@@ -167,6 +189,8 @@ describe("DiscoverBrowse", () => {
     expect(screen.getByText(/Categories are warming up/)).toBeInTheDocument();
     expect(screen.getByText(/No circles to feature yet/)).toBeInTheDocument();
     expect(screen.getByText(/No calendars to follow yet/)).toBeInTheDocument();
-    expect(screen.getByText(/No cities with upcoming events yet/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/No cities with upcoming events yet/),
+    ).toBeInTheDocument();
   });
 });

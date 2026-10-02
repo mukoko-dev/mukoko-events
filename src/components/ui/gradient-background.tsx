@@ -191,7 +191,11 @@ export function GradientBackground({
 }
 
 // Static gradient fallback for SSR
-export function StaticGradientBackground({ theme = "dark" }: { theme?: "light" | "dark" }) {
+export function StaticGradientBackground({
+  theme = "dark",
+}: {
+  theme?: "light" | "dark";
+}) {
   const colors = brandColors[theme];
   const gradient =
     theme === "dark"

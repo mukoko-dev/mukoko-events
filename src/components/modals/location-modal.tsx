@@ -7,7 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
-import { resolveCountryTimezone, ensurePlaceFromOsmSuggestion } from "@/app/actions/geocode";
+import {
+  resolveCountryTimezone,
+  ensurePlaceFromOsmSuggestion,
+} from "@/app/actions/geocode";
 import { timezoneLabel } from "@/lib/timezone";
 
 function isValidMeetingUrl(value: string): boolean {
@@ -25,7 +28,9 @@ interface LocationModalProps {
   isOnline: boolean;
   setIsOnline: (value: boolean) => void;
   meetingPlatform: "zoom" | "google_meet" | "teams" | "other";
-  setMeetingPlatform: (value: "zoom" | "google_meet" | "teams" | "other") => void;
+  setMeetingPlatform: (
+    value: "zoom" | "google_meet" | "teams" | "other",
+  ) => void;
   meetingUrl: string;
   setMeetingUrl: (value: string) => void;
   addressSearch: string;
@@ -35,7 +40,9 @@ interface LocationModalProps {
   address: string;
   setAddress: (value: string) => void;
   selectedCity: { addressLocality: string; addressCountry: string } | null;
-  setSelectedCity: (value: { addressLocality: string; addressCountry: string } | null) => void;
+  setSelectedCity: (
+    value: { addressLocality: string; addressCountry: string } | null,
+  ) => void;
   cities: { addressLocality: string; addressCountry: string }[];
   /** IANA timezone the venue resolves to — drives what "3pm" means on submit. */
   selectedTimezone: string | null;
@@ -69,7 +76,13 @@ export function LocationModal({
   setPlaceId,
 }: LocationModalProps) {
   return (
-    <ResponsiveModal open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }} title="Event Location">
+    <ResponsiveModal
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+      title="Event Location"
+    >
       <div className="space-y-4">
         <label
           htmlFor="online-event-toggle"
@@ -87,7 +100,9 @@ export function LocationModal({
           <>
             {/* Meeting Platform */}
             <div>
-              <Label className="block text-sm text-text-secondary mb-2">Meeting Platform</Label>
+              <Label className="block text-sm text-text-secondary mb-2">
+                Meeting Platform
+              </Label>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { value: "zoom", label: "Zoom" },
@@ -98,7 +113,11 @@ export function LocationModal({
                   <Button
                     key={platform.value}
                     variant="ghost"
-                    onClick={() => setMeetingPlatform(platform.value as typeof meetingPlatform)}
+                    onClick={() =>
+                      setMeetingPlatform(
+                        platform.value as typeof meetingPlatform,
+                      )
+                    }
                     className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                       meetingPlatform === platform.value
                         ? "bg-primary text-primary-foreground"
@@ -112,7 +131,9 @@ export function LocationModal({
             </div>
             {/* Meeting URL */}
             <div>
-              <Label className="block text-sm text-text-secondary mb-2">Meeting URL</Label>
+              <Label className="block text-sm text-text-secondary mb-2">
+                Meeting URL
+              </Label>
               <Input
                 type="url"
                 inputMode="url"
@@ -124,17 +145,21 @@ export function LocationModal({
                   meetingPlatform === "zoom"
                     ? "https://zoom.us/j/..."
                     : meetingPlatform === "google_meet"
-                    ? "https://meet.google.com/..."
-                    : meetingPlatform === "teams"
-                    ? "https://teams.microsoft.com/..."
-                    : "https://..."
+                      ? "https://meet.google.com/..."
+                      : meetingPlatform === "teams"
+                        ? "https://teams.microsoft.com/..."
+                        : "https://..."
                 }
                 className="w-full px-4 py-3 bg-surface text-foreground placeholder:text-text-tertiary rounded-xl border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring/50 text-base"
               />
               {meetingUrl.trim() && !isValidMeetingUrl(meetingUrl) ? (
-                <p className="text-xs text-red-400 mt-2">Please enter a valid URL starting with https://</p>
+                <p className="text-xs text-red-400 mt-2">
+                  Please enter a valid URL starting with https://
+                </p>
               ) : (
-                <p className="text-xs text-text-tertiary mt-2">Attendees will see this link after registering</p>
+                <p className="text-xs text-text-tertiary mt-2">
+                  Attendees will see this link after registering
+                </p>
               )}
             </div>
           </>
@@ -143,7 +168,9 @@ export function LocationModal({
           <>
             {/* Venue / address search — DB catalogue first, then OSM Nominatim */}
             <div>
-              <Label className="block text-sm text-text-secondary mb-2">Search Location</Label>
+              <Label className="block text-sm text-text-secondary mb-2">
+                Search Location
+              </Label>
               <AddressAutocomplete
                 value={addressSearch}
                 onChange={setAddressSearch}
@@ -151,7 +178,10 @@ export function LocationModal({
                   setVenue(components.venue);
                   setAddress(components.address);
                   if (components.city && components.country) {
-                    setSelectedCity({ addressLocality: components.city, addressCountry: components.country });
+                    setSelectedCity({
+                      addressLocality: components.city,
+                      addressCountry: components.country,
+                    });
                   }
                   // Every DB/OSM suggestion carries its own resolved timezone
                   // (from its actual coordinates); only fall back to a
@@ -159,7 +189,9 @@ export function LocationModal({
                   if (components.timezone) {
                     setSelectedTimezone(components.timezone);
                   } else if (components.country) {
-                    resolveCountryTimezone(components.country).then((tz) => setSelectedTimezone(tz ?? null));
+                    resolveCountryTimezone(components.country).then((tz) =>
+                      setSelectedTimezone(tz ?? null),
+                    );
                   } else {
                     setSelectedTimezone(null);
                   }
@@ -194,43 +226,59 @@ export function LocationModal({
                 placeholder="Search for a venue or address..."
               />
               {placeId && (
-                <p className="text-xs text-text-tertiary mt-2">Matched to the places catalogue</p>
+                <p className="text-xs text-text-tertiary mt-2">
+                  Matched to the places catalogue
+                </p>
               )}
             </div>
 
             {/* Divider */}
             <div className="flex items-center gap-3 py-2">
               <div className="flex-1 h-px bg-elevated" />
-              <span className="text-xs text-text-tertiary">or enter manually</span>
+              <span className="text-xs text-text-tertiary">
+                or enter manually
+              </span>
               <div className="flex-1 h-px bg-elevated" />
             </div>
 
             <div>
-              <Label className="block text-sm text-text-secondary mb-2">Venue Name</Label>
+              <Label className="block text-sm text-text-secondary mb-2">
+                Venue Name
+              </Label>
               <Input
                 type="text"
                 inputMode="text"
                 autoComplete="organization"
                 value={venue}
-                onChange={(e) => { setVenue(e.target.value); setPlaceId(null); }}
+                onChange={(e) => {
+                  setVenue(e.target.value);
+                  setPlaceId(null);
+                }}
                 placeholder="e.g., Rainbow Towers Hotel"
                 className="w-full px-4 py-3 bg-surface text-foreground placeholder:text-text-tertiary rounded-xl border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring/50 text-base"
               />
             </div>
             <div>
-              <Label className="block text-sm text-text-secondary mb-2">Address</Label>
+              <Label className="block text-sm text-text-secondary mb-2">
+                Address
+              </Label>
               <Input
                 type="text"
                 inputMode="text"
                 autoComplete="street-address"
                 value={address}
-                onChange={(e) => { setAddress(e.target.value); setPlaceId(null); }}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  setPlaceId(null);
+                }}
                 placeholder="Street address"
                 className="w-full px-4 py-3 bg-surface text-foreground placeholder:text-text-tertiary rounded-xl border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring/50 text-base"
               />
             </div>
             <div>
-              <Label className="block text-sm text-text-secondary mb-2">City</Label>
+              <Label className="block text-sm text-text-secondary mb-2">
+                City
+              </Label>
               <div className="grid grid-cols-2 gap-2">
                 {cities.map((c) => (
                   <Button
@@ -239,7 +287,9 @@ export function LocationModal({
                     onClick={() => {
                       setSelectedCity(c);
                       setSelectedTimezone(null);
-                      resolveCountryTimezone(c.addressCountry).then((tz) => setSelectedTimezone(tz ?? null));
+                      resolveCountryTimezone(c.addressCountry).then((tz) =>
+                        setSelectedTimezone(tz ?? null),
+                      );
                     }}
                     className={`px-4 py-3 rounded-xl text-left justify-start h-auto ${
                       selectedCity?.addressLocality === c.addressLocality
@@ -249,7 +299,9 @@ export function LocationModal({
                   >
                     <div className="flex flex-col items-start">
                       <div className="font-medium">{c.addressLocality}</div>
-                      <div className="text-sm opacity-70">{c.addressCountry}</div>
+                      <div className="text-sm opacity-70">
+                        {c.addressCountry}
+                      </div>
                     </div>
                   </Button>
                 ))}

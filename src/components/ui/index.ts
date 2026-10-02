@@ -2,7 +2,15 @@ export { Button } from "./button";
 export { Avatar } from "./avatar";
 export { NyuchiAvatarPicker } from "./nyuchi-avatar-picker";
 export { Badge } from "./badge";
-export { Card, CardHeader, CardFooter, CardTitle, CardAction, CardDescription, CardContent } from "./card";
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
+} from "./card";
 export { CopyButton } from "./copy-button";
 export { DetailLayout } from "./detail-layout";
 export {
@@ -69,4 +77,12 @@ export { StatusIndicator } from "./status-indicator";
 export { Switch } from "./switch";
 export { Textarea } from "./textarea";
 export { NyuchiVerifiedBadge, computeTrustScore } from "./verified-badge";
-export { Timeline, TimelineItem, TimelineDot, TimelineContent, TimelineHeading, TimelineDescription, TimelineTime } from "./timeline";
+export {
+  Timeline,
+  TimelineItem,
+  TimelineDot,
+  TimelineContent,
+  TimelineHeading,
+  TimelineDescription,
+  TimelineTime,
+} from "./timeline";

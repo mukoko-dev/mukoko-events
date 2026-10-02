@@ -7,7 +7,10 @@ interface WizardStepIndicatorProps {
   steps: { id: 1 | 2 | 3; label: string }[];
 }
 
-export function WizardStepIndicator({ currentStep, steps }: WizardStepIndicatorProps) {
+export function WizardStepIndicator({
+  currentStep,
+  steps,
+}: WizardStepIndicatorProps) {
   return (
     <nav
       aria-label="Event creation progress"
@@ -32,12 +35,18 @@ export function WizardStepIndicator({ currentStep, steps }: WizardStepIndicatorP
                       : "bg-elevated text-text-tertiary",
                 ].join(" ")}
               >
-                {isComplete ? <Check className="w-4 h-4" aria-hidden /> : step.id}
+                {isComplete ? (
+                  <Check className="w-4 h-4" aria-hidden />
+                ) : (
+                  step.id
+                )}
               </div>
               <span
                 className={[
                   "text-[11px] uppercase tracking-wider",
-                  isActive ? "text-primary font-semibold" : "text-text-tertiary",
+                  isActive
+                    ? "text-primary font-semibold"
+                    : "text-text-tertiary",
                 ].join(" ")}
               >
                 {step.label}

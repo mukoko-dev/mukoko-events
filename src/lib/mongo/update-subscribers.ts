@@ -49,12 +49,17 @@ export async function listUpdateSubscribers(params: {
   /** The update's author — never emails themself. */
   excludePersonId?: string;
 }): Promise<UpdateRecipient[]> {
-  const rsvpRows = await (await rsvpsCollection())
+  const rsvpRows = await (
+    await rsvpsCollection()
+  )
     .find({
       eventId: params.eventId,
       rsvpResponse: { $in: ["RsvpResponseYes", "RsvpResponseMaybe"] },
     })
-    .project<{ attendeePersonId: string; subscribedToUpdates?: boolean | null }>({
+    .project<{
+      attendeePersonId: string;
+      subscribedToUpdates?: boolean | null;
+    }>({
       attendeePersonId: 1,
       subscribedToUpdates: 1,
     })
@@ -63,7 +68,9 @@ export async function listUpdateSubscribers(params: {
     .filter((r) => r.subscribedToUpdates !== false)
     .map((r) => r.attendeePersonId);
 
-  const teamRows = await (await entityMembershipsCollection())
+  const teamRows = await (
+    await entityMembershipsCollection()
+  )
     .find({
       entityId: params.hostEntityId,
       isActive: true,
@@ -78,7 +85,9 @@ export async function listUpdateSubscribers(params: {
   );
   if (personIds.length === 0) return [];
 
-  const persons = await (await personsCollection())
+  const persons = await (
+    await personsCollection()
+  )
     .find({ _id: { $in: personIds } })
     .toArray();
 

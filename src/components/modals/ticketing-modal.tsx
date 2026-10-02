@@ -25,22 +25,27 @@ export function TicketingModal({
   setTicketUrl,
 }: TicketingModalProps) {
   return (
-    <ResponsiveModal open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }} title="Ticketing">
+    <ResponsiveModal
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+      title="Ticketing"
+    >
       <div className="space-y-4">
         {/* Free/Paid Toggle */}
         <div className="flex items-center gap-3 p-3 bg-surface text-foreground placeholder:text-text-tertiary rounded-xl">
           <Ticket className="w-5 h-5 text-text-secondary" />
           <span className="flex-1">Free Event</span>
-          <Switch
-            checked={isFree}
-            onCheckedChange={setIsFree}
-          />
+          <Switch checked={isFree} onCheckedChange={setIsFree} />
         </div>
 
         {/* External Ticket URL (shown for paid events) */}
         {!isFree && (
           <div>
-            <Label className="block text-sm text-text-secondary mb-2">External Ticket URL</Label>
+            <Label className="block text-sm text-text-secondary mb-2">
+              External Ticket URL
+            </Label>
             <Input
               type="url"
               inputMode="url"
@@ -52,7 +57,8 @@ export function TicketingModal({
               className="w-full px-4 py-3 bg-surface text-foreground placeholder:text-text-tertiary rounded-xl border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring/50 text-base"
             />
             <p className="text-xs text-text-tertiary mt-2">
-              Link to your external ticketing page (e.g., Eventbrite, Quicket, etc.)
+              Link to your external ticketing page (e.g., Eventbrite, Quicket,
+              etc.)
             </p>
           </div>
         )}
@@ -60,7 +66,9 @@ export function TicketingModal({
         {isFree && (
           <div className="p-4 bg-primary/10 rounded-xl">
             <p className="text-sm text-primary">
-              Free events allow guests to RSVP directly on Nhimbe. For paid events, toggle off &quot;Free Event&quot; and add a link to your external ticketing provider.
+              Free events allow guests to RSVP directly on Nhimbe. For paid
+              events, toggle off &quot;Free Event&quot; and add a link to your
+              external ticketing provider.
             </p>
           </div>
         )}

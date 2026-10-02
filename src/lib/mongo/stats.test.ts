@@ -34,7 +34,12 @@ describe("getEventStats", () => {
       eventId: "event-1",
       rsvpResponse: "RsvpResponseYes",
     });
-    expect(stats).toMatchObject({ eventId: "event-1", rsvps: 7, checkins: 3, views: 42 });
+    expect(stats).toMatchObject({
+      eventId: "event-1",
+      rsvps: 7,
+      checkins: 3,
+      views: 42,
+    });
   });
 
   it("defaults views to 0 when the counter is absent", async () => {

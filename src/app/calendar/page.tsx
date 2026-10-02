@@ -3,7 +3,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { MapPin, Loader2, Moon, Clock } from "lucide-react";
 import { MoonPhase } from "@/components/ui/moon-phase";
-import { NyuchiCalendar, type CalendarEvent } from "@/components/ui/nyuchi-calendar";
+import {
+  NyuchiCalendar,
+  type CalendarEvent,
+} from "@/components/ui/nyuchi-calendar";
 import { NyuchiListingCard } from "@/components/ui/nyuchi-listing-card";
 import { categoryToMineral } from "@/lib/category-mineral";
 import { type Event, getMediaUrl } from "@/lib/api";
@@ -48,7 +51,9 @@ export default function CalendarPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Calendar</h1>
-          <p className="text-text-secondary mt-1">View all upcoming events at a glance</p>
+          <p className="text-text-secondary mt-1">
+            View all upcoming events at a glance
+          </p>
         </div>
         <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
           <Moon className="w-3 h-3" strokeWidth={2.2} aria-hidden />
@@ -70,7 +75,11 @@ export default function CalendarPage() {
               <div className="rounded-[var(--radius-lg)] bg-muted p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-serif text-lg font-bold text-foreground">
-                    {date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+                    {date.toLocaleDateString(undefined, {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </h3>
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
                     <MoonPhase date={date} size={12} />
@@ -88,16 +97,24 @@ export default function CalendarPage() {
                         title={ce.event.name}
                         category={ce.event.category}
                         mineral={categoryToMineral(ce.event.category)}
-                        image={ce.event.image ? getMediaUrl(ce.event.image) : undefined}
+                        image={
+                          ce.event.image
+                            ? getMediaUrl(ce.event.image)
+                            : undefined
+                        }
                         meta={[
                           {
                             label: "time",
-                            value: ce.event.date.time || `${ce.event.date.month} ${ce.event.date.day}`,
+                            value:
+                              ce.event.date.time ||
+                              `${ce.event.date.month} ${ce.event.date.day}`,
                             icon: Clock,
                           },
                           {
                             label: "venue",
-                            value: ce.event.location.name || ce.event.location.addressLocality,
+                            value:
+                              ce.event.location.name ||
+                              ce.event.location.addressLocality,
                             icon: MapPin,
                           },
                         ]}
@@ -105,7 +122,9 @@ export default function CalendarPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No gatherings on this day.</p>
+                  <p className="text-sm text-muted-foreground">
+                    No gatherings on this day.
+                  </p>
                 )}
               </div>
             )}
@@ -117,7 +136,11 @@ export default function CalendarPage() {
             <div className="space-y-2">
               {events
                 .slice()
-                .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+                .sort(
+                  (a, b) =>
+                    new Date(a.startDate).getTime() -
+                    new Date(b.startDate).getTime(),
+                )
                 .slice(0, 12)
                 .map((event, i) => (
                   <NyuchiListingCard
@@ -130,8 +153,17 @@ export default function CalendarPage() {
                     mineral={categoryToMineral(event.category)}
                     image={event.image ? getMediaUrl(event.image) : undefined}
                     meta={[
-                      { label: "date", value: `${event.date.month} ${event.date.day}`, icon: Clock },
-                      { label: "venue", value: event.location.name || event.location.addressLocality, icon: MapPin },
+                      {
+                        label: "date",
+                        value: `${event.date.month} ${event.date.day}`,
+                        icon: Clock,
+                      },
+                      {
+                        label: "venue",
+                        value:
+                          event.location.name || event.location.addressLocality,
+                        icon: MapPin,
+                      },
                     ]}
                   />
                 ))}
