@@ -196,7 +196,7 @@ describe('createEvent', () => {
       organizer: { name: 'Host', identifier: 'h', initials: 'H', eventCount: 0 },
     };
 
-    await createEvent(input);
+    await createEvent(input, 'test-jwt');
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events`,
       expect.objectContaining({ method: 'POST' })
@@ -208,7 +208,7 @@ describe('updateEvent', () => {
   it('sends PUT with partial update', async () => {
     mockFetch({ message: 'Updated' });
 
-    await updateEvent('evt-1', { name: 'Updated Title' });
+    await updateEvent('evt-1', { name: 'Updated Title' }, 'test-jwt');
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events/evt-1`,
       expect.objectContaining({ method: 'PUT' })
@@ -220,7 +220,7 @@ describe('deleteEvent', () => {
   it('sends DELETE request', async () => {
     mockFetch({ message: 'Deleted' });
 
-    await deleteEvent('evt-1');
+    await deleteEvent('evt-1', 'test-jwt');
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events/evt-1`,
       expect.objectContaining({ method: 'DELETE' })
@@ -253,7 +253,7 @@ describe('Registrations', () => {
 
   it('registerForEvent sends POST', async () => {
     mockFetch({ id: 'reg-1', message: 'Registered' });
-    await registerForEvent({ eventId: 'evt-1', userId: 'usr-1' });
+    await registerForEvent({ eventId: 'evt-1', userId: 'usr-1' }, 'test-jwt');
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/registrations`,
       expect.objectContaining({ method: 'POST' })
@@ -262,7 +262,7 @@ describe('Registrations', () => {
 
   it('cancelRegistration sends DELETE', async () => {
     mockFetch({ message: 'Cancelled' });
-    await cancelRegistration('reg-1');
+    await cancelRegistration('reg-1', 'test-jwt');
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/registrations/reg-1`,
       expect.objectContaining({ method: 'DELETE' })
@@ -364,7 +364,7 @@ describe('Reviews', () => {
 
   it('submitEventReview sends POST', async () => {
     mockFetch({ id: 'rev-1', message: 'Submitted' });
-    await submitEventReview('evt-1', { userId: 'usr-1', rating: 5, reviewBody: 'Great!' });
+    await submitEventReview('evt-1', { userId: 'usr-1', rating: 5, reviewBody: 'Great!' }, 'test-jwt');
     expect(global.fetch).toHaveBeenCalledWith(
       `${API_URL}/api/events/evt-1/reviews`,
       expect.objectContaining({ method: 'POST' })

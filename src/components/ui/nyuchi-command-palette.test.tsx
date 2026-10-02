@@ -84,7 +84,7 @@ describe("NyuchiCommandPalette", () => {
           href: "/events/1",
           group: "Events",
           badge: "Music",
-          mineral: "tanzanite",
+          mineral: "tanzanite" as const,
         },
       ]),
     });
