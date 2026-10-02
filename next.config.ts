@@ -16,10 +16,9 @@ import type { NextConfig } from "next";
  *     fetch; listed in connect-src for defence in depth.
  *   - Mukoko weather embed (weather.mukoko.com) — framed weather widget.
  *   - Cloudflare R2 assets (assets-s001.mukoko.com and the *.mukoko.com zone)
- *   - WorkOS AuthKit (api.workos.com + the auth.mukoko.com custom API domain
- *     + the accounts.mukoko.com AuthKit issuer — hosted UI / OAuth). The
- *     former identity.nyuchi.com / api.identity.nyuchi.com pair was detached
- *     in the 10 Aug 2026 issuer migration and no longer resolves.
+ *   - WorkOS AuthKit (api.workos.com, plus the custom API domain and the
+ *     AuthKit issuer read from WORKOS_API_HOSTNAME / WORKOS_ISSUER /
+ *     WORKOS_AUTHKIT_DOMAIN at build time — never hardcoded here).
  *
  * `script-src` still needs `'unsafe-inline'`/`'unsafe-eval'` because the app
  * does not yet emit per-request nonces; tightening to a nonce/`strict-dynamic`
@@ -27,6 +26,24 @@ import type { NextConfig } from "next";
  * `object-src 'none'` and `base-uri 'self'` already neutralise clickjacking,
  * plugin/object injection and `<base>` tag hijacking.
  */
+/** `https://<host>` for an env value given as a bare host or an origin. */
+function originFromEnv(...names: string[]): string | null {
+  for (const name of names) {
+    const raw = (process.env[name] ?? "").trim();
+    if (raw)
+      return `https://${raw.replace(/^https?:\/\//i, "").replace(/\/.*$/, "")}`;
+  }
+  return null;
+}
+
+const WORKOS_CONNECT_SRC = [
+  "https://api.workos.com",
+  originFromEnv("WORKOS_API_HOSTNAME"),
+  originFromEnv("WORKOS_ISSUER", "WORKOS_AUTHKIT_DOMAIN"),
+]
+  .filter(Boolean)
+  .join(" ");
+
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -37,7 +54,7 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.tile-cyclosm.openstreetmap.fr https://*.tile.opentopomap.org",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "connect-src 'self' https://api.workos.com https://auth.mukoko.com https://accounts.mukoko.com https://nominatim.openstreetmap.org https://weather.mukoko.com https://*.mukoko.com",
+  `connect-src 'self' ${WORKOS_CONNECT_SRC} https://nominatim.openstreetmap.org https://weather.mukoko.com https://*.mukoko.com`,
   "frame-src 'self' https://weather.mukoko.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
