@@ -7,6 +7,17 @@ import { LazySection } from "./lazy-section";
 // (proper class so `new IntersectionObserver()` works) — the section
 // stays in its fallback state, which is what axe evaluates here.
 class MockIntersectionObserver {
+  // Same signature as the real constructor, so `new IntersectionObserver(
+  // callback, options)` in LazySection passes no superfluous arguments.
+  readonly callback: IntersectionObserverCallback;
+  readonly options?: IntersectionObserverInit;
+  constructor(
+    callback: IntersectionObserverCallback,
+    options?: IntersectionObserverInit,
+  ) {
+    this.callback = callback;
+    this.options = options;
+  }
   observe() {}
   disconnect() {}
   unobserve() {}
