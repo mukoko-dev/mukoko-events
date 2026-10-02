@@ -72,7 +72,8 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
   it("parses a mixed-case scheme and host, and drops any path, query or fragment", () => {
     process.env.WORKOS_AUTHKIT_DOMAIN = "HTTPS://Identity.Example.Test";
     expect(workosAuthkitOrigin()).toBe("https://identity.example.test");
-    process.env.WORKOS_AUTHKIT_DOMAIN = "https://identity.example.test/x/y?z=1#f";
+    process.env.WORKOS_AUTHKIT_DOMAIN =
+      "https://identity.example.test/x/y?z=1#f";
     expect(workosAuthkitOrigin()).toBe("https://identity.example.test");
     expect(workosAuthMetadata()!.tokenEndpoint).toBe(
       "https://identity.example.test/oauth2/token",
