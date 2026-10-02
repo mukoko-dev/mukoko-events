@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   workosApiHost,
+  normaliseAuthkitDomain,
   workosAuthkitDomain,
+  workosAuthkitOrigin,
   workosClientId,
   workosMcpClientId,
   workosAuthMetadata,
@@ -59,6 +61,40 @@ describe("workos-metadata (AuthKit OAuth2 discovery)", () => {
     expect(m.registrationEndpoint).toBe(
       "https://identity.example.test/oauth2/register",
     );
+  });
+
+  it("returns the configured https origin unchanged", () => {
+    process.env.WORKOS_AUTHKIT_DOMAIN = "https://identity.example.test";
+    expect(workosAuthkitOrigin()).toBe("https://identity.example.test");
+    expect(workosAuthMetadata()!.issuer).toBe("https://identity.example.test");
+  });
+
+  it("parses a mixed-case scheme and host, and drops any path, query or fragment", () => {
+    process.env.WORKOS_AUTHKIT_DOMAIN = "HTTPS://Identity.Example.Test";
+    expect(workosAuthkitOrigin()).toBe("https://identity.example.test");
+    process.env.WORKOS_AUTHKIT_DOMAIN = "https://identity.example.test/x/y?z=1#f";
+    expect(workosAuthkitOrigin()).toBe("https://identity.example.test");
+    expect(workosAuthMetadata()!.tokenEndpoint).toBe(
+      "https://identity.example.test/oauth2/token",
+    );
+  });
+
+  it("treats anything that is not an https origin as not configured", () => {
+    for (const bad of [
+      "http://identity.example.test",
+      "javascript://identity.example.test",
+      "https://user:pass@identity.example.test",
+      "user@identity.example.test",
+      "https://",
+    ]) {
+      process.env.WORKOS_AUTHKIT_DOMAIN = bad;
+      expect(workosAuthkitOrigin(), bad).toBeNull();
+      expect(workosAuthkitDomain(), bad).toBeNull();
+      expect(workosAuthMetadata(), bad).toBeNull();
+      expect(() => normaliseAuthkitDomain(bad), bad).toThrow(
+        "WORKOS_AUTHKIT_DOMAIN is not configured",
+      );
+    }
   });
 
   it("reads the client id from WORKOS_CLIENT_ID (empty when unset)", () => {

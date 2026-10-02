@@ -26,12 +26,25 @@ import type { NextConfig } from "next";
  * `object-src 'none'` and `base-uri 'self'` already neutralise clickjacking,
  * plugin/object injection and `<base>` tag hijacking.
  */
-/** `https://<host>` for an env value given as a bare host or an origin. */
+/**
+ * The https origin for an env value given as a bare host or an https origin —
+ * parsed, never concatenated (same rules as `normaliseAuthkitDomain` in
+ * src/lib/auth/workos-metadata.ts). `http:`, other schemes, credentials and
+ * unparseable values are skipped, so nothing unexpected reaches the CSP.
+ */
 function originFromEnv(...names: string[]): string | null {
   for (const name of names) {
     const raw = (process.env[name] ?? "").trim();
-    if (raw)
-      return `https://${raw.replace(/^https?:\/\//i, "").replace(/\/.*$/, "")}`;
+    if (!raw) continue;
+    try {
+      const url = new URL(
+        /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`,
+      );
+      if (url.protocol !== "https:" || url.username || url.password) return null;
+      return url.origin;
+    } catch {
+      return null;
+    }
   }
   return null;
 }
