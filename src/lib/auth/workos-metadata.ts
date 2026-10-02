@@ -46,25 +46,54 @@ export function workosApiHost(): string {
 export const AUTHKIT_DOMAIN_MISSING = "WORKOS_AUTHKIT_DOMAIN is not configured";
 
 /**
+ * Parse — never concatenate — a configured AuthKit domain into an https origin.
+ *
+ * Accepts a bare host or an https origin, in any case. Any path, query or
+ * fragment is dropped. A blank value, `http:`, any other scheme, embedded
+ * credentials and anything `URL` cannot parse all throw an error whose message
+ * starts with `AUTHKIT_DOMAIN_MISSING`. The result is `URL.origin`.
+ */
+export function normaliseAuthkitDomain(value: string | undefined): string {
+  const raw = value?.trim();
+  if (!raw) throw new Error(AUTHKIT_DOMAIN_MISSING);
+  let url: URL;
+  try {
+    url = new URL(
+      /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`,
+    );
+  } catch {
+    throw new Error(`${AUTHKIT_DOMAIN_MISSING} (not a valid host or URL)`);
+  }
+  if (url.protocol !== "https:" || url.username || url.password) {
+    throw new Error(`${AUTHKIT_DOMAIN_MISSING} (must be an https origin)`);
+  }
+  return url.origin;
+}
+
+/**
  * Hosted AuthKit domain — the OAuth 2.1 authorization server MCP clients
- * discover and authenticate against — as a bare host, or `null` when unset.
+ * discover and authenticate against — as an https origin, or `null` when unset
+ * or unusable (http, another scheme, credentials, unparseable).
  *
  * It comes ONLY from configuration (`WORKOS_ISSUER`, or `WORKOS_AUTHKIT_DOMAIN`),
  * set per environment. There is deliberately no default: a compiled-in host is
  * what left discovery routes advertising the dead `identity.nyuchi.com` after
  * the 10 Aug 2026 domain move. Callers answer 503 when this is null.
  */
+export function workosAuthkitOrigin(): string | null {
+  try {
+    return normaliseAuthkitDomain(
+      process.env.WORKOS_ISSUER || process.env.WORKOS_AUTHKIT_DOMAIN,
+    );
+  } catch {
+    return null;
+  }
+}
+
+/** The AuthKit domain as a bare host (`URL.host` of the origin), or `null`. */
 export function workosAuthkitDomain(): string | null {
-  const raw = (
-    process.env.WORKOS_ISSUER ||
-    process.env.WORKOS_AUTHKIT_DOMAIN ||
-    ""
-  ).trim();
-  if (!raw) return null;
-  // Callers prepend `https://`, so accept a value supplied with a scheme and/or
-  // trailing slash and normalise to a bare host — otherwise it would double to
-  // `https://https://…`.
-  return raw.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+  const origin = workosAuthkitOrigin();
+  return origin ? new URL(origin).host : null;
 }
 
 /** 503 for discovery routes when the AuthKit domain is not configured. */
@@ -125,15 +154,14 @@ export interface WorkosAuthMetadata {
 export function workosAuthMetadata(opts?: {
   mcp?: boolean;
 }): WorkosAuthMetadata | null {
-  const domain = workosAuthkitDomain();
-  if (!domain) return null;
-  const base = `https://${domain}`;
+  const origin = workosAuthkitOrigin();
+  if (!origin) return null;
   return {
-    issuer: base,
-    authorizationEndpoint: `${base}/oauth2/authorize`,
-    tokenEndpoint: `${base}/oauth2/token`,
-    jwksUri: `${base}/oauth2/jwks`,
-    registrationEndpoint: `${base}/oauth2/register`,
+    issuer: origin,
+    authorizationEndpoint: new URL("/oauth2/authorize", origin).href,
+    tokenEndpoint: new URL("/oauth2/token", origin).href,
+    jwksUri: new URL("/oauth2/jwks", origin).href,
+    registrationEndpoint: new URL("/oauth2/register", origin).href,
     clientId: opts?.mcp ? workosMcpClientId() : workosClientId(),
   };
 }
