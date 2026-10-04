@@ -13,7 +13,7 @@ describe("security.txt", () => {
     expect(txt).toContain("Contact: mailto:security@nyuchi.com");
     expect(txt).toMatch(/^Expires: /m);
     expect(txt).toContain(
-      "Policy: https://github.com/nyuchi/nhimbe/blob/main/SECURITY.md",
+      "Policy: https://github.com/mukoko-dev/mukoko-events/blob/main/SECURITY.md",
     );
     expect(txt).toContain("Preferred-Languages: en");
   });

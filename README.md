@@ -8,7 +8,7 @@
 
 Discover, host, and grow community events across African cities.
 
-[![CI](https://github.com/nyuchi/nhimbe/actions/workflows/ci.yml/badge.svg)](https://github.com/nyuchi/nhimbe/actions/workflows/ci.yml)
+[![CI](https://github.com/mukoko-dev/mukoko-events/actions/workflows/ci.yml/badge.svg)](https://github.com/mukoko-dev/mukoko-events/actions/workflows/ci.yml)
 [![Live site](https://img.shields.io/badge/live-events.mukoko.com-1f6feb.svg)](https://events.mukoko.com)
 [![Join the community on Discord](https://img.shields.io/badge/Discord-join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/CP2P4JpPR)
 [![License: MIT](https://img.shields.io/badge/License-MIT-1f6feb.svg)](./LICENSE)
@@ -31,11 +31,11 @@ Mukoko Events is **the public app** — the thing an attendee or a host actually
 Two sibling repos carry the other two surfaces, and the three are easy to
 confuse:
 
-| Repo                         | What it is                                                                                                                                                                                | Where it runs                                |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| **`nyuchi/nhimbe`** ← here   | **The public app and the data plane.** The Next.js app, the MongoDB layer, the `/api/events*` REST surface, and the OAuth resource-server metadata everything else authenticates against. | Vercel — `events.mukoko.com`                 |
-| `nyuchi/mukoko-events-admin` | **The staff back office.** Moderating events, people, entities and platform settings. `/admin*` here 307s to it.                                                                          | Vercel — `admin.events.mukoko.com`           |
-| `nyuchi/mukoko-events-mcp`   | **The agent surface.** A stateless MCP server that owns no data — every tool calls this app's HTTP API.                                                                                   | Cloudflare Workers — `events.mukoko.com/mcp` |
+| Repo                                  | What it is                                                                                                                                                                                | Where it runs                                |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| **`mukoko-dev/mukoko-events`** ← here | **The public app and the data plane.** The Next.js app, the MongoDB layer, the `/api/events*` REST surface, and the OAuth resource-server metadata everything else authenticates against. | Vercel — `events.mukoko.com`                 |
+| `mukoko-dev/mukoko-events-admin`      | **The staff back office.** Moderating events, people, entities and platform settings. `/admin*` here 307s to it.                                                                          | Vercel — `admin.events.mukoko.com`           |
+| `mukoko-dev/mukoko-events-mcp`        | **The agent surface.** A stateless MCP server that owns no data — every tool calls this app's HTTP API.                                                                                   | Cloudflare Workers — `events.mukoko.com/mcp` |
 
 This repo ships no admin routes and no worker: `src/app/admin/` does not exist,
 and there is no `wrangler.toml`. What it does ship on their behalf is the host
@@ -100,16 +100,16 @@ Every environment variable is listed, with notes, in **[.env.example](./.env.exa
 
 ## Surface map
 
-| Surface         | Route                            | What it is                                                                                        |
-| --------------- | -------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Home            | `/`                              | Auth-split — a lean landing when logged out, "Your events" when signed in                         |
-| Discover        | `/discover`                      | The browse surface: category tiles → featured circles → city cards                                |
-| Events          | `/events`                        | The all-events timeline, scopeable by `?category=` / `?city=`; plus create, detail, and manage    |
-| Circles         | `/circles`                       | Community groups (formerly "Kraal"), each leading with an events tab                              |
-| Calendar        | `/calendar`                      | Branded month view + agenda; followable calendars and ICS export                                  |
-| Search          | `/search`                        | Interest, place, and time search                                                                  |
-| Signage / kiosk | `/signage`, `/events/[id]/kiosk` | Live event displays and on-site check-in                                                          |
-| Admin           | `/admin`                         | Operator dashboard — a **separate app** (`nyuchi/mukoko-events-admin`); `/admin*` redirects there |
+| Surface         | Route                            | What it is                                                                                            |
+| --------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Home            | `/`                              | Auth-split — a lean landing when logged out, "Your events" when signed in                             |
+| Discover        | `/discover`                      | The browse surface: category tiles → featured circles → city cards                                    |
+| Events          | `/events`                        | The all-events timeline, scopeable by `?category=` / `?city=`; plus create, detail, and manage        |
+| Circles         | `/circles`                       | Community groups (formerly "Kraal"), each leading with an events tab                                  |
+| Calendar        | `/calendar`                      | Branded month view + agenda; followable calendars and ICS export                                      |
+| Search          | `/search`                        | Interest, place, and time search                                                                      |
+| Signage / kiosk | `/signage`, `/events/[id]/kiosk` | Live event displays and on-site check-in                                                              |
+| Admin           | `/admin`                         | Operator dashboard — a **separate app** (`mukoko-dev/mukoko-events-admin`); `/admin*` redirects there |
 
 ## Working with agents
 

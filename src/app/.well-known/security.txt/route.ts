@@ -29,7 +29,7 @@ Contact: mailto:security@nyuchi.com
 Expires: ${expires.toISOString()}
 Preferred-Languages: en
 ${canonicals}
-Policy: https://github.com/nyuchi/nhimbe/blob/main/SECURITY.md
+Policy: https://github.com/mukoko-dev/mukoko-events/blob/main/SECURITY.md
 `;
 }
 
