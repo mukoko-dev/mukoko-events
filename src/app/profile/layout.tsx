@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Profile",
-  description: "Manage your Nhimbe profile and settings.",
+  description: "Manage your Mukoko Events profile and settings.",
 };
 
 export default function ProfileLayout({

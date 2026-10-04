@@ -47,14 +47,14 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-// Default social/preview image (N11 discovery). Nhimbe has no static
+// Default social/preview image (N11 discovery). Mukoko Events has no static
 // `/og-image.png` — the site's preview card is the ONE shared, dynamic
 // OpenGraph template at `/api/og`, brand-parameterised via query params. Using
 // it here means every route that doesn't set its own image still resolves to a
 // real 1200×630 card instead of a 404 (the N11 "biggest discoverability
 // no-go"). `metadataBase` makes this relative URL absolute in the rendered tags.
 const DEFAULT_OG_IMAGE =
-  "/api/og?type=default&title=Nhimbe&subtitle=" +
+  "/api/og?type=default&title=Mukoko Events&subtitle=" +
   encodeURIComponent("Together we gather, together we grow") +
   "&url=" +
   encodeURIComponent(SITE_URL.replace(/^https?:\/\//, ""));
@@ -62,11 +62,11 @@ const DEFAULT_OG_IMAGE =
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Nhimbe - Together we gather, together we grow",
-    template: "%s | Nhimbe",
+    default: "Mukoko Events - Together we gather, together we grow",
+    template: "%s | Mukoko Events",
   },
   description:
-    "Discover events and gatherings across Africa. Nhimbe connects communities through cultural celebrations, tech meetups, music festivals, and more. A Mukoko product.",
+    "Discover events and gatherings across Africa. Mukoko Events connects communities through cultural celebrations, tech meetups, music festivals, and more. A Mukoko product.",
   keywords: [
     "events",
     "gatherings",
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Mukoko", url: "https://mukoko.com" }],
   creator: "Mukoko (Nyuchi Web Services)",
-  publisher: "Nhimbe",
+  publisher: "Mukoko Events",
   formatDetection: {
     email: false,
     address: false,
@@ -107,25 +107,25 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    title: "Nhimbe - Together we gather, together we grow",
+    title: "Mukoko Events - Together we gather, together we grow",
     description:
       "Discover events and gatherings across Africa. Connect with your community and celebrate together.",
     type: "website",
     locale: "en_US",
     url: SITE_URL,
-    siteName: "Nhimbe",
+    siteName: "Mukoko Events",
     images: [
       {
         url: DEFAULT_OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "Nhimbe - African Events Platform",
+        alt: "Mukoko Events - African Events Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nhimbe - Together we gather, together we grow",
+    title: "Mukoko Events - Together we gather, together we grow",
     description:
       "Discover events and gatherings across Africa. A Mukoko product.",
     site: "@nhimbe_app",
@@ -173,7 +173,7 @@ const themeScript = `
 function DegradedShell() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
-      <h1 className="font-serif text-2xl font-bold mb-4">Nhimbe</h1>
+      <h1 className="font-serif text-2xl font-bold mb-4">Mukoko Events</h1>
       <p className="text-text-secondary mb-6">
         Something went wrong loading the app. Please refresh the page.
       </p>
@@ -192,7 +192,7 @@ function MinimalNav() {
     <header className="sticky top-0 z-50 bg-background/70 backdrop-blur-xl border-b border-elevated/50">
       <div className="max-w-300 mx-auto px-6 py-4 flex items-center justify-between">
         <a href="/" className="font-serif text-xl font-bold text-primary">
-          Nhimbe
+          Mukoko Events
         </a>
         <nav className="flex items-center gap-4 text-sm text-text-secondary">
           <a href="/events">Events</a>

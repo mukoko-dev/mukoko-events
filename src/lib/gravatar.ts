@@ -1,6 +1,6 @@
 /**
  * Gravatar lookup — lets a person adopt their existing Gravatar as their
- * Nhimbe avatar without an upload. Server-only: hashing runs here so the
+ * Mukoko Events avatar without an upload. Server-only: hashing runs here so the
  * existence check (a plain HTTPS GET) isn't subject to browser CORS, and the
  * email never needs to leave the server to resolve the avatar URL.
  */

@@ -1,8 +1,8 @@
 /**
  * The site's PRIMARY (canonical) origin.
  *
- * Nhimbe runs on a dual-domain production setup: both `nhimbe.com` and
- * `events.mukoko.com` fully serve the app (Vercel serves both; the browser
+ * Mukoko Events is served from `events.mukoko.com`. `nhimbe.com`, the retired
+ * brand's domain, answers too until its cutover and then redirects (the browser
  * always talks to its own origin via `window.location.origin`, so runtime
  * behaviour is identical on either host). What must NOT vary per host is the
  * set of self-referential URLs search engines and scrapers consume — canonical

@@ -49,7 +49,9 @@ function createCalendarEvent(event: EventActionsProps["event"]): CalendarEvent {
   descLines.push(
     `View event details, RSVP, and explore more: ${eventPageUrl || SITE_URL}`,
   );
-  descLines.push("Powered by Nhimbe — Together we gather, together we grow");
+  descLines.push(
+    "Powered by Mukoko Events — Together we gather, together we grow",
+  );
 
   return {
     title: event.name,
@@ -85,7 +87,7 @@ export function EventActions({ event }: EventActionsProps) {
       try {
         await navigator.share({
           title: event.name,
-          text: `Check out ${event.name} on Nhimbe`,
+          text: `Check out ${event.name} on Mukoko Events`,
           url,
         });
       } catch {
@@ -287,7 +289,7 @@ export function ShareButton({ event }: EventActionsProps) {
       try {
         await navigator.share({
           title: event.name,
-          text: `Check out ${event.name} on Nhimbe`,
+          text: `Check out ${event.name} on Mukoko Events`,
           url,
         });
       } catch {

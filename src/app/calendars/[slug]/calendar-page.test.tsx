@@ -249,7 +249,7 @@ describe("CalendarPage (private-404 gate)", () => {
 describe("generateMetadata", () => {
   it("emits title/description/canonical for a public calendar", async () => {
     const metadata = await generateMetadata(pageProps());
-    expect(metadata.title).toBe("Harare Live Music - Nhimbe");
+    expect(metadata.title).toBe("Harare Live Music - Mukoko Events");
     expect(metadata.description).toBe("Every gig worth catching.");
     expect(metadata.alternates?.canonical).toBe(
       "https://events.mukoko.com/calendars/harare-live-music-abc123",
@@ -263,7 +263,7 @@ describe("generateMetadata", () => {
       visibility: "unlisted",
     });
     const metadata = await generateMetadata(pageProps());
-    expect(metadata.title).toBe("Harare Live Music - Nhimbe");
+    expect(metadata.title).toBe("Harare Live Music - Mukoko Events");
     expect(metadata.robots).toEqual({ index: false });
   });
 
@@ -273,7 +273,7 @@ describe("generateMetadata", () => {
       visibility: "private",
     });
     const metadata = await generateMetadata(pageProps());
-    expect(metadata.title).toBe("Calendar not found - Nhimbe");
+    expect(metadata.title).toBe("Calendar not found - Mukoko Events");
     expect(JSON.stringify(metadata)).not.toContain("Harare Live Music");
   });
 });

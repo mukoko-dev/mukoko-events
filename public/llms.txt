@@ -1,12 +1,12 @@
-# Nhimbe - African Events Platform
+# Mukoko Events - African Events Platform
 
 > Together we gather, together we grow
 
-Nhimbe (pronounced /ˈnhimbɛ/) is a community events discovery and management platform connecting communities across Africa. The name comes from the Shona tradition of communal work, embodying the Ubuntu philosophy: "I am because we are."
+Mukoko Events is a community events discovery and management platform connecting communities across Africa. It grew out of *nhimbe* (pronounced /ˈnhimbɛ/), the Shona tradition of communal work, and embodies the Ubuntu philosophy: "I am because we are."
 
 ## About
 
-Nhimbe is part of the Mukoko ecosystem, developed by Nyuchi Web Services. We help people discover events, connect with communities, and celebrate together across African cities including:
+Mukoko Events is part of the Mukoko ecosystem, developed by Nyuchi Web Services. We help people discover events, connect with communities, and celebrate together across African cities including:
 
 - Harare, Zimbabwe
 - Bulawayo, Zimbabwe
@@ -44,11 +44,11 @@ Nhimbe is part of the Mukoko ecosystem, developed by Nyuchi Web Services. We hel
 
 ## AI Features
 
-Nhimbe includes an AI assistant called **Shamwari** (meaning "friend" in Shona) that helps event hosts create compelling descriptions through a guided wizard, and powers semantic event search.
+Mukoko Events includes an AI assistant called **Shamwari** (meaning "friend" in Shona) that helps event hosts create compelling descriptions through a guided wizard, and powers semantic event search.
 
 ## Public API
 
-Nhimbe exposes a same-origin read API for event discovery (JSON):
+Mukoko Events exposes a same-origin read API for event discovery (JSON):
 
 - `GET /api/events` - List published events
 - `GET /api/events/:id` - Get event details
@@ -60,22 +60,22 @@ Writes (`POST /api/events`, `PATCH /api/events/:id`) require a WorkOS bearer tok
 
 ## For AI Agents
 
-- **Agent auth guide**: https://nhimbe.com/auth.md (how to authenticate with WorkOS AuthKit bearer tokens)
-- **OAuth authorization server metadata**: https://nhimbe.com/.well-known/oauth-authorization-server
-- **OAuth protected resource metadata**: https://nhimbe.com/.well-known/oauth-protected-resource
-- **OpenID configuration**: https://nhimbe.com/.well-known/openid-configuration
+- **Agent auth guide**: https://events.mukoko.com/auth.md (how to authenticate with WorkOS AuthKit bearer tokens)
+- **OAuth authorization server metadata**: https://events.mukoko.com/.well-known/oauth-authorization-server
+- **OAuth protected resource metadata**: https://events.mukoko.com/.well-known/oauth-protected-resource
+- **OpenID configuration**: https://events.mukoko.com/.well-known/openid-configuration
 - **MCP server** (task-based, Streamable HTTP): https://events.mukoko.com/mcp — tools: `events_near_me`, `events_matching_interests`, `get_event` (anonymous reads); `create_event`, `update_event` (bearer-authed writes)
 
 ## Contact
 
-- Website: https://nhimbe.com
+- Website: https://events.mukoko.com
 - Parent Company: https://mukoko.com
 
 ## Useful Links
 
-- Discover: https://nhimbe.com/discover
-- Events: https://nhimbe.com/events
-- Create Event: https://nhimbe.com/events/create
-- Search: https://nhimbe.com/search
-- Circles: https://nhimbe.com/circles
-- About: https://nhimbe.com/about
+- Discover: https://events.mukoko.com/discover
+- Events: https://events.mukoko.com/events
+- Create Event: https://events.mukoko.com/events/create
+- Search: https://events.mukoko.com/search
+- Circles: https://events.mukoko.com/circles
+- About: https://events.mukoko.com/about

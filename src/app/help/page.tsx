@@ -186,7 +186,7 @@ export default function HelpPage() {
           How can we help?
         </h1>
         <p className="text-text-secondary mb-8">
-          Find answers to common questions about using Nhimbe
+          Find answers to common questions about using Mukoko Events
         </p>
 
         {/* Search */}

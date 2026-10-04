@@ -7,7 +7,7 @@ subset so every runner gets the same contract.
 > architecture, data model, file map). This file is the tool-agnostic subset —
 > where the two overlap they agree; when you need depth, read `CLAUDE.md`.
 
-## What Nhimbe is
+## What Mukoko Events is
 
 A single full-stack **Next.js 16** app (App Router, React 19, TypeScript strict,
 Tailwind v4) — the community events platform of the **Mukoko** ecosystem. There
@@ -59,7 +59,7 @@ npm run test:run   # Vitest, run once (~682 tests)
 
 ## Conventions
 
-- **Brand:** capitalized **"Nhimbe"** in user-facing copy and docs (rule reversed 2026-07-19; code identifiers, slugs, URLs and package names stay lowercase).
+- **Brand:** **"Mukoko Events"** in user-facing copy and docs. "Nhimbe" was retired as a brand on 2026-10-04 (mukoko-dev/nhimbe#155); keep _nhimbe_ only where it names the Shona practice, and leave state-bearing identifiers (`nhimbe-theme` and other storage keys, `.nh-*` classes, iCalendar UIDs) as they are.
 - **TypeScript strict mode.** WCAG AAA (7:1+ contrast, comfortable touch
   targets). Dark/light via design tokens in `globals.css`.
 - **React Context** for global state (AuthProvider, ThemeProvider) — no

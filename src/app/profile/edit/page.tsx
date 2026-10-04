@@ -531,7 +531,7 @@ function ProfileEditContent() {
         Language
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Choose the language for the Nhimbe interface.
+        Choose the language for the Mukoko Events interface.
       </p>
       <fieldset className="mt-4">
         <legend className="sr-only">Interface language</legend>

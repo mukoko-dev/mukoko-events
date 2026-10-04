@@ -34,7 +34,7 @@ async function requireShamwariAccess(): Promise<void> {
   }
 }
 
-const SYSTEM_PROMPT = `You are Shamwari, the AI assistant for Nhimbe - an African events platform.
+const SYSTEM_PROMPT = `You are Shamwari, the AI assistant for Mukoko Events - an African events platform.
 "Shamwari" means "friend" in Shona, and you help hosts create compelling event descriptions.
 
 Guidelines:
@@ -104,7 +104,7 @@ export async function regenerateEventDescription(
     return { description: fallbackDescription(context) };
   }
 
-  const system = `You are a skilled event copywriter for Nhimbe, an African events platform.
+  const system = `You are a skilled event copywriter for Mukoko Events, an African events platform.
 Rewrite the event description based on the user's feedback.
 
 Guidelines:

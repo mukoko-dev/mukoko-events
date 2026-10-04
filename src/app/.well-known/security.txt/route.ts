@@ -22,7 +22,7 @@ export function buildSecurityTxt(now: Date = new Date()): string {
     .map((origin) => `Canonical: ${origin}/.well-known/security.txt`)
     .join("\n");
 
-  return `# Nhimbe — security contact (RFC 9116)
+  return `# Mukoko Events — security contact (RFC 9116)
 # Please report vulnerabilities privately; do not open a public GitHub issue.
 
 Contact: mailto:security@nyuchi.com
