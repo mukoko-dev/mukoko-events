@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security Vulnerability
-    url: https://github.com/nyuchitech/nhimbe/security/policy
+    url: https://github.com/mukoko-dev/mukoko-events/security/policy
     about: Report security vulnerabilities privately. Do not open a public issue.
   - name: General Questions
-    url: https://github.com/nyuchitech/nhimbe/discussions
+    url: https://github.com/mukoko-dev/mukoko-events/discussions
     about: Ask questions and discuss Mukoko Events in Discussions.
