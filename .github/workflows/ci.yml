@@ -99,7 +99,7 @@ jobs:
 
   # The Mukoko Events MCP server (nyuchi/mukoko-events-mcp) and the Mukoko
   # Events Admin app (nyuchi/mukoko-events-admin) are now separate repos with
-  # their own CI. This workflow covers the public Nhimbe app only.
+  # their own CI. This workflow covers the public Mukoko Events app only.
 
   # NOTE: The "Run D1 Migrations" job was removed when the database moved to
   # MongoDB (the Mukoko v3.1 cluster). Collections, validators, and indexes are

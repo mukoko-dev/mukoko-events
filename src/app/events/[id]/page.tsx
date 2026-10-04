@@ -99,7 +99,7 @@ export async function generateMetadata({
 
   if (!event) {
     return {
-      title: "Event Not Found - Nhimbe",
+      title: "Event Not Found - Mukoko Events",
     };
   }
 
@@ -124,7 +124,7 @@ export async function generateMetadata({
   const imageUrl = event.image || ogImageUrl;
 
   return {
-    title: `${event.name} - Nhimbe`,
+    title: `${event.name} - Mukoko Events`,
     description,
     keywords: [
       event.category,
@@ -132,14 +132,14 @@ export async function generateMetadata({
       event.location.addressLocality,
       event.location.addressCountry,
       "events",
-      "Nhimbe",
+      "Mukoko Events",
     ],
     openGraph: {
       title: event.name,
       description,
       type: "website",
       url: eventUrl,
-      siteName: "Nhimbe",
+      siteName: "Mukoko Events",
       locale: "en_US",
       images: [
         {

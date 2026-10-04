@@ -3,6 +3,7 @@
 import { QRCode, getQRCodeURL } from "@/components/ui/qr-code";
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
+import { SITE_URL } from "@/lib/site-url";
 
 interface EventQRCodeProps {
   shortCode: string;
@@ -11,8 +12,8 @@ interface EventQRCodeProps {
 
 export function EventQRCode({ shortCode, title }: EventQRCodeProps) {
   const [copied, setCopied] = useState(false);
-  const shortUrl = `nhimbe.com/e/${shortCode}`;
-  const fullUrl = `https://${shortUrl}`;
+  const fullUrl = `${SITE_URL}/e/${shortCode}`;
+  const shortUrl = fullUrl.replace(/^https?:\/\//, "");
 
   const handleCopy = async () => {
     try {

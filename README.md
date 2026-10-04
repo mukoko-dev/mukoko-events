@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="./public/app-icon-192.png" alt="Nhimbe" width="96" height="96">
+<img src="./public/app-icon-192.png" alt="Mukoko Events" width="96" height="96">
 
-# Nhimbe
+# Mukoko Events
 
 **Together we gather, together we grow.**
 
@@ -13,7 +13,7 @@ Discover, host, and grow community events across African cities.
 [![Join the community on Discord](https://img.shields.io/badge/Discord-join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/CP2P4JpPR)
 [![License: MIT](https://img.shields.io/badge/License-MIT-1f6feb.svg)](./LICENSE)
 
-**[events.mukoko.com](https://events.mukoko.com)** &nbsp;·&nbsp; **[nhimbe.com](https://nhimbe.com)**
+**[events.mukoko.com](https://events.mukoko.com)**
 
 </div>
 
@@ -21,19 +21,19 @@ Discover, host, and grow community events across African cities.
 
 ## About
 
-**Nhimbe** (pronounced /ˈnhimbɛ/) is the community events platform of the [Mukoko](https://mukoko.com) super app. It takes its name from the Shona tradition of _nhimbe_ — the communal work gathering where neighbours come together to get something done and share in the harvest.
+**Mukoko Events** is the community events platform of the [Mukoko](https://mukoko.com) super app. It grew out of the Shona tradition of _nhimbe_ (pronounced /ˈnhimbɛ/) — the communal work gathering where neighbours come together to get something done and share in the harvest.
 
-That spirit — the Ubuntu idea that _I am because we are_ — runs through the whole product. **Together we gather, together we grow.** Nhimbe exists to help communities across African cities find one another, plan the moment, and turn up.
+That spirit — the Ubuntu idea that _I am because we are_ — runs through the whole product. **Together we gather, together we grow.** Mukoko Events exists to help communities across African cities find one another, plan the moment, and turn up.
 
 ## Which piece this is
 
-Nhimbe is **the public app** — the thing an attendee or a host actually opens.
+Mukoko Events is **the public app** — the thing an attendee or a host actually opens.
 Two sibling repos carry the other two surfaces, and the three are easy to
 confuse:
 
 | Repo                         | What it is                                                                                                                                                                                | Where it runs                                |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| **`nyuchi/nhimbe`** ← here   | **The public app and the data plane.** The Next.js app, the MongoDB layer, the `/api/events*` REST surface, and the OAuth resource-server metadata everything else authenticates against. | Vercel — `events.mukoko.com` + `nhimbe.com`  |
+| **`nyuchi/nhimbe`** ← here   | **The public app and the data plane.** The Next.js app, the MongoDB layer, the `/api/events*` REST surface, and the OAuth resource-server metadata everything else authenticates against. | Vercel — `events.mukoko.com`                 |
 | `nyuchi/mukoko-events-admin` | **The staff back office.** Moderating events, people, entities and platform settings. `/admin*` here 307s to it.                                                                          | Vercel — `admin.events.mukoko.com`           |
 | `nyuchi/mukoko-events-mcp`   | **The agent surface.** A stateless MCP server that owns no data — every tool calls this app's HTTP API.                                                                                   | Cloudflare Workers — `events.mukoko.com/mcp` |
 
@@ -42,14 +42,19 @@ and there is no `wrangler.toml`. What it does ship on their behalf is the host
 gate (`src/lib/auth/mcp-host.ts`) and the `.well-known` discovery documents the
 MCP's OAuth challenge points clients at.
 
-### Two production domains
+### One production domain
 
-Both **`events.mukoko.com`** and **`nhimbe.com`** fully serve the app, and
-`www.nhimbe.com` redirects to the latter. `events.mukoko.com` is the **primary**:
-every self-referential URL a crawler consumes — canonical tags, OpenGraph and
-Twitter images, the sitemap, robots, schema.org JSON-LD — points there, so SEO
-signals consolidate on one origin instead of splitting across two. Runtime
-behaviour is identical on either host. See `src/lib/site-url.ts`.
+**`events.mukoko.com`** is the app's home. Every self-referential URL a crawler
+consumes (canonical tags, OpenGraph and Twitter images, the sitemap, robots,
+schema.org JSON-LD) points there. See `src/lib/site-url.ts`.
+
+The product was called **Nhimbe** until 4 October 2026, when the brand was
+retired in favour of Mukoko Events (mukoko-dev/nhimbe#155). The old domains
+redirect with paths preserved: `www.nhimbe.com` 308s to `events.mukoko.com`,
+and `nhimbe.com` follows once its cutover lands. Internal identifiers that would
+break saved state if renamed (the `nhimbe-theme` and other storage keys, `.nh-*`
+CSS classes, iCalendar UIDs, `sourceProject: "nhimbe"`) keep the old name on
+purpose.
 
 ## What you can do
 
@@ -108,7 +113,7 @@ Every environment variable is listed, with notes, in **[.env.example](./.env.exa
 
 ## Working with agents
 
-Nhimbe is built to be worked on by coding agents as well as people.
+Mukoko Events is built to be worked on by coding agents as well as people.
 
 - **[AGENTS.md](./AGENTS.md)** — the tool-agnostic standing rules (checks, boundaries, workflow) any runner should follow. This is the authoritative reference.
 - **[docs/](./docs)** — longer-form design notes and archived plans.
@@ -119,7 +124,7 @@ clone.
 
 ## Community
 
-Have a question, an idea, or want to help shape Nhimbe? Join the people building it:
+Have a question, an idea, or want to help shape Mukoko Events? Join the people building it:
 
 **→ [discord.gg/CP2P4JpPR](https://discord.gg/CP2P4JpPR)**
 
@@ -149,6 +154,6 @@ Released under the MIT License — see **[LICENSE](./LICENSE)**.
 
 <div align="center">
 
-**Nhimbe** is a [Mukoko](https://mukoko.com) product by [Nyuchi Web Services](https://nyuchi.com).
+**Mukoko Events** is a [Mukoko](https://mukoko.com) product by [Nyuchi Web Services](https://nyuchi.com).
 
 </div>

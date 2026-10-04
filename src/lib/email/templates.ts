@@ -33,10 +33,10 @@ function wrapHtml(content: string): string {
 </head>
 <body>
   <div class="container">
-    <div class="header"><h1>Nhimbe</h1></div>
+    <div class="header"><h1>Mukoko Events</h1></div>
     ${content}
     <div class="footer">
-      <p>Nhimbe — together we gather, together we grow</p>
+      <p>Mukoko Events — together we gather, together we grow</p>
     </div>
   </div>
 </body>
@@ -63,7 +63,7 @@ export function registrationConfirmed(data: {
         <a href="${data.eventUrl}" class="cta">View Event Details</a>
       </div>
     `),
-    text: `Hi ${data.userName},\n\nYou're registered for ${data.eventName}!\n\nDate: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView details: ${data.eventUrl}\n\n— Nhimbe`,
+    text: `Hi ${data.userName},\n\nYou're registered for ${data.eventName}!\n\nDate: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView details: ${data.eventUrl}\n\n— Mukoko Events`,
   };
 }
 
@@ -87,7 +87,7 @@ export function eventReminder(data: {
         <a href="${data.eventUrl}" class="cta">View Event</a>
       </div>
     `),
-    text: `Hi ${data.userName},\n\nReminder: ${data.eventName} is tomorrow!\n\nDate: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView details: ${data.eventUrl}\n\n— Nhimbe`,
+    text: `Hi ${data.userName},\n\nReminder: ${data.eventName} is tomorrow!\n\nDate: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView details: ${data.eventUrl}\n\n— Mukoko Events`,
   };
 }
 
@@ -106,11 +106,11 @@ export function eventCancelled(data: {
         <p class="event-name">${data.eventName}</p>
         <p class="detail">📅 ${data.eventDate}</p>
         <p style="margin: 16px 0 0; font-size: 14px; color: #a1a1aa;">
-          We apologize for any inconvenience. Check out other events on Nhimbe.
+          We apologize for any inconvenience. Check out other events on Mukoko Events.
         </p>
       </div>
     `),
-    text: `Hi ${data.userName},\n\nUnfortunately, ${data.eventName} (${data.eventDate}) has been cancelled.\n\nWe apologize for any inconvenience.\n\n— Nhimbe`,
+    text: `Hi ${data.userName},\n\nUnfortunately, ${data.eventName} (${data.eventDate}) has been cancelled.\n\nWe apologize for any inconvenience.\n\n— Mukoko Events`,
   };
 }
 
@@ -135,7 +135,7 @@ export function hostNewRegistration(data: {
         <a href="${data.eventUrl}" class="cta">Manage Event</a>
       </div>
     `),
-    text: `Hi ${data.hostName},\n\n${data.attendeeName} registered for ${data.eventName}.\n\nTotal attendees: ${data.attendeeCount}\n\nManage: ${data.eventUrl}\n\n— Nhimbe`,
+    text: `Hi ${data.hostName},\n\n${data.attendeeName} registered for ${data.eventName}.\n\nTotal attendees: ${data.attendeeCount}\n\nManage: ${data.eventUrl}\n\n— Mukoko Events`,
   };
 }
 
@@ -169,7 +169,7 @@ export function eventUpdatePosted(data: {
         </p>
       </div>
     `),
-    text: `Update for ${data.eventName}:\n\n${data.updateText}\n\nView event: ${data.eventUrl}\n\nYou're receiving this because you subscribed to updates for this event. Manage this in your profile preferences.\n\n— Nhimbe`,
+    text: `Update for ${data.eventName}:\n\n${data.updateText}\n\nView event: ${data.eventUrl}\n\nYou're receiving this because you subscribed to updates for this event. Manage this in your profile preferences.\n\n— Mukoko Events`,
   };
 }
 
@@ -191,7 +191,7 @@ export function registrationCancelled(data: {
         <p class="detail">📅 ${data.eventDate}</p>
       </div>
     `),
-    text: `Hi ${data.userName},\n\nYour registration for ${data.eventName} (${data.eventDate}) has been cancelled.\n\n— Nhimbe`,
+    text: `Hi ${data.userName},\n\nYour registration for ${data.eventName} (${data.eventDate}) has been cancelled.\n\n— Mukoko Events`,
   };
 }
 
@@ -233,7 +233,7 @@ export function feedbackReceived(data: {
   ].filter((l): l is string => l !== null);
 
   return {
-    subject: `New ${data.category} feedback from Nhimbe`,
+    subject: `New ${data.category} feedback from Mukoko Events`,
     html: wrapHtml(`
       <div class="content">
         <p class="event-name">New feedback</p>
@@ -241,6 +241,6 @@ export function feedbackReceived(data: {
         <p style="margin: 16px 0 0; font-size: 15px;">${safeMessage}</p>
       </div>
     `),
-    text: `${textLines.join("\n")}\n\n— Nhimbe`,
+    text: `${textLines.join("\n")}\n\n— Mukoko Events`,
   };
 }

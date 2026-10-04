@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest a new feature for nhimbe
+description: Suggest a new feature for Mukoko Events
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
@@ -57,7 +57,7 @@ body:
       options:
         - Nice to have
         - Important
-        - Critical -- blocking my use of nhimbe
+        - Critical -- blocking my use of Mukoko Events
 
   - type: textarea
     id: context

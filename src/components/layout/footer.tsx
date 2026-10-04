@@ -24,7 +24,7 @@ const accountLinks = [
 ];
 
 const companyLinks = [
-  { href: "/about", label: "About Nhimbe" },
+  { href: "/about", label: "About Mukoko Events" },
   { href: "/help", label: "Help Centre" },
   { href: "https://mukoko.com", label: "Mukoko", external: true },
 ];
@@ -100,7 +100,7 @@ export function Footer() {
               <div className="rhino w-8 h-8 bg-surface border border-elevated">
                 <Image
                   src="/mukoko-mark-full-light.svg"
-                  alt="Nhimbe"
+                  alt="Mukoko Events"
                   width={32}
                   height={32}
                   className="zebra zebra-light"
@@ -116,10 +116,10 @@ export function Footer() {
               </div>
               <span className="flex flex-col leading-tight">
                 <span className="font-serif text-xl font-bold text-primary">
-                  Nhimbe
+                  Mukoko Events
                 </span>
                 <span className="text-[11px] font-medium uppercase tracking-wide text-text-tertiary">
-                  by Mukoko Events
+                  Together we gather
                 </span>
               </span>
             </Link>
