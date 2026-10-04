@@ -49,8 +49,8 @@ const platformSettingsCollection = () =>
   getCollection<PlatformSettingsDoc>(DB.system, "platformSettings");
 
 export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
-  siteName: "nhimbe",
-  supportEmail: "support@nhimbe.com",
+  siteName: "Mukoko Events",
+  supportEmail: "events@mukoko.com",
   maxEventsPerUser: 50,
   maxAttendeesDefault: 100,
   requireEmailVerification: true,
