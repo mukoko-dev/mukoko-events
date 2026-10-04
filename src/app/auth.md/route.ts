@@ -21,9 +21,9 @@ function buildAuthMd(): string | null {
   const mcpClientId = workosMcpClientId();
   return `# auth.md
 
-Nhimbe is a community events discovery and management platform, part of the
+Mukoko Events is a community events discovery and management platform, part of the
 Mukoko ecosystem by Nyuchi Web Services (${SITE_URL}). AI agents
-authenticate to Nhimbe's protected APIs using WorkOS AuthKit bearer tokens:
+authenticate to Mukoko Events' protected APIs using WorkOS AuthKit bearer tokens:
 present a WorkOS-issued access token (a JWT) in the \`Authorization: Bearer\`
 header on write/protected requests.
 
@@ -37,7 +37,7 @@ endpoints:
 
 ## Authentication
 
-Nhimbe uses WorkOS AuthKit as its authorization server. To call protected
+Mukoko Events uses WorkOS AuthKit as its authorization server. To call protected
 APIs, an agent first obtains a WorkOS AuthKit access token via the OAuth 2.1
 authorization-code flow with PKCE:
 
@@ -45,11 +45,11 @@ authorization-code flow with PKCE:
    \`${workos.authorizationEndpoint}\` (with a PKCE \`code_challenge\`).
 2. Exchange the returned authorization code for tokens at the AuthKit token
    endpoint: \`${workos.tokenEndpoint}\` (supplying the PKCE \`code_verifier\`).
-3. Call Nhimbe APIs with the access token:
+3. Call Mukoko Events APIs with the access token:
    \`Authorization: Bearer <token>\`.
 
 Tokens are issued by the WorkOS AuthKit OAuth 2.1 authorization server
-(\`${workos.issuer}\`) and validated by Nhimbe against the WorkOS JWKS
+(\`${workos.issuer}\`) and validated by Mukoko Events against the WorkOS JWKS
 published at \`${workos.jwksUri}\`. Dynamic client registration is supported at
 \`${workos.registrationEndpoint}\` (see below), so clients can self-register
 before starting the flow.
@@ -88,7 +88,7 @@ authorization_servers:
 scopes_supported: [openid, profile, email, offline_access]
 bearer_methods_supported: [header]
 agent_auth:
-  skill: "Discover and register for community events on Nhimbe"
+  skill: "Discover and register for community events on Mukoko Events"
   register_uri: ${workos.registrationEndpoint}
   client_id: ${mcpClientId}
   identity_types_supported: [identity_assertion]

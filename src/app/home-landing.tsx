@@ -48,7 +48,7 @@ export function HomeLanding({ featuredEvent, cities = [] }: HomeLandingProps) {
           </h1>
           <p className="text-lg text-text-secondary max-w-150 mb-8">
             Cultural celebrations, faith gatherings, tech meetups, music, family
-            days — Nhimbe is where your community comes together.
+            days — Mukoko Events is where your community comes together.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 mb-10">

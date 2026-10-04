@@ -103,7 +103,8 @@ export async function GET(request: NextRequest) {
     const { searchParams, origin } = new URL(request.url);
 
     // Get and sanitize parameters
-    const title = sanitizeText(searchParams.get("title"), 100) || "Nhimbe";
+    const title =
+      sanitizeText(searchParams.get("title"), 100) || "Mukoko Events";
     const subtitle =
       sanitizeText(searchParams.get("subtitle"), 200) ||
       "Together we gather, together we grow";
@@ -127,8 +128,8 @@ export async function GET(request: NextRequest) {
     // Satori/next-og convention — keeps each fetch small and fast.
     const [serifBold, sansRegular, sansMedium, monoMedium] = await Promise.all([
       loadGoogleFont("Noto Serif", 700, title),
-      loadGoogleFont("Noto Sans", 400, `Nhimbe${subtitle}`),
-      loadGoogleFont("Noto Sans", 600, "Nhimbe"),
+      loadGoogleFont("Noto Sans", 400, `Mukoko Events${subtitle}`),
+      loadGoogleFont("Noto Sans", 600, "Mukoko Events"),
       loadGoogleFont("JetBrains Mono", 500, `${kicker}${metaLine}${url}·`),
     ]);
 
@@ -254,7 +255,7 @@ export async function GET(request: NextRequest) {
                 color: "#FFFFFF",
               }}
             >
-              Nhimbe
+              Mukoko Events
             </span>
           </div>
 

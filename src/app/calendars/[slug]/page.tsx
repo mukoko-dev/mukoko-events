@@ -43,13 +43,16 @@ export async function generateMetadata({
   const calendar = await loadCalendar(slug);
   if (!calendar || calendar.visibility === "private") {
     // Private calendars never leak name/description through metadata.
-    return { title: "Calendar not found - Nhimbe", robots: { index: false } };
+    return {
+      title: "Calendar not found - Mukoko Events",
+      robots: { index: false },
+    };
   }
   const description =
     calendar.description ??
-    `Follow ${calendar.name} on Nhimbe and never miss a gathering they host.`;
+    `Follow ${calendar.name} on Mukoko Events and never miss a gathering they host.`;
   return {
-    title: `${calendar.name} - Nhimbe`,
+    title: `${calendar.name} - Mukoko Events`,
     description,
     // Unlisted calendars render for anyone with the link, but stay out of
     // search indexes (mirroring their exclusion from /discover + sitemap).
@@ -60,7 +63,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: `${SITE_URL}/calendars/${calendar.slug}`,
-      siteName: "Nhimbe",
+      siteName: "Mukoko Events",
     },
   };
 }

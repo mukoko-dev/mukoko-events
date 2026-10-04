@@ -1,6 +1,6 @@
 # Search — Mukoko platform requests
 
-Nhimbe's search is being upgraded to hybrid (semantic vector + typo-tolerant
+Mukoko Events' search is being upgraded to hybrid (semantic vector + typo-tolerant
 full-text). The app-side work ships in this repo and **degrades gracefully**:
 if the indexes below don't exist yet, search silently falls back
 (vector → Atlas `$search` → regex scan), so nothing breaks. But the quality

@@ -25,8 +25,8 @@ export async function generateMetadata({
   return {
     title: scope ? `${scope} — events` : "All Events",
     description: scope
-      ? `Upcoming ${category ?? "community"} events${city ? ` in ${city}` : ""} on Nhimbe.`
-      : "Every upcoming community event on Nhimbe — concerts, meetups, workshops, and more.",
+      ? `Upcoming ${category ?? "community"} events${city ? ` in ${city}` : ""} on Mukoko Events.`
+      : "Every upcoming community event on Mukoko Events — concerts, meetups, workshops, and more.",
   };
 }
 

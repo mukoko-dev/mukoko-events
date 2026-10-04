@@ -45,7 +45,7 @@ export interface EventHostInfo {
   avatar: string | null;
   slug: string | null;
   verificationStatus: string | null;
-  /** The entity's own external website, when set — not a Nhimbe-hosted page. */
+  /** The entity's own external website, when set — not a Mukoko Events-hosted page. */
   url: string | null;
 }
 
