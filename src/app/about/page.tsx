@@ -4,7 +4,7 @@ import { Users, Heart, Globe, Sparkles } from "lucide-react";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn about Nhimbe — a community events discovery and management platform connecting people across Africa.",
+    "Learn about Mukoko Events — a community events discovery and management platform connecting people across Africa.",
 };
 
 export default function AboutPage() {
@@ -40,7 +40,7 @@ export default function AboutPage() {
       {/* Hero */}
       <div className="text-center mb-16">
         <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4">
-          About <span className="text-primary">Nhimbe</span>
+          About <span className="text-primary">Mukoko Events</span>
         </h1>
         <p className="text-xl text-text-secondary leading-relaxed">
           The gatherings and events platform built for African communities
@@ -52,10 +52,10 @@ export default function AboutPage() {
         <h2 className="text-2xl font-bold mb-4">Our Story</h2>
         <div className="prose prose-lg text-text-secondary space-y-4">
           <p>
-            <strong className="text-foreground">Nhimbe</strong> (pronounced
-            /ˈnhimbɛ/) is the traditional Shona practice of communal work where
-            community members come together to help each other with large
-            tasks—harvesting, building, celebrations.
+            <strong className="text-foreground">Mukoko Events</strong> grew out
+            of <em>nhimbe</em> (pronounced /ˈnhimbɛ/), the traditional Shona
+            practice of communal work where community members come together to
+            help each other with large tasks—harvesting, building, celebrations.
           </p>
           <p>
             The concept embodies <em>Ubuntu</em>: collective effort for shared
@@ -64,11 +64,11 @@ export default function AboutPage() {
             would do the same for others. Together, everyone thrived.
           </p>
           <p>
-            We built Nhimbe to bring this spirit into the digital age. In a
-            world where we&apos;re more connected than ever yet often feel
-            isolated, Nhimbe helps communities come together—whether for a tech
-            meetup, a cultural celebration, a wellness session, or a simple
-            gathering of friends.
+            We built Mukoko Events to bring this spirit into the digital age. In
+            a world where we&apos;re more connected than ever yet often feel
+            isolated, Mukoko Events helps communities come together—whether for
+            a tech meetup, a cultural celebration, a wellness session, or a
+            simple gathering of friends.
           </p>
         </div>
       </section>
@@ -97,7 +97,7 @@ export default function AboutPage() {
       {/* Part of Mukoko */}
       <section className="mb-16">
         <div className="p-8 bg-surface rounded-xl border border-elevated text-center">
-          <p className="text-text-secondary mb-2">Nhimbe is part of</p>
+          <p className="text-text-secondary mb-2">Mukoko Events is part of</p>
           <h3 className="text-2xl font-bold text-secondary mb-4">Mukoko</h3>
           <p className="text-text-secondary max-w-md mx-auto">
             The digital ecosystem connecting African communities through

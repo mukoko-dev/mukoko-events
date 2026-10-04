@@ -77,7 +77,7 @@ export default async function HomePage() {
       {/*
         N11 discovery — schema.org JSON-LD for the site's primary entity, emitted
         on the public (indexable) landing. The Organization + WebSite graph gives
-        search engines and AI agents Nhimbe's identity, publisher, and a working
+        search engines and AI agents Mukoko Events' identity, publisher, and a working
         SearchAction (sitelinks searchbox) that deep-links /search?q=<term>.
       */}
       <script
@@ -95,11 +95,11 @@ const HOME_JSON_LD = {
     {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
-      name: "Nhimbe",
+      name: "Mukoko Events",
       url: SITE_URL,
       logo: `${SITE_URL}/app-icon-512.png`,
       description:
-        "Nhimbe is a community events discovery and management platform connecting communities across Africa. A Mukoko product.",
+        "Mukoko Events is a community events discovery and management platform connecting communities across Africa. A Mukoko product.",
       parentOrganization: {
         "@type": "Organization",
         name: "Mukoko",
@@ -111,7 +111,7 @@ const HOME_JSON_LD = {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
-      name: "Nhimbe",
+      name: "Mukoko Events",
       description: "Together we gather, together we grow",
       publisher: { "@id": `${SITE_URL}/#organization` },
       inLanguage: "en",

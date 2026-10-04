@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Calendar",
-  description: "View events on a calendar on Nhimbe.",
+  description: "View events on a calendar on Mukoko Events.",
 };
 
 export default function CalendarLayout({

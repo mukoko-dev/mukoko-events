@@ -62,7 +62,7 @@ export async function resolveActorFromBearer(
   ]);
   if (!person) {
     throw new ActorError(
-      "Sign in to Nhimbe once to set up your profile before hosting via the MCP.",
+      "Sign in to Mukoko Events once to set up your profile before hosting via the MCP.",
       403,
     );
   }

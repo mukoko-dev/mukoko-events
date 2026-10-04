@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Help & FAQ",
-  description: "Get help with Nhimbe — find answers to common questions.",
+  description:
+    "Get help with Mukoko Events — find answers to common questions.",
 };
 
 export default function HelpLayout({

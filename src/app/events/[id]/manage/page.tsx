@@ -67,6 +67,10 @@ import { VenueVerifyCta } from "./venue-verify-cta";
 import { EventManageShell, type ManageSectionKey } from "../event-manage-shell";
 import { useAuth } from "@/components/auth/auth-context";
 import { useToast } from "@/hooks/use-toast";
+import { SITE_URL } from "@/lib/site-url";
+
+/** The primary origin without its scheme, for the short-link prefix. */
+const SITE_HOST = SITE_URL.replace(/^https?:\/\//, "");
 
 const SECTION_KEYS: ManageSectionKey[] = [
   "overview",
@@ -340,7 +344,7 @@ function ManageEventContent() {
       try {
         await navigator.share({
           title: event.name,
-          text: `Check out ${event.name} on Nhimbe`,
+          text: `Check out ${event.name} on Mukoko Events`,
           url,
         });
       } catch {
@@ -771,10 +775,7 @@ function ManageEventContent() {
                       setRegistrationFilter(
                         sel.length > 0
                           ? (sel[0] as
-                              | "all"
-                              | "pending"
-                              | "approved"
-                              | "rejected")
+                              "all" | "pending" | "approved" | "rejected")
                           : "all",
                       )
                     }
@@ -1214,7 +1215,7 @@ function ManageEventContent() {
                   </label>
                   <div className="flex items-center gap-2">
                     <div className="px-3 py-2.5 bg-surface rounded-lg text-text-secondary text-sm">
-                      nhimbe.com/e/
+                      {SITE_HOST}/e/
                     </div>
                     <Input
                       defaultValue={event.shortCode}

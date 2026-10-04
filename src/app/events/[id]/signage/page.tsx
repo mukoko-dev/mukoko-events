@@ -63,7 +63,8 @@ function OrientationToggle({
 function SignageFooter() {
   return (
     <div className="text-xs text-white/40">
-      Powered by <span className="text-white/60 font-semibold">Nhimbe</span>{" "}
+      Powered by{" "}
+      <span className="text-white/60 font-semibold">Mukoko Events</span>{" "}
       &middot; A Mukoko Product
     </div>
   );

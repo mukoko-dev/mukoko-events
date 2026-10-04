@@ -8,7 +8,7 @@
           "value": "www.nhimbe.com"
         }
       ],
-      "destination": "https://nhimbe.com/:path*",
+      "destination": "https://events.mukoko.com/:path*",
       "permanent": true
     }
   ]

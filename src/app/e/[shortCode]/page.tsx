@@ -22,7 +22,7 @@ export async function generateMetadata({
 
   if (!event) {
     return {
-      title: "Event Not Found - Nhimbe",
+      title: "Event Not Found - Mukoko Events",
     };
   }
 
@@ -30,14 +30,14 @@ export async function generateMetadata({
   const description = `${event.name} on ${event.date.full} at ${event.location.name}, ${event.location.addressLocality}`;
 
   return {
-    title: `${event.name} - Nhimbe`,
+    title: `${event.name} - Mukoko Events`,
     description,
     openGraph: {
       title: event.name,
       description,
       type: "website",
       url: eventUrl,
-      siteName: "Nhimbe",
+      siteName: "Mukoko Events",
       images: event.image
         ? [{ url: event.image, width: 1200, height: 630, alt: event.name }]
         : undefined,

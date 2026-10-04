@@ -96,7 +96,7 @@ function ShareDialog({
       subtitle={description}
       imageUrl={imageUrl}
       url={url}
-      sourceApp="Nhimbe"
+      sourceApp="Mukoko Events"
       copied={copied}
       onCopyLink={handleCopyLink}
       onNativeShare={handleNativeShare}

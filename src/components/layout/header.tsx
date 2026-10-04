@@ -311,7 +311,7 @@ export function Header() {
           <div className="rhino w-8.5 h-8.5 shrink-0 bg-surface border border-elevated">
             <Image
               src="/mukoko-mark-full-light.svg"
-              alt="Nhimbe"
+              alt="Mukoko Events"
               width={34}
               height={34}
               className="zebra zebra-light"
@@ -326,17 +326,17 @@ export function Header() {
             />
           </div>
           <div className="relative min-h-8.5 min-w-0 flex items-center">
-            {/* Wordmark lockup — "Nhimbe by Mukoko Events" (visible when not scrolled) */}
+            {/* Wordmark lockup — "Mukoko Events" over the tagline (visible when not scrolled) */}
             <span
               className={`flex min-w-0 flex-col leading-none transition-all duration-300 ${
                 isScrolled && pageTitle ? "opacity-0 absolute" : "opacity-100"
               }`}
             >
               <span className="truncate font-serif text-[24px] font-bold text-primary">
-                Nhimbe
+                Mukoko Events
               </span>
               <span className="mt-0.5 truncate whitespace-nowrap text-[10px] font-medium uppercase tracking-wide text-text-tertiary">
-                by Mukoko Events
+                Together we gather
               </span>
             </span>
             {/* Page title - visible when scrolled. Smaller on mobile — at

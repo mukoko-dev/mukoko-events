@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Discover",
   description:
-    "Browse community gatherings on Nhimbe — by category, by circle, or by city. Find what brings your people together.",
+    "Browse community gatherings on Mukoko Events — by category, by circle, or by city. Find what brings your people together.",
 };
 
 // Browse data is shared and slow-moving — keep the page ISR-cached like the

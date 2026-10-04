@@ -550,7 +550,7 @@ export default function CreateEventForm() {
     ? "Uploading image…"
     : step < 3
       ? "Continue"
-      : "Publish Nhimbe";
+      : "Publish event";
 
   if (created) {
     return (

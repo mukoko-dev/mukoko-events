@@ -10,7 +10,7 @@ import { describe, it, expect } from "vitest";
 // Default preview image (N11): the shared dynamic OG template at /api/og, never
 // a static file. Kept in sync with DEFAULT_OG_IMAGE in layout.tsx.
 const DEFAULT_OG_IMAGE =
-  "/api/og?type=default&title=Nhimbe&subtitle=" +
+  "/api/og?type=default&title=Mukoko Events&subtitle=" +
   encodeURIComponent("Together we gather, together we grow") +
   "&url=" +
   encodeURIComponent("events.mukoko.com");
@@ -19,11 +19,11 @@ const DEFAULT_OG_IMAGE =
 const metadata = {
   metadataBase: "https://events.mukoko.com",
   title: {
-    default: "Nhimbe - Together we gather, together we grow",
-    template: "%s | Nhimbe",
+    default: "Mukoko Events - Together we gather, together we grow",
+    template: "%s | Mukoko Events",
   },
   description:
-    "Discover events and gatherings across Africa. Nhimbe connects communities through cultural celebrations, tech meetups, music festivals, and more. A Mukoko product.",
+    "Discover events and gatherings across Africa. Mukoko Events connects communities through cultural celebrations, tech meetups, music festivals, and more. A Mukoko product.",
   keywords: [
     "events",
     "gatherings",
@@ -44,18 +44,18 @@ const metadata = {
     "Ubuntu",
   ],
   openGraph: {
-    title: "Nhimbe - Together we gather, together we grow",
+    title: "Mukoko Events - Together we gather, together we grow",
     description:
       "Discover events and gatherings across Africa. Connect with your community and celebrate together.",
     type: "website",
     locale: "en_US",
     url: "https://events.mukoko.com",
-    siteName: "Nhimbe",
+    siteName: "Mukoko Events",
     images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nhimbe - Together we gather, together we grow",
+    title: "Mukoko Events - Together we gather, together we grow",
     site: "@nhimbe_app",
     creator: "@mukoko_app",
     images: [DEFAULT_OG_IMAGE],
@@ -83,12 +83,12 @@ const metadata = {
 describe("SEO: Basic Metadata", () => {
   it("has default page title", () => {
     expect(metadata.title.default).toBe(
-      "Nhimbe - Together we gather, together we grow",
+      "Mukoko Events - Together we gather, together we grow",
     );
   });
 
   it("title template includes brand", () => {
-    expect(metadata.title.template).toContain("Nhimbe");
+    expect(metadata.title.template).toContain("Mukoko Events");
     expect(metadata.title.template).toContain("%s");
   });
 
@@ -131,7 +131,7 @@ describe("SEO: Open Graph", () => {
   });
 
   it("has og:site_name", () => {
-    expect(metadata.openGraph.siteName).toBe("Nhimbe");
+    expect(metadata.openGraph.siteName).toBe("Mukoko Events");
   });
 
   it("has og:locale", () => {
@@ -208,8 +208,8 @@ describe("SEO: Robots", () => {
 // ============================================
 
 describe("SEO: Brand Consistency", () => {
-  it("Nhimbe is capitalized (brand rule reversed 2026-07-19)", () => {
-    expect(metadata.title.default).toContain("Nhimbe");
+  it("names the brand Mukoko Events (Nhimbe retired 2026-10-04)", () => {
+    expect(metadata.title.default).toContain("Mukoko Events");
     expect(metadata.title.default).not.toMatch(/\bnhimbe\b/);
   });
 
