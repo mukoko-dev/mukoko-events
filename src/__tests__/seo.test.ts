@@ -56,7 +56,7 @@ const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Mukoko Events - Together we gather, together we grow",
-    site: "@nhimbe_app",
+    site: "@mukoko",
     creator: "@mukoko_app",
     images: [DEFAULT_OG_IMAGE],
   },
@@ -170,7 +170,7 @@ describe("SEO: Twitter Cards", () => {
   });
 
   it("has twitter:site", () => {
-    expect(metadata.twitter.site).toBe("@nhimbe_app");
+    expect(metadata.twitter.site).toBe("@mukoko");
   });
 
   it("has twitter:creator", () => {
