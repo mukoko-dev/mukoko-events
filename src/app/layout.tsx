@@ -128,7 +128,7 @@ export const metadata: Metadata = {
     title: "Mukoko Events - Together we gather, together we grow",
     description:
       "Discover events and gatherings across Africa. A Mukoko product.",
-    site: "@nhimbe_app",
+    site: "@mukoko", // TODO(owner): confirm the Mukoko Events handle
     creator: "@mukoko_app",
     images: [DEFAULT_OG_IMAGE],
   },
