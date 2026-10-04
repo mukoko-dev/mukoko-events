@@ -775,7 +775,10 @@ function ManageEventContent() {
                       setRegistrationFilter(
                         sel.length > 0
                           ? (sel[0] as
-                              "all" | "pending" | "approved" | "rejected")
+                              | "all"
+                              | "pending"
+                              | "approved"
+                              | "rejected")
                           : "all",
                       )
                     }
