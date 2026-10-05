@@ -4,16 +4,19 @@
  * A circle is a COMMUNITY — a schema.org OnlineCommunityGroup living in
  * `circles.circles` (members, posts feed, optional paired chat), not an event
  * calendar. These reads power public browse surfaces (/discover "featured
- * circles"): they list discoverable circles only — `secret` circles never
- * appear, and membership-gated content (posts, members) stays behind the
- * session-scoped server actions in `src/app/actions/circle*`.
+ * circles"): they list public and broadcast circles only — `private` and
+ * `secret` circles never appear (owner rule, 2026-10-04), and
+ * membership-gated content (posts, members) stays behind the session-scoped
+ * server actions in `src/app/actions/circle*`.
  */
 
 import "server-only";
 import { circlesCollection } from "./databases";
-import type { CircleDoc } from "./types";
-
-export type CircleJoinPolicy = "public" | "private" | "broadcast";
+import {
+  LISTABLE_CIRCLE_TYPES,
+  isPubliclyListableCircle,
+  type ListableCircleType,
+} from "@/lib/circle-visibility";
 
 /** The small shape browse surfaces render for a circle. */
 export interface FeaturedCircle {
@@ -21,16 +24,12 @@ export interface FeaturedCircle {
   name: string;
   description: string | null;
   /**
-   * Drives the join affordance: public → "Join", private → "Request to
-   * join", broadcast → "Follow".
+   * Drives the join affordance: public → "Join", broadcast → "Follow".
+   * Never `private` or `secret` — those are not listable.
    */
-  circleType: CircleJoinPolicy;
+  circleType: ListableCircleType;
   memberCount: number;
   postCount: number;
-}
-
-function isDiscoverable(t: CircleDoc["circleType"]): t is CircleJoinPolicy {
-  return t === "public" || t === "private" || t === "broadcast";
 }
 
 /**
@@ -77,8 +76,10 @@ export async function listCirclesByOwner(
 }
 
 /**
- * The most active discoverable circles (by members, then posts). Secret
- * circles are excluded at the query, never just at the mapper.
+ * The most active publicly listable circles (by members, then posts).
+ * Private and secret circles are excluded at the query, and the mapper
+ * re-checks each row so a circle with a missing or unknown type is dropped
+ * too (fail closed).
  */
 export async function listFeaturedCircles(
   limit = 6,
@@ -87,20 +88,24 @@ export async function listFeaturedCircles(
   const docs = await col
     .find({
       isActive: true,
-      circleType: { $in: ["public", "private", "broadcast"] },
+      circleType: { $in: [...LISTABLE_CIRCLE_TYPES] },
     })
     .sort({ memberCount: -1, postCount: -1 })
     .limit(limit)
     .toArray();
 
-  return docs
-    .filter((d) => isDiscoverable(d.circleType))
-    .map((d) => ({
-      id: d._id,
-      name: d.name,
-      description: d.description ?? null,
-      circleType: d.circleType as CircleJoinPolicy,
-      memberCount: d.memberCount ?? 0,
-      postCount: d.postCount ?? 0,
-    }));
+  return docs.flatMap((d) => {
+    const circleType: unknown = d.circleType;
+    if (!isPubliclyListableCircle(circleType)) return [];
+    return [
+      {
+        id: d._id,
+        name: d.name,
+        description: d.description ?? null,
+        circleType,
+        memberCount: d.memberCount ?? 0,
+        postCount: d.postCount ?? 0,
+      },
+    ];
+  });
 }
