@@ -12,7 +12,14 @@ import {
   getUserReferralCodeAction,
   generateUserReferralCodeAction,
 } from "@/app/actions/engagement";
-import type { EventStats, ReviewStats, UserReferralCode } from "@/lib/api";
+import type {
+  Event,
+  EventStats,
+  ReviewStats,
+  UserReferralCode,
+} from "@/lib/api";
+import { resolveViewerPersonId } from "@/lib/auth/current-person";
+import { visibleCircleLinkIds } from "@/lib/mongo/circle-access";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -88,6 +95,22 @@ async function loadCompanionData(eventId: string): Promise<{
     userReferral,
     canManage,
   };
+}
+
+/**
+ * Drop the "View the circle" link unless this viewer may follow it: public
+ * and broadcast circles link for everyone, private and secret circles only
+ * for their members. The raw circle id is removed from the client payload
+ * too, so the page never hands a non-member a private circle's id.
+ */
+async function withVisibleCircleLink(event: Event): Promise<Event> {
+  const circleId = event.eventCircleId;
+  if (!circleId) return event;
+  const visible = await visibleCircleLinkIds(
+    [circleId],
+    await resolveViewerPersonId(),
+  );
+  return visible.has(circleId) ? event : { ...event, eventCircleId: undefined };
 }
 
 // Dynamic OpenGraph metadata
@@ -175,8 +198,11 @@ export default async function EventDetailPage({
     notFound();
   }
 
-  const { stats, reviewStats, userReferral, canManage } =
-    await loadCompanionData(event.id);
+  const [{ stats, reviewStats, userReferral, canManage }, viewEvent] =
+    await Promise.all([
+      loadCompanionData(event.id),
+      withVisibleCircleLink(event),
+    ]);
 
   const eventUrl = `${SITE_URL}/e/${event.shortCode}`;
 
@@ -240,7 +266,7 @@ export default async function EventDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <EventDetailContent
-        event={event}
+        event={viewEvent}
         initialStats={stats}
         initialReviewStats={reviewStats}
         initialUserReferral={userReferral}

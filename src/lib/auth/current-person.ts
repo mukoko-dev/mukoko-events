@@ -79,3 +79,24 @@ export async function requireActingPerson(
   if (!person) throw new Error(message);
   return person;
 }
+
+/**
+ * The signed-in viewer's person id for READ paths, without syncing: returns
+ * `null` for anonymous visitors and for anyone whose person doc does not exist
+ * yet (they cannot be a member of anything). Never throws — a read gate that
+ * cannot resolve the viewer treats them as anonymous, which fails closed.
+ */
+export async function resolveViewerPersonId(): Promise<string | null> {
+  try {
+    const syncInput = await resolveActingSyncInput();
+    if (!syncInput) return null;
+    const persons = await personsCollection();
+    const person = await persons.findOne(
+      { workosUserId: syncInput.workosUserId },
+      { projection: { _id: 1 } },
+    );
+    return person?._id ?? null;
+  } catch {
+    return null;
+  }
+}

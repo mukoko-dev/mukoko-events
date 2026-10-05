@@ -31,9 +31,11 @@ export function isPubliclyListableCircle(
 }
 
 /**
- * A circle's public page. `/circles/[id]` is served without a session: anyone
- * can read the circle, its upcoming events and calendars there, and signed-in
- * visitors get the join/follow control.
+ * A circle's page. `/circles/[id]` is served without a session for public
+ * and broadcast circles (the only ones a browse surface lists): anyone can
+ * read the circle, its public posts, upcoming events and calendars there,
+ * and signed-in visitors get the join/follow control. Private and secret
+ * circles follow `@/lib/circle-access`.
  */
 export function publicCircleHref(circleId: string): string {
   return `/circles/${encodeURIComponent(circleId)}`;
