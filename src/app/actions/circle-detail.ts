@@ -1,26 +1,25 @@
 "use server";
 
 /**
- * Circle detail server actions — Vercel server runtime → MongoDB.
+ * Circle detail server actions.
  *
- * Replaces the browser-side Supabase helpers the circle detail page used to call
- * (`getCircle` / `getCirclePosts` / `getCircleMembers` / `createCirclePost` /
- * `joinCircle` / `togglePostReaction`). The browser can't talk to Mongo, so all
- * reads and writes now run here against the `circles` database via the shared
- * accessors in `@/lib/mongo/databases`.
+ * Two backends, one policy. With Mukoko Events' Nyuchi API key set
+ * (`NYUCHI_API_CLIENT_ID` / `NYUCHI_API_CLIENT_SECRET`), every circle read and
+ * write goes through `/v1/circles` as the signed-in person — the API is the
+ * single writer of circles (mukoko-dev/mukoko-events#154). Without it, the
+ * server-side MongoDB path below stays in use. The switch is
+ * `circlesViaApi()`; nothing falls back from one to the other at runtime.
  *
- * Writes resolve the acting person from the AuthKit session (or the local dev
- * bypass) server-side — the client never gets to assert who it is.
+ * Access: every read and write first resolves the viewer's membership — from
+ * the API's `viewerMembership`, or the MongoDB row — and runs the circle
+ * access policy (`@/lib/circle-access`, the rules the API enforces). A hidden
+ * circle (secret to a non-member, inactive or missing) reads as `null`/empty
+ * and every write on it throws the same "not found" error, so its existence
+ * never leaks. Private circles show a preview (name, description, counts) to
+ * non-members; content is members-only.
  *
- * Access: every read and write first resolves the viewer's membership and
- * runs the circle access policy (`@/lib/circle-access`, the same rules the
- * Nyuchi API enforces). A hidden circle (secret to a non-member, inactive or
- * missing) reads as `null`/empty and every write on it throws the same "not
- * found" error, so its existence never leaks. Private circles show a preview
- * (name, description, counts) to non-members; content is members-only. Reactions
- * are tracked per-person on the post document itself (the v3.1 model has no
- * separate per-user reaction collection), which keeps the toggle honest while
- * staying inside the collections this sweep is allowed to touch.
+ * The person acting is resolved server-side from the AuthKit session (or the
+ * local dev bypass, MongoDB path only) — the client never asserts who it is.
  */
 
 import {
@@ -31,14 +30,32 @@ import {
 } from "@/lib/mongo/databases";
 import { stampNew } from "@/lib/mongo/ids";
 import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
+import { requireActingPerson } from "@/lib/auth/current-person";
+import { loadCircleAccess } from "@/lib/mongo/circle-access";
 import {
-  requireActingPerson,
-  resolveViewerPersonId,
-} from "@/lib/auth/current-person";
-import {
-  loadCircleAccess,
+  CIRCLE_NOT_FOUND,
+  actingCircleAccess,
+  circlesViaApi,
+  viewerCircleAccess,
   type ResolvedCircleAccess,
-} from "@/lib/mongo/circle-access";
+} from "@/lib/viewer-circle-access";
+import {
+  NyuchiApiError,
+  asService,
+  type NyuchiApi,
+} from "@/lib/nyuchi-api/client";
+import { optionalPersonApi, personApi } from "@/lib/nyuchi-api/session";
+import {
+  circlesPath,
+  listOf,
+  personProfiles,
+  unwrap,
+  viewerReactionOf,
+  type ApiMembership,
+  type ApiPersonProfile,
+  type ApiPost,
+} from "@/lib/nyuchi-api/circles";
+import { loadCircleAccessViaApi } from "@/lib/nyuchi-api/circle-access";
 import {
   canReadPostVisibility,
   defaultPostVisibility,
@@ -56,7 +73,8 @@ import type {
 } from "@/lib/mongo/types";
 
 /** One message for every "no such circle / not yours to see" answer. */
-const NOT_FOUND = "This circle could not be found.";
+const NOT_FOUND = CIRCLE_NOT_FOUND;
+const POST_NOT_FOUND = "This post could not be found.";
 
 const MAX_POST_LENGTH = 5000;
 
@@ -141,10 +159,16 @@ function mapPerson(doc: PersonDoc): CirclePerson {
 
 function mapCircle(
   resolved: ResolvedCircleAccess,
+  signedIn: boolean,
   viewerPersonId: string | null,
 ): CircleDetail {
-  const { circle: doc, permissions: p } = resolved;
+  const { circle: doc, permissions: p, membership } = resolved;
   const isMember = p.access === "member" || p.access === "staff";
+  // The owner by their membership role (the API path), or by person id.
+  const isOwner =
+    isMember &&
+    (membership?.role === "owner" ||
+      (viewerPersonId !== null && doc.ownerPersonId === viewerPersonId));
   return {
     id: doc._id,
     name: doc.name,
@@ -158,9 +182,9 @@ function mapCircle(
     owner_person_id: isMember ? doc.ownerPersonId : null,
     viewer: {
       access: p.access as CircleViewer["access"],
-      isSignedIn: viewerPersonId !== null,
+      isSignedIn: signedIn,
       isMember,
-      isOwner: viewerPersonId !== null && doc.ownerPersonId === viewerPersonId,
+      isOwner,
       isStaff: p.access === "staff",
       canReadPosts: p.canReadPosts,
       canSeeEvents: p.canSeeEvents,
@@ -189,6 +213,55 @@ function mapPost(doc: CirclePostDoc, author: CirclePerson | null): CirclePost {
   };
 }
 
+function mapApiPost(doc: ApiPost, author: CirclePerson | null): CirclePost {
+  return {
+    id: doc._id,
+    circle_id: doc.circleId,
+    author_id: doc.authorPersonId,
+    text: doc.articleBody ?? doc.headline ?? null,
+    post_type: doc.postType ?? null,
+    like_count: doc.reactionCount ?? 0,
+    comment_count: doc.commentCount ?? 0,
+    moderation_status: doc.moderationStatus ?? null,
+    created_at: doc.datePublished ?? doc.createdAt ?? null,
+    author,
+  };
+}
+
+function mapApiPerson(profile: ApiPersonProfile): CirclePerson {
+  return {
+    id: profile.id,
+    name: profile.display_name ?? profile.username ?? null,
+    givenname: null,
+    familyname: null,
+    image: profile.avatar_url ?? null,
+  };
+}
+
+/** Public profiles for authors and members (API path). */
+async function hydrateViaApi(
+  api: NyuchiApi,
+  ids: string[],
+): Promise<Map<string, CirclePerson>> {
+  const profiles = await personProfiles(api, ids);
+  return new Map([...profiles].map(([id, p]) => [id, mapApiPerson(p)]));
+}
+
+/** A person-facing sentence for an API refusal on a write. */
+function apiWriteError(err: unknown, fallback: string): Error {
+  if (err instanceof NyuchiApiError) {
+    if (err.status === 404) return new Error(NOT_FOUND);
+    return new Error(err.message || fallback);
+  }
+  if (err instanceof Error) return err;
+  return new Error(fallback);
+}
+
+/** The API client the read runs as: the person, or the machine token. */
+async function readerApi(): Promise<NyuchiApi> {
+  return (await optionalPersonApi()) ?? asService();
+}
+
 /** Resolve a batch of persons keyed by `_id` for author/member hydration. */
 async function hydratePersons(
   ids: string[],
@@ -203,25 +276,11 @@ async function hydratePersons(
 // ── Access resolution ───────────────────────────────────────────────────────
 
 /** The viewer's access to a circle for a READ (anonymous allowed). */
-async function viewerAccess(circleId: string): Promise<{
-  viewerPersonId: string | null;
-  resolved: ResolvedCircleAccess | null;
-}> {
-  const viewerPersonId = await resolveViewerPersonId();
-  const resolved = await loadCircleAccess(circleId, viewerPersonId);
-  return { viewerPersonId, resolved };
-}
+const viewerAccess = viewerCircleAccess;
 
 /** The signed-in person and their access, for a WRITE. Throws when the
  *  circle is hidden from them (the same message as a missing circle). */
-async function actingAccess(
-  circleId: string,
-): Promise<{ person: PersonDoc; resolved: ResolvedCircleAccess }> {
-  const person = await requireActingPerson("You must be signed in to do that.");
-  const resolved = await loadCircleAccess(circleId, person._id);
-  if (!resolved) throw new Error(NOT_FOUND);
-  return { person, resolved };
-}
+const actingAccess = actingCircleAccess;
 
 // ── Reads ───────────────────────────────────────────────────────────────────
 
@@ -233,8 +292,8 @@ export async function getCircle(
   circleId: string,
 ): Promise<CircleDetail | null> {
   try {
-    const { viewerPersonId, resolved } = await viewerAccess(circleId);
-    return resolved ? mapCircle(resolved, viewerPersonId) : null;
+    const { signedIn, viewerPersonId, resolved } = await viewerAccess(circleId);
+    return resolved ? mapCircle(resolved, signedIn, viewerPersonId) : null;
   } catch (err) {
     console.warn("[mukoko] getCircle failed:", err);
     return null;
@@ -314,6 +373,22 @@ export async function getCirclePosts(
     const { permissions } = resolved;
     if (archived && !permissions.canSeeArchive) return [];
 
+    if (circlesViaApi()) {
+      // Readers see approved posts the API lets them read; authors also see
+      // their own pending posts. The archive is the staff moderation queue
+      // (pending and flagged): removed posts are never shown to readers.
+      const api = await readerApi();
+      const path = archived
+        ? circlesPath.moderation(circleId, Math.min(Math.max(limit, 1), 100))
+        : circlesPath.posts(circleId, Math.min(Math.max(limit, 1), 100));
+      const docs = listOf<ApiPost>(await api.get(path));
+      const byId = await hydrateViaApi(
+        api,
+        docs.map((d) => d.authorPersonId),
+      );
+      return docs.map((d) => mapApiPost(d, byId.get(d.authorPersonId) ?? null));
+    }
+
     const isStaff = permissions.access === "staff";
     const filter: Record<string, unknown> = {
       circleId,
@@ -346,6 +421,26 @@ export async function getCircleMembers(
   try {
     const { resolved } = await viewerAccess(circleId);
     if (!resolved?.permissions.canSeeMembers) return [];
+    if (circlesViaApi()) {
+      const api = await readerApi();
+      const docs = listOf<ApiMembership>(
+        await api.get(
+          circlesPath.members(circleId, Math.min(Math.max(limit, 1), 200)),
+        ),
+      );
+      const byId = await hydrateViaApi(
+        api,
+        docs.map((d) => d.memberPersonId),
+      );
+      return docs.map((d) => ({
+        circle_id: d.circleId,
+        person_id: d.memberPersonId,
+        role: d.role,
+        status: d.membershipStatus,
+        joined_at: d.joinedAt ?? null,
+        person: byId.get(d.memberPersonId) ?? null,
+      }));
+    }
     const memberships = await circleMembershipsCollection();
     const docs = await memberships
       .find({ circleId, membershipStatus: "active" })
@@ -381,7 +476,7 @@ export async function createCirclePost(input: {
     throw new Error(`Posts must be ${MAX_POST_LENGTH} characters or fewer.`);
   }
 
-  const { person, resolved } = await actingAccess(input.circleId);
+  const { resolved, api } = await actingAccess(input.circleId);
   if (!resolved.permissions.canPost) {
     throw new Error(
       resolved.permissions.access === "member"
@@ -390,6 +485,24 @@ export async function createCirclePost(input: {
     );
   }
 
+  if (api) {
+    // The API sets the visibility (never public in a private or secret
+    // circle) and the moderation status from `moderationPolicy.postApproval`.
+    try {
+      const doc = unwrap<ApiPost>(
+        await api.post(circlesPath.posts(input.circleId), {
+          article_body: text,
+          post_type: "discussion",
+        }),
+        "post",
+      );
+      return mapApiPost(doc, null);
+    } catch (err) {
+      throw apiWriteError(err, "Your post couldn't be saved.");
+    }
+  }
+
+  const person = await requireActingPerson("You must be signed in to do that.");
   const authorEntityId = await ensureHostEntityForPerson(person);
   const now = new Date();
 
@@ -433,11 +546,27 @@ export async function createCirclePost(input: {
 export async function ensureCircleConversationAction(
   circleId: string,
 ): Promise<string> {
-  const { person, resolved } = await actingAccess(circleId);
+  const { resolved, api, personId } = await actingAccess(circleId);
   if (!resolved.permissions.canUseChat) {
     throw new Error("Join this circle to open its chat.");
   }
 
+  if (api) {
+    // Idempotent; the API seats the caller as a participant.
+    try {
+      const conversation = unwrap<{ _id?: string; id?: string }>(
+        await api.post(circlesPath.conversation(circleId)),
+        "conversation",
+      );
+      const id = conversation?._id ?? conversation?.id;
+      if (!id) throw new Error("This circle's chat could not be opened.");
+      return id;
+    } catch (err) {
+      throw apiWriteError(err, "This circle's chat could not be opened.");
+    }
+  }
+
+  const person = { _id: personId as string };
   const conversation = await ensureCircleConversation({
     circleId,
     circleName: resolved.circle.name,
@@ -463,8 +592,8 @@ export type JoinCircleResult = "active" | "pending_approval";
 export async function joinCircle(input: {
   circleId: string;
 }): Promise<JoinCircleResult> {
-  const { person, resolved } = await actingAccess(input.circleId);
-  const { permissions, membership: existing } = resolved;
+  const { resolved, api } = await actingAccess(input.circleId);
+  const { permissions } = resolved;
 
   if (permissions.access === "member" || permissions.access === "staff") {
     return "active";
@@ -475,10 +604,32 @@ export async function joinCircle(input: {
   }
   if (mode === "requested") return "pending_approval";
 
+  if (api) {
+    // Public and broadcast join at once; private answers a request; an
+    // invitee joining accepts the invitation.
+    try {
+      const membership = unwrap<ApiMembership>(
+        await api.post(circlesPath.join(input.circleId)),
+        "membership",
+      );
+      return membership?.membershipStatus === "pending_approval"
+        ? "pending_approval"
+        : "active";
+    } catch (err) {
+      throw apiWriteError(err, "You couldn't join this circle.");
+    }
+  }
+
+  const person = await requireActingPerson("You must be signed in to do that.");
+  const memberships = await circleMembershipsCollection();
+  const existing = await memberships.findOne({
+    circleId: input.circleId,
+    memberPersonId: person._id,
+  });
+
   const nextStatus: JoinCircleResult =
     mode === "request" ? "pending_approval" : "active";
   const now = new Date();
-  const memberships = await circleMembershipsCollection();
 
   if (existing) {
     // Compare-and-set on the old status so a repeated request never counts
@@ -540,11 +691,16 @@ async function bumpMemberCount(
  */
 export async function togglePostReaction(input: {
   postId: string;
+  /** The post's circle. Required on the API path (the reaction route is
+   *  nested under the circle); the MongoDB path reads it off the post. */
+  circleId?: string;
 }): Promise<"added" | "removed"> {
+  if (circlesViaApi()) return togglePostReactionViaApi(input);
+
   const person = await requireActingPerson("You must be signed in to do that.");
   const posts = await circlePostsCollection();
   const post = await posts.findOne({ _id: input.postId });
-  const notFound = "This post could not be found.";
+  const notFound = POST_NOT_FOUND;
   if (!post) throw new Error(notFound);
 
   const resolved = await loadCircleAccess(post.circleId, person._id);
@@ -594,4 +750,52 @@ export async function togglePostReaction(input: {
     } as Record<string, unknown>,
   );
   return "added";
+}
+
+/**
+ * The API path of {@link togglePostReaction}: `PUT`/`DELETE` the caller's
+ * `like` (one `circles.postReactions` row per person per post; the API keeps
+ * `reactionCount`). The post is read first, as the person, so a post they
+ * can't read is "not found" and their current reaction decides the toggle.
+ */
+async function togglePostReactionViaApi(input: {
+  postId: string;
+  circleId?: string;
+}): Promise<"added" | "removed"> {
+  if (!input.circleId) throw new Error(POST_NOT_FOUND);
+  const api = await personApi();
+  const resolved = await loadCircleAccessViaApi(api, input.circleId);
+  if (!resolved?.permissions.canReadPosts) throw new Error(POST_NOT_FOUND);
+
+  let post: ApiPost;
+  try {
+    post = unwrap<ApiPost>(
+      await api.get(circlesPath.post(input.circleId, input.postId)),
+      "post",
+    );
+  } catch (err) {
+    if (err instanceof NyuchiApiError && [403, 404].includes(err.status)) {
+      throw new Error(POST_NOT_FOUND);
+    }
+    throw apiWriteError(err, "Couldn't save your reaction.");
+  }
+  if (!post?._id || post.moderationStatus === "removed") {
+    throw new Error(POST_NOT_FOUND);
+  }
+  if (!resolved.permissions.canReact) {
+    throw new Error("Join this circle to react.");
+  }
+
+  try {
+    if (viewerReactionOf(post)) {
+      await api.delete(circlesPath.reaction(input.circleId, input.postId));
+      return "removed";
+    }
+    await api.put(circlesPath.reaction(input.circleId, input.postId), {
+      key: "like",
+    });
+    return "added";
+  } catch (err) {
+    throw apiWriteError(err, "Couldn't save your reaction.");
+  }
 }

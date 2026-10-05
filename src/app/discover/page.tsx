@@ -6,7 +6,7 @@ import {
   type CategoryWithCount,
   type CityWithCount,
 } from "@/lib/mongo/lookups";
-import { listFeaturedCircles, type FeaturedCircle } from "@/lib/mongo/circles";
+import { listFeaturedCircles, type FeaturedCircle } from "@/lib/circles";
 import {
   listFeaturedCalendars,
   type FeaturedCalendar,

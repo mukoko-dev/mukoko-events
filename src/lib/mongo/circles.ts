@@ -73,6 +73,19 @@ export async function listCirclesByOwner(
   return docs.map((d) => ({ id: d._id, name: d.name }));
 }
 
+/** True when the person owns this active circle (the calendar circle check). */
+export async function isCircleOwnedBy(
+  circleId: string,
+  personId: string,
+): Promise<boolean> {
+  const col = await circlesCollection();
+  const circle = await col.findOne(
+    { _id: circleId, ownerPersonId: personId, isActive: true },
+    { projection: { _id: 1 } },
+  );
+  return circle !== null;
+}
+
 /**
  * The most active publicly listable circles (by members, then posts).
  * Private and secret circles are excluded at the query, and the mapper
