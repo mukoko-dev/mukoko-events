@@ -34,6 +34,8 @@ import { getMongoClient } from "@/lib/mongo/client";
 import { personsCollection, eventsCollection } from "@/lib/mongo/databases";
 import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
 import { ensureEventChatConversation } from "@/lib/mongo/campfire";
+import { loadCircleAccess } from "@/lib/mongo/circle-access";
+import { resolveViewerPersonId } from "@/lib/auth/current-person";
 import { newId, stampNew } from "@/lib/mongo/ids";
 import { syncPersonFromWorkos, type SyncPersonInput } from "@/lib/mongo/users";
 import {
@@ -54,6 +56,8 @@ interface CampfireConversationDoc extends Document {
   _id: string;
   conversationType: string;
   eventId?: string | null;
+  /** Set on a circle's paired group chat — members only. */
+  circleId?: string | null;
   isActive?: boolean;
   messageCount?: number;
   participantCount?: number;
@@ -193,6 +197,21 @@ function toMessageView(doc: CampfireMessageDoc): CampfireMessage {
   };
 }
 
+/**
+ * A circle's paired chat is for its active members only (the circle access
+ * policy, same as the Nyuchi API's `POST /circles/{id}/conversation`).
+ * Conversations not paired to a circle are unaffected.
+ */
+async function canUseCircleChat(
+  conversation: CampfireConversationDoc,
+  personId: string | null,
+): Promise<boolean> {
+  if (!conversation.circleId) return true;
+  if (!personId) return false;
+  const resolved = await loadCircleAccess(conversation.circleId, personId);
+  return resolved?.permissions.canUseChat === true;
+}
+
 // ── reads ────────────────────────────────────────────────────────────────
 
 /**
@@ -210,6 +229,12 @@ export async function getCampfireThread(
     const conversations = await conversationsCollection();
     const conversation = await conversations.findOne({ _id: conversationId });
     if (!conversation || conversation.isActive === false) {
+      return EMPTY_THREAD(conversationId);
+    }
+    if (
+      conversation.circleId &&
+      !(await canUseCircleChat(conversation, await resolveViewerPersonId()))
+    ) {
       return EMPTY_THREAD(conversationId);
     }
 
@@ -286,6 +311,10 @@ export async function postCampfireMessage(
   const conversations = await conversationsCollection();
   const conversation = await conversations.findOne({ _id: conversationId });
   if (!conversation || conversation.isActive === false) {
+    throw new Error("This campfire is no longer available.");
+  }
+  if (!(await canUseCircleChat(conversation, person._id))) {
+    // Same answer as a missing conversation — don't confirm it exists.
     throw new Error("This campfire is no longer available.");
   }
 
