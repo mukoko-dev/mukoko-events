@@ -52,14 +52,6 @@ const circles: FeaturedCircle[] = [
     postCount: 12,
   },
   {
-    id: "22222222-2222-4222-8222-222222222222",
-    name: "Founders Table",
-    description: "Invite-first founder dinners.",
-    circleType: "private",
-    memberCount: 9,
-    postCount: 3,
-  },
-  {
     id: "33333333-3333-4333-8333-333333333333",
     name: "City Arts Wire",
     description: "Announcements from the arts collective.",
@@ -68,6 +60,35 @@ const circles: FeaturedCircle[] = [
     postCount: 40,
   },
 ];
+
+// Circles that must never render on /discover. The read layer already drops
+// them; these simulate a regression there (cast past the listable-only type).
+const leakedCircles = [
+  {
+    id: "22222222-2222-4222-8222-222222222222",
+    name: "Founders Table",
+    description: "Invite-first founder dinners.",
+    circleType: "private",
+    memberCount: 9,
+    postCount: 3,
+  },
+  {
+    id: "44444444-4444-4444-8444-444444444444",
+    name: "Hidden Council",
+    description: null,
+    circleType: "secret",
+    memberCount: 4,
+    postCount: 1,
+  },
+  {
+    id: "55555555-5555-4555-8555-555555555555",
+    name: "Untyped Circle",
+    description: null,
+    circleType: undefined,
+    memberCount: 7,
+    postCount: 2,
+  },
+] as unknown as FeaturedCircle[];
 
 const calendars: FeaturedCalendar[] = [
   {
@@ -149,16 +170,42 @@ describe("DiscoverBrowse", () => {
     );
     expect(publicRow).toHaveTextContent("Join");
     expect(publicRow).toHaveTextContent("48 members");
-    expect(
-      screen.getByRole("link", { name: /Founders Table/ }),
-    ).toHaveTextContent("Request to join");
-    expect(
-      screen.getByRole("link", { name: /City Arts Wire/ }),
-    ).toHaveTextContent("Follow");
+    const broadcastRow = screen.getByRole("link", { name: /City Arts Wire/ });
+    expect(broadcastRow).toHaveAttribute(
+      "href",
+      "/circles/33333333-3333-4333-8333-333333333333",
+    );
+    expect(broadcastRow).toHaveTextContent("Follow");
+    expect(screen.queryByText("Request to join")).not.toBeInTheDocument();
     // Circles are communities: circle rows count members, never followers,
     // and never mention calendars.
     expect(publicRow).not.toHaveTextContent(/calendar/i);
     expect(publicRow).not.toHaveTextContent(/follower/i);
+  });
+
+  it("never lists private, secret or untyped circles, even if the read layer leaks them", () => {
+    renderBrowse({ circles: [...leakedCircles, ...circles] });
+    for (const name of [/Founders Table/, /Hidden Council/, /Untyped Circle/]) {
+      expect(screen.queryByText(name)).not.toBeInTheDocument();
+    }
+    for (const c of leakedCircles) {
+      const leakedLink = screen
+        .getAllByRole("link")
+        .find((a) => a.getAttribute("href")?.includes(c.id));
+      expect(leakedLink).toBeUndefined();
+    }
+    // The public and broadcast circles still render.
+    expect(
+      screen.getByRole("link", { name: /Harare Runners/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /City Arts Wire/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the empty state when every circle passed in is private", () => {
+    renderBrowse({ circles: leakedCircles });
+    expect(screen.getByText(/No circles to feature yet/)).toBeInTheDocument();
   });
 
   it("presents calendars as followable event streams linking to their pages", () => {
