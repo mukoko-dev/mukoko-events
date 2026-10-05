@@ -10,7 +10,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { DiscoverBrowse } from "./discover-browse";
 import type { CategoryWithCount, CityWithCount } from "@/lib/mongo/lookups";
-import type { FeaturedCircle } from "@/lib/mongo/circles";
+import type { FeaturedCircle } from "@/lib/circles";
 import type { FeaturedCalendar } from "@/lib/mongo/calendars";
 
 // The Featured-calendars CTA pulls in the create-calendar modal, whose server

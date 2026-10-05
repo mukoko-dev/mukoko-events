@@ -16,7 +16,7 @@ import {
 import { categoryToMineral, type Mineral } from "@/lib/category-mineral";
 import { getTheme } from "@/lib/themes";
 import type { CategoryWithCount, CityWithCount } from "@/lib/mongo/lookups";
-import type { FeaturedCircle } from "@/lib/mongo/circles";
+import type { FeaturedCircle } from "@/lib/circles";
 import type { FeaturedCalendar } from "@/lib/mongo/calendars";
 import {
   isPubliclyListableCircle,

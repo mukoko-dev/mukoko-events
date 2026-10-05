@@ -26,8 +26,11 @@ import {
   ensureHostEntityForPerson,
   listHostEntitiesForPerson,
 } from "@/lib/mongo/entities";
-import { listCirclesByOwner, type OwnedCircle } from "@/lib/mongo/circles";
-import { circlesCollection } from "@/lib/mongo/databases";
+import {
+  isCircleOwnedBy,
+  listCirclesByOwner,
+  type OwnedCircle,
+} from "@/lib/circles";
 import { ensureCalendarConversation } from "@/lib/mongo/campfire";
 import {
   requireActingPerson,
@@ -95,12 +98,7 @@ export async function createCalendarAction(
 
   // A calendar may only attach to a circle the creator owns.
   if (input.circleId) {
-    const circles = await circlesCollection();
-    const circle = await circles.findOne(
-      { _id: input.circleId, ownerPersonId: person._id, isActive: true },
-      { projection: { _id: 1 } },
-    );
-    if (!circle)
+    if (!(await isCircleOwnedBy(input.circleId, person._id)))
       throw new Error("You can only attach a calendar to a circle you own.");
   }
 
@@ -316,12 +314,7 @@ export async function updateCalendarAction(
   if (input.theme && !(input.theme in themes))
     throw new Error("Unknown calendar theme.");
   if (input.circleId) {
-    const circles = await circlesCollection();
-    const circle = await circles.findOne(
-      { _id: input.circleId, ownerPersonId: person._id, isActive: true },
-      { projection: { _id: 1 } },
-    );
-    if (!circle)
+    if (!(await isCircleOwnedBy(input.circleId, person._id)))
       throw new Error("You can only attach a calendar to a circle you own.");
   }
 

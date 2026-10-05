@@ -34,7 +34,7 @@ import { getMongoClient } from "@/lib/mongo/client";
 import { personsCollection, eventsCollection } from "@/lib/mongo/databases";
 import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
 import { ensureEventChatConversation } from "@/lib/mongo/campfire";
-import { loadCircleAccess } from "@/lib/mongo/circle-access";
+import { canUseCircleChatAs } from "@/lib/viewer-circle-access";
 import { resolveViewerPersonId } from "@/lib/auth/current-person";
 import { newId, stampNew } from "@/lib/mongo/ids";
 import { syncPersonFromWorkos, type SyncPersonInput } from "@/lib/mongo/users";
@@ -207,9 +207,8 @@ async function canUseCircleChat(
   personId: string | null,
 ): Promise<boolean> {
   if (!conversation.circleId) return true;
-  if (!personId) return false;
-  const resolved = await loadCircleAccess(conversation.circleId, personId);
-  return resolved?.permissions.canUseChat === true;
+  // Kept until the circle chat's messages move to the API (phase 2, #154).
+  return canUseCircleChatAs(conversation.circleId, personId);
 }
 
 // ── reads ────────────────────────────────────────────────────────────────
