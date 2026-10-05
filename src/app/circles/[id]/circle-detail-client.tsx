@@ -11,6 +11,7 @@ import {
   Users,
   Flame,
   Archive,
+  Lock,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,6 +40,7 @@ import {
   type CircleMember,
   type CirclePerson,
   type CirclePost,
+  type CircleViewer,
 } from "@/app/actions/circle-detail";
 import { AttachCalendar } from "./attach-calendar";
 import { CircleDiscuss } from "./circle-discuss";
@@ -46,7 +48,26 @@ import { useT } from "@/lib/i18n";
 
 interface CircleDetailClientProps {
   circleId: string;
+  /**
+   * The circle as the server resolved it for this viewer, with their
+   * permission flags. The page 404s before rendering this for a circle the
+   * viewer may not see; the actions re-check every read and write.
+   */
+  initialCircle: CircleDetail;
 }
+
+type CircleTab = "events" | "stream" | "members" | "calendars" | "archive";
+
+const JOIN_LABELS: Record<
+  Exclude<CircleViewer["join"], null>,
+  string | null
+> = {
+  join: null, // the translated "Join" label
+  follow: "Follow",
+  request: "Request to join",
+  requested: "Request sent",
+  accept_invite: "Accept invitation",
+};
 
 function authorLabel(p: CirclePerson | null): string {
   if (!p) return "Member";
@@ -61,13 +82,14 @@ function authorInitial(label: string): string {
 
 export default function CircleDetailClient({
   circleId,
+  initialCircle,
 }: CircleDetailClientProps) {
   const { t } = useT();
   const { user, isAuthenticated } = useAuth();
   const personId = user?.personId ?? null;
 
   const [loading, setLoading] = useState(true);
-  const [circle, setCircle] = useState<CircleDetail | null>(null);
+  const [circle, setCircle] = useState<CircleDetail | null>(initialCircle);
   const [events, setEvents] = useState<Event[]>([]);
   const [posts, setPosts] = useState<CirclePost[]>([]);
   const [members, setMembers] = useState<CircleMember[]>([]);
@@ -75,30 +97,41 @@ export default function CircleDetailClient({
   const [archived, setArchived] = useState<CirclePost[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<
-    "events" | "stream" | "members" | "calendars" | "archive"
-  >("events");
+  const viewer = circle?.viewer ?? initialCircle.viewer;
+  const [tab, setTab] = useState<CircleTab>(
+    viewer.canSeeEvents ? "events" : "stream",
+  );
 
-  const isMember = personId
-    ? members.some((m) => m.person_id === personId)
-    : false;
-  const isOwner = personId !== null && circle?.owner_person_id === personId;
+  const isMember = viewer.isMember;
+  const isOwner = viewer.isOwner;
+  const isPreview = viewer.access === "preview";
 
   const refetchCalendars = useCallback(() => {
     getCircleCalendars(circleId).then(setCalendars);
   }, [circleId]);
 
-  // Fetch the circle, posts and members once per circleId. Setting state
-  // happens only inside the promise resolution, never synchronously in the
-  // effect body — required by the React 19 `set-state-in-effect` rule.
+  // Fetch what this viewer may see once per circleId (and again after a
+  // join changes their access). The server actions enforce the same rules
+  // and return empty for anything not permitted; skipping the calls here only
+  // saves round trips. Setting state happens only inside the promise
+  // resolution, never synchronously in the effect body — required by the
+  // React 19 `set-state-in-effect` rule.
+  const [accessVersion, setAccessVersion] = useState(0);
   useEffect(() => {
     let cancelled = false;
+    const none = <T,>(): Promise<T[]> => Promise.resolve([]);
     Promise.all([
-      getCircle(circleId),
-      getCircleEvents(circleId, 50),
-      getCirclePosts(circleId, 30, false),
-      getCircleMembers(circleId, 100),
-      getCircleCalendars(circleId),
+      accessVersion > 0 ? getCircle(circleId) : Promise.resolve(initialCircle),
+      viewer.canSeeEvents ? getCircleEvents(circleId, 50) : none<Event>(),
+      viewer.canReadPosts
+        ? getCirclePosts(circleId, 30, false)
+        : none<CirclePost>(),
+      viewer.canSeeMembers
+        ? getCircleMembers(circleId, 100)
+        : none<CircleMember>(),
+      viewer.canSeeEvents
+        ? getCircleCalendars(circleId)
+        : none<CircleCalendarSummary>(),
     ])
       .then(([c, ev, p, m, cal]) => {
         if (cancelled) return;
@@ -120,31 +153,32 @@ export default function CircleDetailClient({
     return () => {
       cancelled = true;
     };
-  }, [circleId]);
+    // `viewer` flags are derived from `circle`, which only changes through
+    // `accessVersion` — re-running on them would loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [circleId, accessVersion]);
 
   const loadArchive = useCallback(async () => {
-    if (archived.length > 0) return;
+    if (archived.length > 0 || !viewer.canSeeArchive) return;
     try {
       const a = await getCirclePosts(circleId, 30, true);
       setArchived(a);
     } catch {
       // Silent — archive is best-effort.
     }
-  }, [archived.length, circleId]);
+  }, [archived.length, circleId, viewer.canSeeArchive]);
 
   // Lazy-load the archive on tab change. We invoke from the tab handler
   // rather than a useEffect-on-tab so we don't trigger setState in an
   // effect body when nothing has actually changed.
-  const onTabChange = (
-    next: "events" | "stream" | "members" | "calendars" | "archive",
-  ) => {
+  const onTabChange = (next: CircleTab) => {
     setTab(next);
     if (next === "archive") void loadArchive();
   };
 
   const handlePost = async (text: string) => {
     const body = text.trim();
-    if (!personId || !body) return;
+    if (!personId || !body || !viewer.canPost) return;
     setSubmitting(true);
     setError(null);
     try {
@@ -169,14 +203,14 @@ export default function CircleDetailClient({
   };
 
   const handleJoin = async () => {
-    if (!personId) return;
+    if (!personId || !viewer.join || viewer.join === "requested") return;
     setSubmitting(true);
     setError(null);
     try {
       await joinCircle({ circleId });
-      // Refetch members so the join button flips to compose mode.
-      const m = await getCircleMembers(circleId, 100);
-      setMembers(m);
+      // Re-resolve access on the server: the join (or the pending request)
+      // changes what this viewer may see.
+      setAccessVersion((v) => v + 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to join circle");
     } finally {
@@ -185,7 +219,7 @@ export default function CircleDetailClient({
   };
 
   const handleReaction = async (postId: string) => {
-    if (!personId) return;
+    if (!personId || !viewer.canReact) return;
     try {
       const result = await togglePostReaction({ postId });
       setPosts((prev) =>
@@ -214,9 +248,7 @@ export default function CircleDetailClient({
         All circles
       </Link>
 
-      {loading ? (
-        <Skeleton className="h-48 w-full rounded-(--radius-card)" />
-      ) : !circle ? (
+      {!circle ? (
         <Card className="border-0 bg-surface">
           <CardContent className="p-8 text-center">
             <p className="text-text-secondary">
@@ -269,13 +301,13 @@ export default function CircleDetailClient({
                 </div>
               </div>
 
-              {isAuthenticated && !isMember && (
+              {isAuthenticated && !isMember && viewer.join && (
                 <Button
                   onClick={handleJoin}
-                  disabled={submitting}
+                  disabled={submitting || viewer.join === "requested"}
                   className="rounded-full"
                 >
-                  {t("circle.join")}
+                  {JOIN_LABELS[viewer.join] ?? t("circle.join")}
                 </Button>
               )}
             </div>
@@ -290,266 +322,294 @@ export default function CircleDetailClient({
             </div>
           )}
 
-          <Tabs
-            value={tab}
-            onValueChange={(v) =>
-              onTabChange(
-                v as "events" | "stream" | "members" | "calendars" | "archive",
-              )
-            }
-          >
-            <TabsList className="mb-4">
-              <TabsTrigger value="events">
-                {t("circle.tabs.events")}
-              </TabsTrigger>
-              <TabsTrigger value="stream">
-                {t("circle.tabs.stream")}
-              </TabsTrigger>
-              <TabsTrigger value="members">
-                {t("circle.tabs.members")}
-              </TabsTrigger>
-              <TabsTrigger value="calendars">Calendars</TabsTrigger>
-              <TabsTrigger value="archive">
-                {t("circle.tabs.archive")}
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="events">
-              {events.length === 0 ? (
-                <Card className="border-0 bg-surface">
-                  <CardContent className="p-8 text-center text-text-secondary text-sm">
-                    <CalendarDays
-                      className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
-                      aria-hidden
-                    />
-                    No upcoming gatherings from this circle yet.
-                  </CardContent>
-                </Card>
-              ) : (
-                <NyuchiTimeline
-                  items={events.map((event): TimelineItem => ({
-                    id: event.id,
-                    date: event.startDate,
-                    time: event.date.time,
-                    title: event.name,
-                    host: event.organizer?.name,
-                    location:
-                      event.location.name || event.location.addressLocality,
-                    attendeeCount: event.attendeeCount,
-                    thumbnail: event.image
-                      ? getMediaUrl(event.image)
-                      : undefined,
-                    href: `/events/${event.id}`,
-                    mineral: categoryToMineral(event.category),
-                    category: event.category,
-                  }))}
+          {isPreview ? (
+            <Card className="border-0 bg-surface">
+              <CardContent className="p-8 text-center text-text-secondary text-sm">
+                <Lock
+                  className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
+                  aria-hidden
                 />
-              )}
-            </TabsContent>
+                {viewer.join === "accept_invite"
+                  ? "You've been invited to this circle. Accept the invitation to see its posts, events and members."
+                  : viewer.join === "requested"
+                    ? "Your request to join is waiting for the circle's moderators."
+                    : isAuthenticated
+                      ? "This circle is private. Its posts, events and members are visible to members only."
+                      : "This circle is private. Sign in to request to join."}
+              </CardContent>
+            </Card>
+          ) : loading ? (
+            <Skeleton className="h-48 w-full rounded-(--radius-card)" />
+          ) : (
+            <Tabs
+              value={tab}
+              onValueChange={(v) => onTabChange(v as CircleTab)}
+            >
+              <TabsList className="mb-4">
+                {viewer.canSeeEvents && (
+                  <TabsTrigger value="events">
+                    {t("circle.tabs.events")}
+                  </TabsTrigger>
+                )}
+                <TabsTrigger value="stream">
+                  {t("circle.tabs.stream")}
+                </TabsTrigger>
+                {viewer.canSeeMembers && (
+                  <TabsTrigger value="members">
+                    {t("circle.tabs.members")}
+                  </TabsTrigger>
+                )}
+                {viewer.canSeeEvents && (
+                  <TabsTrigger value="calendars">Calendars</TabsTrigger>
+                )}
+                {viewer.canSeeArchive && (
+                  <TabsTrigger value="archive">
+                    {t("circle.tabs.archive")}
+                  </TabsTrigger>
+                )}
+              </TabsList>
 
-            <TabsContent value="stream">
-              {isAuthenticated && isMember && (
-                <CircleDiscuss
-                  circleId={circleId}
-                  isAuthenticated={isAuthenticated}
-                />
-              )}
-              {isAuthenticated && isMember && (
-                <NyuchiContentComposer
-                  className="mb-4"
-                  placeholder={t("circle.compose.placeholder")}
-                  userName={user?.name ?? undefined}
-                  submitLabel="Post"
-                  submitting={submitting}
-                  showToolbar={false}
-                  onSubmit={handlePost}
-                />
-              )}
+              <TabsContent value="events">
+                {events.length === 0 ? (
+                  <Card className="border-0 bg-surface">
+                    <CardContent className="p-8 text-center text-text-secondary text-sm">
+                      <CalendarDays
+                        className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
+                        aria-hidden
+                      />
+                      No upcoming gatherings from this circle yet.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <NyuchiTimeline
+                    items={events.map((event): TimelineItem => ({
+                      id: event.id,
+                      date: event.startDate,
+                      time: event.date.time,
+                      title: event.name,
+                      host: event.organizer?.name,
+                      location:
+                        event.location.name || event.location.addressLocality,
+                      attendeeCount: event.attendeeCount,
+                      thumbnail: event.image
+                        ? getMediaUrl(event.image)
+                        : undefined,
+                      href: `/events/${event.id}`,
+                      mineral: categoryToMineral(event.category),
+                      category: event.category,
+                    }))}
+                  />
+                )}
+              </TabsContent>
 
-              {posts.length === 0 ? (
-                <Card className="border-0 bg-surface">
-                  <CardContent className="p-8 text-center text-text-secondary text-sm">
-                    {t("circle.empty")}
-                  </CardContent>
-                </Card>
-              ) : (
-                <ul className="space-y-3">
-                  {posts.map((post) => (
-                    <li key={post.id}>
-                      <Card className="border-0 bg-surface">
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-3 mb-2">
+              <TabsContent value="stream">
+                {isAuthenticated && viewer.canUseChat && (
+                  <CircleDiscuss
+                    circleId={circleId}
+                    isAuthenticated={isAuthenticated}
+                  />
+                )}
+                {isAuthenticated && viewer.canPost && (
+                  <NyuchiContentComposer
+                    className="mb-4"
+                    placeholder={t("circle.compose.placeholder")}
+                    userName={user?.name ?? undefined}
+                    submitLabel="Post"
+                    submitting={submitting}
+                    showToolbar={false}
+                    onSubmit={handlePost}
+                  />
+                )}
+
+                {posts.length === 0 ? (
+                  <Card className="border-0 bg-surface">
+                    <CardContent className="p-8 text-center text-text-secondary text-sm">
+                      {t("circle.empty")}
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <ul className="space-y-3">
+                    {posts.map((post) => (
+                      <li key={post.id}>
+                        <Card className="border-0 bg-surface">
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-3 mb-2">
+                              <div
+                                className="w-9 h-9 rounded-full bg-elevated flex items-center justify-center text-sm font-semibold shrink-0"
+                                aria-hidden
+                              >
+                                {authorInitial(authorLabel(post.author))}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-semibold">
+                                  {authorLabel(post.author)}
+                                </div>
+                                <div className="text-xs text-text-tertiary">
+                                  {post.created_at &&
+                                    new Date(post.created_at).toLocaleString()}
+                                </div>
+                              </div>
+                            </div>
+                            {post.text && (
+                              <p className="text-[15px] leading-relaxed whitespace-pre-wrap mb-3">
+                                {post.text}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-4 text-sm text-text-secondary">
+                              <button
+                                type="button"
+                                onClick={() => handleReaction(post.id)}
+                                disabled={!isAuthenticated || !viewer.canReact}
+                                className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
+                              >
+                                <Heart className="w-4 h-4" aria-hidden />
+                                {post.like_count ?? 0}
+                              </button>
+                              <span className="inline-flex items-center gap-1.5">
+                                <MessageCircle
+                                  className="w-4 h-4"
+                                  aria-hidden
+                                />
+                                {post.comment_count ?? 0}
+                              </span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </TabsContent>
+
+              <TabsContent value="members">
+                {members.length === 0 ? (
+                  <Card className="border-0 bg-surface">
+                    <CardContent className="p-8 text-center text-text-secondary text-sm">
+                      No members yet.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {members.map((m) => (
+                      <li key={m.person_id}>
+                        <Card className="border-0 bg-surface">
+                          <CardContent className="p-3 flex items-center gap-3">
                             <div
-                              className="w-9 h-9 rounded-full bg-elevated flex items-center justify-center text-sm font-semibold shrink-0"
+                              className="w-10 h-10 rounded-full bg-elevated flex items-center justify-center font-semibold shrink-0"
                               aria-hidden
                             >
-                              {authorInitial(authorLabel(post.author))}
+                              {authorInitial(authorLabel(m.person))}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-semibold">
-                                {authorLabel(post.author)}
+                              <div className="text-sm font-semibold truncate">
+                                {authorLabel(m.person)}
                               </div>
-                              <div className="text-xs text-text-tertiary">
-                                {post.created_at &&
-                                  new Date(post.created_at).toLocaleString()}
+                              <div className="text-xs text-text-tertiary uppercase tracking-wider">
+                                {m.role}
                               </div>
                             </div>
-                          </div>
-                          {post.text && (
-                            <p className="text-[15px] leading-relaxed whitespace-pre-wrap mb-3">
-                              {post.text}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-text-secondary">
-                            <button
-                              type="button"
-                              onClick={() => handleReaction(post.id)}
-                              disabled={!isAuthenticated}
-                              className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
-                            >
-                              <Heart className="w-4 h-4" aria-hidden />
-                              {post.like_count ?? 0}
-                            </button>
-                            <span className="inline-flex items-center gap-1.5">
-                              <MessageCircle className="w-4 h-4" aria-hidden />
-                              {post.comment_count ?? 0}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </TabsContent>
+                          </CardContent>
+                        </Card>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </TabsContent>
 
-            <TabsContent value="members">
-              {members.length === 0 ? (
-                <Card className="border-0 bg-surface">
-                  <CardContent className="p-8 text-center text-text-secondary text-sm">
-                    No members yet.
-                  </CardContent>
-                </Card>
-              ) : (
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {members.map((m) => (
-                    <li key={m.person_id}>
-                      <Card className="border-0 bg-surface">
-                        <CardContent className="p-3 flex items-center gap-3">
-                          <div
-                            className="w-10 h-10 rounded-full bg-elevated flex items-center justify-center font-semibold shrink-0"
+              <TabsContent value="calendars">
+                {isOwner && (
+                  <AttachCalendar
+                    circleId={circleId}
+                    attachedIds={calendars.map((c) => c.id)}
+                    onAttached={refetchCalendars}
+                  />
+                )}
+                {calendars.length === 0 ? (
+                  <Card className="border-0 bg-surface">
+                    <CardContent className="p-8 text-center text-text-secondary text-sm">
+                      <CalendarRange
+                        className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
+                        aria-hidden
+                      />
+                      No calendars stream through this circle yet.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {calendars.map((c) => (
+                      <li key={c.id}>
+                        <Link
+                          href={`/calendars/${c.slug}`}
+                          className="group flex items-center gap-4 rounded-[var(--radius-card,14px)] border border-border bg-card px-4 py-3.5 transition-shadow hover:shadow-md"
+                        >
+                          <span
+                            className="flex size-12 shrink-0 items-center justify-center rounded-xl text-primary-foreground"
+                            style={{
+                              background: getTheme(c.theme ?? undefined)
+                                .gradient,
+                            }}
                             aria-hidden
                           >
-                            {authorInitial(authorLabel(m.person))}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold truncate">
-                              {authorLabel(m.person)}
-                            </div>
-                            <div className="text-xs text-text-tertiary uppercase tracking-wider">
-                              {m.role}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </TabsContent>
-
-            <TabsContent value="calendars">
-              {isOwner && (
-                <AttachCalendar
-                  circleId={circleId}
-                  attachedIds={calendars.map((c) => c.id)}
-                  onAttached={refetchCalendars}
-                />
-              )}
-              {calendars.length === 0 ? (
-                <Card className="border-0 bg-surface">
-                  <CardContent className="p-8 text-center text-text-secondary text-sm">
-                    <CalendarRange
-                      className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
-                      aria-hidden
-                    />
-                    No calendars stream through this circle yet.
-                  </CardContent>
-                </Card>
-              ) : (
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {calendars.map((c) => (
-                    <li key={c.id}>
-                      <Link
-                        href={`/calendars/${c.slug}`}
-                        className="group flex items-center gap-4 rounded-[var(--radius-card,14px)] border border-border bg-card px-4 py-3.5 transition-shadow hover:shadow-md"
-                      >
-                        <span
-                          className="flex size-12 shrink-0 items-center justify-center rounded-xl text-primary-foreground"
-                          style={{
-                            background: getTheme(c.theme ?? undefined).gradient,
-                          }}
-                          aria-hidden
-                        >
-                          <CalendarRange className="w-5 h-5" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {c.name}
+                            <CalendarRange className="w-5 h-5" />
                           </span>
-                          {c.description && (
-                            <span className="block text-[13px] text-muted-foreground line-clamp-2">
-                              {c.description}
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                              {c.name}
                             </span>
-                          )}
-                          <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-tertiary">
-                            <Users className="w-3 h-3" aria-hidden />
-                            {c.followerCount}{" "}
-                            {c.followerCount === 1 ? "follower" : "followers"}
+                            {c.description && (
+                              <span className="block text-[13px] text-muted-foreground line-clamp-2">
+                                {c.description}
+                              </span>
+                            )}
+                            <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-tertiary">
+                              <Users className="w-3 h-3" aria-hidden />
+                              {c.followerCount}{" "}
+                              {c.followerCount === 1 ? "follower" : "followers"}
+                            </span>
                           </span>
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </TabsContent>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </TabsContent>
 
-            <TabsContent value="archive">
-              {archived.length === 0 ? (
-                <Card className="border-0 bg-surface">
-                  <CardContent className="p-8 text-center text-text-secondary text-sm">
-                    <Archive
-                      className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
-                      aria-hidden
-                    />
-                    Nothing archived yet.
-                  </CardContent>
-                </Card>
-              ) : (
-                <ul className="space-y-3">
-                  {archived.map((post) => (
-                    <li key={post.id}>
-                      <Card className="border-0 bg-surface opacity-80">
-                        <CardContent className="p-4">
-                          <div className="text-xs text-text-tertiary mb-2">
-                            {authorLabel(post.author)} ·{" "}
-                            {post.created_at &&
-                              new Date(post.created_at).toLocaleDateString()}
-                          </div>
-                          {post.text && (
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                              {post.text}
-                            </p>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="archive">
+                {archived.length === 0 ? (
+                  <Card className="border-0 bg-surface">
+                    <CardContent className="p-8 text-center text-text-secondary text-sm">
+                      <Archive
+                        className="w-8 h-8 mx-auto mb-2 text-text-tertiary"
+                        aria-hidden
+                      />
+                      Nothing archived yet.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <ul className="space-y-3">
+                    {archived.map((post) => (
+                      <li key={post.id}>
+                        <Card className="border-0 bg-surface opacity-80">
+                          <CardContent className="p-4">
+                            <div className="text-xs text-text-tertiary mb-2">
+                              {authorLabel(post.author)} ·{" "}
+                              {post.created_at &&
+                                new Date(post.created_at).toLocaleDateString()}
+                            </div>
+                            {post.text && (
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                                {post.text}
+                              </p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </TabsContent>
+            </Tabs>
+          )}
         </>
       )}
     </div>
