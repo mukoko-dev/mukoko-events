@@ -9,6 +9,9 @@
  * session (via AuthKit's `withAuth()`) or the local dev bypass — the browser
  * never passes a person id and never touches MongoDB directly.
  *
+ * With the Nyuchi API key set, this is `GET /v1/circles?mine=true` as the
+ * person (active memberships, secret circles included). Without it:
+ *
  * Mukoko v3.1 model: a person's circles are found via
  * `circles.memberships` (memberPersonId → circleId, active rows only), then
  * the matching `circles.circles` documents are loaded and mapped to the small
@@ -23,6 +26,9 @@ import {
 import { getPersonByWorkosId } from "@/lib/mongo/users";
 import { isDevBypass, DEV_WORKOS_ID } from "@/lib/auth/dev";
 import type { CircleDoc } from "@/lib/mongo/types";
+import { isNyuchiApiConfigured } from "@/lib/nyuchi-api/client";
+import { optionalPersonApi } from "@/lib/nyuchi-api/session";
+import { circlesPath, listOf, type ApiCircle } from "@/lib/nyuchi-api/circles";
 
 /** Minimal circle shape the index list renders. */
 export interface CircleSummary {
@@ -54,6 +60,17 @@ function mapCircleDocToSummary(doc: CircleDoc): CircleSummary {
  * circles") or when the person isn't a member of any circle yet.
  */
 export async function getMyCircles(): Promise<CircleSummary[]> {
+  if (isNyuchiApiConfigured()) {
+    const api = await optionalPersonApi();
+    if (!api) return [];
+    const docs = listOf<ApiCircle>(
+      await api.get(circlesPath.list({ mine: true, limit: 100 })),
+    );
+    return docs
+      .filter((d) => d.isActive !== false)
+      .map((d) => mapCircleDocToSummary(d as unknown as CircleDoc));
+  }
+
   // Resolve the acting WorkOS id: live session, or the local dev bypass.
   let workosUserId: string | null = null;
   if (isDevBypass()) {
@@ -70,7 +87,7 @@ export async function getMyCircles(): Promise<CircleSummary[]> {
   // Active memberships → circle ids.
   const memberships = await circleMembershipsCollection();
   const membershipRows = await memberships
-    .find({ memberPersonId: person.personId, isActive: true })
+    .find({ memberPersonId: person.personId, membershipStatus: "active" })
     .project<{ circleId: string }>({ circleId: 1, _id: 0 })
     .toArray();
 
