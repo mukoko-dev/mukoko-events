@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const circles = { find: vi.fn(), findOne: vi.fn() };
+const memberships = { findOne: vi.fn() };
 
 /** Minimal chainable cursor stub resolving to `docs`. */
 function cursor<T>(docs: T[]) {
@@ -19,9 +20,10 @@ function cursor<T>(docs: T[]) {
 
 vi.mock("@/lib/mongo/databases", () => ({
   circlesCollection: vi.fn(async () => circles),
+  circleMembershipsCollection: vi.fn(async () => memberships),
 }));
 
-import { listFeaturedCircles } from "./circles";
+import { getCircleSummary, listFeaturedCircles } from "./circles";
 
 function circleDoc(id: string, circleType: unknown) {
   return {
@@ -68,5 +70,59 @@ describe("listFeaturedCircles", () => {
       ["pub", "public"],
       ["bc", "broadcast"],
     ]);
+  });
+});
+
+describe("getCircleSummary (calendar provenance link)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    memberships.findOne.mockResolvedValue(null);
+  });
+
+  it("names public and broadcast circles to anyone", async () => {
+    for (const type of ["public", "broadcast"]) {
+      circles.findOne.mockResolvedValueOnce(circleDoc("c1", type));
+      expect(await getCircleSummary("c1", null)).toEqual({
+        id: "c1",
+        name: "Circle c1",
+      });
+    }
+  });
+
+  it("never names a private or secret circle to an anonymous or non-member viewer", async () => {
+    for (const type of ["private", "secret", undefined]) {
+      for (const viewer of [null, "p-outsider"]) {
+        circles.findOne.mockResolvedValueOnce(circleDoc("c1", type));
+        expect(await getCircleSummary("c1", viewer)).toBeNull();
+      }
+    }
+  });
+
+  it("names a private or secret circle to its active members", async () => {
+    memberships.findOne.mockResolvedValue({
+      role: "member",
+      membershipStatus: "active",
+    });
+    for (const type of ["private", "secret"]) {
+      circles.findOne.mockResolvedValueOnce(circleDoc("c1", type));
+      expect(await getCircleSummary("c1", "p-member")).toEqual({
+        id: "c1",
+        name: "Circle c1",
+      });
+    }
+    expect(memberships.findOne).toHaveBeenCalledWith({
+      circleId: "c1",
+      memberPersonId: "p-member",
+    });
+  });
+
+  it("does not name an inactive or missing circle", async () => {
+    circles.findOne.mockResolvedValueOnce({
+      ...circleDoc("c1", "public"),
+      isActive: false,
+    });
+    expect(await getCircleSummary("c1", null)).toBeNull();
+    circles.findOne.mockResolvedValueOnce(null);
+    expect(await getCircleSummary("c1", null)).toBeNull();
   });
 });
