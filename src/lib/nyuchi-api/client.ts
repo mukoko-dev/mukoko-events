@@ -2,7 +2,7 @@ import "server-only";
 
 /**
  * Server-only client for the Nyuchi API (api.nyuchi.com) — the single writer
- * for the `circles` database (nyuchi/api-gateway#197, mukoko-dev/nhimbe#154).
+ * for the `circles` database (nyuchi/api-gateway#197, mukoko-dev/mukoko-events#154).
  *
  * Two ways to call it, both with Mukoko Events' own INTERNAL key pair
  * (`NYUCHI_API_CLIENT_ID` / `NYUCHI_API_CLIENT_SECRET`, server env only):
@@ -19,9 +19,13 @@ import "server-only";
  * a SHA-256 of the AuthKit token — never the token itself. Nothing here is
  * logged: no token, secret, or response body.
  *
- * There is deliberately NO fallback to MongoDB: without credentials every call
- * throws `NyuchiApiNotConfigured`, so a misconfigured deployment fails loudly
- * instead of silently writing around the API.
+ * The switch is flag-guarded by the credentials themselves: circle reads and
+ * writes go through the API only when `isNyuchiApiConfigured()` is true (both
+ * `NYUCHI_API_CLIENT_ID` and `NYUCHI_API_CLIENT_SECRET` set). Until the owner
+ * mints the key, the app keeps its server-side MongoDB path, held to the same
+ * access policy (`@/lib/circle-access`). Once configured there is no silent
+ * fallback: an API failure is an error, never a write around the API. Code
+ * that calls the API without checking the flag gets `NyuchiApiNotConfigured`.
  */
 
 import { createHash } from "node:crypto";
@@ -55,6 +59,19 @@ export class NyuchiApiError extends Error {
     this.status = status;
     this.code = code;
   }
+}
+
+/**
+ * True when Mukoko Events' Nyuchi API key pair is set. This is the switch for
+ * the circles migration (mukoko-dev/mukoko-events#154): set → the API is the
+ * reader and writer of circles; unset → the server-side MongoDB path.
+ */
+export function isNyuchiApiConfigured(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return Boolean(
+    env.NYUCHI_API_CLIENT_ID?.trim() && env.NYUCHI_API_CLIENT_SECRET?.trim(),
+  );
 }
 
 interface Credentials {
@@ -186,17 +203,14 @@ export async function personToken(accessToken: string): Promise<string> {
   let res = await exchange(creds, accessToken);
   if (res.status === 404) {
     // A first sign-in: provision the person once, then exchange again.
-    const ensured = await send(
-      `${creds.baseUrl}/v1/identity/persons/ensure`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json", ...keyHeaders(creds) },
-        body: JSON.stringify({
-          subject_token: accessToken,
-          subject_token_type: ACCESS_TOKEN_TYPE,
-        }),
-      },
-    );
+    const ensured = await send(`${creds.baseUrl}/v1/identity/persons/ensure`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...keyHeaders(creds) },
+      body: JSON.stringify({
+        subject_token: accessToken,
+        subject_token_type: ACCESS_TOKEN_TYPE,
+      }),
+    });
     if (!ensured.ok) throw await refusal(ensured);
     res = await exchange(creds, accessToken);
   }
@@ -281,7 +295,6 @@ export function asService(): NyuchiApi {
 
 /** One path segment, encoded. Every id in a path goes through this. */
 export function seg(value: string): string {
-  if (!value || value.length > 200)
-    throw new Error("Invalid identifier.");
+  if (!value || value.length > 200) throw new Error("Invalid identifier.");
   return encodeURIComponent(value);
 }

@@ -96,9 +96,9 @@ describe("asPerson", () => {
       .mockResolvedValueOnce(
         json(403, { detail: "You are not a member of this circle" }),
       );
-    const err = await asPerson("t")
+    const err = (await asPerson("t")
       .post("/v1/circles/c1/posts", { article_body: "hi" })
-      .catch((e) => e);
+      .catch((e: unknown) => e)) as NyuchiApiError;
     expect(err).toBeInstanceOf(NyuchiApiError);
     expect(err.status).toBe(403);
     expect(err.message).toBe("You are not a member of this circle");
@@ -108,7 +108,9 @@ describe("asPerson", () => {
 describe("asService", () => {
   it("uses a client_credentials machine token", async () => {
     fetchMock
-      .mockResolvedValueOnce(json(200, { access_token: "m2m", expires_in: 300 }))
+      .mockResolvedValueOnce(
+        json(200, { access_token: "m2m", expires_in: 300 }),
+      )
       .mockResolvedValueOnce(json(200, { data: [] }));
     await asService().get("/v1/circles/featured?limit=6");
     const form = new URLSearchParams(fetchMock.mock.calls[0][1].body as string);
