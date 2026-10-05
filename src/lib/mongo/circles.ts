@@ -23,6 +23,8 @@ import {
 export interface FeaturedCircle {
   id: string;
   name: string;
+  /** The circle's address on circles.mukoko.com (`/c/{slug}`), if it has one. */
+  slug: string | null;
   description: string | null;
   /**
    * Drives the join affordance: public → "Join", broadcast → "Follow".
@@ -112,6 +114,7 @@ export async function listFeaturedCircles(
       {
         id: d._id,
         name: d.name,
+        slug: d.slug ?? null,
         description: d.description ?? null,
         circleType,
         memberCount: d.memberCount ?? 0,
