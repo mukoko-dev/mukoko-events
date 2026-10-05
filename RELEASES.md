@@ -6,6 +6,7 @@ Mukoko Events uses **continuous deployment** with manual version tags for milest
 
 ### Unreleased
 
+- **Security: circle access rules are enforced on the server** (#164). `/circles/<id>` and every circle action now check the viewer's membership against the circle-type rules the Nyuchi API enforces. A secret circle is a 404 to anyone but its members and invitees. A private circle shows non-members its name, description and counts with "Request to join", and its posts, events, calendars and members are for members only. Posting, reacting, the circle chat and the removed-post archive check membership and role. Calendar and event pages link to a private or secret circle only for its members. Joining a private circle now sends a request instead of joining at once, and new posts in public and broadcast circles are public.
 - **Discover lists public circles only.** Featured circles on `/discover` now show public and broadcast circles only. Private and secret circles are never listed, and neither is a circle with a missing or unknown type. The rule is checked in the Mongo query and again in the page. Each listed circle links to its public page, `/circles/<id>`.
 - **Rebranded to Mukoko Events** (mukoko-dev/nhimbe#155). "Nhimbe" is retired as a brand, and the app is Mukoko Events at `events.mukoko.com`. Titles, metadata, OpenGraph, the web manifest, `llms.txt`, emails, signage and kiosk copy, and the header and footer wordmarks all say Mukoko Events. Event short links and QR codes now print the primary origin (`events.mukoko.com/e/<code>`) instead of `nhimbe.com/e/<code>`. `www.nhimbe.com` now 308s straight to `events.mukoko.com` with the path kept. The package is renamed `mukoko-events`. Storage keys, `.nh-*` classes and iCalendar UIDs keep their old names so saved state survives.
 - Consolidated Nhimbe into a single full-stack app deployed on Vercel — retired the separate REST backend; the former `worker/` directory became the task-based **Mukoko Events MCP** server at `events.mukoko.com/mcp` (later extracted to its own repo — see below).
@@ -23,7 +24,8 @@ Mukoko Events uses **continuous deployment** with manual version tags for milest
 ## Deployment
 
 - **Preview** — every pull request gets an isolated preview deployment so changes can be reviewed in a running environment.
-- **Production** — merging to `main` deploys to production automatically.
+- **Staging** — pull requests target `staging`; every merge there is tagged as the next patch.
+- **Production** — `main`, reached through the release PR from `staging`. Merging to `main` deploys to production automatically.
 - **Rollback** — previous deployments can be promoted again from the hosting dashboard if a release needs to be reverted.
 
 Anything stack- or environment-specific (bindings, secrets, data ownership) is documented in **[CLAUDE.md](./CLAUDE.md)**, which is kept current as the architecture evolves.
@@ -71,10 +73,10 @@ We follow [Semantic Versioning](https://semver.org/):
 
 For a critical production issue:
 
-1. Branch from `main`: `hotfix/<description>`.
+1. Fix it on `staging` first (a `hotfix/<description>` branch, PR into `staging`).
 2. Make the smallest change that fixes it.
 3. Add a test that covers the fix.
-4. Open a PR, get review, and merge.
+4. Ship it to `main` through the release PR from `staging`.
 5. Confirm the production deployment.
 6. Tag a patch release.
 
