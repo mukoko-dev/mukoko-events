@@ -25,10 +25,17 @@ export type CircleType = "public" | "private" | "secret" | "broadcast";
 export type CircleRole = "owner" | "admin" | "moderator" | "member" | "guest";
 
 export type CircleMembershipStatus =
-  "active" | "pending_approval" | "invited" | "banned" | "left" | "removed";
+  | "active"
+  | "pending_approval"
+  | "invited"
+  | "banned"
+  | "left"
+  | "removed";
 
 export type CirclePostVisibility =
-  "public" | "circle_members" | "circle_admins_only";
+  | "public"
+  | "circle_members"
+  | "circle_admins_only";
 
 /**
  * How much of a circle the viewer may see:
@@ -42,7 +49,11 @@ export type CirclePostVisibility =
  * - `staff`   — an active owner, admin or moderator.
  */
 export type CircleAccessLevel =
-  "hidden" | "preview" | "reader" | "member" | "staff";
+  | "hidden"
+  | "preview"
+  | "reader"
+  | "member"
+  | "staff";
 
 /** What the viewer can do next to become part of the circle. */
 export type CircleJoinMode =
