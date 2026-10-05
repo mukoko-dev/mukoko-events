@@ -6,7 +6,13 @@
  * renders under jsdom with a fake auth context.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  fireEvent,
+} from "@testing-library/react";
 import { I18nProvider } from "@/lib/i18n/i18n-provider";
 import type { CircleDetail, CircleViewer } from "@/app/actions/circle-detail";
 
@@ -168,5 +174,40 @@ describe("CircleDetailPage gate", () => {
       expect(actions.getCircleMembers).toHaveBeenCalledWith(ID, 100),
     );
     expect(screen.getAllByRole("tab").length).toBe(5);
+  });
+
+  it("after joining, re-resolves access on the server and loads member content", async () => {
+    auth = { user: { personId: "p-new", name: "New Comer" } };
+    const reader = circle({
+      access: "reader",
+      isSignedIn: true,
+      canReadPosts: true,
+      canSeeEvents: true,
+      join: "join",
+    });
+    const joined = circle({
+      access: "member",
+      isSignedIn: true,
+      isMember: true,
+      canReadPosts: true,
+      canSeeEvents: true,
+      canSeeMembers: true,
+      canPost: true,
+      canReact: true,
+      canUseChat: true,
+    });
+    actions.getCircle
+      .mockResolvedValueOnce(reader)
+      .mockResolvedValueOnce(joined);
+    actions.joinCircle.mockResolvedValue("active");
+    await renderPage();
+    expect(actions.getCircleMembers).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /join/i }));
+    await waitFor(() =>
+      expect(actions.getCircleMembers).toHaveBeenCalledWith(ID, 100),
+    );
+    expect(actions.getCircle).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole("button", { name: /join/i })).toBeNull();
   });
 });

@@ -110,18 +110,17 @@ export default function CircleDetailClient({
     getCircleCalendars(circleId).then(setCalendars);
   }, [circleId]);
 
-  // Fetch what this viewer may see once per circleId (and again after a
-  // join changes their access). The server actions enforce the same rules
+  // Fetch what this viewer may see, once per circle and again whenever their
+  // access level changes (a join). The server actions enforce the same rules
   // and return empty for anything not permitted; skipping the calls here only
   // saves round trips. Setting state happens only inside the promise
   // resolution, never synchronously in the effect body — required by the
   // React 19 `set-state-in-effect` rule.
-  const [accessVersion, setAccessVersion] = useState(0);
+  const access = viewer.access;
   useEffect(() => {
     let cancelled = false;
     const none = <T,>(): Promise<T[]> => Promise.resolve([]);
     Promise.all([
-      accessVersion > 0 ? getCircle(circleId) : Promise.resolve(initialCircle),
       viewer.canSeeEvents ? getCircleEvents(circleId, 50) : none<Event>(),
       viewer.canReadPosts
         ? getCirclePosts(circleId, 30, false)
@@ -133,9 +132,8 @@ export default function CircleDetailClient({
         ? getCircleCalendars(circleId)
         : none<CircleCalendarSummary>(),
     ])
-      .then(([c, ev, p, m, cal]) => {
+      .then(([ev, p, m, cal]) => {
         if (cancelled) return;
-        setCircle(c);
         setEvents(ev);
         setPosts(p);
         setMembers(m);
@@ -153,10 +151,10 @@ export default function CircleDetailClient({
     return () => {
       cancelled = true;
     };
-    // `viewer` flags are derived from `circle`, which only changes through
-    // `accessVersion` — re-running on them would loop.
+    // The `viewer` flags are a function of `access` for a given circle, so
+    // keying on it re-runs exactly when what the viewer may see changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [circleId, accessVersion]);
+  }, [circleId, access]);
 
   const loadArchive = useCallback(async () => {
     if (archived.length > 0 || !viewer.canSeeArchive) return;
@@ -209,8 +207,8 @@ export default function CircleDetailClient({
     try {
       await joinCircle({ circleId });
       // Re-resolve access on the server: the join (or the pending request)
-      // changes what this viewer may see.
-      setAccessVersion((v) => v + 1);
+      // changes what this viewer may see, and the content effect follows.
+      setCircle(await getCircle(circleId));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to join circle");
     } finally {
