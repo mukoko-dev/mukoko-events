@@ -6,6 +6,7 @@ Mukoko Events uses **continuous deployment** with manual version tags for milest
 
 ### Unreleased
 
+- **Discover lists public circles only.** Featured circles on `/discover` now show public and broadcast circles only. Private and secret circles are never listed, and neither is a circle with a missing or unknown type. The rule is checked in the Mongo query and again in the page. Each listed circle links to its public page, `/circles/<id>`.
 - **Rebranded to Mukoko Events** (mukoko-dev/nhimbe#155). "Nhimbe" is retired as a brand, and the app is Mukoko Events at `events.mukoko.com`. Titles, metadata, OpenGraph, the web manifest, `llms.txt`, emails, signage and kiosk copy, and the header and footer wordmarks all say Mukoko Events. Event short links and QR codes now print the primary origin (`events.mukoko.com/e/<code>`) instead of `nhimbe.com/e/<code>`. `www.nhimbe.com` now 308s straight to `events.mukoko.com` with the path kept. The package is renamed `mukoko-events`. Storage keys, `.nh-*` classes and iCalendar UIDs keep their old names so saved state survives.
 - Consolidated Nhimbe into a single full-stack app deployed on Vercel — retired the separate REST backend; the former `worker/` directory became the task-based **Mukoko Events MCP** server at `events.mukoko.com/mcp` (later extracted to its own repo — see below).
 - Moved all data to **MongoDB** as the sole data store, read and written server-side (SSR-first, Server Actions).

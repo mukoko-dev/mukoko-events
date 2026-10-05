@@ -18,6 +18,10 @@ import { getTheme } from "@/lib/themes";
 import type { CategoryWithCount, CityWithCount } from "@/lib/mongo/lookups";
 import type { FeaturedCircle } from "@/lib/mongo/circles";
 import type { FeaturedCalendar } from "@/lib/mongo/calendars";
+import {
+  isPubliclyListableCircle,
+  publicCircleHref,
+} from "@/lib/circle-visibility";
 import { CreateCalendarCta } from "./create-calendar-cta";
 
 /**
@@ -60,10 +64,9 @@ const mineralIcon: Record<
 };
 
 /** Join affordance per circleType — a cue, not a mutation (join happens on
- *  the circle page). */
+ *  the circle page). Only public and broadcast circles are ever listed. */
 const joinLabel: Record<FeaturedCircle["circleType"], string> = {
   public: "Join",
-  private: "Request to join",
   broadcast: "Follow",
 };
 
@@ -107,6 +110,12 @@ export function DiscoverBrowse({
   calendars,
   cities,
 }: DiscoverBrowseProps) {
+  // Defence in depth: the read layer already excludes them, but a private,
+  // secret or untyped circle must never render here (owner rule, 2026-10-04).
+  const listableCircles = circles.filter((c) =>
+    isPubliclyListableCircle(c.circleType),
+  );
+
   return (
     <div className="max-w-300 mx-auto px-6 py-8 md:py-10">
       {/* Page header */}
@@ -198,12 +207,12 @@ export function DiscoverBrowse({
         <span id="discover-circles" className="sr-only">
           Featured circles
         </span>
-        {circles.length > 0 ? (
+        {listableCircles.length > 0 ? (
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {circles.map((c) => (
+            {listableCircles.map((c) => (
               <li key={c.id}>
                 <Link
-                  href={`/circles/${c.id}`}
+                  href={publicCircleHref(c.id)}
                   className="group flex items-center gap-4 rounded-[var(--radius-card,14px)] border border-border bg-card px-4 py-3.5 transition-shadow hover:shadow-md"
                 >
                   <span
