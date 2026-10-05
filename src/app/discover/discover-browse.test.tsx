@@ -1,9 +1,10 @@
 /**
- * /discover browse-surface tests (NYU-24 IA refresh + NYU-25 calendars).
+ * /discover browse-surface tests (NYU-24 IA refresh + NYU-25 calendars), on
+ * the Mzizi Discover Standard components (#161).
  *
- * The page is a BROWSE surface: four sections (categories → circles →
- * calendars → cities), every card a link into a scoped drill-down. No feed,
- * no timeline.
+ * The page is a BROWSE surface: a hero with the GET search, then four bands
+ * (categories → circles → calendars → cities), every chip and card a link
+ * into a scoped drill-down. No feed, no timeline.
  */
 
 import { describe, it, expect, vi } from "vitest";
@@ -46,6 +47,7 @@ const circles: FeaturedCircle[] = [
   {
     id: "11111111-1111-4111-8111-111111111111",
     name: "Harare Runners",
+    slug: "harare-runners",
     description: "Weekly park runs and trail meets.",
     circleType: "public",
     memberCount: 48,
@@ -54,6 +56,7 @@ const circles: FeaturedCircle[] = [
   {
     id: "33333333-3333-4333-8333-333333333333",
     name: "City Arts Wire",
+    slug: null,
     description: "Announcements from the arts collective.",
     circleType: "broadcast",
     memberCount: 200,
@@ -130,57 +133,55 @@ function renderBrowse(
   );
 }
 
+/** A card's whole text: the card is the <li> around its title link. */
+const card = (name: RegExp) =>
+  screen.getByRole("link", { name }).closest("li") as HTMLElement;
+
 describe("DiscoverBrowse", () => {
-  it("renders the four browse sections", () => {
+  it("renders the hero, the GET search and the four browse bands", () => {
     renderBrowse();
     expect(
-      screen.getByRole("heading", { name: "Discover" }),
+      screen.getByRole("heading", { level: 1, name: "Discover" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Browse by category" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Featured circles" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Featured calendars" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Explore by city" }),
-    ).toBeInTheDocument();
+    const search = screen.getByRole("search", { name: "Search events" });
+    expect(search).toHaveAttribute("action", "/search");
+    expect(search).toHaveAttribute("method", "get");
+    for (const name of [
+      "Browse by category",
+      "Featured circles",
+      "Featured calendars",
+      "Explore by city",
+    ]) {
+      expect(screen.getByRole("region", { name })).toBeInTheDocument();
+    }
   });
 
-  it("links category tiles into the /events drill-down with live counts", () => {
+  it("links category chips into the /events drill-down with live counts", () => {
     renderBrowse();
-    const tile = screen.getByRole("link", { name: /Tech & Innovation/ });
+    const nav = screen.getByRole("navigation", { name: "Event categories" });
+    const tile = screen.getByRole("link", { name: /^Tech & Innovation/ });
+    expect(nav).toContainElement(tile);
     expect(tile).toHaveAttribute("href", "/events?category=tech");
-    expect(tile).toHaveTextContent("12 events");
-    // Singular form (anchored — "Harare Live Music" is a calendar, not this tile)
-    expect(screen.getByRole("link", { name: /^Music/ })).toHaveTextContent(
-      "1 event",
-    );
+    expect(tile).toHaveTextContent("12");
   });
 
   it("presents circles as communities with a circleType-appropriate join affordance", () => {
     renderBrowse();
-    const publicRow = screen.getByRole("link", { name: /Harare Runners/ });
-    expect(publicRow).toHaveAttribute(
+    const runners = screen.getByRole("link", { name: "Harare Runners" });
+    // A circle with a slug links to its page on circles.mukoko.com.
+    expect(runners).toHaveAttribute(
       "href",
-      "/circles/11111111-1111-4111-8111-111111111111",
+      "https://circles.mukoko.com/c/harare-runners",
     );
-    expect(publicRow).toHaveTextContent("Join");
-    expect(publicRow).toHaveTextContent("48 members");
-    const broadcastRow = screen.getByRole("link", { name: /City Arts Wire/ });
-    expect(broadcastRow).toHaveAttribute(
-      "href",
-      "/circles/33333333-3333-4333-8333-333333333333",
-    );
-    expect(broadcastRow).toHaveTextContent("Follow");
+    expect(card(/Harare Runners/)).toHaveTextContent("Join");
+    expect(card(/Harare Runners/)).toHaveTextContent("48members");
+    // Without a slug, it links to its page here.
+    expect(
+      screen.getByRole("link", { name: "City Arts Wire" }),
+    ).toHaveAttribute("href", "/circles/33333333-3333-4333-8333-333333333333");
+    expect(card(/City Arts Wire/)).toHaveTextContent("Follow");
     expect(screen.queryByText("Request to join")).not.toBeInTheDocument();
-    // Circles are communities: circle rows count members, never followers,
-    // and never mention calendars.
-    expect(publicRow).not.toHaveTextContent(/calendar/i);
-    expect(publicRow).not.toHaveTextContent(/follower/i);
+    expect(card(/Harare Runners/)).not.toHaveTextContent(/follower/i);
   });
 
   it("never lists private, secret or untyped circles, even if the read layer leaks them", () => {
@@ -210,25 +211,32 @@ describe("DiscoverBrowse", () => {
 
   it("presents calendars as followable event streams linking to their pages", () => {
     renderBrowse();
-    const row = screen.getByRole("link", { name: /Harare Live Music/ });
-    expect(row).toHaveAttribute("href", "/calendars/harare-live-music-abc123");
-    expect(row).toHaveTextContent("132 followers");
+    expect(
+      screen.getByRole("link", { name: "Harare Live Music" }),
+    ).toHaveAttribute("href", "/calendars/harare-live-music-abc123");
+    const row = card(/Harare Live Music/);
+    expect(row).toHaveTextContent("132followers");
     expect(row).toHaveTextContent("Follow");
     expect(row).toHaveTextContent("Every gig worth catching in the capital.");
     // Singular follower form; calendars count followers, never members.
-    const single = screen.getByRole("link", { name: /Founders Breakfasts/ });
-    expect(single).toHaveTextContent("1 follower");
+    const single = card(/Founders Breakfasts/);
+    expect(single).toHaveTextContent("1follower");
     expect(single).not.toHaveTextContent(/member/i);
   });
 
-  it("links city cards into the /events drill-down", () => {
+  it("links city chips into the /events drill-down", () => {
     renderBrowse();
-    const card = screen
+    const chip = screen
       .getAllByRole("link")
       .find((a) => a.getAttribute("href") === "/events?city=Harare");
-    expect(card).toBeDefined();
-    expect(card).toHaveTextContent("Harare");
-    expect(card).toHaveTextContent("23 upcoming events");
+    expect(chip).toBeDefined();
+    expect(chip).toHaveTextContent("Harare, Zimbabwe");
+    expect(chip).toHaveTextContent("23");
+  });
+
+  it("has no inline styles (tokens only)", () => {
+    const { container } = renderBrowse();
+    expect(container.querySelector("[style]")).toBeNull();
   });
 
   it("degrades each section to a friendly empty message", () => {

@@ -99,6 +99,7 @@ export async function listFeaturedCircles(
       {
         id: d._id,
         name: d.name,
+        slug: d.slug ?? null,
         description: d.description ?? null,
         circleType,
         memberCount: d.memberCount ?? 0,
