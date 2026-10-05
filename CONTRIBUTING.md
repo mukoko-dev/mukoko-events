@@ -33,7 +33,7 @@ The full list of variables, and how the app fits together, lives in **[CLAUDE.md
 
 ## Workflow
 
-1. **Branch from `main`** with a descriptive name — `claude/<topic>`, or a feature branch like `feat/event-reminders`, `fix/registration-race`, `docs/readme`.
+1. **Branch from `staging`** with a descriptive name — `claude/<topic>`, or a feature branch like `feat/event-reminders`, `fix/registration-race`, `docs/readme`.
 2. **Make your change** following the conventions below, in focused commits.
 3. **Run the checks locally** before pushing:
 
@@ -43,7 +43,9 @@ The full list of variables, and how the app fits together, lives in **[CLAUDE.md
    npm run lint       # lint
    ```
 
-4. **Open a pull request** against `main` — keep it in **draft** until it's ready for review. CI must pass before merge.
+4. **Open a pull request** against `staging` — keep it in **draft** until it's ready for review. CI must pass before merge.
+
+`staging` is the integration branch: every merge into it is tagged as the next patch release. Production is `main`, and it moves only through the release PR from `staging` to `main` (a hotfix too). Never delete `staging`.
 
 ### Pull request style — big PR, focused commits
 

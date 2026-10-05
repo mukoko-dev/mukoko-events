@@ -26,7 +26,7 @@ vi.mock("@/lib/mongo/client", () => ({
   getMongoClient: vi.fn(async () => ({ db: () => campfireDb })),
 }));
 
-const persons = { findOne: vi.fn() };
+const persons = { findOne: vi.fn(), find: vi.fn() };
 const events = { findOne: vi.fn() };
 vi.mock("@/lib/mongo/databases", () => ({
   personsCollection: vi.fn(async () => persons),
@@ -38,6 +38,11 @@ vi.mock("@/lib/mongo/campfire", () => ({ ensureEventChatConversation }));
 
 const ensureHostEntityForPerson = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/mongo/entities", () => ({ ensureHostEntityForPerson }));
+
+// The circle access loader decides circle-paired chats; the policy itself is
+// covered in src/lib/circle-access.test.ts and circle-detail.test.ts.
+const loadCircleAccess = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/mongo/circle-access", () => ({ loadCircleAccess }));
 
 const syncPersonFromWorkos = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/mongo/users", () => ({ syncPersonFromWorkos }));
@@ -54,6 +59,7 @@ vi.mock("@workos-inc/authkit-nextjs", () => ({
 }));
 
 import {
+  getCampfireThread,
   postCampfireMessage,
   ensureEventChatConversationAction,
 } from "./campfire";
@@ -155,5 +161,75 @@ describe("ensureEventChatConversationAction", () => {
       /could not be found/,
     );
     expect(ensureEventChatConversation).not.toHaveBeenCalled();
+  });
+});
+
+describe("circle-paired chats are members only", () => {
+  const circleConversation = {
+    _id: "conv-circle",
+    isActive: true,
+    circleId: "circle-1",
+    messageCount: 1,
+  };
+  const access = (canUseChat: boolean) => ({
+    circle: { _id: "circle-1" },
+    membership: null,
+    permissions: { canUseChat },
+  });
+
+  beforeEach(() => {
+    conversations.findOne.mockResolvedValue(circleConversation);
+    messages.find.mockReturnValue({
+      sort: () => ({
+        limit: () => ({
+          toArray: async () => [
+            {
+              _id: "msg-1",
+              conversationId: "conv-circle",
+              senderPersonId: "person-2",
+              content: "members only",
+              sequence: 1,
+              sentAt: new Date("2026-10-01T00:00:00Z"),
+            },
+          ],
+        }),
+      }),
+    });
+    persons.find.mockReturnValue({ toArray: async () => [] });
+  });
+
+  it("a non-member (or a hidden circle) cannot read the chat", async () => {
+    for (const resolved of [access(false), null]) {
+      loadCircleAccess.mockResolvedValueOnce(resolved);
+      const thread = await getCampfireThread("conv-circle");
+      expect(thread.messages).toEqual([]);
+      expect(thread.degraded).toBe(true);
+    }
+    expect(loadCircleAccess).toHaveBeenCalledWith("circle-1", "person-1");
+    expect(messages.find).not.toHaveBeenCalled();
+  });
+
+  it("a non-member cannot post; the answer does not confirm the chat exists", async () => {
+    loadCircleAccess.mockResolvedValueOnce(access(false));
+    await expect(postCampfireMessage("conv-circle", "hi")).rejects.toThrow(
+      /no longer available/,
+    );
+    expect(conversations.findOneAndUpdate).not.toHaveBeenCalled();
+    expect(messages.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("a member reads and posts", async () => {
+    loadCircleAccess.mockResolvedValue(access(true));
+    const thread = await getCampfireThread("conv-circle");
+    expect(thread.messages.map((m) => m.text)).toEqual(["members only"]);
+    await expect(
+      postCampfireMessage("conv-circle", "hello"),
+    ).resolves.toBeTruthy();
+  });
+
+  it("event chats (no circleId) skip the circle check", async () => {
+    conversations.findOne.mockResolvedValue({ _id: "conv-1", isActive: true });
+    await postCampfireMessage("conv-1", "hi");
+    expect(loadCircleAccess).not.toHaveBeenCalled();
   });
 });

@@ -183,6 +183,14 @@ describe("CalendarPage (SSR render)", () => {
     expect(circleLink).toHaveAttribute("href", "/circles/circle-1");
   });
 
+  it("asks for the circle as the viewer, and omits the link when it is not theirs to see", async () => {
+    resolveActingPerson.mockResolvedValue({ _id: "viewer-1" });
+    getCircleSummary.mockResolvedValue(null); // e.g. a private circle
+    await renderPage();
+    expect(getCircleSummary).toHaveBeenCalledWith("circle-1", "viewer-1");
+    expect(document.querySelector('a[href^="/circles/"]')).toBeNull();
+  });
+
   it("offers logged-out visitors a sign-in-to-follow link with return_to, plus the .ics feed", async () => {
     await renderPage();
     const signIn = screen.getByRole("link", { name: /Sign in to follow/ });

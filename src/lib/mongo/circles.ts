@@ -12,6 +12,7 @@
 
 import "server-only";
 import { circlesCollection } from "./databases";
+import { loadCircleAccess } from "./circle-access";
 import {
   LISTABLE_CIRCLE_TYPES,
   isPubliclyListableCircle,
@@ -34,21 +35,18 @@ export interface FeaturedCircle {
 
 /**
  * Tiny id→name resolve for provenance links (e.g. a calendar's
- * "from <circle>" line). Secret circles are never named to outsiders.
+ * "from <circle>" line). Named only when the viewer may follow the link:
+ * public and broadcast circles for everyone, private and secret circles for
+ * their active members. A private circle's preview is not linked, and a
+ * secret circle is never named to outsiders.
  */
 export async function getCircleSummary(
   circleId: string,
+  viewerPersonId: string | null,
 ): Promise<{ id: string; name: string } | null> {
-  const col = await circlesCollection();
-  const doc = await col.findOne(
-    {
-      _id: circleId,
-      isActive: true,
-      circleType: { $in: ["public", "private", "broadcast"] },
-    },
-    { projection: { name: 1 } },
-  );
-  return doc ? { id: doc._id, name: doc.name } : null;
+  const resolved = await loadCircleAccess(circleId, viewerPersonId);
+  if (!resolved || !resolved.permissions.canBeLinked) return null;
+  return { id: resolved.circle._id, name: resolved.circle.name };
 }
 
 /** The small shape a "my circles" picker (e.g. calendar creation) renders. */

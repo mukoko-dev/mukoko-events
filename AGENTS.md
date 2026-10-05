@@ -70,13 +70,16 @@ npm run test:run   # Vitest, run once (~682 tests)
 
 ## Workflow
 
-- **Branch** off `main` as `claude/<topic>-<slug>` (or `feat/…`, `fix/…`,
-  `docs/…`).
+- **Target `staging`.** Branch off `staging` as `claude/<topic>-<slug>` (or
+  `feat/…`, `fix/…`, `docs/…`) and open every PR into `staging`. Each merge
+  into `staging` is tagged as the next patch. `staging` reaches `main`
+  (production) only through the release PR, and a production hotfix goes the
+  same way. **Never delete `staging`.**
 - **Big PR, focused commits** — the Nyuchi house style. Related work lands in
   **one** pull request as a sequence of independently readable commits. Don't
   open a second PR for "just one more cleanup" — append a commit to the active
   branch.
-- Open the PR as a **draft** against `main`, mirror
+- Open the PR as a **draft** against `staging`, mirror
   [`.github/pull_request_template.md`](./.github/pull_request_template.md), and
   **assign `bryanfawcett`**.
 - CI must be green (lint + build + tests + CodeQL) and the Vercel preview Ready
