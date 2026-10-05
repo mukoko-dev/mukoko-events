@@ -81,12 +81,16 @@ export default async function CalendarPage({ params }: CalendarPageProps) {
     listCalendarEvents(calendar._id, 100).catch(() => []),
     getEntityById(calendar.ownerEntityId).catch(() => null),
     calendar.circleId
-      ? getCircleSummary(calendar.circleId).catch(() => null)
+      ? getCircleSummary(calendar.circleId, viewer?._id ?? null).catch(
+          () => null,
+        )
       : null,
     viewer
       ? isFollowingCalendar(calendar._id, viewer._id).catch(() => false)
       : false,
   ]);
+
+  const isOwner = viewer !== null && viewer._id === calendar.ownerPersonId;
 
   const view: CalendarViewData = {
     id: calendar._id,
@@ -97,7 +101,9 @@ export default async function CalendarPage({ params }: CalendarPageProps) {
     eventCount: calendar.eventCount ?? 0,
     visibility: calendar.visibility,
     theme: calendar.theme ?? null,
-    circleId: calendar.circleId ?? null,
+    // The raw owning-circle id only re-seeds the owner's edit modal; other
+    // viewers get the provenance link below only when they may follow it.
+    circleId: isOwner ? (calendar.circleId ?? null) : null,
     ownerName: ownerEntity?.name ?? null,
     circle,
   };
@@ -108,7 +114,7 @@ export default async function CalendarPage({ params }: CalendarPageProps) {
       events={events}
       isAuthenticated={viewer !== null}
       initialFollowing={following}
-      isOwner={viewer !== null && viewer._id === calendar.ownerPersonId}
+      isOwner={isOwner}
     />
   );
 }
