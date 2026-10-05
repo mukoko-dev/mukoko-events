@@ -74,6 +74,8 @@ function circle(viewer: Partial<CircleViewer>): CircleDetail {
   return {
     id: ID,
     name: "Harare Makers",
+    slug: "harare-makers",
+    circle_type: "public",
     description: "People who make things.",
     circle_purpose: "",
     member_count: 12,
@@ -84,8 +86,13 @@ function circle(viewer: Partial<CircleViewer>): CircleDetail {
   };
 }
 
-async function renderPage(id = ID) {
-  const ui = await CircleDetailPage({ params: Promise.resolve({ id }) });
+const noQuery = () => Promise.resolve({});
+
+async function renderPage(id = ID, query: { created?: string } = {}) {
+  const ui = await CircleDetailPage({
+    params: Promise.resolve({ id }),
+    searchParams: Promise.resolve(query),
+  });
   return render(<I18nProvider>{ui}</I18nProvider>);
 }
 
@@ -99,14 +106,20 @@ describe("CircleDetailPage gate", () => {
   it("404s when the circle is hidden from the viewer (secret, inactive or missing)", async () => {
     actions.getCircle.mockResolvedValue(null);
     await expect(
-      CircleDetailPage({ params: Promise.resolve({ id: ID }) }),
+      CircleDetailPage({
+        params: Promise.resolve({ id: ID }),
+        searchParams: noQuery(),
+      }),
     ).rejects.toBe(NOT_FOUND);
     expect(actions.getCircle).toHaveBeenCalledWith(ID);
   });
 
   it("404s a malformed id without a lookup", async () => {
     await expect(
-      CircleDetailPage({ params: Promise.resolve({ id: "not-a-uuid" }) }),
+      CircleDetailPage({
+        params: Promise.resolve({ id: "not-a-uuid" }),
+        searchParams: noQuery(),
+      }),
     ).rejects.toBe(NOT_FOUND);
     expect(actions.getCircle).not.toHaveBeenCalled();
   });
@@ -209,5 +222,30 @@ describe("CircleDetailPage gate", () => {
     );
     expect(actions.getCircle).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole("button", { name: /join/i })).toBeNull();
+  });
+
+  it("tells the owner of a just-created public circle where it shows", async () => {
+    auth = { user: { personId: "p-owner", name: "Owner" } };
+    actions.getCircle.mockResolvedValue(
+      circle({
+        access: "staff",
+        isSignedIn: true,
+        isMember: true,
+        isOwner: true,
+        isStaff: true,
+      }),
+    );
+    await renderPage(ID, { created: "1" });
+    const status = screen.getByRole("status");
+    expect(status.textContent).toContain("Your circle is ready.");
+    expect(
+      screen.getByRole("link", { name: "circles.mukoko.com/c/harare-makers" }),
+    ).toHaveAttribute("href", "https://circles.mukoko.com/c/harare-makers");
+  });
+
+  it("shows no created notice to anyone but the owner", async () => {
+    actions.getCircle.mockResolvedValue(circle({ access: "reader" }));
+    await renderPage(ID, { created: "1" });
+    expect(screen.queryByText("Your circle is ready.")).toBeNull();
   });
 });

@@ -54,6 +54,11 @@ interface CircleDetailClientProps {
    * viewer may not see; the actions re-check every read and write.
    */
   initialCircle: CircleDetail;
+  /**
+   * Set when the viewer has just created this circle: where it will show on
+   * circles.mukoko.com (public and broadcast circles), or null.
+   */
+  createdNotice?: { siteUrl: string | null } | null;
 }
 
 type CircleTab = "events" | "stream" | "members" | "calendars" | "archive";
@@ -83,6 +88,7 @@ function authorInitial(label: string): string {
 export default function CircleDetailClient({
   circleId,
   initialCircle,
+  createdNotice = null,
 }: CircleDetailClientProps) {
   const { t } = useT();
   const { user, isAuthenticated } = useAuth();
@@ -245,6 +251,31 @@ export default function CircleDetailClient({
         <ArrowLeft className="w-4 h-4" aria-hidden />
         All circles
       </Link>
+
+      {createdNotice && (
+        <div
+          role="status"
+          className="mb-6 rounded-(--radius-card) border border-success p-4"
+        >
+          <p className="font-semibold">Your circle is ready.</p>
+          {createdNotice.siteUrl ? (
+            <p className="text-sm text-text-secondary mt-1">
+              It will appear on circles.mukoko.com within five minutes, at{" "}
+              <a
+                href={createdNotice.siteUrl}
+                className="text-primary underline underline-offset-4"
+              >
+                {createdNotice.siteUrl.replace("https://", "")}
+              </a>
+              .
+            </p>
+          ) : (
+            <p className="text-sm text-text-secondary mt-1">
+              Only the people you let in can see it.
+            </p>
+          )}
+        </div>
+      )}
 
       {!circle ? (
         <Card className="border-0 bg-surface">

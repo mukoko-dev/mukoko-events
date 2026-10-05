@@ -59,6 +59,8 @@ import { loadCircleAccessViaApi } from "@/lib/nyuchi-api/circle-access";
 import {
   canReadPostVisibility,
   defaultPostVisibility,
+  normaliseCircleType,
+  type CircleType,
   type CircleJoinMode,
   type CircleAccessLevel,
 } from "@/lib/circle-access";
@@ -93,6 +95,9 @@ export interface CirclePerson {
 export interface CircleDetail {
   id: string;
   name: string;
+  /** The circle's web address on circles.mukoko.com, when it has one. */
+  slug: string | null;
+  circle_type: CircleType;
   description: string | null;
   circle_purpose: string;
   member_count: number | null;
@@ -172,6 +177,8 @@ function mapCircle(
   return {
     id: doc._id,
     name: doc.name,
+    slug: doc.slug ?? null,
+    circle_type: normaliseCircleType(doc.circleType),
     description: doc.description ?? null,
     // The v3.1 circle has no distinct "purpose" field; surface the description
     // so the hero's `description || circle_purpose` fallback still renders.
