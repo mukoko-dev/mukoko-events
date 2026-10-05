@@ -18,8 +18,7 @@ import type {
   ReviewStats,
   UserReferralCode,
 } from "@/lib/api";
-import { resolveViewerPersonId } from "@/lib/auth/current-person";
-import { visibleCircleLinkIds } from "@/lib/mongo/circle-access";
+import { visibleCircleLinkIdsForViewer } from "@/lib/viewer-circle-access";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -106,10 +105,7 @@ async function loadCompanionData(eventId: string): Promise<{
 async function withVisibleCircleLink(event: Event): Promise<Event> {
   const circleId = event.eventCircleId;
   if (!circleId) return event;
-  const visible = await visibleCircleLinkIds(
-    [circleId],
-    await resolveViewerPersonId(),
-  );
+  const visible = await visibleCircleLinkIdsForViewer([circleId]);
   return visible.has(circleId) ? event : { ...event, eventCircleId: undefined };
 }
 

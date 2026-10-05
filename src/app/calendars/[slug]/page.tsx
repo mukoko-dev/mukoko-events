@@ -8,7 +8,7 @@ import {
   listCalendarEvents,
 } from "@/lib/mongo/calendars";
 import { getEntityById } from "@/lib/mongo/entities";
-import { getCircleSummary } from "@/lib/mongo/circles";
+import { getCircleSummary } from "@/lib/circles";
 import { resolveActingPerson } from "@/lib/auth/current-person";
 import { SITE_URL } from "@/lib/site-url";
 import { CalendarView, type CalendarViewData } from "./calendar-view";

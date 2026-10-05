@@ -74,7 +74,7 @@ vi.mock("@/lib/mongo/entities", () => ({
 }));
 
 const getCircleSummary = vi.fn();
-vi.mock("@/lib/mongo/circles", () => ({
+vi.mock("@/lib/circles", () => ({
   getCircleSummary: (...args: unknown[]) => getCircleSummary(...args),
 }));
 

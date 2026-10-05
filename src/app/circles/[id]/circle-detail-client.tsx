@@ -219,7 +219,7 @@ export default function CircleDetailClient({
   const handleReaction = async (postId: string) => {
     if (!personId || !viewer.canReact) return;
     try {
-      const result = await togglePostReaction({ postId });
+      const result = await togglePostReaction({ postId, circleId });
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId
