@@ -1,14 +1,24 @@
 export interface CategoryChipProps {
-  href: string
-  label: string
+  href: string;
+  label: string;
   /** How many items, e.g. 12 or "1,204". Empty text hides itself. */
-  count?: string | number
+  count?: string | number;
   /** The current category: true (or "page") sets aria-current="page". */
-  current?: boolean | string
+  current?: boolean | string;
 }
 
-export function CategoryChip({ href, label, count, current }: CategoryChipProps) {
-  const ariaCurrent = current === true ? "page" : current === false || current === undefined ? undefined : current
+export function CategoryChip({
+  href,
+  label,
+  count,
+  current,
+}: CategoryChipProps) {
+  const ariaCurrent =
+    current === true
+      ? "page"
+      : current === false || current === undefined
+        ? undefined
+        : current;
   return (
     <li data-slot="category-chip">
       <a
@@ -24,5 +34,5 @@ export function CategoryChip({ href, label, count, current }: CategoryChipProps)
         )}
       </a>
     </li>
-  )
+  );
 }
