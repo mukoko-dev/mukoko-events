@@ -42,7 +42,10 @@ export const dynamic = "force-dynamic";
 // calls into one query per request. Errors degrade to null → notFound().
 const loadEvent = cache(async (id: string) => {
   try {
-    return await getEventByIdOrSlug(id);
+    // The raw circle id is kept here only so withVisibleCircleLink can
+    // decide for this viewer; it is dropped before the client unless they
+    // may follow the link.
+    return await getEventByIdOrSlug(id, { keepAllCircleIds: true });
   } catch {
     return null;
   }

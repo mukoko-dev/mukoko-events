@@ -35,6 +35,10 @@ import { personsCollection, eventsCollection } from "@/lib/mongo/databases";
 import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
 import { ensureEventChatConversation } from "@/lib/mongo/campfire";
 import { canUseCircleChatAs } from "@/lib/viewer-circle-access";
+import {
+  isCalendarChatMember,
+  isEventChatMember,
+} from "@/lib/mongo/chat-membership";
 import { resolveViewerPersonId } from "@/lib/auth/current-person";
 import { newId, stampNew } from "@/lib/mongo/ids";
 import { syncPersonFromWorkos, type SyncPersonInput } from "@/lib/mongo/users";
@@ -58,6 +62,8 @@ interface CampfireConversationDoc extends Document {
   eventId?: string | null;
   /** Set on a circle's paired group chat — members only. */
   circleId?: string | null;
+  /** Set on a calendar's paired chat — owner and followers only. */
+  calendarId?: string | null;
   isActive?: boolean;
   messageCount?: number;
   participantCount?: number;
@@ -198,17 +204,38 @@ function toMessageView(doc: CampfireMessageDoc): CampfireMessage {
 }
 
 /**
- * A circle's paired chat is for its active members only (the circle access
- * policy, same as the Nyuchi API's `POST /circles/{id}/conversation`).
- * Conversations not paired to a circle are unaffected.
+ * Who may read and write a paired chat (#164), the same rules as the Nyuchi
+ * API's paired conversations:
+ *
+ * - a circle's chat: its active members (the circle access policy);
+ * - an event's chat and announcements: its hosts and attendees;
+ * - a calendar's chat: its owner and active followers.
+ *
+ * A conversation paired to nothing is unaffected. Checked on every read and
+ * every write, so a withdrawn RSVP, an unfollow or a lost membership takes
+ * effect at once.
  */
-async function canUseCircleChat(
+async function canUsePairedChat(
   conversation: CampfireConversationDoc,
   personId: string | null,
 ): Promise<boolean> {
-  if (!conversation.circleId) return true;
-  // Kept until the circle chat's messages move to the API (phase 2, #154).
-  return canUseCircleChatAs(conversation.circleId, personId);
+  if (conversation.circleId) {
+    // Kept until the circle chat's messages move to the API (phase 2, #154).
+    return canUseCircleChatAs(conversation.circleId, personId);
+  }
+  if (conversation.eventId) {
+    return isEventChatMember(conversation.eventId, personId);
+  }
+  if (conversation.calendarId) {
+    return isCalendarChatMember(conversation.calendarId, personId);
+  }
+  return true;
+}
+
+function isPaired(conversation: CampfireConversationDoc): boolean {
+  return Boolean(
+    conversation.circleId || conversation.eventId || conversation.calendarId,
+  );
 }
 
 // ── reads ────────────────────────────────────────────────────────────────
@@ -231,8 +258,8 @@ export async function getCampfireThread(
       return EMPTY_THREAD(conversationId);
     }
     if (
-      conversation.circleId &&
-      !(await canUseCircleChat(conversation, await resolveViewerPersonId()))
+      isPaired(conversation) &&
+      !(await canUsePairedChat(conversation, await resolveViewerPersonId()))
     ) {
       return EMPTY_THREAD(conversationId);
     }
@@ -259,8 +286,8 @@ export async function getCampfireThread(
 }
 
 /**
- * Resolve (creating on first use) an event's paired group chat. Any
- * signed-in visitor may open it — same openness as posting a message.
+ * Resolve (creating on first use) an event's paired group chat. For the
+ * event's hosts and attendees (an RSVP "yes" or a check-in) only.
  */
 export async function ensureEventChatConversationAction(
   eventId: string,
@@ -269,6 +296,9 @@ export async function ensureEventChatConversationAction(
   const events = await eventsCollection();
   const event = await events.findOne({ _id: eventId });
   if (!event) throw new Error("That event could not be found.");
+  if (!(await isEventChatMember(event._id, person._id))) {
+    throw new Error("RSVP to this event to join its chat.");
+  }
 
   const conversation = await ensureEventChatConversation({
     eventId,
@@ -312,9 +342,14 @@ export async function postCampfireMessage(
   if (!conversation || conversation.isActive === false) {
     throw new Error("This campfire is no longer available.");
   }
-  if (!(await canUseCircleChat(conversation, person._id))) {
+  if (!(await canUsePairedChat(conversation, person._id))) {
     // Same answer as a missing conversation — don't confirm it exists.
     throw new Error("This campfire is no longer available.");
+  }
+  if (conversation.conversationType === "system") {
+    // An event's announcement channel: hosts post through the event's
+    // update tools, never as a chat message.
+    throw new Error("Announcements are posted from the event's manage page.");
   }
 
   // Messages are entity-centric (Rule 10): the person acts through an entity.
