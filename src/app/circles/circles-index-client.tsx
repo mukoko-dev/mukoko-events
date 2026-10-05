@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Users, Flame, ArrowRight } from "lucide-react";
+import { Users, Flame, ArrowRight, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { NyuchiGroupCard } from "@/components/ui/nyuchi-group-card";
 import { NyuchiEmptyState } from "@/components/ui/nyuchi-empty-state";
@@ -63,6 +63,12 @@ export default function CirclesIndexClient() {
           {t("circle.title")}
         </h1>
         <p className="text-text-secondary max-w-150">{t("circle.subtitle")}</p>
+        <Link
+          href="/circles?create=1"
+          className="mt-6 inline-flex items-center gap-2 px-5 h-[var(--touch-target)] rounded-full bg-primary text-primary-foreground font-semibold"
+        >
+          <Plus className="w-4 h-4" aria-hidden /> Create a circle
+        </Link>
       </header>
 
       {!isAuthenticated && (
@@ -109,9 +115,9 @@ export default function CirclesIndexClient() {
         <NyuchiEmptyState
           icon={<Users />}
           title="No circles yet"
-          description="Hosts open a circle alongside their event so attendees can keep the conversation going. Once you join one, it appears here."
-          actionLabel="Find an event"
-          onAction={() => router.push("/events")}
+          description="Hosts open a circle alongside their event so attendees can keep the conversation going. Join one, or start your own."
+          actionLabel="Create a circle"
+          onAction={() => router.push("/circles?create=1")}
         />
       )}
 

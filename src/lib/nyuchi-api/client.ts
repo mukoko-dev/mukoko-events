@@ -52,12 +52,20 @@ export class NyuchiApiNotConfigured extends Error {
 export class NyuchiApiError extends Error {
   readonly status: number;
   readonly code: string | null;
+  /** A validation answer's per-field list (FastAPI `detail: [{loc, msg}]`). */
+  readonly details: { loc: unknown[]; msg: string }[];
 
-  constructor(status: number, message: string, code: string | null = null) {
+  constructor(
+    status: number,
+    message: string,
+    code: string | null = null,
+    details: { loc: unknown[]; msg: string }[] = [],
+  ) {
     super(message);
     this.name = "NyuchiApiError";
     this.status = status;
     this.code = code;
+    this.details = details;
   }
 }
 
@@ -137,10 +145,27 @@ async function send(url: string, init: RequestInit): Promise<Response> {
 async function refusal(res: Response): Promise<NyuchiApiError> {
   let message = `The Nyuchi API answered ${res.status}.`;
   let code: string | null = null;
+  let details: { loc: unknown[]; msg: string }[] = [];
   try {
     const body = (await res.json()) as Record<string, unknown>;
     const detail = body.detail;
-    if (typeof detail === "string") message = detail;
+    if (Array.isArray(detail)) {
+      details = detail.flatMap((d) =>
+        d &&
+        typeof d === "object" &&
+        typeof (d as { msg?: unknown }).msg === "string"
+          ? [
+              {
+                loc: Array.isArray((d as { loc?: unknown }).loc)
+                  ? (d as { loc: unknown[] }).loc
+                  : [],
+                msg: (d as { msg: string }).msg,
+              },
+            ]
+          : [],
+      );
+      if (details[0]) message = details[0].msg;
+    } else if (typeof detail === "string") message = detail;
     else if (detail && typeof detail === "object") {
       const d = detail as Record<string, unknown>;
       if (typeof d.error_description === "string")
@@ -153,7 +178,7 @@ async function refusal(res: Response): Promise<NyuchiApiError> {
   } catch {
     // Not JSON — keep the generic sentence.
   }
-  return new NyuchiApiError(res.status, message, code);
+  return new NyuchiApiError(res.status, message, code, details);
 }
 
 function keyHeaders(creds: Credentials): Record<string, string> {
