@@ -479,6 +479,7 @@
   --text-body-lg: var(--fs-body-lg);
   --text-body: var(--fs-body);
   --text-small: var(--fs-small);
+  --text-body-sm: var(--fs-small);
   --text-caption: var(--fs-caption);
   --text-code: var(--fs-code);
   --color-cobalt-container: var(--container-cobalt);
