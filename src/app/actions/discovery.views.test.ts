@@ -15,6 +15,23 @@ const withAuth = vi.fn(
 );
 vi.mock("@workos-inc/authkit-nextjs", () => ({ withAuth: () => withAuth() }));
 vi.mock("@/lib/auth/dev", () => ({ isDevBypass: () => false }));
+// The view path must never touch MongoDB: any collection access fails the test.
+const mongoTouched = vi.fn();
+vi.mock(
+  "@/lib/mongo/databases",
+  () =>
+    new Proxy(
+      {},
+      {
+        get:
+          (_t, name) =>
+          (...args: unknown[]) => {
+            mongoTouched(name, ...args);
+            throw new Error("MongoDB must not be touched by the view path");
+          },
+      },
+    ),
+);
 // The discovery module also exports Mongo reads; none run here.
 vi.mock("@/lib/mongo/events", () => ({}));
 vi.mock("@/lib/mongo/lookups", () => ({}));
@@ -77,6 +94,14 @@ describe("trackEventViewAction", () => {
     });
     expect(body.visitor_key).toMatch(/^[0-9a-f]{32}$/);
     expect(JSON.stringify(body)).not.toContain("203.0.113.7");
+  });
+
+  it("100 calls from one visitor on one day carry one visitor key and never write MongoDB", async () => {
+    for (let i = 0; i < 100; i++) await trackEventViewAction("evt-1");
+    const keys = new Set(viewBodies().map((b) => b.visitor_key));
+    expect(viewBodies()).toHaveLength(100);
+    expect(keys.size).toBe(1);
+    expect(mongoTouched).not.toHaveBeenCalled();
   });
 
   it("gives repeated views from one visitor the same key (counted once a day)", async () => {
