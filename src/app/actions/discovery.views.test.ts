@@ -55,6 +55,7 @@ afterEach(() => {
 
 describe("trackEventViewAction", () => {
   it("posts the view with the referrer's host and the edge city, no person", async () => {
+    headerValues.set("x-real-ip", "203.0.113.7");
     headerValues.set("x-vercel-ip-city", "Harare");
     await trackEventViewAction("evt-1", "https://wa.me/123?text=hi");
     expect(viewBody()).toEqual({
@@ -83,7 +84,8 @@ describe("trackEventViewAction", () => {
     const posts = fetchMock.mock.calls.filter(([u]) =>
       String(u).endsWith("/v1/analytics/views"),
     );
-    expect(posts).toHaveLength(30);
+    // 5 per source per event per 10 minutes.
+    expect(posts).toHaveLength(5);
   });
 
   it("records nothing, and does not throw, when the API is not configured", async () => {

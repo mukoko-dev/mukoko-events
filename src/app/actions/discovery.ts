@@ -25,6 +25,7 @@ import { loadCommunityStats } from "@/lib/community-stats";
 import { asService, isNyuchiApiConfigured } from "@/lib/nyuchi-api/client";
 import { recordView, referrerHost } from "@/lib/nyuchi-api/analytics";
 import { allowView } from "@/lib/view-throttle";
+import { clientAddress } from "@/lib/client-address";
 import type {
   Category,
   CommunityStats,
@@ -54,8 +55,8 @@ export async function findEventAction(idOrSlug: string): Promise<Event | null> {
 /**
  * Record a page view for an event: `POST /v1/analytics/views` on the Nyuchi
  * API (nyuchi/api-gateway#268). No person is sent or stored: only the event,
- * the referrer's host (never our own) and the viewer's city as Vercel's edge
- * reports it. Best-effort: when the API is not configured or the call fails,
+ * the referrer's host (never our own) and the viewer's city as the edge
+ * reports it (Cloudflare's, when the request came through Cloudflare). Best-effort: when the API is not configured or the call fails,
  * nothing is recorded and nothing breaks. Server-side caps
  * (`@/lib/view-throttle`) guard our service token against a loop; repeat
  * views from one browser are de-duplicated in the browser. The API answers
@@ -72,14 +73,8 @@ export async function trackEventViewAction(
   if (typeof eventId !== "string" || !EVENT_ID.test(eventId)) return;
   try {
     const h = await headers();
-    // Vercel sets x-real-ip to the client address it saw; the first
-    // x-forwarded-for entry is caller-supplied, so only the last one
-    // (appended by the platform's proxy) is used as a fallback.
-    const address =
-      h.get("x-real-ip")?.trim() ||
-      h.get("x-forwarded-for")?.split(",").pop()?.trim() ||
-      "";
-    if (!allowView(address)) return;
+    const { address, city } = clientAddress(h);
+    if (!allowView(address, eventId)) return;
     const ownHost = (h.get("x-forwarded-host") ?? h.get("host") ?? "")
       .split(":")[0]
       .trim();
@@ -87,20 +82,11 @@ export async function trackEventViewAction(
       typeof referrer === "string" ? referrer.slice(0, 2048) : undefined,
       ownHost || null,
     );
-    let locality: string | undefined;
-    const city = h.get("x-vercel-ip-city");
-    if (city) {
-      try {
-        locality = decodeURIComponent(city).slice(0, 100) || undefined;
-      } catch {
-        locality = undefined;
-      }
-    }
     await recordView(asService(), {
       subject_type: "Event",
       subject_id: eventId,
       ...(source ? { referrer_host: source } : {}),
-      ...(locality ? { locality } : {}),
+      ...(city ? { locality: city } : {}),
     });
   } catch {
     // Analytics never break the page.
