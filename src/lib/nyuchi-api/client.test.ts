@@ -4,6 +4,7 @@ vi.mock("server-only", () => ({}));
 
 import {
   __resetTokenCache,
+  __tokenCacheSize,
   asPerson,
   asService,
   NyuchiApiError,
@@ -74,6 +75,25 @@ describe("asPerson", () => {
       String(u).endsWith("/v1/auth/token"),
     );
     expect(exchanges).toHaveLength(1);
+  });
+
+  it("drops expired tokens as new ones are cached (AuthKit tokens rotate)", async () => {
+    vi.useFakeTimers();
+    try {
+      fetchMock.mockImplementation(async (u: unknown) =>
+        String(u).endsWith("/v1/auth/token")
+          ? json(200, { access_token: "person-jwt", expires_in: 60 })
+          : json(200, { data: [] }),
+      );
+      await asPerson("authkit-token-1").get("/v1/circles");
+      await asPerson("authkit-token-2").get("/v1/circles");
+      expect(__tokenCacheSize()).toBe(2);
+      vi.advanceTimersByTime(31_000);
+      await asPerson("authkit-token-3").get("/v1/circles");
+      expect(__tokenCacheSize()).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("provisions a first-time person once, then exchanges again", async () => {
