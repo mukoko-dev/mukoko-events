@@ -70,6 +70,22 @@ describe("trackEventViewAction", () => {
     expect(viewBody()).toEqual({ subject_type: "Event", subject_id: "evt-1" });
   });
 
+  it("ignores an id that is not an event id, and caps a looping caller", async () => {
+    await trackEventViewAction("x".repeat(65));
+    await trackEventViewAction("evt 1; drop");
+    expect(fetchMock).not.toHaveBeenCalled();
+    headerValues.set("x-real-ip", "203.0.113.7");
+    // A spoofed first x-forwarded-for entry is not the key.
+    for (let i = 0; i < 40; i++) {
+      headerValues.set("x-forwarded-for", `198.51.100.${i}, 203.0.113.7`);
+      await trackEventViewAction("evt-1");
+    }
+    const posts = fetchMock.mock.calls.filter(([u]) =>
+      String(u).endsWith("/v1/analytics/views"),
+    );
+    expect(posts).toHaveLength(30);
+  });
+
   it("records nothing, and does not throw, when the API is not configured", async () => {
     vi.stubEnv("NYUCHI_API_CLIENT_ID", "");
     await expect(trackEventViewAction("evt-1")).resolves.toBeUndefined();

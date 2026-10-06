@@ -4,10 +4,11 @@ vi.mock("server-only", () => ({}));
 
 import {
   __resetViewThrottle,
+  __viewThrottleSize,
   allowView,
+  MAX_ENTRIES,
   networkOf,
   PER_NETWORK_PER_MINUTE,
-  PER_SOURCE_PER_EVENT,
   PER_SOURCE_PER_MINUTE,
   sourceOf,
 } from "./view-throttle";
@@ -29,36 +30,32 @@ describe("sourceOf / networkOf", () => {
 });
 
 describe("allowView", () => {
-  it("caps one source's views of one event, but lets a crowd through", () => {
-    for (let i = 0; i < PER_SOURCE_PER_EVENT; i++)
-      expect(allowView("203.0.113.7", "evt-1", i)).toBe(true);
-    expect(allowView("203.0.113.7", "evt-1", 100)).toBe(false);
-    expect(allowView("203.0.113.7", "evt-2", 100)).toBe(true);
-    expect(allowView("198.51.100.2", "evt-1", 100)).toBe(true);
-    expect(allowView("203.0.113.7", "evt-1", 30 * 60_000 + 1)).toBe(true);
-  });
-
-  it("caps one source's views a minute across events", () => {
+  it("gives a source the API's anonymous allowance a minute", () => {
     for (let i = 0; i < PER_SOURCE_PER_MINUTE; i++)
-      expect(allowView("203.0.113.7", `evt-${i}`, 0)).toBe(true);
-    expect(allowView("203.0.113.7", "evt-extra", 10)).toBe(false);
-    expect(allowView("203.0.113.7", "evt-extra", 60_001)).toBe(true);
+      expect(allowView("203.0.113.7", 0)).toBe(true);
+    expect(allowView("203.0.113.7", 10)).toBe(false);
+    expect(allowView("198.51.100.2", 10)).toBe(true);
+    expect(allowView("203.0.113.7", 60_001)).toBe(true);
   });
 
   it("treats a /56 as one source and caps a whole /48", () => {
-    for (let i = 0; i < PER_SOURCE_PER_MINUTE; i++)
-      expect(
-        allowView(`2001:db8:1:200::${(i + 1).toString(16)}`, `e${i}`, 0),
-      ).toBe(true);
-    expect(allowView("2001:db8:1:2ff::1", "e-x", 1)).toBe(false);
-    // Rotating /56s inside one /48 hits the network cap.
     let allowed = 0;
     for (let s = 0; s < 64; s++)
       for (let i = 0; i < PER_SOURCE_PER_MINUTE; i++)
-        if (
-          allowView(`2001:db8:1:${(s + 3).toString(16)}00::1`, `e${s}-${i}`, 2)
-        )
+        if (allowView(`2001:db8:1:${(s + 1).toString(16)}00::${i + 1}`, 0))
           allowed += 1;
-    expect(allowed).toBe(PER_NETWORK_PER_MINUTE - PER_SOURCE_PER_MINUTE);
+    expect(allowed).toBe(PER_NETWORK_PER_MINUTE);
+  });
+
+  it("stays bounded, and O(1), under a flood of distinct keys", () => {
+    const started = performance.now();
+    for (let i = 0; i < 50_000; i++)
+      allowView(`10.${(i >> 16) & 255}.${(i >> 8) & 255}.${i & 255}`, 0);
+    for (let i = 0; i < 50_000; i++)
+      allowView(`2001:db8:${i.toString(16)}::1`, 0);
+    expect(__viewThrottleSize()).toBeLessThanOrEqual(2 * MAX_ENTRIES);
+    expect(performance.now() - started).toBeLessThan(5_000);
+    // A newcomer is still served once the tables are full.
+    expect(allowView("192.0.2.1", 0)).toBe(true);
   });
 });

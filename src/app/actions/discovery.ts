@@ -61,23 +61,32 @@ export async function findEventAction(idOrSlug: string): Promise<Event | null> {
  * views from one browser are de-duplicated in the browser. The API answers
  * 404 for an unknown or non-public event.
  */
+const EVENT_ID = /^[A-Za-z0-9_-]{1,64}$/;
+
 export async function trackEventViewAction(
   eventId: string,
   referrer?: string,
 ): Promise<void> {
   if (!isNyuchiApiConfigured()) return;
-  if (typeof eventId !== "string" || !eventId || eventId.length > 200) return;
+  // Event ids are string UUIDs: anything else is not an event.
+  if (typeof eventId !== "string" || !EVENT_ID.test(eventId)) return;
   try {
     const h = await headers();
+    // Vercel sets x-real-ip to the client address it saw; the first
+    // x-forwarded-for entry is caller-supplied, so only the last one
+    // (appended by the platform's proxy) is used as a fallback.
     const address =
-      h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      h.get("x-real-ip") ||
+      h.get("x-real-ip")?.trim() ||
+      h.get("x-forwarded-for")?.split(",").pop()?.trim() ||
       "";
-    if (!allowView(address, eventId)) return;
+    if (!allowView(address)) return;
     const ownHost = (h.get("x-forwarded-host") ?? h.get("host") ?? "")
       .split(":")[0]
       .trim();
-    const source = referrerHost(referrer, ownHost || null);
+    const source = referrerHost(
+      typeof referrer === "string" ? referrer.slice(0, 2048) : undefined,
+      ownHost || null,
+    );
     let locality: string | undefined;
     const city = h.get("x-vercel-ip-city");
     if (city) {
