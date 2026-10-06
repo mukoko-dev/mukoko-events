@@ -7,6 +7,11 @@ vi.mock("@workos-inc/authkit-nextjs", () => ({ withAuth: () => withAuth() }));
 const devBypass = vi.fn(() => false);
 vi.mock("@/lib/auth/dev", () => ({ isDevBypass: () => devBypass() }));
 
+const canManage = vi.fn(async () => true);
+vi.mock("@/app/actions/host-registrations", () => ({
+  canManageEventAction: () => canManage(),
+}));
+
 import { __resetTokenCache } from "@/lib/nyuchi-api/client";
 import { getEventAnalyticsAction } from "./analytics";
 import {
@@ -36,6 +41,7 @@ beforeEach(() => {
   routes.clear();
   fetchMock.mockClear();
   devBypass.mockReturnValue(false);
+  canManage.mockResolvedValue(true);
   withAuth.mockResolvedValue({ user: { id: "u1" }, accessToken: "authkit" });
   vi.stubGlobal("fetch", fetchMock);
   vi.stubEnv("NYUCHI_API_CLIENT_ID", "nyk_test");
@@ -83,6 +89,14 @@ describe("getEventAnalyticsAction", () => {
     expect(await getEventAnalyticsAction("evt-1")).toEqual({
       status: "unavailable",
     });
+  });
+
+  it("never calls the API for someone who does not host the event", async () => {
+    canManage.mockResolvedValue(false);
+    expect(await getEventAnalyticsAction("evt-1")).toEqual({
+      status: "unavailable",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("is unavailable when the API fails, never zeros", async () => {

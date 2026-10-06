@@ -15,6 +15,7 @@
 
 import { isNyuchiApiConfigured, NyuchiApiError } from "@/lib/nyuchi-api/client";
 import { personApi } from "@/lib/nyuchi-api/session";
+import { canManageEventAction } from "@/app/actions/host-registrations";
 import {
   clampDays,
   getEventAnalytics,
@@ -33,6 +34,10 @@ export async function getEventAnalyticsAction(
 ): Promise<EventAnalyticsResult> {
   if (!isNyuchiApiConfigured()) return { status: "unavailable" };
   try {
+    // Defence in depth: the same host gate as the manage page, before the
+    // API's own check.
+    if (!(await canManageEventAction(eventId)))
+      return { status: "unavailable" };
     const api = await personApi();
     const [analytics, insights] = await Promise.all([
       getEventAnalytics(api, eventId, clampDays(days)),
