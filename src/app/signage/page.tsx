@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { type Event, type CommunityStats } from "@/lib/api";
+import { formatCount } from "@/components/ui/community-insights";
 import {
   getEventsAction,
   getCommunityStatsAction,
@@ -150,17 +151,21 @@ function PlatformStatsBar({ stats }: { stats: CommunityStats }) {
   return (
     <div className="flex items-center gap-8 text-white/70">
       <div className="text-center">
-        <div className="text-2xl font-bold text-white">{stats.totalEvents}</div>
+        <div className="text-2xl font-bold text-white">
+          {formatCount(stats.totalEvents)}
+        </div>
         <div className="text-xs text-white/40">Events</div>
       </div>
       <div className="text-center">
         <div className="text-2xl font-bold text-white">
-          {stats.totalAttendees}
+          {formatCount(stats.totalAttendees)}
         </div>
         <div className="text-xs text-white/40">Attendees</div>
       </div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-white">{stats.activeHosts}</div>
+        <div className="text-2xl font-bold text-white">
+          {formatCount(stats.activeHosts)}
+        </div>
         <div className="text-xs text-white/40">Hosts</div>
       </div>
       {stats.trendingCategories.length > 0 && (
@@ -304,7 +309,7 @@ function HorizontalSignage({
                 >
                   <div className="text-sm font-semibold">{cat.category}</div>
                   <div className="text-xs text-white/40">
-                    {cat.events} events
+                    {formatCount(cat.events)} events
                   </div>
                 </div>
               ))}
@@ -408,7 +413,8 @@ export default function PublicSignagePage() {
         getCommunityStatsAction().catch(() => null),
       ]);
       setEvents(eventsData.events);
-      if (statsData) setStats(statsData);
+      // Only real figures reach the screen: no stats bar until the platform has them.
+      setStats(statsData?.available ? statsData : null);
     } catch {
       // Silently handle
     } finally {

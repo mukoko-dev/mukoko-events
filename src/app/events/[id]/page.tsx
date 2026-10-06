@@ -7,17 +7,11 @@ import { EventDetailContent } from "./event-detail-content";
 import { syncCurrentUser } from "@/app/actions/auth";
 import { canManageEventAction } from "@/app/actions/host-registrations";
 import {
-  getEventStatsAction,
   getEventReviewsAction,
   getUserReferralCodeAction,
   generateUserReferralCodeAction,
 } from "@/app/actions/engagement";
-import type {
-  Event,
-  EventStats,
-  ReviewStats,
-  UserReferralCode,
-} from "@/lib/api";
+import type { Event, ReviewStats, UserReferralCode } from "@/lib/api";
 import { visibleCircleLinkIdsForViewer } from "@/lib/viewer-circle-access";
 
 interface EventDetailPageProps {
@@ -52,7 +46,7 @@ const loadEvent = cache(async (id: string) => {
 });
 
 /**
- * Server-side companion data for the event-detail page — stats, review
+ * Server-side companion data for the event-detail page — review
  * aggregates, and (when signed in) the viewer's referral code. Previously
  * each of these was its own client `useEffect` firing after hydration
  * (three extra round trips, one of them gated behind the client auth
@@ -66,13 +60,11 @@ const loadEvent = cache(async (id: string) => {
  * fetch contract) and is left for later.
  */
 async function loadCompanionData(eventId: string): Promise<{
-  stats: EventStats | null;
   reviewStats: ReviewStats | null;
   userReferral: UserReferralCode | null;
   canManage: boolean;
 }> {
-  const [stats, reviews, userReferral, canManage] = await Promise.all([
-    getEventStatsAction(eventId).catch(() => null),
+  const [reviews, userReferral, canManage] = await Promise.all([
     getEventReviewsAction(eventId).catch(() => null),
     syncCurrentUser()
       .then(async (appUser) => {
@@ -92,7 +84,6 @@ async function loadCompanionData(eventId: string): Promise<{
     canManageEventAction(eventId).catch(() => false),
   ]);
   return {
-    stats,
     reviewStats: reviews?.stats ?? null,
     userReferral,
     canManage,
@@ -197,7 +188,7 @@ export default async function EventDetailPage({
     notFound();
   }
 
-  const [{ stats, reviewStats, userReferral, canManage }, viewEvent] =
+  const [{ reviewStats, userReferral, canManage }, viewEvent] =
     await Promise.all([
       loadCompanionData(event.id),
       withVisibleCircleLink(event),
@@ -266,7 +257,6 @@ export default async function EventDetailPage({
       />
       <EventDetailContent
         event={viewEvent}
-        initialStats={stats}
         initialReviewStats={reviewStats}
         initialUserReferral={userReferral}
         canManage={canManage}
