@@ -12,6 +12,7 @@ beforeEach(() => {
   track.mockReset();
   track.mockResolvedValue(undefined);
   __resetReferrer();
+  sessionStorage.clear();
   Object.defineProperty(document, "referrer", {
     value: "https://wa.me/123",
     configurable: true,
@@ -26,6 +27,13 @@ describe("EventViewTracker", () => {
       ["evt-1", "https://wa.me/123"],
       ["evt-2", undefined],
     ]);
+  });
+
+  it("counts one view per event per browser session window", () => {
+    const { unmount } = render(<EventViewTracker eventId="evt-1" />);
+    unmount();
+    render(<EventViewTracker eventId="evt-1" />);
+    expect(track).toHaveBeenCalledTimes(1);
   });
 
   it("never throws when recording fails", () => {

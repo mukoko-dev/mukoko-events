@@ -70,16 +70,6 @@ describe("trackEventViewAction", () => {
     expect(viewBody()).toEqual({ subject_type: "Event", subject_id: "evt-1" });
   });
 
-  it("records a repeat view from the same visitor only once", async () => {
-    headerValues.set("x-forwarded-for", "203.0.113.7, 10.0.0.1");
-    await trackEventViewAction("evt-1");
-    await trackEventViewAction("evt-1");
-    const posts = fetchMock.mock.calls.filter(([u]) =>
-      String(u).endsWith("/v1/analytics/views"),
-    );
-    expect(posts).toHaveLength(1);
-  });
-
   it("records nothing, and does not throw, when the API is not configured", async () => {
     vi.stubEnv("NYUCHI_API_CLIENT_ID", "");
     await expect(trackEventViewAction("evt-1")).resolves.toBeUndefined();

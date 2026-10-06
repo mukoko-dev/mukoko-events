@@ -1,68 +1,70 @@
 import "server-only";
 
 /**
- * Best-effort throttle for recording page views (`trackEventViewAction`).
+ * Coarse abuse cap for recording page views (`trackEventViewAction`).
  *
  * The action is public and posts with Mukoko Events' own service token, so
- * without a gate anyone could loop it to inflate views, or burn the key's
- * rate limit that other reads share. Per server instance (memory only):
- * - one view per visitor per event per {@link SAME_VIEW_MS}, and
- * - at most {@link PER_VISITOR_PER_MINUTE} recorded views per visitor a minute.
+ * without a cap a loop could inflate views or burn the key's rate limit that
+ * other reads share. This is only a ceiling, set well above what real people
+ * produce, so it never undercounts a crowd behind one carrier address (CGNAT):
+ * at most {@link PER_SOURCE_PER_MINUTE} recorded views a minute per source.
+ * Repeat views from one browser are de-duplicated in the browser
+ * (`EventViewTracker`), not here.
  *
- * The visitor key is a SHA-256 of the client address, held in memory only:
- * never sent to the API, logged or stored.
+ * A source is an IPv4 address or an IPv6 /64 (one home or host gets a whole
+ * /64, so rotating within it gains nothing). Per server instance, in memory:
+ * the key is a SHA-256, never sent to the API, logged or stored.
  */
 
 import { createHash } from "node:crypto";
 
-export const SAME_VIEW_MS = 30 * 60_000;
-export const PER_VISITOR_PER_MINUTE = 20;
+export const PER_SOURCE_PER_MINUTE = 120;
 const MAX_ENTRIES = 10_000;
 
-const lastView = new Map<string, number>();
-const perMinute = new Map<string, { start: number; count: number }>();
+const buckets = new Map<string, { start: number; count: number }>();
 
-function visitorKey(address: string): string {
-  return createHash("sha256").update(address).digest("hex");
+/** IPv4 as is; IPv6 cut to its /64 (the first four hextets, `::` expanded). */
+export function sourceOf(address: string): string {
+  const ip = address.trim().toLowerCase();
+  if (!ip.includes(":")) return ip || "unknown";
+  const v4mapped = ip.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+  if (v4mapped) return v4mapped[1];
+  const [head, tail = ""] = ip.split("::");
+  const left = head ? head.split(":") : [];
+  const right = ip.includes("::") ? (tail ? tail.split(":") : []) : [];
+  const full = ip.includes("::")
+    ? [
+        ...left,
+        ...Array(Math.max(0, 8 - left.length - right.length)).fill("0"),
+        ...right,
+      ]
+    : left;
+  return `${full
+    .slice(0, 4)
+    .map((h) => h.replace(/^0+(?=.)/, "") || "0")
+    .join(":")}::/64`;
 }
 
-function trim<V>(map: Map<string, V>): void {
-  while (map.size > MAX_ENTRIES) {
-    const oldest = map.keys().next().value;
-    if (oldest === undefined) break;
-    map.delete(oldest);
-  }
-}
-
-/** True when this view should be recorded; false when it is a repeat or over the cap. */
-export function allowView(
-  address: string,
-  eventId: string,
-  now: number = Date.now(),
-): boolean {
-  const visitor = visitorKey(address || "unknown");
-  const key = `${visitor}:${eventId}`;
-  const seen = lastView.get(key);
-  if (seen !== undefined && now - seen < SAME_VIEW_MS) return false;
-
-  const bucket = perMinute.get(visitor);
+/** True when this view may be recorded; false over the source's cap. */
+export function allowView(address: string, now: number = Date.now()): boolean {
+  const key = createHash("sha256").update(sourceOf(address)).digest("hex");
+  const bucket = buckets.get(key);
   if (bucket && now - bucket.start < 60_000) {
-    if (bucket.count >= PER_VISITOR_PER_MINUTE) return false;
+    if (bucket.count >= PER_SOURCE_PER_MINUTE) return false;
     bucket.count += 1;
-  } else {
-    perMinute.delete(visitor);
-    perMinute.set(visitor, { start: now, count: 1 });
+    return true;
   }
-
-  lastView.delete(key);
-  lastView.set(key, now);
-  trim(lastView);
-  trim(perMinute);
+  buckets.delete(key);
+  buckets.set(key, { start: now, count: 1 });
+  while (buckets.size > MAX_ENTRIES) {
+    const oldest = buckets.keys().next().value;
+    if (oldest === undefined) break;
+    buckets.delete(oldest);
+  }
   return true;
 }
 
 /** Test hook: forget everything. */
 export function __resetViewThrottle(): void {
-  lastView.clear();
-  perMinute.clear();
+  buckets.clear();
 }
