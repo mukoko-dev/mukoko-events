@@ -41,9 +41,10 @@ function seenRecently(eventId: string, now: number): boolean {
  */
 export function EventViewTracker({ eventId }: { eventId: string }) {
   useEffect(() => {
-    if (seenRecently(eventId, Date.now())) return;
+    // The page load's referrer is spent on its first view, counted or not.
     const referrer = referrerUsed ? undefined : document.referrer || undefined;
     referrerUsed = true;
+    if (seenRecently(eventId, Date.now())) return;
     void trackEventViewAction(eventId, referrer).catch(() => {});
   }, [eventId]);
   return null;

@@ -56,8 +56,8 @@ export async function findEventAction(idOrSlug: string): Promise<Event | null> {
  * API (nyuchi/api-gateway#268). No person is sent or stored: only the event,
  * the referrer's host (never our own) and the viewer's city as Vercel's edge
  * reports it. Best-effort: when the API is not configured or the call fails,
- * nothing is recorded and nothing breaks. A coarse per-source cap
- * (`@/lib/view-throttle`) guards our service token against a loop; repeat
+ * nothing is recorded and nothing breaks. Server-side caps
+ * (`@/lib/view-throttle`) guard our service token against a loop; repeat
  * views from one browser are de-duplicated in the browser. The API answers
  * 404 for an unknown or non-public event.
  */
@@ -73,7 +73,7 @@ export async function trackEventViewAction(
       h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       h.get("x-real-ip") ||
       "";
-    if (!allowView(address)) return;
+    if (!allowView(address, eventId)) return;
     const ownHost = (h.get("x-forwarded-host") ?? h.get("host") ?? "")
       .split(":")[0]
       .trim();

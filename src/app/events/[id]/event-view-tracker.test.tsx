@@ -36,6 +36,13 @@ describe("EventViewTracker", () => {
     expect(track).toHaveBeenCalledTimes(1);
   });
 
+  it("spends the referrer on a skipped repeat view, so the next event doesn't inherit it", () => {
+    sessionStorage.setItem("mukoko-events:viewed:evt-1", String(Date.now()));
+    const { rerender } = render(<EventViewTracker eventId="evt-1" />);
+    rerender(<EventViewTracker eventId="evt-2" />);
+    expect(track.mock.calls).toEqual([["evt-2", undefined]]);
+  });
+
   it("never throws when recording fails", () => {
     track.mockRejectedValue(new Error("offline"));
     expect(() => render(<EventViewTracker eventId="evt-1" />)).not.toThrow();
