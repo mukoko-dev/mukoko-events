@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { trackEventViewAction } from "@/app/actions/discovery";
 import { rsvpToEvent } from "@/app/actions/registrations";
 import { useAuth } from "@/components/auth/auth-context";
 import { NamePrompt } from "@/components/prompts/name-prompt";
@@ -40,13 +39,6 @@ export function RSVPButton({
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading } = useAuth();
-
-  // Track view on mount — server action writes straight to MongoDB (the old
-  // /api/events/:id/view worker route is gone). Best-effort; never awaited into
-  // the UI, and the action swallows its own errors.
-  useEffect(() => {
-    void trackEventViewAction(eventId);
-  }, [eventId]);
 
   const handleRSVP = async () => {
     if (!isAuthenticated || !user?.id) {

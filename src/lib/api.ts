@@ -954,20 +954,30 @@ export async function getHostReputation(
 }
 
 // Community Stats Types
+/**
+ * Community figures from the Nyuchi API (`GET /v1/analytics/community`).
+ * Aggregates only: a count below k (5) is withheld, so every count is
+ * `number | null`. When `available` is true, a null count means "fewer than
+ * 5"; when `available` is false the platform has no figures yet and every
+ * count is null. A count is never a made-up 0.
+ */
 export interface CommunityStats {
   addressLocality?: string;
-  totalEvents: number;
-  totalAttendees: number;
-  activeHosts: number;
+  available: boolean;
+  totalEvents: number | null;
+  totalAttendees: number | null;
+  activeHosts: number | null;
   trendingCategories: Array<{
     category: string;
-    change: number;
-    events: number;
+    /** Percentage change on the previous window; null when not known. */
+    change: number | null;
+    events: number | null;
   }>;
-  peakTime: string;
+  /** e.g. "Friday 18:00"; null when not known. */
+  peakTime: string | null;
   popularVenues: Array<{
     venue: string;
-    events: number;
+    events: number | null;
   }>;
 }
 
