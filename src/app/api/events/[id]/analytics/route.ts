@@ -8,7 +8,9 @@
  * (`GET /v1/analytics/events/{id}`, nyuchi/api-gateway#268), called as that
  * person, and keep the `{ analytics }` shape the MCP reads.
  *
- * `uniqueViews` and `referrals` have no source on the platform, so they are
+ * `views`, `rsvps` and `checkins` are the API's lifetime totals (exact for a
+ * host, on both engines; `?days=` shapes only the series), as `views` always
+ * was. `uniqueViews` and `referrals` have no source on the platform, so they are
  * null, never a made-up 0. When the API is not configured, refuses, or does
  * not answer: 503 "Analytics are not available yet."
  */

@@ -45,6 +45,7 @@ export interface Breakdown {
 
 export interface EventAnalytics extends AnalyticsCommon {
   subject: { type: "Event"; id: string };
+  /** Lifetime totals, exact for the host; `days` shapes only `series` and breakdowns. */
   totals: {
     views: Metric;
     rsvps: Metric;

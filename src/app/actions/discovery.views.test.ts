@@ -13,6 +13,7 @@ vi.mock("@/lib/mongo/events", () => ({}));
 vi.mock("@/lib/mongo/lookups", () => ({}));
 
 import { __resetTokenCache } from "@/lib/nyuchi-api/client";
+import { __resetViewThrottle } from "@/lib/view-throttle";
 import { trackEventViewAction } from "./discovery";
 
 function json(status: number, body: unknown): Response {
@@ -37,6 +38,7 @@ function viewBody(): unknown {
 
 beforeEach(() => {
   __resetTokenCache();
+  __resetViewThrottle();
   fetchMock.mockClear();
   headerValues.clear();
   headerValues.set("host", "events.mukoko.com");
@@ -66,6 +68,16 @@ describe("trackEventViewAction", () => {
   it("drops our own host as a referrer", async () => {
     await trackEventViewAction("evt-1", "https://events.mukoko.com/events");
     expect(viewBody()).toEqual({ subject_type: "Event", subject_id: "evt-1" });
+  });
+
+  it("records a repeat view from the same visitor only once", async () => {
+    headerValues.set("x-forwarded-for", "203.0.113.7, 10.0.0.1");
+    await trackEventViewAction("evt-1");
+    await trackEventViewAction("evt-1");
+    const posts = fetchMock.mock.calls.filter(([u]) =>
+      String(u).endsWith("/v1/analytics/views"),
+    );
+    expect(posts).toHaveLength(1);
   });
 
   it("records nothing, and does not throw, when the API is not configured", async () => {

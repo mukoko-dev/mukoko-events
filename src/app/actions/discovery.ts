@@ -24,6 +24,7 @@ import { listCategories, listCities } from "@/lib/mongo/lookups";
 import { loadCommunityStats } from "@/lib/community-stats";
 import { asService, isNyuchiApiConfigured } from "@/lib/nyuchi-api/client";
 import { recordView, referrerHost } from "@/lib/nyuchi-api/analytics";
+import { allowView } from "@/lib/view-throttle";
 import type {
   Category,
   CommunityStats,
@@ -55,7 +56,9 @@ export async function findEventAction(idOrSlug: string): Promise<Event | null> {
  * API (nyuchi/api-gateway#268). No person is sent or stored: only the event,
  * the referrer's host (never our own) and the viewer's city as Vercel's edge
  * reports it. Best-effort: when the API is not configured or the call fails,
- * nothing is recorded and nothing breaks.
+ * nothing is recorded and nothing breaks. Throttled per visitor
+ * (`@/lib/view-throttle`) because this public action posts with our own
+ * service token; the API also answers 404 for an unknown or non-public event.
  */
 export async function trackEventViewAction(
   eventId: string,
@@ -65,6 +68,11 @@ export async function trackEventViewAction(
   if (typeof eventId !== "string" || !eventId || eventId.length > 200) return;
   try {
     const h = await headers();
+    const address =
+      h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      h.get("x-real-ip") ||
+      "";
+    if (!allowView(address, eventId)) return;
     const ownHost = (h.get("x-forwarded-host") ?? h.get("host") ?? "")
       .split(":")[0]
       .trim();
