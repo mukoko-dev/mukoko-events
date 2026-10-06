@@ -4,10 +4,8 @@ import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import {
   TrendingUp,
-  Eye,
   Users,
   Star,
-  Share2,
   QrCode,
   Flame,
   ArrowRight,
@@ -29,17 +27,11 @@ import {
 } from "@/app/actions/waitlist";
 import { useAuth } from "@/components/auth/auth-context";
 import { useT } from "@/lib/i18n";
-import type { Event, EventStats, ReviewStats } from "@/lib/api";
+import type { Event, ReviewStats } from "@/lib/api";
 
 interface EventSidebarProps {
   event: Event;
-  stats: EventStats | null;
   reviewStats: ReviewStats | null;
-}
-
-function formatViews(count: number): string {
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-  return count.toString();
 }
 
 function StatBox({
@@ -144,7 +136,7 @@ function WaitlistControl({ eventId }: { eventId: string }) {
   );
 }
 
-export function EventSidebar({ event, stats, reviewStats }: EventSidebarProps) {
+export function EventSidebar({ event, reviewStats }: EventSidebarProps) {
   const { t } = useT();
   const [hasEntityHost, setHasEntityHost] = useState(false);
   const capacityPercent = event.maximumAttendeeCapacity
@@ -200,55 +192,39 @@ export function EventSidebar({ event, stats, reviewStats }: EventSidebarProps) {
       </Card>
 
       {/* Event Insights */}
-      {(stats || reviewStats) && (
-        <Card
-          className="border-0"
-          style={{ backgroundColor: "var(--event-surface)" }}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2.5 text-sm">
-              <TrendingUp
-                className="w-4.5 h-4.5"
-                style={{ color: "var(--event-primary)" }}
-              />
-              Event Insights
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-2 gap-3">
-              {stats?.views !== undefined && (
-                <StatBox
-                  icon={<Eye className="w-3.5 h-3.5" />}
-                  label="Views"
-                  value={formatViews(stats.views)}
-                />
-              )}
+      <Card
+        className="border-0"
+        style={{ backgroundColor: "var(--event-surface)" }}
+      >
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2.5 text-sm">
+            <TrendingUp
+              className="w-4.5 h-4.5"
+              style={{ color: "var(--event-primary)" }}
+            />
+            Event Insights
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-2 gap-3">
+            <StatBox
+              icon={<Users className="w-3.5 h-3.5" />}
+              label="Going"
+              value={event.attendeeCount}
+            />
+            {reviewStats && reviewStats.totalReviews > 0 && (
               <StatBox
-                icon={<Users className="w-3.5 h-3.5" />}
-                label="Going"
-                value={event.attendeeCount}
+                icon={<Star className="w-3.5 h-3.5 text-accent" />}
+                label="Rating"
+                value={reviewStats.averageRating.toFixed(1)}
               />
-              {reviewStats && reviewStats.totalReviews > 0 && (
-                <StatBox
-                  icon={<Star className="w-3.5 h-3.5 text-accent" />}
-                  label="Rating"
-                  value={reviewStats.averageRating.toFixed(1)}
-                />
-              )}
-              {stats?.referrals !== undefined && stats.referrals > 0 && (
-                <StatBox
-                  icon={<Share2 className="w-3.5 h-3.5" />}
-                  label="Referrals"
-                  value={stats.referrals}
-                />
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground text-center mt-3">
-              Open data - Transparency builds trust
-            </p>
-          </CardContent>
-        </Card>
-      )}
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground text-center mt-3">
+            Open data - Transparency builds trust
+          </p>
+        </CardContent>
+      </Card>
 
       {/* QR Code */}
       <Card

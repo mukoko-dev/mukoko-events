@@ -27,10 +27,8 @@ import {
 } from "@/lib/mongo/engagement";
 import { requireActingPerson } from "@/lib/auth/current-person";
 import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
-import { getEventStats } from "@/lib/mongo/stats";
 import type {
   EventReviewsResponse,
-  EventStats,
   HostReviewsResponse,
   HostStats,
   ReferralLeaderboardEntry,
@@ -50,12 +48,6 @@ export async function getEventRatingStatsAction(
   eventId: string,
 ): Promise<ReviewStats> {
   return getEventRatingStats(eventId);
-}
-
-export async function getEventStatsAction(
-  eventId: string,
-): Promise<EventStats> {
-  return getEventStats(eventId);
 }
 
 export async function getEventReferralLeaderboardAction(

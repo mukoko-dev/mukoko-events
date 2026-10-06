@@ -1,5 +1,15 @@
 "use client";
 
+/**
+ * Community insights: what is happening across Mukoko Events, from the Nyuchi
+ * API's public community analytics (`getCommunityStatsAction`).
+ *
+ * Every count is k-anonymised on the platform: a count below 5 arrives as
+ * null and reads "Fewer than 5". When the platform has no figures yet
+ * (`available: false`), the widget says "not available yet". Nothing is ever
+ * shown as a made-up 0 or a made-up percentage.
+ */
+
 import { useState, useEffect } from "react";
 import { TrendingUp, Users, MapPin, Clock, Flame, Loader2 } from "lucide-react";
 import { StatsCard } from "@/components/ui/stats-card";
@@ -7,22 +17,66 @@ import { Badge } from "@/components/ui/badge";
 import { type CommunityStats } from "@/lib/api";
 import { getCommunityStatsAction } from "@/app/actions/discovery";
 
-interface TrendingCategory {
-  name: string;
-  change: number; // percentage change
-  events: number;
+const FEWER_THAN_K = "Fewer than 5";
+const numberFormat = new Intl.NumberFormat("en-GB");
+
+/** A k-suppressed count as text: the number, or "Fewer than 5" when withheld. */
+export function formatCount(value: number | null): string {
+  return value === null ? FEWER_THAN_K : numberFormat.format(value);
 }
 
-interface PopularVenue {
-  name: string;
-  city: string;
-  eventCount: number;
+function eventsLabel(value: number | null): string {
+  if (value === null) return `${FEWER_THAN_K} events`;
+  return `${numberFormat.format(value)} ${value === 1 ? "event" : "events"}`;
 }
 
-interface PeakTime {
-  day: string;
-  time: string;
-  percentage: number;
+function Change({ change }: { change: number | null }) {
+  if (change === null) return null;
+  const colour =
+    change > 0
+      ? "text-green-400"
+      : change < 0
+        ? "text-red-400"
+        : "text-text-tertiary";
+  const arrow = change > 0 ? "↑" : change < 0 ? "↓" : "→";
+  const words =
+    change > 0
+      ? `up ${Math.abs(change)}%`
+      : change < 0
+        ? `down ${Math.abs(change)}%`
+        : "no change";
+  return (
+    <span className={`text-sm font-semibold flex items-center gap-1 ${colour}`}>
+      <span aria-hidden="true">{arrow}</span>
+      <span className="sr-only">{words}</span>
+      <span aria-hidden="true">{Math.abs(change)}%</span>
+    </span>
+  );
+}
+
+function useCommunityStats(city?: string) {
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<CommunityStats | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    getCommunityStatsAction(city)
+      .then((data) => {
+        if (!cancelled) setStats(data);
+      })
+      .catch(() => {
+        if (!cancelled) setStats(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [city]);
+
+  return { loading, stats };
 }
 
 interface CommunityInsightsProps {
@@ -34,193 +88,129 @@ export function CommunityInsights({
   city,
   className = "",
 }: CommunityInsightsProps) {
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<CommunityStats | null>(null);
+  const { loading, stats } = useCommunityStats(city);
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const data = await getCommunityStatsAction(city);
-        setStats(data);
-      } catch (error) {
-        console.error("Failed to fetch community stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, [city]);
-
-  // Transform API data to component format
-  const trendingCategories: TrendingCategory[] =
-    stats?.trendingCategories?.map((c) => ({
-      name: c.category,
-      change: c.change,
-      events: c.events,
-    })) ?? [];
-
-  const popularVenues: PopularVenue[] =
-    stats?.popularVenues?.map((v) => ({
-      name: v.venue,
-      city: city || "Various",
-      eventCount: v.events,
-    })) ?? [];
-
-  // Parse peak time from string
-  const peakTimes: PeakTime[] = stats?.peakTime
-    ? [
-        {
-          day: stats.peakTime.split(" ")[0],
-          time: stats.peakTime.split(" ").slice(1).join(" "),
-          percentage: 100,
-        },
-      ]
-    : [];
-
-  const totalEvents = stats?.totalEvents ?? 0;
-  const totalAttendees = stats?.totalAttendees ?? 0;
+  const header = (
+    <div className="flex items-center gap-2 mb-6">
+      <TrendingUp className="w-5 h-5 text-primary" aria-hidden="true" />
+      <h3 className="font-bold text-lg">Community Insights</h3>
+      {city && (
+        <span className="text-sm text-text-secondary ml-auto">in {city}</span>
+      )}
+    </div>
+  );
 
   if (loading) {
     return (
       <div className={`bg-surface rounded-2xl p-6 ${className}`}>
-        <div className="flex items-center gap-2 mb-6">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          <h3 className="font-bold text-lg">Community Insights</h3>
-        </div>
+        {header}
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          <Loader2
+            className="w-6 h-6 animate-spin text-primary"
+            aria-hidden="true"
+          />
+          <span className="sr-only">Loading community insights</span>
         </div>
       </div>
     );
   }
 
-  // Don't render if there's no data
-  if (!stats || (totalEvents === 0 && trendingCategories.length === 0)) {
-    return null;
+  if (!stats?.available) {
+    return (
+      <div className={`bg-surface rounded-2xl p-6 ${className}`}>
+        {header}
+        <p className="text-sm text-text-secondary">
+          Not available yet: community insights arrive with the new analytics
+          platform.
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className={`bg-surface rounded-2xl p-6 ${className}`}>
-      <div className="flex items-center gap-2 mb-6">
-        <TrendingUp className="w-5 h-5 text-primary" />
-        <h3 className="font-bold text-lg">Community Insights</h3>
-        {city && (
-          <span className="text-sm text-text-secondary ml-auto">in {city}</span>
-        )}
-      </div>
+      {header}
 
-      {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <StatsCard
-          label="Active Events"
-          value={totalEvents}
-          icon={<Flame className="w-4 h-4" />}
+          label="Events"
+          value={formatCount(stats.totalEvents)}
+          icon={<Flame className="w-4 h-4" aria-hidden="true" />}
           className="bg-elevated border-0"
         />
         <StatsCard
-          label="Community"
-          value={totalAttendees.toLocaleString()}
-          icon={<Users className="w-4 h-4" />}
+          label="Attendees"
+          value={formatCount(stats.totalAttendees)}
+          icon={<Users className="w-4 h-4" aria-hidden="true" />}
           className="bg-elevated border-0"
         />
       </div>
 
-      {/* Trending Categories */}
-      <div className="mb-6">
-        <h4 className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
-          <Flame className="w-4 h-4" />
-          Trending Categories
-        </h4>
-        <div className="space-y-2">
-          {trendingCategories.map((category) => (
-            <div
-              key={category.name}
-              className="flex items-center justify-between py-2 px-3 bg-elevated rounded-lg"
-            >
-              <span className="font-medium">{category.name}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-text-tertiary">
-                  {category.events} events
-                </span>
-                <span
-                  className={`text-sm font-semibold flex items-center gap-1 ${
-                    category.change > 0
-                      ? "text-green-400"
-                      : category.change < 0
-                        ? "text-red-400"
-                        : "text-text-tertiary"
-                  }`}
-                >
-                  {category.change > 0 ? "↑" : category.change < 0 ? "↓" : "→"}
-                  {Math.abs(category.change)}%
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Peak Times */}
-      <div className="mb-6">
-        <h4 className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
-          <Clock className="w-4 h-4" />
-          Peak Event Times
-        </h4>
-        <div className="space-y-2">
-          {peakTimes.map((time, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">
-                    {time.day} {time.time}
+      {stats.trendingCategories.length > 0 && (
+        <div className="mb-6">
+          <h4 className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
+            <Flame className="w-4 h-4" aria-hidden="true" />
+            Trending Categories
+          </h4>
+          <ul className="space-y-2">
+            {stats.trendingCategories.map((category) => (
+              <li
+                key={category.category}
+                className="flex items-center justify-between py-2 px-3 bg-elevated rounded-lg"
+              >
+                <span className="font-medium">{category.category}</span>
+                <span className="flex items-center gap-3">
+                  <span className="text-sm text-text-secondary">
+                    {eventsLabel(category.events)}
                   </span>
-                  <span className="text-xs text-text-tertiary">
-                    {time.percentage}%
-                  </span>
-                </div>
-                <div className="h-1.5 bg-elevated rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all"
-                    style={{ width: `${time.percentage}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
+                  <Change change={category.change} />
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
+      )}
 
-      {/* Popular Venues */}
-      <div>
-        <h4 className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
-          <MapPin className="w-4 h-4" />
-          Popular Venues
-        </h4>
-        <div className="space-y-2">
-          {popularVenues.slice(0, 3).map((venue, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between py-2 px-3 bg-elevated rounded-lg"
-            >
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant="default"
-                  className="w-5 h-5 flex items-center justify-center text-xs font-bold"
-                >
-                  {i + 1}
-                </Badge>
-                <div>
-                  <div className="font-medium text-sm">{venue.name}</div>
-                  <div className="text-xs text-text-tertiary">{venue.city}</div>
-                </div>
-              </div>
-              <span className="text-sm text-text-secondary">
-                {venue.eventCount} events
-              </span>
-            </div>
-          ))}
+      {stats.peakTime && (
+        <div className="mb-6">
+          <h4 className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
+            <Clock className="w-4 h-4" aria-hidden="true" />
+            Peak Event Time
+          </h4>
+          <p className="text-sm font-medium">{stats.peakTime}</p>
         </div>
-      </div>
+      )}
+
+      {stats.popularVenues.length > 0 && (
+        <div>
+          <h4 className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
+            <MapPin className="w-4 h-4" aria-hidden="true" />
+            Popular Venues
+          </h4>
+          <ol className="space-y-2">
+            {stats.popularVenues.slice(0, 3).map((venue, i) => (
+              <li
+                key={`${venue.venue}-${i}`}
+                className="flex items-center justify-between py-2 px-3 bg-elevated rounded-lg"
+              >
+                <span className="flex items-center gap-2">
+                  <Badge
+                    variant="default"
+                    className="w-5 h-5 flex items-center justify-center text-xs font-bold"
+                    aria-hidden="true"
+                  >
+                    {i + 1}
+                  </Badge>
+                  <span className="font-medium text-sm">{venue.venue}</span>
+                </span>
+                <span className="text-sm text-text-secondary">
+                  {eventsLabel(venue.events)}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }
@@ -233,71 +223,50 @@ export function CommunityInsightsCompact({
   city?: string;
   className?: string;
 }) {
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<CommunityStats | null>(null);
+  const { loading, stats } = useCommunityStats(city);
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const data = await getCommunityStatsAction(city);
-        setStats(data);
-      } catch (error) {
-        console.error("Failed to fetch community stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, [city]);
-
-  const topCategory = stats?.trendingCategories?.[0];
-  const topVenue = stats?.popularVenues?.[0];
+  const header = (
+    <div className="flex items-center gap-2 mb-4">
+      <TrendingUp className="w-4 h-4 text-primary" aria-hidden="true" />
+      <span className="font-semibold text-sm">What&apos;s Trending</span>
+    </div>
+  );
 
   if (loading) {
     return (
       <div className={`bg-surface rounded-xl p-4 ${className}`}>
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-4 h-4 text-primary" />
-          <span className="font-semibold text-sm">What&apos;s Trending</span>
-        </div>
+        {header}
         <div className="flex items-center justify-center py-4">
-          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+          <Loader2
+            className="w-4 h-4 animate-spin text-primary"
+            aria-hidden="true"
+          />
+          <span className="sr-only">Loading what&apos;s trending</span>
         </div>
       </div>
     );
   }
 
-  // Don't render if there's no data
-  if (!stats || (!topCategory && !topVenue && !stats.peakTime)) {
-    return null;
+  const topCategory = stats?.trendingCategories[0];
+  const topVenue = stats?.popularVenues[0];
+
+  if (!stats?.available || (!topCategory && !topVenue && !stats.peakTime)) {
+    return (
+      <div className={`bg-surface rounded-xl p-4 ${className}`}>
+        {header}
+        <p className="text-sm text-text-secondary">Not available yet.</p>
+      </div>
+    );
   }
 
   return (
     <div className={`bg-surface rounded-xl p-4 ${className}`}>
-      <div className="flex items-center gap-2 mb-4">
-        <TrendingUp className="w-4 h-4 text-primary" />
-        <span className="font-semibold text-sm">What&apos;s Trending</span>
-      </div>
+      {header}
       <div className="space-y-3">
         {topCategory && (
           <div className="flex items-center justify-between">
             <span className="text-sm">{topCategory.category} events</span>
-            <span
-              className={`text-xs font-medium ${
-                topCategory.change > 0
-                  ? "text-green-400"
-                  : topCategory.change < 0
-                    ? "text-red-400"
-                    : "text-text-tertiary"
-              }`}
-            >
-              {topCategory.change > 0
-                ? "↑"
-                : topCategory.change < 0
-                  ? "↓"
-                  : "→"}{" "}
-              {Math.abs(topCategory.change)}%
-            </span>
+            <Change change={topCategory.change} />
           </div>
         )}
         {stats.peakTime && (
