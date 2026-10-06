@@ -76,9 +76,27 @@ describe("listFeaturedCircles", () => {
       ],
     });
     const out = await listFeaturedCircles(6);
-    expect(service.get).toHaveBeenCalledWith("/v1/circles/featured?limit=6");
+    expect(service.get).toHaveBeenCalledWith("/v1/circles/featured?limit=24");
     expect(out.map((c) => c.id)).toEqual(["a", "b"]);
     expect(mongo.listFeaturedCircles).not.toHaveBeenCalled();
+  });
+
+  it("does not let private circles at the top crowd out public ones", async () => {
+    const privates = Array.from({ length: 6 }, (_, i) => ({
+      _id: `p${i}`,
+      name: `P${i}`,
+      circleType: "private",
+      ownerPersonId: "p",
+    }));
+    const publics = Array.from({ length: 8 }, (_, i) => ({
+      _id: `c${i}`,
+      name: `C${i}`,
+      circleType: "public",
+      ownerPersonId: "p",
+    }));
+    service.get.mockResolvedValueOnce({ data: [...privates, ...publics] });
+    const out = await listFeaturedCircles(6);
+    expect(out.map((c) => c.id)).toEqual(["c0", "c1", "c2", "c3", "c4", "c5"]);
   });
 });
 
