@@ -26,9 +26,13 @@ import {
   ensureHostEntityForPerson,
   listHostEntitiesForPerson,
 } from "@/lib/mongo/entities";
-import { listCirclesByOwner, type OwnedCircle } from "@/lib/mongo/circles";
-import { circlesCollection } from "@/lib/mongo/databases";
+import {
+  isCircleOwnedBy,
+  listCirclesByOwner,
+  type OwnedCircle,
+} from "@/lib/circles";
 import { ensureCalendarConversation } from "@/lib/mongo/campfire";
+import { isCalendarChatMember } from "@/lib/mongo/chat-membership";
 import {
   requireActingPerson,
   resolveActingPerson,
@@ -95,12 +99,7 @@ export async function createCalendarAction(
 
   // A calendar may only attach to a circle the creator owns.
   if (input.circleId) {
-    const circles = await circlesCollection();
-    const circle = await circles.findOne(
-      { _id: input.circleId, ownerPersonId: person._id, isActive: true },
-      { projection: { _id: 1 } },
-    );
-    if (!circle)
+    if (!(await isCircleOwnedBy(input.circleId, person._id)))
       throw new Error("You can only attach a calendar to a circle you own.");
   }
 
@@ -316,12 +315,7 @@ export async function updateCalendarAction(
   if (input.theme && !(input.theme in themes))
     throw new Error("Unknown calendar theme.");
   if (input.circleId) {
-    const circles = await circlesCollection();
-    const circle = await circles.findOne(
-      { _id: input.circleId, ownerPersonId: person._id, isActive: true },
-      { projection: { _id: 1 } },
-    );
-    if (!circle)
+    if (!(await isCircleOwnedBy(input.circleId, person._id)))
       throw new Error("You can only attach a calendar to a circle you own.");
   }
 
@@ -350,7 +344,7 @@ export async function archiveCalendarAction(calendarId: string): Promise<void> {
 
 /**
  * Resolve (creating on first use) the calendar's paired "Discuss" campfire
- * conversation. Any signed-in visitor who can view the calendar may open it.
+ * conversation. For the calendar's owner and its followers only (#164).
  */
 export async function ensureCalendarConversationAction(
   calendarId: string,
@@ -361,6 +355,9 @@ export async function ensureCalendarConversationAction(
   const calendar = await getCalendarById(calendarId);
   if (!calendar || !canViewCalendar(calendar, person._id)) {
     throw new Error("That calendar could not be found.");
+  }
+  if (!(await isCalendarChatMember(calendarId, person._id))) {
+    throw new Error("Follow this calendar to join its discussion.");
   }
   const conversation = await ensureCalendarConversation({
     calendarId,

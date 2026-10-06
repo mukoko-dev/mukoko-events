@@ -3,12 +3,14 @@ import { notFound } from "next/navigation";
 import CircleDetailClient from "./circle-detail-client";
 import { SectionErrorBoundary } from "@/components/error/section-error-boundary";
 import { getCircle } from "@/app/actions/circle-detail";
+import { circlesSiteUrl } from "@/lib/circle-create";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface CircleDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ created?: string | string[] }>;
 }
 
 // Access depends on the viewer's session and membership — never cache or
@@ -30,14 +32,29 @@ export const metadata: Metadata = {
  */
 export default async function CircleDetailPage({
   params,
+  searchParams,
 }: CircleDetailPageProps) {
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const circle = await getCircle(id);
   if (!circle) notFound();
+  // After the create form (`?created=1`): tell the owner where it shows.
+  const { created } = await searchParams;
+  const createdNotice =
+    created === "1" && circle.viewer.isOwner
+      ? {
+          siteUrl: circle.slug
+            ? circlesSiteUrl(circle.slug, circle.circle_type)
+            : null,
+        }
+      : null;
   return (
     <SectionErrorBoundary section="Circle">
-      <CircleDetailClient circleId={id} initialCircle={circle} />
+      <CircleDetailClient
+        circleId={id}
+        initialCircle={circle}
+        createdNotice={createdNotice}
+      />
     </SectionErrorBoundary>
   );
 }

@@ -28,6 +28,7 @@ export function LazyDiscussThread({
   className = "mt-8",
 }: LazyDiscussThreadProps) {
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   if (!isAuthenticated) return null;
@@ -40,8 +41,17 @@ export function LazyDiscussThread({
           disabled={isPending}
           onClick={() =>
             startTransition(async () => {
-              const id = await resolveConversationId();
-              setConversationId(id);
+              setError(null);
+              try {
+                const id = await resolveConversationId();
+                setConversationId(id);
+              } catch (e) {
+                // e.g. "RSVP to this event to join its chat." — the chats
+                // are for members only (#164).
+                setError(
+                  e instanceof Error ? e.message : "This chat couldn't open.",
+                );
+              }
             })
           }
           className="gap-1.5 rounded-full text-sm"
@@ -49,6 +59,11 @@ export function LazyDiscussThread({
           <MessageCircle className="w-4 h-4" aria-hidden />
           {isPending ? "Opening…" : title}
         </Button>
+        {error && (
+          <p role="status" className="mt-2 text-sm text-text-secondary">
+            {error}
+          </p>
+        )}
       </div>
     );
   }
