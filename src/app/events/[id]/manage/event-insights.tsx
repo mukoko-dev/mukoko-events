@@ -119,9 +119,9 @@ export function EventInsights({
           Attendance
         </h2>
         <p className="mb-3 text-sm text-text-secondary">
-          Approved counts confirmed guests not yet checked in. The check-in
-          rate is guests checked in out of all confirmed guests. Page views
-          are the all-time total for the event page.
+          Approved counts confirmed guests not yet checked in. The check-in rate
+          is guests checked in out of all confirmed guests. Page views are the
+          all-time total for the event page.
         </p>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           <StatsCard
@@ -177,8 +177,8 @@ export function EventInsights({
               <EmptyTitle>Not available yet</EmptyTitle>
               <EmptyDescription>
                 Page-view history and traffic sources arrive with the new
-                analytics platform. Until then, the totals above are the
-                figures we hold.
+                analytics platform. Until then, the totals above are the figures
+                we hold.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
