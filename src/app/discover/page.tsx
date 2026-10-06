@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-url";
 import { DiscoverBrowse } from "./discover-browse";
 import {
   listCategoriesWithCounts,
@@ -6,16 +7,41 @@ import {
   type CategoryWithCount,
   type CityWithCount,
 } from "@/lib/mongo/lookups";
-import { listFeaturedCircles, type FeaturedCircle } from "@/lib/mongo/circles";
+import { listFeaturedCircles, type FeaturedCircle } from "@/lib/circles";
 import {
   listFeaturedCalendars,
   type FeaturedCalendar,
 } from "@/lib/mongo/calendars";
 
+const DESCRIPTION =
+  "Browse community gatherings on Mukoko Events — by category, by circle, or by city. Find what brings your people together.";
+
+// The Discover Standard's head (#161): title "<page> · <Service>",
+// canonical, en_GB Open Graph, and WebSite + SearchAction JSON-LD below.
 export const metadata: Metadata = {
-  title: "Discover",
-  description:
-    "Browse community gatherings on Mukoko Events — by category, by circle, or by city. Find what brings your people together.",
+  title: { absolute: "Discover · Mukoko Events" },
+  description: DESCRIPTION,
+  alternates: { canonical: `${SITE_URL}/discover` },
+  openGraph: {
+    title: "Discover · Mukoko Events",
+    description: DESCRIPTION,
+    url: `${SITE_URL}/discover`,
+    siteName: "Mukoko Events",
+    locale: "en_GB",
+    type: "website",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Mukoko Events",
+  url: SITE_URL,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE_URL}/search?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
 };
 
 // Browse data is shared and slow-moving — keep the page ISR-cached like the
@@ -71,11 +97,17 @@ export default async function DiscoverPage() {
   ]);
 
   return (
-    <DiscoverBrowse
-      categories={categories}
-      circles={circles}
-      calendars={calendars}
-      cities={cities}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <DiscoverBrowse
+        categories={categories}
+        circles={circles}
+        calendars={calendars}
+        cities={cities}
+      />
+    </>
   );
 }
