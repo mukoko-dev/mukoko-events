@@ -43,18 +43,18 @@ beforeEach(() => {
 });
 
 describe("summariseAttendance", () => {
-  it("counts each state once and rates check-ins against confirmed guests", () => {
+  it("counts each state once and rates check-ins against RSVPs, as the API does", () => {
     expect(summariseAttendance(registrations)).toEqual({
       rsvps: 6,
       approved: 2,
       pending: 1,
       checkedIn: 2,
-      checkinRate: 50,
+      checkinRate: 33,
     });
   });
 
-  it("has no check-in rate when nobody is confirmed", () => {
-    expect(summariseAttendance([{ status: "pending" }]).checkinRate).toBeNull();
+  it("has no check-in rate with no RSVPs", () => {
+    expect(summariseAttendance([{ status: "pending" }]).checkinRate).toBe(0);
     expect(summariseAttendance([]).checkinRate).toBeNull();
   });
 });
@@ -88,7 +88,7 @@ describe("EventInsights", () => {
     render(<EventInsights eventId="evt-1" registrations={registrations} />);
 
     expect(valueOf("RSVPs")).toBe("6");
-    expect(valueOf("Check-in rate")).toBe("50%");
+    expect(valueOf("Check-in rate")).toBe("33%");
     await waitFor(() => expect(valueOf("Page views")).toBe("137"));
     expect(getAnalytics).toHaveBeenCalledWith("evt-1", 30);
 
@@ -132,6 +132,29 @@ describe("EventInsights", () => {
     await waitFor(() =>
       expect(getAnalytics).toHaveBeenLastCalledWith("evt-1", 7),
     );
+  });
+
+  it("keeps the working window, and its control, when a window switch fails", async () => {
+    getAnalytics.mockResolvedValueOnce(ok());
+    render(<EventInsights eventId="evt-1" registrations={registrations} />);
+    const seven = await screen.findByRole("radio", { name: "7 days" });
+    getAnalytics.mockResolvedValueOnce({ status: "unavailable" });
+    fireEvent.click(seven);
+    expect(
+      await screen.findByText(/couldn't load the last 7 days/i),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("figure", { name: "RSVPs" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "30 days" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    // Choosing the window again retries it.
+    getAnalytics.mockResolvedValueOnce(ok());
+    fireEvent.click(screen.getByRole("radio", { name: "7 days" }));
+    await waitFor(() =>
+      expect(screen.queryByText(/couldn't load/i)).toBeNull(),
+    );
+    expect(getAnalytics).toHaveBeenCalledTimes(3);
   });
 
   it.each([

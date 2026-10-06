@@ -14,7 +14,7 @@
  * ever shown as a made-up 0.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BarChart3,
   CheckCircle2,
@@ -65,7 +65,7 @@ export interface AttendanceSummary {
   pending: number;
   /** Checked in at the door. */
   checkedIn: number;
-  /** Checked in ÷ confirmed guests (approved + checked in), 0–100; null when nobody is confirmed. */
+  /** Checked in ÷ RSVPs, 0–100 (the API's and the MCP route's formula); null with no RSVPs. */
   checkinRate: number | null;
 }
 
@@ -82,14 +82,15 @@ export function summariseAttendance(
       approved += 1;
     else if (r.status === "pending") pending += 1;
   }
-  const confirmed = approved + checkedIn;
   return {
     rsvps: registrations.length,
     approved,
     pending,
     checkedIn,
     checkinRate:
-      confirmed > 0 ? Math.round((checkedIn / confirmed) * 100) : null,
+      registrations.length > 0
+        ? Math.round((checkedIn / registrations.length) * 100)
+        : null,
   };
 }
 
@@ -304,28 +305,43 @@ export function EventInsights({
 }) {
   const summary = summariseAttendance(registrations);
   const [days, setDays] = useState<number>(30);
-  // The last answer stays on screen while a new window loads, so the window
-  // control keeps its place and focus.
+  // Bumped on every window choice, so choosing a window that just failed
+  // tries it again.
+  const [attempt, setAttempt] = useState(0);
+  // The last good answer stays on screen while a new window loads, and when
+  // a window switch fails, so the window control keeps its place and focus.
   const [result, setResult] = useState<EventAnalyticsResult | null>(null);
+  const [shownDays, setShownDays] = useState<number>(30);
+  const [failedDays, setFailedDays] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasGood = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    const settle = (res: EventAnalyticsResult) => {
+      if (cancelled) return;
+      const good = res.status === "ok" && res.analytics.available;
+      // A failed switch keeps the window that worked on screen.
+      if (!good && hasGood.current) {
+        setFailedDays(days);
+        return;
+      }
+      hasGood.current = good;
+      setFailedDays(null);
+      if (good) setShownDays(days);
+      setResult(res);
+    };
     getEventAnalyticsAction(eventId, days)
-      .then((res) => {
-        if (!cancelled) setResult(res);
-      })
-      .catch(() => {
-        if (!cancelled) setResult({ status: "unavailable" });
-      })
+      .then(settle)
+      .catch(() => settle({ status: "unavailable" }))
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [eventId, days]);
+  }, [eventId, days, attempt]);
 
   const analytics =
     result?.status === "ok" && result.analytics.available
@@ -349,9 +365,8 @@ export function EventInsights({
         </h2>
         <p className="mb-3 text-sm text-text-secondary">
           Approved counts confirmed guests not yet checked in. The check-in rate
-          is guests checked in out of all confirmed guests. Page views are the
-          event page&apos;s all-time total; the charts below follow the chosen
-          window.
+          is guests checked in out of all RSVPs. Page views are the event
+          page&apos;s all-time total; the charts below follow the chosen window.
         </p>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           <StatsCard
@@ -404,9 +419,11 @@ export function EventInsights({
             <ToggleGroup
               type="single"
               variant="outline"
-              value={String(days)}
+              value={String(loading ? days : shownDays)}
               onValueChange={(v) => {
-                if (v) setDays(Number(v));
+                if (!v) return;
+                setDays(Number(v));
+                setAttempt((n) => n + 1);
               }}
               aria-label="Time window"
             >
@@ -421,6 +438,12 @@ export function EventInsights({
               ))}
             </ToggleGroup>
           </div>
+          {failedDays !== null && !loading && (
+            <p role="status" className="text-sm text-text-secondary">
+              Couldn&apos;t load the last {failedDays} days. Showing the last{" "}
+              {shownDays} days; choose a window to try again.
+            </p>
+          )}
           <p className="text-sm text-text-secondary">
             A day or place with fewer than 5 people reads &ldquo;Fewer than
             5&rdquo; to protect privacy. It is never counted as 0.
