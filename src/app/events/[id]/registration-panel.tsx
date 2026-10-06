@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Check, LogIn } from "lucide-react";
@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/nyuchi-registration-card";
 import { NamePrompt } from "@/components/prompts/name-prompt";
 import { rsvpToEvent } from "@/app/actions/registrations";
-import { trackEventViewAction } from "@/app/actions/discovery";
 import { useAuth } from "@/components/auth/auth-context";
 
 interface RegistrationPanelProps {
@@ -50,11 +49,6 @@ export function RegistrationPanel({
   const [quantity, setQuantity] = useState(1);
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading } = useAuth();
-
-  // Track view on mount — best-effort, matches the RSVPButton behaviour.
-  useEffect(() => {
-    void trackEventViewAction(eventId);
-  }, [eventId]);
 
   const isFree = !price?.price;
   const max =

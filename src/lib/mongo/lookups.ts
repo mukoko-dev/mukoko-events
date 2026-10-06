@@ -1,5 +1,6 @@
 /**
- * Small shared discovery reads (categories, cities, community stats).
+ * Small shared discovery reads (categories, cities). Community stats come
+ * from the Nyuchi API (`@/lib/community-stats`).
  *
  * These back both the same-origin `/api/*` route handlers (kept for any
  * external callers) and — more importantly — the SSR pages / server actions,
@@ -10,15 +11,11 @@
 import "server-only";
 import { eventsCollection, getCollection, DB } from "./databases";
 import {
-  PUBLISHED_STATUSES,
   publishedVisibleMatch,
   cityLocalityExpr,
   cityCountryExpr,
-  cityLocalityFilter,
 } from "./event-filters";
-import type { Category, CommunityStats } from "@/lib/api";
-
-const PUBLISHED = [...PUBLISHED_STATUSES];
+import type { Category } from "@/lib/api";
 
 interface InterestCategoryDoc {
   slug: string;
@@ -145,30 +142,4 @@ export async function listCities(): Promise<
       byCity.set(city, { addressLocality: city, addressCountry: country });
   }
   return [...byCity.values()];
-}
-
-/** Lightweight community stats, optionally scoped to a city. */
-export async function getCommunityStats(
-  city?: string,
-): Promise<CommunityStats> {
-  const empty: CommunityStats = {
-    addressLocality: city,
-    totalEvents: 0,
-    totalAttendees: 0,
-    activeHosts: 0,
-    trendingCategories: [],
-    peakTime: "",
-    popularVenues: [],
-  };
-  const col = await eventsCollection();
-  const filter: Record<string, unknown> = {
-    status: { $in: PUBLISHED },
-    // Exclude private events, matching the discovery counts and drill-downs.
-    "mukoko.visibility": { $ne: "private" },
-  };
-  // Canonical-first city path (M3): the same either-path match the `/events`
-  // city drill-down uses, so community totals agree with the listing.
-  if (city) Object.assign(filter, cityLocalityFilter(city));
-  const totalEvents = await col.countDocuments(filter);
-  return { ...empty, totalEvents };
 }

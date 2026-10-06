@@ -8,8 +8,6 @@ import {
   Video,
   Bookmark,
   ChevronRight,
-  Flame,
-  Eye,
   Star,
   Settings,
   Pencil,
@@ -42,11 +40,8 @@ import { EventSpecifics } from "./event-specifics";
 import { EventVenueCard } from "./event-venue-card";
 import { EventPolls } from "./event-polls";
 import { EventDiscuss } from "./event-discuss";
-import {
-  type UserReferralCode,
-  type EventStats,
-  type ReviewStats,
-} from "@/lib/api";
+import { EventViewTracker } from "./event-view-tracker";
+import { type UserReferralCode, type ReviewStats } from "@/lib/api";
 import type { Event } from "@/lib/api";
 import { useSaveEvent } from "@/lib/use-save-event";
 
@@ -87,7 +82,6 @@ const EventMap = dynamic(
 interface EventDetailContentProps {
   event: Event;
   /** Resolved server-side in page.tsx (parallel with the event read) — see loadCompanionData. */
-  initialStats: EventStats | null;
   initialReviewStats: ReviewStats | null;
   initialUserReferral: UserReferralCode | null;
   /** Whether the viewer hosts this event (canManageEventAction) — gates the Manage entry point. */
@@ -133,14 +127,8 @@ function eventStatusAlert(
   }
 }
 
-function formatViews(count: number): string {
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-  return count.toString();
-}
-
 export function EventDetailContent({
   event,
-  initialStats,
   initialReviewStats,
   initialUserReferral,
   canManage,
@@ -149,7 +137,6 @@ export function EventDetailContent({
   // Resolved server-side (see page.tsx's loadCompanionData) — no client
   // fetch, no setter, nothing to update after mount.
   const userReferral = initialUserReferral;
-  const stats = initialStats;
   const reviewStats = initialReviewStats;
   // Bookmark / save persists to events.save_action via the hook — no more
   // local-only state. canSave gates the click for unauthenticated users.
@@ -219,7 +206,7 @@ export function EventDetailContent({
 
         {/* 4.2.0 washed hero — cover + title + category kicker + meta, in the
             event's own theme (inheritWash consumes the page --event-primary /
-            --wash). Live stats (hot / views / rating) ride in the CTA slot. */}
+            --wash). The rating rides in the CTA slot. */}
         <NyuchiCoverWashHeader
           inheritWash
           className="mb-6 sm:mb-8"
@@ -231,21 +218,8 @@ export function EventDetailContent({
           location={isOnline ? "Online" : event.location.name}
           host={event.organizer.name}
         >
-          {(stats?.isHot ||
-            (stats?.views ?? 0) > 0 ||
-            (reviewStats?.averageRating ?? 0) > 0) && (
+          {(reviewStats?.averageRating ?? 0) > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              {stats?.isHot && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-                  <Flame className="size-3.5" aria-hidden /> Hot
-                </span>
-              )}
-              {(stats?.views ?? 0) > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
-                  <Eye className="size-3.5" aria-hidden />{" "}
-                  {formatViews(stats!.views!)}
-                </span>
-              )}
               {reviewStats &&
                 reviewStats.averageRating > 0 &&
                 reviewStats.totalReviews > 0 && (
@@ -486,7 +460,8 @@ export function EventDetailContent({
             </div>
           </div>
 
-          <EventSidebar event={event} stats={stats} reviewStats={reviewStats} />
+          <EventSidebar event={event} reviewStats={reviewStats} />
+          <EventViewTracker eventId={event.id} />
         </div>
       </div>
 
