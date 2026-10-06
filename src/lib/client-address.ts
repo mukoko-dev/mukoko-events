@@ -1,22 +1,31 @@
 import "server-only";
 
 /**
- * The viewer's address and city for view counting, as trustworthy as the
- * deployment allows.
+ * The viewer's trusted address for view counting, or null when there is none
+ * we can trust. No module state.
  *
  * events.mukoko.com is served through Cloudflare in front of Vercel, so the
- * peer Vercel sees (`x-real-ip`, and its `x-vercel-ip-city`) is a Cloudflare
- * edge, shared by every visitor routed through it. Cloudflare passes the
- * visitor's address in `cf-connecting-ip` (and, with visitor location
- * headers on, the city in `cf-ipcity`). Those headers are trusted ONLY when
- * the peer is inside Cloudflare's published ranges: a request sent straight
- * to the Vercel origin can carry a forged `cf-connecting-ip`, and then the
- * peer is not Cloudflare, so the peer itself is used.
+ * peer Vercel sees (`x-vercel-forwarded-for` / `x-real-ip`, set by Vercel's
+ * edge) is a Cloudflare edge shared by many visitors. Cloudflare passes the
+ * visitor in `cf-connecting-ip`, but a peer in Cloudflare's ranges is not
+ * proof the request came through OUR zone: a Worker on any Cloudflare account
+ * can call the origin with a `cf-connecting-ip` of its choosing. So the
+ * `cf-*` headers are trusted only when the request also carries our zone's
+ * edge credential: the `x-mukoko-edge-auth` header, added by a Transform Rule
+ * on the events.mukoko.com zone with the value of `EDGE_AUTH_SECRET`
+ * (compared in constant time).
  *
- * `x-real-ip` and the last `x-forwarded-for` entry are set by Vercel's edge
- * (it overwrites caller-supplied values); the caller-supplied first
- * `x-forwarded-for` entry is never used.
+ * - Cloudflare peer + valid edge credential + valid `cf-connecting-ip`: the
+ *   visitor's address.
+ * - Cloudflare peer without it: null (no view recorded): the edge's address
+ *   would merge everyone behind it, and the `cf-*` values could be forged.
+ * - Any other peer (a direct request to the origin): the peer itself.
+ * - The caller-supplied first `x-forwarded-for` entry is never used, and no
+ *   city is ever taken from these headers (the edge's city is not the
+ *   viewer's).
  */
+
+import { timingSafeEqual } from "node:crypto";
 
 /** https://www.cloudflare.com/ips-v4 and /ips-v6 (fetched 2026-10-06). */
 const CLOUDFLARE_RANGES = [
@@ -113,35 +122,31 @@ export function isCloudflare(raw: string | null | undefined): boolean {
 
 type HeaderGetter = { get(name: string): string | null };
 
-function decodeCity(raw: string | null): string | undefined {
-  if (!raw) return undefined;
-  try {
-    const city = decodeURIComponent(raw).trim().slice(0, 100);
-    return city || undefined;
-  } catch {
-    return undefined;
-  }
+/** Does the request carry our Cloudflare zone's edge credential? */
+export function hasEdgeCredential(
+  h: HeaderGetter,
+  secret: string | undefined = process.env.EDGE_AUTH_SECRET,
+): boolean {
+  const expected = secret?.trim();
+  const given = h.get("x-mukoko-edge-auth")?.trim();
+  if (!expected || !given) return false;
+  const a = Buffer.from(given);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
-/** The viewer's address ("" when unknown) and city, from trusted headers only. */
-export function clientAddress(h: HeaderGetter): {
-  address: string;
-  city?: string;
-} {
+/** The viewer's address, or null when none can be trusted. */
+export function trustedClientIp(
+  h: HeaderGetter,
+  secret: string | undefined = process.env.EDGE_AUTH_SECRET,
+): string | null {
   const peer =
+    h.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() ||
     h.get("x-real-ip")?.trim() ||
-    h.get("x-forwarded-for")?.split(",").pop()?.trim() ||
     "";
-  if (isCloudflare(peer)) {
-    const visitor = h.get("cf-connecting-ip")?.trim() ?? "";
-    // Behind Cloudflare, Vercel's city is the edge's; only Cloudflare's own
-    // visitor city is the viewer's.
-    if (parseIp(visitor))
-      return { address: visitor, city: decodeCity(h.get("cf-ipcity")) };
-    return { address: peer };
-  }
-  return {
-    address: parseIp(peer) ? peer : "",
-    city: decodeCity(h.get("x-vercel-ip-city")),
-  };
+  if (!parseIp(peer)) return null;
+  if (!isCloudflare(peer)) return peer;
+  if (!hasEdgeCredential(h, secret)) return null;
+  const visitor = h.get("cf-connecting-ip")?.trim() ?? "";
+  return parseIp(visitor) ? visitor : null;
 }

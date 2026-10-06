@@ -2,64 +2,98 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { clientAddress, isCloudflare, parseIp } from "./client-address";
+import {
+  hasEdgeCredential,
+  isCloudflare,
+  parseIp,
+  trustedClientIp,
+} from "./client-address";
 
 const headers = (values: Record<string, string>) => ({
   get: (name: string) => values[name.toLowerCase()] ?? null,
 });
+const SECRET = "edge-test-credential";
 
-describe("isCloudflare", () => {
-  it("matches Cloudflare's published ranges only", () => {
-    expect(isCloudflare("172.70.1.2")).toBe(true);
-    expect(isCloudflare("2606:4700:10::ac43:1")).toBe(true);
-    expect(isCloudflare("203.0.113.7")).toBe(false);
-    expect(isCloudflare("not-an-ip")).toBe(false);
+describe("isCloudflare (static, published ranges)", () => {
+  it.each([
+    ["173.245.48.1", true],
+    ["172.70.1.2", true],
+    ["104.16.0.1", true],
+    ["131.0.75.255", true],
+    ["2606:4700:10::ac43:1", true],
+    ["2a06:98c7:ffff::1", true],
+    ["203.0.113.7", false],
+    ["104.32.0.1", false],
+    ["2001:db8::1", false],
+    ["not-an-ip", false],
+  ])("%s → %s", (ip, expected) => {
+    expect(isCloudflare(ip)).toBe(expected);
+  });
+
+  it("parses IPv4-mapped IPv6 as IPv4", () => {
     expect(parseIp("::ffff:172.70.1.2")?.v6).toBe(false);
   });
 });
 
-describe("clientAddress", () => {
-  it("behind Cloudflare, uses the visitor's address and Cloudflare's city", () => {
+describe("trustedClientIp", () => {
+  it("behind our Cloudflare zone (edge credential), uses the visitor", () => {
     expect(
-      clientAddress(
+      trustedClientIp(
         headers({
-          "x-real-ip": "172.70.1.2",
+          "x-vercel-forwarded-for": "172.70.1.2",
+          "x-mukoko-edge-auth": SECRET,
           "cf-connecting-ip": "203.0.113.7",
-          "cf-ipcity": "Harare",
-          "x-vercel-ip-city": "Ashburn",
         }),
+        SECRET,
       ),
-    ).toEqual({ address: "203.0.113.7", city: "Harare" });
+    ).toBe("203.0.113.7");
   });
 
-  it("never sends the edge's city as the viewer's", () => {
+  it("refuses a Cloudflare peer without our edge credential (any Worker can forge cf-connecting-ip)", () => {
+    const h = {
+      "x-vercel-forwarded-for": "172.70.1.2",
+      "cf-connecting-ip": "203.0.113.7",
+    };
+    expect(trustedClientIp(headers(h), SECRET)).toBeNull();
     expect(
-      clientAddress(
-        headers({
-          "x-real-ip": "172.70.1.2",
-          "cf-connecting-ip": "203.0.113.7",
-          "x-vercel-ip-city": "Ashburn",
-        }),
-      ),
-    ).toEqual({ address: "203.0.113.7", city: undefined });
+      trustedClientIp(headers({ ...h, "x-mukoko-edge-auth": "wrong" }), SECRET),
+    ).toBeNull();
+    // No secret configured: nothing behind Cloudflare is trusted.
+    expect(
+      trustedClientIp(headers({ ...h, "x-mukoko-edge-auth": SECRET }), ""),
+    ).toBeNull();
   });
 
-  it("ignores a forged cf-connecting-ip sent straight to the origin", () => {
+  it("ignores spoofed cf-connecting-ip and x-forwarded-for from a non-Cloudflare peer", () => {
     expect(
-      clientAddress(
+      trustedClientIp(
         headers({
           "x-real-ip": "198.51.100.9",
+          "x-forwarded-for": "1.2.3.4, 198.51.100.9",
           "cf-connecting-ip": "203.0.113.7",
-          "x-vercel-ip-city": "Bulawayo",
+          "x-mukoko-edge-auth": SECRET,
         }),
+        SECRET,
       ),
-    ).toEqual({ address: "198.51.100.9", city: "Bulawayo" });
+    ).toBe("198.51.100.9");
   });
 
-  it("never uses the caller-supplied first x-forwarded-for entry", () => {
+  it("is null with no trusted peer", () => {
     expect(
-      clientAddress(headers({ "x-forwarded-for": "1.2.3.4, 198.51.100.9" }))
-        .address,
-    ).toBe("198.51.100.9");
+      trustedClientIp(headers({ "x-forwarded-for": "1.2.3.4" }), SECRET),
+    ).toBeNull();
+    expect(trustedClientIp(headers({}), SECRET)).toBeNull();
+  });
+
+  it("compares the edge credential exactly", () => {
+    expect(
+      hasEdgeCredential(headers({ "x-mukoko-edge-auth": SECRET }), SECRET),
+    ).toBe(true);
+    expect(
+      hasEdgeCredential(
+        headers({ "x-mukoko-edge-auth": `${SECRET}x` }),
+        SECRET,
+      ),
+    ).toBe(false);
   });
 });

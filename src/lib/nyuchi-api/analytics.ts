@@ -126,6 +126,8 @@ export function getCommunityAnalytics(
 export interface ViewRecord {
   subject_type: "Event" | "Circle";
   subject_id: string;
+  /** Daily pseudonymous key: repeats collapse to one view per visitor per day. */
+  visitor_key: string;
   referrer_host?: string;
   locality?: string;
 }

@@ -83,6 +83,7 @@ describe("analytics calls", () => {
     await recordView(asService(), {
       subject_type: "Event",
       subject_id: "evt-1",
+      visitor_key: "0123456789abcdef0123456789abcdef",
       referrer_host: "wa.me",
     });
     const { url, init } = lastCall();
@@ -91,6 +92,7 @@ describe("analytics calls", () => {
     expect(JSON.parse(init.body as string)).toEqual({
       subject_type: "Event",
       subject_id: "evt-1",
+      visitor_key: "0123456789abcdef0123456789abcdef",
       referrer_host: "wa.me",
     });
   });
