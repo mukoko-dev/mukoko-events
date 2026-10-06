@@ -121,6 +121,15 @@ describe("trackEventViewAction", () => {
     expect(b.visitor_key).toBe(a.visitor_key);
   });
 
+  it("counts addresses rotating inside one IPv6 /64 as one visitor", async () => {
+    headerValues.set("x-real-ip", "2001:db8:1:2::a");
+    await trackEventViewAction("evt-1");
+    headerValues.set("x-real-ip", "2001:db8:1:2:ffff::b");
+    await trackEventViewAction("evt-1");
+    const [a, b] = viewBodies();
+    expect(b.visitor_key).toBe(a.visitor_key);
+  });
+
   it("keys a signed-in person on their id, whatever the address", async () => {
     withAuth.mockResolvedValue({ user: { id: "user_1" } });
     await trackEventViewAction("evt-1");

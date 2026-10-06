@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import {
+  visitorNetwork,
   hasEdgeCredential,
   isCloudflare,
   parseIp,
@@ -95,5 +96,17 @@ describe("trustedClientIp", () => {
         SECRET,
       ),
     ).toBe(false);
+  });
+});
+
+describe("visitorNetwork", () => {
+  it("keeps IPv4 and cuts IPv6 to its /64, so rotating within it is one visitor", () => {
+    expect(visitorNetwork("203.0.113.7")).toBe("203.0.113.7");
+    expect(visitorNetwork("::ffff:203.0.113.7")).toBe("203.0.113.7");
+    expect(visitorNetwork("2001:db8:1:2:aaaa::1")).toBe("2001:db8:1:2::/64");
+    expect(visitorNetwork("2001:0db8:0001:0002:ffff:1:2:3")).toBe(
+      "2001:db8:1:2::/64",
+    );
+    expect(visitorNetwork("nonsense")).toBeNull();
   });
 });

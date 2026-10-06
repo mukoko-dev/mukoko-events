@@ -24,7 +24,7 @@ import { listCategories, listCities } from "@/lib/mongo/lookups";
 import { loadCommunityStats } from "@/lib/community-stats";
 import { asService, isNyuchiApiConfigured } from "@/lib/nyuchi-api/client";
 import { recordView, referrerHost } from "@/lib/nyuchi-api/analytics";
-import { trustedClientIp } from "@/lib/client-address";
+import { trustedClientIp, visitorNetwork } from "@/lib/client-address";
 import { visitorKey } from "@/lib/visitor-key";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import { isDevBypass } from "@/lib/auth/dev";
@@ -93,7 +93,8 @@ export async function trackEventViewAction(
     if (personId) {
       key = visitorKey({ kind: "person", personId });
     } else {
-      const ip = trustedClientIp(h);
+      const trusted = trustedClientIp(h);
+      const ip = trusted ? visitorNetwork(trusted) : null;
       key = ip
         ? visitorKey({ kind: "anonymous", ip, userAgent: h.get("user-agent") })
         : null;

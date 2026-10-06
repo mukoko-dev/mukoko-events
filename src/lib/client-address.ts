@@ -135,6 +135,24 @@ export function hasEdgeCredential(
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+/**
+ * The visitor identity of an address: IPv4 as is, IPv6 cut to its /64 (one
+ * host or home holds a whole /64 and privacy addresses rotate inside it, so
+ * the full address would let one visitor count as many).
+ */
+export function visitorNetwork(raw: string): string | null {
+  const ip = parseIp(raw);
+  if (!ip) return null;
+  if (!ip.v6) {
+    const v = Number(ip.value);
+    return [v >>> 24, (v >>> 16) & 255, (v >>> 8) & 255, v & 255].join(".");
+  }
+  const hextets: string[] = [];
+  for (let i = 7; i >= 4; i--)
+    hextets.push(((ip.value >> BigInt(16 * i)) & BigInt(0xffff)).toString(16));
+  return `${hextets.join(":")}::/64`;
+}
+
 /** The viewer's address, or null when none can be trusted. */
 export function trustedClientIp(
   h: HeaderGetter,
