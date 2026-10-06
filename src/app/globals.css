@@ -464,6 +464,36 @@
 }
 
 @theme inline {
+  /* Mzizi type scale and mineral containers as Tailwind utilities
+     (text-h2, text-body, text-caption, bg-cobalt-container, …), the names
+     the registry's Discover components use (#161). They map onto the
+     --fs-* and --container-* tokens above, as mzizi-tokens-globals does. */
+  --text-display: var(--fs-display);
+  --text-display-sm: var(--fs-display-sm);
+  --text-h1: var(--fs-h1);
+  --text-h2: var(--fs-h2);
+  --text-h3: var(--fs-h3);
+  --text-h4: var(--fs-h4);
+  --text-h5: var(--fs-h5);
+  --text-h6: var(--fs-h6);
+  --text-body-lg: var(--fs-body-lg);
+  --text-body: var(--fs-body);
+  --text-small: var(--fs-small);
+  --text-body-sm: var(--fs-small);
+  --text-caption: var(--fs-caption);
+  --text-code: var(--fs-code);
+  --color-cobalt-container: var(--container-cobalt);
+  --color-cobalt-on-container: var(--on-container-cobalt);
+  --color-tanzanite-container: var(--container-tanzanite);
+  --color-tanzanite-on-container: var(--on-container-tanzanite);
+  --color-malachite-container: var(--container-malachite);
+  --color-malachite-on-container: var(--on-container-malachite);
+  --color-gold-container: var(--container-gold);
+  --color-gold-on-container: var(--on-container-gold);
+  --color-terracotta-container: var(--container-terracotta);
+  --color-terracotta-on-container: var(--on-container-terracotta);
+  --color-sodalite-container: var(--container-sodalite);
+  --color-sodalite-on-container: var(--on-container-sodalite);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
@@ -869,4 +899,31 @@ a {
  * theme-aware --nh-ai token so it flips automatically in dark/light. */
 .dikdik {
   color: var(--nh-ai);
+}
+
+/* The @bundu/ui component classes the registry's Discover components use
+   (#161), as @bundu/ui 0.2.0 styles/globals.css defines them. Tokens only. */
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-10;
+  }
+
+  .eyebrow {
+    @apply inline-block text-caption font-semibold uppercase tracking-wider text-muted-foreground mb-4;
+  }
+
+  .gradient-showcase {
+    background:
+      radial-gradient(
+        ellipse 70% 60% at 100% 0%,
+        color-mix(in oklab, var(--primary) 16%, transparent) 0%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 60% 50% at 0% 100%,
+        color-mix(in oklab, var(--color-cobalt) 10%, transparent) 0%,
+        transparent 70%
+      ),
+      var(--background);
+  }
 }

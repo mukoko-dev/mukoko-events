@@ -23,6 +23,8 @@ import {
 export interface FeaturedCircle {
   id: string;
   name: string;
+  /** The circle's address on circles.mukoko.com (`/c/{slug}`), if it has one. */
+  slug: string | null;
   description: string | null;
   /**
    * Drives the join affordance: public → "Join", broadcast → "Follow".
@@ -73,6 +75,19 @@ export async function listCirclesByOwner(
   return docs.map((d) => ({ id: d._id, name: d.name }));
 }
 
+/** True when the person owns this active circle (the calendar circle check). */
+export async function isCircleOwnedBy(
+  circleId: string,
+  personId: string,
+): Promise<boolean> {
+  const col = await circlesCollection();
+  const circle = await col.findOne(
+    { _id: circleId, ownerPersonId: personId, isActive: true },
+    { projection: { _id: 1 } },
+  );
+  return circle !== null;
+}
+
 /**
  * The most active publicly listable circles (by members, then posts).
  * Private and secret circles are excluded at the query, and the mapper
@@ -99,6 +114,7 @@ export async function listFeaturedCircles(
       {
         id: d._id,
         name: d.name,
+        slug: d.slug ?? null,
         description: d.description ?? null,
         circleType,
         memberCount: d.memberCount ?? 0,

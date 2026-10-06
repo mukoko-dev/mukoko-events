@@ -18,6 +18,7 @@
 import "server-only";
 import type { Filter } from "mongodb";
 import {
+  circlesCollection,
   entitiesCollection,
   eventsCollection,
   personsCollection,
@@ -25,6 +26,7 @@ import {
 } from "./databases";
 import { mapEventDocToApi, type EventRelations } from "./mappers";
 import { PUBLISHED_STATUSES, cityLocalityFilter } from "./event-filters";
+import { LISTABLE_CIRCLE_TYPES } from "@/lib/circle-visibility";
 import type { EntityDoc, EventDoc, PersonDoc, PlaceDoc } from "./types";
 import type { Event } from "@/lib/api";
 
@@ -104,8 +106,53 @@ function publishedFilter(params: ListEventsParams): Filter<EventDoc> {
  * then map each event with its relations. Used by every list/detail path so
  * the fan-out is consistent and batched.
  */
-async function mapEventsWithRelations(docs: EventDoc[]): Promise<Event[]> {
+/**
+ * Of the circles these events stream through, the ones whose id may travel
+ * in an event payload to anyone: active public and broadcast circles. A
+ * private or secret circle's id is never sent to someone who isn't in it
+ * (#164); the event detail page alone keeps it, and then shows it only to
+ * the circle's members. Fails closed: on any error, no id is kept.
+ */
+async function listableCircleIds(docs: EventDoc[]): Promise<Set<string>> {
+  const ids = [
+    ...new Set(docs.map((d) => d.circleId).filter((v): v is string => !!v)),
+  ];
+  if (ids.length === 0) return new Set();
+  try {
+    const circles = await (
+      await circlesCollection()
+    )
+      .find({
+        _id: { $in: ids },
+        isActive: true,
+        circleType: { $in: [...LISTABLE_CIRCLE_TYPES] },
+      })
+      .project<{ _id: string }>({ _id: 1 })
+      .toArray();
+    return new Set(circles.map((c) => c._id));
+  } catch (err) {
+    console.warn("[mukoko] listableCircleIds failed:", err);
+    return new Set();
+  }
+}
+
+interface MapEventsOptions {
+  /**
+   * Keep every circle id, private and secret ones included. Only for a caller
+   * that filters the circle link for the viewer itself (the event detail
+   * page, through `visibleCircleLinkIdsForViewer`).
+   */
+  keepAllCircleIds?: boolean;
+}
+
+async function mapEventsWithRelations(
+  docs: EventDoc[],
+  options: MapEventsOptions = {},
+): Promise<Event[]> {
   if (docs.length === 0) return [];
+  const circleIdsKept = options.keepAllCircleIds
+    ? null
+    : listableCircleIds(docs);
 
   const entityIds = [
     ...new Set(docs.map((d) => d.primaryHostEntityId).filter(Boolean)),
@@ -140,6 +187,7 @@ async function mapEventsWithRelations(docs: EventDoc[]): Promise<Event[]> {
         .toArray()
     : ([] as PersonDoc[]);
   const personById = new Map(persons.map((p) => [p._id, p]));
+  const kept = circleIdsKept ? await circleIdsKept : null;
 
   return docs.map((doc) => {
     const hostEntity = entityById.get(doc.primaryHostEntityId) ?? null;
@@ -150,7 +198,11 @@ async function mapEventsWithRelations(docs: EventDoc[]): Promise<Event[]> {
         : null,
       place: doc.placeId ? (placeById.get(doc.placeId) ?? null) : null,
     };
-    return mapEventDocToApi(doc, relations);
+    const event = mapEventDocToApi(doc, relations);
+    if (kept && event.eventCircleId && !kept.has(event.eventCircleId)) {
+      return { ...event, eventCircleId: undefined };
+    }
+    return event;
   });
 }
 
@@ -192,6 +244,7 @@ export async function getTrendingEvents(limit = 10): Promise<Event[]> {
  */
 export async function getEventByIdOrSlug(
   idOrSlug: string,
+  options: MapEventsOptions = {},
 ): Promise<Event | null> {
   const col = await eventsCollection();
   const doc = await col.findOne({
@@ -202,7 +255,7 @@ export async function getEventByIdOrSlug(
     ],
   });
   if (!doc) return null;
-  const [mapped] = await mapEventsWithRelations([doc]);
+  const [mapped] = await mapEventsWithRelations([doc], options);
   return mapped ?? null;
 }
 

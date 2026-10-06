@@ -18,8 +18,7 @@ import type {
   ReviewStats,
   UserReferralCode,
 } from "@/lib/api";
-import { resolveViewerPersonId } from "@/lib/auth/current-person";
-import { visibleCircleLinkIds } from "@/lib/mongo/circle-access";
+import { visibleCircleLinkIdsForViewer } from "@/lib/viewer-circle-access";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -43,7 +42,10 @@ export const dynamic = "force-dynamic";
 // calls into one query per request. Errors degrade to null → notFound().
 const loadEvent = cache(async (id: string) => {
   try {
-    return await getEventByIdOrSlug(id);
+    // The raw circle id is kept here only so withVisibleCircleLink can
+    // decide for this viewer; it is dropped before the client unless they
+    // may follow the link.
+    return await getEventByIdOrSlug(id, { keepAllCircleIds: true });
   } catch {
     return null;
   }
@@ -106,10 +108,7 @@ async function loadCompanionData(eventId: string): Promise<{
 async function withVisibleCircleLink(event: Event): Promise<Event> {
   const circleId = event.eventCircleId;
   if (!circleId) return event;
-  const visible = await visibleCircleLinkIds(
-    [circleId],
-    await resolveViewerPersonId(),
-  );
+  const visible = await visibleCircleLinkIdsForViewer([circleId]);
   return visible.has(circleId) ? event : { ...event, eventCircleId: undefined };
 }
 

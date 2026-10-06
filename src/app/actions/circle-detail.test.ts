@@ -1,6 +1,7 @@
 /**
- * Circle detail server actions — access per audience (anonymous, non-member,
- * member, circle staff) on each circle type. The real access policy and the
+ * Circle detail server actions, MongoDB path (no Nyuchi API key set) —
+ * access per audience (anonymous, non-member, member, circle staff) on each
+ * circle type. The real access policy and the
  * real server-side loader (`@/lib/mongo/circle-access`) run against small
  * in-memory collections; only the driver handles and the session are faked.
  */
@@ -86,6 +87,19 @@ vi.mock("@/lib/auth/current-person", () => ({
     if (!viewer) throw new Error(message);
     return { ...viewer, name: "Someone" };
   }),
+}));
+
+// The Nyuchi API switch is off here: this file holds the MongoDB path to the
+// matrix; circle-detail.api.test.ts holds the API path to the same matrix.
+vi.mock("@/lib/nyuchi-api/session", () => ({
+  personApi: vi.fn(async () => {
+    throw new Error("The API path is not under test here.");
+  }),
+  optionalPersonApi: vi.fn(async () => null),
+}));
+vi.mock("@/lib/nyuchi-api/client", async (importActual) => ({
+  ...(await importActual<typeof import("@/lib/nyuchi-api/client")>()),
+  isNyuchiApiConfigured: () => false,
 }));
 
 vi.mock("@/lib/mongo/entities", () => ({
