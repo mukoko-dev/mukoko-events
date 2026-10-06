@@ -30,6 +30,7 @@ import {
   checkInAttendee,
   getCheckinStats,
 } from "@/lib/mongo/host-registrations";
+import { getEventStats } from "@/lib/mongo/stats";
 import type { PersonDoc } from "@/lib/mongo/types";
 import type { CheckinStats, Registration } from "@/lib/api";
 
@@ -115,6 +116,20 @@ export async function checkinRegistrationAction(
   const person = await requireEventHost(eventId);
   await checkInAttendee(eventId, rsvpId, person._id);
   return { message: "Checked in", registrationId: rsvpId };
+}
+
+/**
+ * Host-only: the event page's lifetime view total, for the organiser Insights
+ * tab. Same host gate as the registration read. Only the total exists today
+ * (the `mukoko.viewCount` counter); page-view history and traffic sources
+ * arrive with the analytics platform (nyuchi/api-gateway#268).
+ */
+export async function getEventViewTotalAction(
+  eventId: string,
+): Promise<{ views: number }> {
+  await requireEventHost(eventId);
+  const stats = await getEventStats(eventId);
+  return { views: stats.views };
 }
 
 /** Public: aggregate check-in stats for an event (no attendee PII). */
