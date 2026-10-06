@@ -4,11 +4,13 @@
  * Event analytics for the organiser Insights tab, from the Nyuchi API
  * (`/v1/analytics/events/{id}` + `/v1/insights/events/{id}`), as the
  * signed-in person. The API enforces the host check (the event's organiser,
- * or an admin/owner of its host entity) and answers 403 to anyone else.
+ * or an admin/owner of its host entity); the manage page has already gated
+ * the caller as a host, so a 403 here is a missing `analytics` scope on the
+ * key or token, not "not your event".
  *
  * Never a crash and never fake zeros: when the API is not configured, the
- * caller has no API session (the local dev bypass), or the call fails, the
- * answer is `unavailable` and the tab says "not available yet".
+ * caller has no API session (the local dev bypass), or the call fails or is
+ * refused, the answer is `unavailable` and the tab says "not available yet".
  */
 
 import { isNyuchiApiConfigured, NyuchiApiError } from "@/lib/nyuchi-api/client";
@@ -23,7 +25,6 @@ import {
 
 export type EventAnalyticsResult =
   | { status: "ok"; analytics: EventAnalytics; insights: Insights | null }
-  | { status: "forbidden" }
   | { status: "unavailable" };
 
 export async function getEventAnalyticsAction(
@@ -40,8 +41,6 @@ export async function getEventAnalyticsAction(
     ]);
     return { status: "ok", analytics, insights };
   } catch (err) {
-    if (err instanceof NyuchiApiError && err.status === 403)
-      return { status: "forbidden" };
     console.error(
       `[mukoko] event analytics unavailable (${err instanceof NyuchiApiError ? err.status : err instanceof Error ? err.name : "error"})`,
     );

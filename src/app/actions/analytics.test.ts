@@ -76,12 +76,12 @@ describe("getEventAnalyticsAction", () => {
     expect(res).toMatchObject({ status: "ok", insights: null });
   });
 
-  it("is forbidden when the API says the caller does not host the event", async () => {
+  it("is unavailable when the API refuses (the page already gated the host)", async () => {
     routes.set("/v1/analytics/events/evt-1", () =>
-      json(403, { detail: "Not the host" }),
+      json(403, { detail: "insufficient scope" }),
     );
     expect(await getEventAnalyticsAction("evt-1")).toEqual({
-      status: "forbidden",
+      status: "unavailable",
     });
   });
 

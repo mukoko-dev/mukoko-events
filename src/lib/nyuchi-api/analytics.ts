@@ -53,6 +53,12 @@ export interface EventAnalytics extends AnalyticsCommon {
   };
   series: { date: string; views: Metric; rsvps: Metric; checkins: Metric }[];
   breakdowns: { localities: Breakdown; sources: Breakdown };
+  /**
+   * Fields the answering engine has no source for (e.g. `series.views` on
+   * the MongoDB engine). Their cells are `{ value: null, suppressed: false }`:
+   * no data, which is not the same as "fewer than 5".
+   */
+  unavailable?: string[];
 }
 
 export interface InsightItem {

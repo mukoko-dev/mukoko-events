@@ -106,6 +106,24 @@ export function formatMetric(metric: Metric | null | undefined): string {
   return NOT_AVAILABLE;
 }
 
+/** A real figure or a suppressed one: anything else is "no data", not "fewer than 5". */
+function hasFigure(metric: Metric | null | undefined): boolean {
+  return Boolean(metric?.suppressed || typeof metric?.value === "number");
+}
+
+/**
+ * Can this daily series be charted? Not when the API lists it as unavailable
+ * or any day has no data (`{value: null, suppressed: false}`): charting those
+ * days as "Fewer than 5" would be a made-up figure.
+ */
+export function seriesHasFigures(
+  analytics: EventAnalytics,
+  pick: "views" | "rsvps" | "checkins",
+): boolean {
+  if (analytics.unavailable?.includes(`series.${pick}`)) return false;
+  return analytics.series.every((day) => hasFigure(day[pick]));
+}
+
 /** A metric as a chart value: null (no bar, never 0) when suppressed or missing. */
 function chartValue(metric: Metric | null | undefined): number | null {
   if (!metric || metric.suppressed || typeof metric.value !== "number")
@@ -177,7 +195,10 @@ function BreakdownCard({
   windowDays: number;
   labelHeading: string;
 }) {
-  if (!breakdown.available) {
+  if (
+    !breakdown.available ||
+    !breakdown.items.every((i) => hasFigure(i.views))
+  ) {
     return (
       <Card>
         <CardHeader>
@@ -205,6 +226,47 @@ function BreakdownCard({
         label: item.name,
         value: chartValue(item.views),
       }))}
+    />
+  );
+}
+
+function SeriesChart({
+  id,
+  title,
+  analytics,
+  pick,
+  valueLabel,
+}: {
+  id: string;
+  title: string;
+  analytics: EventAnalytics;
+  pick: "views" | "rsvps";
+  valueLabel: string;
+}) {
+  if (!seriesHasFigures(analytics, pick)) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>Per day</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NotAvailable testId={`${id}-not-available`}>
+            Daily {title.toLowerCase()} arrive with the new analytics platform.
+          </NotAvailable>
+        </CardContent>
+      </Card>
+    );
+  }
+  return (
+    <BarChart
+      id={id}
+      title={title}
+      caption={`Per day, last ${analytics.window.days} days`}
+      labelHeading="Day"
+      valueLabel={valueLabel}
+      missingLabel={FEWER_THAN_K}
+      data={seriesPoints(analytics.series, pick)}
     />
   );
 }
@@ -288,7 +350,8 @@ export function EventInsights({
         <p className="mb-3 text-sm text-text-secondary">
           Approved counts confirmed guests not yet checked in. The check-in rate
           is guests checked in out of all confirmed guests. Page views are the
-          event page&apos;s total over the chosen window.
+          event page&apos;s all-time total; the charts below follow the chosen
+          window.
         </p>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           <StatsCard
@@ -362,23 +425,19 @@ export function EventInsights({
             A day or place with fewer than 5 people reads &ldquo;Fewer than
             5&rdquo; to protect privacy. It is never counted as 0.
           </p>
-          <BarChart
+          <SeriesChart
             id="insights-views"
             title="Page views"
-            caption={`Per day, last ${analytics.window.days} days`}
-            labelHeading="Day"
+            analytics={analytics}
+            pick="views"
             valueLabel="Views"
-            missingLabel={FEWER_THAN_K}
-            data={seriesPoints(analytics.series, "views")}
           />
-          <BarChart
+          <SeriesChart
             id="insights-rsvps"
             title="RSVPs"
-            caption={`Per day, last ${analytics.window.days} days`}
-            labelHeading="Day"
+            analytics={analytics}
+            pick="rsvps"
             valueLabel="RSVPs"
-            missingLabel={FEWER_THAN_K}
-            data={seriesPoints(analytics.series, "rsvps")}
           />
           <div className="grid gap-4 lg:grid-cols-2">
             <BreakdownCard

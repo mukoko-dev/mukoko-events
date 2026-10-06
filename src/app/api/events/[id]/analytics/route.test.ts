@@ -145,8 +145,12 @@ describe("GET /api/events/:id/analytics", () => {
     expect((await call()).status).toBe(503);
   });
 
-  it("passes the API's own 403 through", async () => {
-    analytics = () => json(403, { detail: "no" });
-    expect((await call()).status).toBe(403);
+  it("reads an API refusal (e.g. a missing scope) as not available, never 'not your event'", async () => {
+    analytics = () => json(403, { detail: "insufficient scope" });
+    const res = await call();
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({
+      error: "Analytics are not available yet.",
+    });
   });
 });

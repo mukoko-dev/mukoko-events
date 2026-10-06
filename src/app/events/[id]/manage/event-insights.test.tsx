@@ -106,6 +106,24 @@ describe("EventInsights", () => {
     expect(screen.getByText("Views are climbing")).toBeInTheDocument();
   });
 
+  it("says 'not available yet' for a series or breakdown with no data, never 'Fewer than 5'", async () => {
+    const noData = { value: null, suppressed: false };
+    const analytics = eventAnalyticsFixture({ unavailable: ["series.views"] });
+    analytics.series = analytics.series.map((d) => ({ ...d, views: noData }));
+    analytics.breakdowns.localities.items = [{ name: "Harare", views: noData }];
+    getAnalytics.mockResolvedValue({ status: "ok", analytics, insights: null });
+    render(<EventInsights eventId="evt-1" registrations={registrations} />);
+    expect(
+      await screen.findByTestId("insights-views-not-available"),
+    ).toHaveTextContent(/not available yet/i);
+    expect(
+      screen.getByTestId("insights-localities-not-available"),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("figure", { name: "Page views" })).toBeNull();
+    // The RSVP series has real and suppressed days, so it still charts.
+    expect(screen.getByRole("figure", { name: "RSVPs" })).toBeInTheDocument();
+  });
+
   it("changes the window with a working control", async () => {
     getAnalytics.mockResolvedValue(ok());
     render(<EventInsights eventId="evt-1" registrations={registrations} />);
@@ -118,7 +136,6 @@ describe("EventInsights", () => {
 
   it.each([
     ["unavailable", { status: "unavailable" } as EventAnalyticsResult],
-    ["forbidden", { status: "forbidden" } as EventAnalyticsResult],
     [
       "available: false",
       {

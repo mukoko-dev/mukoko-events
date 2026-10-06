@@ -9,8 +9,8 @@
  * person, and keep the `{ analytics }` shape the MCP reads.
  *
  * `uniqueViews` and `referrals` have no source on the platform, so they are
- * null, never a made-up 0. When the API is not configured or does not
- * answer: 503 "Analytics are not available yet."
+ * null, never a made-up 0. When the API is not configured, refuses, or does
+ * not answer: 503 "Analytics are not available yet."
  */
 
 import { NextResponse } from "next/server";
@@ -79,19 +79,9 @@ export async function GET(
       },
     });
   } catch (err) {
-    if (
-      err instanceof NyuchiApiError &&
-      (err.status === 403 || err.status === 404)
-    )
-      return NextResponse.json(
-        {
-          error:
-            err.status === 403
-              ? "You do not host this event."
-              : "Event not found.",
-        },
-        { status: err.status },
-      );
+    // The caller is already verified as the host above, so an API refusal
+    // (a missing `analytics` scope, say) is "not available yet", never
+    // "you do not host this event".
     console.error(
       `[mukoko] GET /api/events/${id}/analytics: API unavailable (${err instanceof NyuchiApiError ? err.status : err instanceof Error ? err.name : "error"})`,
     );
