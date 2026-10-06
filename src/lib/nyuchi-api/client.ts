@@ -113,6 +113,11 @@ export function __resetTokenCache(): void {
   tokenCache.clear();
 }
 
+/** Test hook: how many tokens are cached. */
+export function __tokenCacheSize(): number {
+  return tokenCache.size;
+}
+
 function cacheKey(kind: "person" | "service", subject: string): string {
   return `${kind}:${createHash("sha256").update(subject).digest("hex")}`;
 }
@@ -124,13 +129,31 @@ function cached(key: string): string | null {
   return null;
 }
 
+/** Upper bound on cached tokens; AuthKit tokens rotate, so old keys pile up. */
+const MAX_CACHED_TOKENS = 1000;
+
+/** Drop expired entries, then the oldest ones while over the cap. */
+function prune(now: number): void {
+  for (const [key, entry] of tokenCache) {
+    if (entry.expiresAt <= now) tokenCache.delete(key);
+  }
+  while (tokenCache.size >= MAX_CACHED_TOKENS) {
+    const oldest = tokenCache.keys().next().value;
+    if (oldest === undefined) break;
+    tokenCache.delete(oldest);
+  }
+}
+
 function remember(key: string, token: string, expiresIn: unknown): void {
   const seconds =
     typeof expiresIn === "number" && Number.isFinite(expiresIn)
       ? expiresIn
       : 60;
   const ttl = Math.max(0, seconds - EXPIRY_MARGIN_SECONDS) * 1000;
-  if (ttl > 0) tokenCache.set(key, { token, expiresAt: Date.now() + ttl });
+  if (ttl <= 0) return;
+  const now = Date.now();
+  prune(now);
+  tokenCache.set(key, { token, expiresAt: now + ttl });
 }
 
 async function send(url: string, init: RequestInit): Promise<Response> {
