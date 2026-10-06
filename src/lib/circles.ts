@@ -21,6 +21,9 @@ import { isPubliclyListableCircle } from "@/lib/circle-visibility";
 import { circlesViaApi, viewerCircleAccess } from "@/lib/viewer-circle-access";
 import * as mongo from "@/lib/mongo/circles";
 
+/** `GET /v1/circles/featured` accepts at most 24. */
+const FEATURED_FETCH_LIMIT = 24;
+
 export type { FeaturedCircle, OwnedCircle } from "@/lib/mongo/circles";
 import type { FeaturedCircle, OwnedCircle } from "@/lib/mongo/circles";
 
@@ -86,12 +89,16 @@ export async function listFeaturedCircles(
   limit = 6,
 ): Promise<FeaturedCircle[]> {
   if (!circlesViaApi()) return mongo.listFeaturedCircles(limit);
+  // `featured` returns every discoverable type, private included, and
+  // applies its limit before this filter. Ask for the API's maximum and trim
+  // here, so private circles at the top don't crowd public ones out.
   const docs = listOf<ApiCircle>(
-    await asService().get(circlesPath.featured(limit)),
+    await asService().get(
+      circlesPath.featured(Math.max(limit, FEATURED_FETCH_LIMIT)),
+    ),
   );
-  // `featured` returns every discoverable type, private included; this
-  // surface lists public and broadcast only (fail closed on anything else).
-  return docs.flatMap((d) => {
+  // This surface lists public and broadcast only (fail closed on anything else).
+  const listable = docs.flatMap((d) => {
     const circleType: unknown = d.circleType;
     if (d.isActive === false || !isPubliclyListableCircle(circleType))
       return [];
@@ -107,4 +114,5 @@ export async function listFeaturedCircles(
       },
     ];
   });
+  return listable.slice(0, limit);
 }
