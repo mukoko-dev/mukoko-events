@@ -44,6 +44,12 @@ vi.mock("@/lib/mongo/entities", () => ({ ensureHostEntityForPerson }));
 const loadCircleAccess = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/mongo/circle-access", () => ({ loadCircleAccess }));
 
+const chatMembership = vi.hoisted(() => ({
+  isEventChatMember: vi.fn(),
+  isCalendarChatMember: vi.fn(),
+}));
+vi.mock("@/lib/mongo/chat-membership", () => chatMembership);
+
 const syncPersonFromWorkos = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/mongo/users", () => ({ syncPersonFromWorkos }));
 
@@ -85,6 +91,8 @@ beforeEach(() => {
   messages.insertOne.mockResolvedValue({ acknowledged: true });
   readReceipts.updateOne.mockResolvedValue({ acknowledged: true });
   ensureHostEntityForPerson.mockResolvedValue("entity-1");
+  chatMembership.isEventChatMember.mockResolvedValue(true);
+  chatMembership.isCalendarChatMember.mockResolvedValue(true);
   events.findOne.mockResolvedValue({
     _id: "event-1",
     name: "Harare Farmers Market",
@@ -231,5 +239,66 @@ describe("circle-paired chats are members only", () => {
     conversations.findOne.mockResolvedValue({ _id: "conv-1", isActive: true });
     await postCampfireMessage("conv-1", "hi");
     expect(loadCircleAccess).not.toHaveBeenCalled();
+  });
+});
+
+describe("event and calendar chats are for their members (#164)", () => {
+  it("refuses to open an event's chat for someone who isn't a host or attendee", async () => {
+    chatMembership.isEventChatMember.mockResolvedValueOnce(false);
+    await expect(ensureEventChatConversationAction("event-1")).rejects.toThrow(
+      "RSVP to this event to join its chat.",
+    );
+    expect(chatMembership.isEventChatMember).toHaveBeenCalledWith(
+      "event-1",
+      "person-1",
+    );
+    expect(ensureEventChatConversation).not.toHaveBeenCalled();
+  });
+
+  it("reads an event chat as empty, and refuses a post, for a non-member", async () => {
+    conversations.findOne.mockResolvedValue({
+      _id: "conv-e",
+      conversationType: "group",
+      eventId: "event-1",
+      isActive: true,
+    });
+    chatMembership.isEventChatMember.mockResolvedValue(false);
+    const thread = await getCampfireThread("conv-e");
+    expect(thread.messages).toEqual([]);
+    expect(messages.find).not.toHaveBeenCalled();
+    await expect(postCampfireMessage("conv-e", "hi")).rejects.toThrow(
+      "This campfire is no longer available.",
+    );
+    expect(messages.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("checks a calendar chat against the owner and followers", async () => {
+    conversations.findOne.mockResolvedValue({
+      _id: "conv-c",
+      conversationType: "group",
+      calendarId: "cal-1",
+      isActive: true,
+    });
+    chatMembership.isCalendarChatMember.mockResolvedValue(false);
+    await expect(postCampfireMessage("conv-c", "hi")).rejects.toThrow(
+      "This campfire is no longer available.",
+    );
+    expect(chatMembership.isCalendarChatMember).toHaveBeenCalledWith(
+      "cal-1",
+      "person-1",
+    );
+  });
+
+  it("never takes a chat message into an event's announcement channel", async () => {
+    conversations.findOne.mockResolvedValue({
+      _id: "conv-s",
+      conversationType: "system",
+      eventId: "event-1",
+      isActive: true,
+    });
+    await expect(postCampfireMessage("conv-s", "hi")).rejects.toThrow(
+      /Announcements/,
+    );
+    expect(messages.insertOne).not.toHaveBeenCalled();
   });
 });
