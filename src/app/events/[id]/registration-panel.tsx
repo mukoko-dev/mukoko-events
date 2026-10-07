@@ -143,6 +143,7 @@ export function RegistrationPanel({
         className="border-0 bg-transparent p-0"
         label={isFree ? "Registration" : "Tickets"}
         tiers={tiers}
+        currency={price?.priceCurrency}
         quantity={quantity}
         min={1}
         max={max}

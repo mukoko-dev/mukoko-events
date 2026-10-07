@@ -27,6 +27,7 @@ import {
   geocodeAddress,
   reverseGeocode,
   resolveCountryTimezone,
+  resolveCityTimezone,
   ensurePlaceFromOsmSuggestion,
 } from "./geocode";
 
@@ -280,9 +281,10 @@ describe("geocodeAddress", () => {
     );
     expect(calledUrl).toContain("nominatim.openstreetmap.org/search");
     expect(calledUrl).toContain("format=geojson");
-    expect(calledUrl).toContain("countrycodes=");
+    // Global by default: never restricted to a list of countries.
+    expect(new URL(calledUrl).searchParams.has("countrycodes")).toBe(false);
     const init = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1];
-    expect(init.headers["User-Agent"]).toContain("nhimbe");
+    expect(init.headers["User-Agent"]).toContain("mukoko-events");
 
     expect(results).toHaveLength(1);
     expect(results[0]).toMatchObject({
@@ -595,5 +597,78 @@ describe("ensurePlaceFromOsmSuggestion", () => {
     });
 
     await expect(ensurePlaceFromOsmSuggestion(input)).resolves.toBeNull();
+  });
+});
+
+describe("geocodeAddress outside Africa", () => {
+  it("resolves a London venue from Nominatim with no countrycodes restriction", async () => {
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        features: [
+          {
+            geometry: { type: "Point", coordinates: [-0.1276, 51.5072] },
+            properties: {
+              display_name: "Barbican Centre, London, United Kingdom",
+              name: "Barbican Centre",
+              osm_type: "way",
+              osm_id: 42,
+              address: { city: "London", country: "United Kingdom" },
+            },
+          },
+        ],
+      }),
+    });
+
+    const results = await geocodeAddress("Barbican Centre London");
+
+    const calledUrl = new URL(
+      String((global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]),
+    );
+    expect(calledUrl.searchParams.get("q")).toBe("Barbican Centre London");
+    expect(calledUrl.searchParams.has("countrycodes")).toBe(false);
+    expect(calledUrl.searchParams.has("viewbox")).toBe(false);
+    expect(results[0]).toMatchObject({
+      city: "London",
+      country: "United Kingdom",
+      timezone: "Europe/London",
+    });
+  });
+});
+
+describe("resolveCityTimezone", () => {
+  it("resolves a manually typed city to its own timezone, scoped to the chosen country", async () => {
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        features: [
+          { geometry: { type: "Point", coordinates: [139.6917, 35.6895] } },
+        ],
+      }),
+    });
+
+    expect(await resolveCityTimezone("Tokyo", "JP")).toBe("Asia/Tokyo");
+    const calledUrl = new URL(
+      String((global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0]),
+    );
+    expect(calledUrl.searchParams.get("city")).toBe("Tokyo");
+    expect(calledUrl.searchParams.get("countrycodes")).toBe("jp");
+    // Read-only: no catalogue writes.
+    expect(places.insertOne).not.toHaveBeenCalled();
+    expect(entities.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("returns undefined without a network call for a blank city or a malformed code", async () => {
+    expect(await resolveCityTimezone("", "JP")).toBeUndefined();
+    expect(await resolveCityTimezone("Tokyo", "Japan")).toBeUndefined();
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it("returns undefined when Nominatim has no match", async () => {
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ features: [] }),
+    });
+    expect(await resolveCityTimezone("Nowhere", "GB")).toBeUndefined();
   });
 });

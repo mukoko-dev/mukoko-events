@@ -4,7 +4,7 @@ import { Users, Heart, Globe, Sparkles } from "lucide-react";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn about Mukoko Events — a community events discovery and management platform connecting people across Africa.",
+    "Learn about Mukoko Events — a community events discovery and management platform built for Africa and open to communities everywhere.",
 };
 
 export default function AboutPage() {
@@ -25,7 +25,7 @@ export default function AboutPage() {
       icon: <Globe className="w-6 h-6" />,
       title: "Pan-African Vision",
       description:
-        "Built in Africa, for Africa, connecting communities across the continent and diaspora.",
+        "Built in Africa, for Africa, and open to communities everywhere: across the continent, the diaspora and the world.",
     },
     {
       icon: <Sparkles className="w-6 h-6" />,
@@ -43,7 +43,8 @@ export default function AboutPage() {
           About <span className="text-primary">Mukoko Events</span>
         </h1>
         <p className="text-xl text-text-secondary leading-relaxed">
-          The gatherings and events platform built for African communities
+          The gatherings and events platform built for Africa, open to
+          communities everywhere
         </p>
       </div>
 
