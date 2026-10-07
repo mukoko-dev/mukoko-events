@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ManualCityFields } from "@/components/location/manual-city-fields";
 import { NyuchiAvatarPicker } from "@/components/ui/nyuchi-avatar-picker";
 import {
   NyuchiProfileSettings,
@@ -199,10 +200,10 @@ function ProfileEditContent() {
       const changedFields: ProfileFields = {};
       if (name !== (user.name || "")) changedFields.name = name;
       if (picture !== (user.image || "")) changedFields.picture = picture;
-      if (city !== (user.addressLocality || ""))
-        changedFields.addressLocality = city;
-      if (country !== (user.addressCountry || ""))
-        changedFields.addressCountry = country;
+      if (city.trim() !== (user.addressLocality || ""))
+        changedFields.addressLocality = city.trim();
+      if (country.trim() !== (user.addressCountry || ""))
+        changedFields.addressCountry = country.trim();
       if (JSON.stringify(interests) !== JSON.stringify(user.interests || [])) {
         changedFields.interests = interests;
       }
@@ -333,7 +334,7 @@ function ProfileEditContent() {
               type="tel"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+263 …"
+              placeholder="+44 20 7946 0958"
               autoComplete="tel"
               className="mt-1.5"
             />
@@ -438,6 +439,19 @@ function ProfileEditContent() {
           </p>
         )}
       </RadioGroup>
+      {/* Any city in any country — the list above is a shortcut, not a limit. */}
+      <p className="mt-4 text-sm text-muted-foreground">
+        Not listed? Enter any city and country.
+      </p>
+      <ManualCityFields
+        className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2"
+        city={city}
+        country={country}
+        onChange={(next) => {
+          setCity(next.addressLocality);
+          setCountry(next.addressCountry);
+        }}
+      />
     </div>
   );
 

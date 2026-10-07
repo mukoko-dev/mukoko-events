@@ -182,7 +182,9 @@ export function MapClient({ initialEvents }: MapClientProps) {
       if (!mounted || !containerRef.current) return;
 
       const map = L.map(containerRef.current, {
-        center: placedEvents[0]?.ll ?? [-15, 28], // SADC-ish
+        // Centre on the events when any are placed (anywhere in the world);
+        // with none, open on an Africa-first default view.
+        center: placedEvents[0]?.ll ?? [-15, 28],
         zoom: placedEvents.length > 0 ? 6 : 4,
         worldCopyJump: true,
         zoomControl: true,

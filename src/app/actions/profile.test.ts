@@ -168,4 +168,23 @@ describe("getMyGravatarUrlAction", () => {
     expect(url).toBeNull();
     expect(findGravatarUrl).not.toHaveBeenCalled();
   });
+
+  it("stores any country's phone number as E.164", async () => {
+    await updateMyProfile({ phoneNumber: "+44 20 7946 0958" });
+    const [, update] = persons.findOneAndUpdate.mock.calls[0];
+    expect(update.$set.phoneNumber).toBe("+442079460958");
+  });
+
+  it("clears the phone number when it is blank", async () => {
+    await updateMyProfile({ phoneNumber: "   " });
+    const [, update] = persons.findOneAndUpdate.mock.calls[0];
+    expect(update.$set.phoneNumber).toBe("");
+  });
+
+  it("refuses a phone number libphonenumber can't validate, without writing", async () => {
+    await expect(updateMyProfile({ phoneNumber: "12345" })).rejects.toThrow(
+      /international format/i,
+    );
+    expect(persons.findOneAndUpdate).not.toHaveBeenCalled();
+  });
 });

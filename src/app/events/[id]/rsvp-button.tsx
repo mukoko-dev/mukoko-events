@@ -99,6 +99,7 @@ export function RSVPButton({
       <NyuchiRSVPButton
         status="none"
         price={price?.price ?? 0}
+        currency={price?.priceCurrency}
         spotsRemaining={spotsRemaining ?? undefined}
         onRSVP={() => setShowNamePrompt(true)}
       />
@@ -134,6 +135,7 @@ export function RSVPButton({
               <NyuchiRSVPButton
                 status="none"
                 price={price?.price ?? 0}
+                currency={price?.priceCurrency}
                 spotsRemaining={spotsRemaining ?? undefined}
                 loading={loading}
                 onRSVP={handleRSVP}

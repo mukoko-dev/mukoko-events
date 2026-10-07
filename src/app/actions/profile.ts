@@ -19,6 +19,7 @@ import {
 import { isDevBypass, DEV_WORKOS_ID } from "@/lib/auth/dev";
 import { findGravatarUrl } from "@/lib/gravatar";
 import { log } from "@/lib/observability";
+import { parsePhoneNumberFromString } from "libphonenumber-js/max";
 
 const KNOWN_LOCALES: ReadonlySet<string> = new Set(["en", "sn"]);
 
@@ -45,6 +46,23 @@ export interface ProfileFields {
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Normalise a phone number to E.164 with libphonenumber — any country, no
+ * regional default. Blank clears the number; anything libphonenumber can't
+ * validate is refused with a message saying how to write it.
+ */
+function normalisePhoneNumber(raw: string): string {
+  const value = raw.trim();
+  if (!value) return "";
+  const parsed = parsePhoneNumberFromString(value);
+  if (!parsed?.isValid()) {
+    throw new Error(
+      "Enter your phone number in international format, starting with + and your country code (for example +44 20 7946 0958).",
+    );
+  }
+  return parsed.number;
+}
 
 async function resolveActingWorkosUserId(): Promise<string | null> {
   if (isDevBypass()) return DEV_WORKOS_ID;
@@ -81,7 +99,7 @@ export async function updateMyProfile(
     set.preferredUsername = fields.preferredUsername.trim();
   }
   if (typeof fields.phoneNumber === "string")
-    set.phoneNumber = fields.phoneNumber.trim();
+    set.phoneNumber = normalisePhoneNumber(fields.phoneNumber);
   if (typeof fields.gender === "string") set.gender = fields.gender.trim();
   // Only a well-formed calendar date reaches the store as a real Date.
   if (typeof fields.birthdate === "string" && ISO_DATE.test(fields.birthdate)) {

@@ -31,7 +31,15 @@ describe("NyuchiRegistrationCard", () => {
     expect(getByText("General")).toBeTruthy();
     expect(getByText("VIP")).toBeTruthy();
     expect(getByText("Free")).toBeTruthy();
-    expect(getByText("$25.00")).toBeTruthy();
+    // Locale-neutral: the viewer's own formatting of US$25.
+    expect(
+      getByText(
+        new Intl.NumberFormat(undefined, {
+          style: "currency",
+          currency: "USD",
+        }).format(25),
+      ),
+    ).toBeTruthy();
   });
 
   it("increments quantity when the + control is clicked", () => {
@@ -51,5 +59,19 @@ describe("NyuchiRegistrationCard", () => {
     fireEvent.click(getByRole("radio", { name: /VIP/ }));
     fireEvent.click(getByText(/Register/));
     expect(payload).toEqual({ tierId: "vip", quantity: 1 });
+  });
+
+  it("formats prices in the event's own currency", () => {
+    const { getByRole } = render(
+      <NyuchiRegistrationCard
+        tiers={[{ id: "vip", name: "VIP", price: 25 }]}
+        currency="EUR"
+      />,
+    );
+    const expected = new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: "EUR",
+    }).format(25);
+    expect(getByRole("radio").textContent).toContain(expected);
   });
 });
