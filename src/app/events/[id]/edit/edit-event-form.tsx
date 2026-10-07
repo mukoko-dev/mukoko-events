@@ -33,6 +33,7 @@ import {
 import { updateEvent } from "@/app/actions/events";
 import { uploadMedia, getMediaUrl, type Category, type Event } from "@/lib/api";
 import { isHttpUrl } from "@/lib/security/request";
+import { inPersonLocationError, normaliseCity } from "@/lib/event-location";
 import {
   zonedTimeToUtcIso,
   resolveEventTimezone,
@@ -102,11 +103,7 @@ export function EditEventForm({ event }: EditEventFormProps) {
     "zoom" | "google_meet" | "teams" | "other"
   >(
     (event.meetingPlatform as
-      | "zoom"
-      | "google_meet"
-      | "teams"
-      | "other"
-      | undefined) || "zoom",
+      "zoom" | "google_meet" | "teams" | "other" | undefined) || "zoom",
   );
   const [venue, setVenue] = useState(wasOnline ? "" : event.location.name);
   const [address, setAddress] = useState(
@@ -212,8 +209,10 @@ export function EditEventForm({ event }: EditEventFormProps) {
     if (!name.trim()) return "Event name is required";
     if (!eventDate) return "Please select a date and time";
     if (endTime <= startTime) return "End time must be after start time";
-    if (!isOnline && (!venue.trim() || !selectedCity))
-      return "Please add a location or mark as online event";
+    if (!isOnline) {
+      const locationError = inPersonLocationError(venue, selectedCity);
+      if (locationError) return locationError;
+    }
     if (isOnline && !meetingUrl.trim())
       return "Please add a meeting URL for your online event";
     if (isOnline && meetingUrl.trim() && !isHttpUrl(meetingUrl.trim()))
@@ -266,8 +265,8 @@ export function EditEventForm({ event }: EditEventFormProps) {
         streetAddress: address.trim(),
         placeId,
         calendarId,
-        addressLocality: selectedCity?.addressLocality,
-        addressCountry: selectedCity?.addressCountry,
+        addressLocality: normaliseCity(selectedCity)?.addressLocality,
+        addressCountry: normaliseCity(selectedCity)?.addressCountry,
         timezone: isOnline ? null : selectedTimezone,
         meetingUrl: isOnline ? meetingUrl.trim() : null,
         meetingPlatform: isOnline ? meetingPlatform : null,

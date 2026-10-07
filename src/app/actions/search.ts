@@ -102,7 +102,7 @@ async function summarize(
     )
     .join("\n");
 
-  const prompt = `You are a helpful assistant for Mukoko Events, an African events platform.
+  const prompt = `You are a helpful assistant for Mukoko Events, an events platform built for Africa and open to communities everywhere.
 Based on the user's search for "${query}", summarize these matching events in 2-3 sentences:
 
 ${list}
