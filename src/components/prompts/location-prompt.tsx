@@ -5,6 +5,7 @@ import { X, MapPin, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-context";
 import { getCitiesAction } from "@/app/actions/discovery";
 import { updateMyProfile } from "@/app/actions/profile";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 // sessionStorage so dismissals reset per browser session — prompt reappears next visit
@@ -86,6 +87,12 @@ export function LocationPrompt() {
             </option>
           ))}
         </select>
+        <Link
+          href="/profile/edit?section=location"
+          className="mt-1 inline-block text-xs text-text-tertiary underline hover:text-foreground"
+        >
+          Not listed? Enter any city
+        </Link>
       </div>
       <Button
         variant="default"

@@ -4,6 +4,11 @@ import * as React from "react";
 import { Check, Clock, X, Ticket, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNyuchiHarness } from "@/components/ui/harness";
+import { formatCurrency } from "@/lib/format-price";
+
+// TODO(mzizi): local change to the registry's RSVP button — adds the
+// `currency` prop (any ISO 4217 code; the registry formats USD only).
+// Upstream: mzizi-dev/mzizi-registry (see the PR linked from this repo's PR).
 
 /* ═══════════════════════════════════════════════════════════════
    NYUCHI RSVP BUTTON — stateful event registration control.
@@ -62,6 +67,8 @@ const statusDisplay: Record<
 interface NyuchiRSVPButtonProps {
   status?: RSVPStatus;
   price?: string | number;
+  /** ISO 4217 currency for a numeric price (the event's priceCurrency). */
+  currency?: string;
   spotsRemaining?: number;
   loading?: boolean;
   disabled?: boolean;
@@ -74,6 +81,7 @@ interface NyuchiRSVPButtonProps {
 function NyuchiRSVPButton({
   status = "none",
   price,
+  currency = "USD",
   spotsRemaining,
   loading = false,
   disabled = false,
@@ -99,12 +107,7 @@ function NyuchiRSVPButton({
   const isFree = price === "Free" || price === 0;
 
   const priceLabel =
-    typeof price === "number"
-      ? new Intl.NumberFormat(undefined, {
-          style: "currency",
-          currency: "USD",
-        }).format(price)
-      : price;
+    typeof price === "number" ? formatCurrency(price, currency) : price;
 
   const label = loading
     ? "Processing…"
