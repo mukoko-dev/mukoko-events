@@ -12,22 +12,38 @@
   "categories": ["events", "social", "lifestyle"],
   "icons": [
     {
-      "src": "/app-icon-192.png",
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/app-icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/app-icon-1024.png",
-      "sizes": "1024x1024",
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [],
@@ -37,21 +53,36 @@
       "short_name": "Events",
       "description": "Browse all events",
       "url": "/events",
-      "icons": [{ "src": "/app-icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Create Event",
       "short_name": "Create",
       "description": "Create a new event",
       "url": "/events/create",
-      "icons": [{ "src": "/app-icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Search",
       "short_name": "Search",
       "description": "Search for events",
       "url": "/search",
-      "icons": [{ "src": "/app-icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ],
   "related_applications": [],
