@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./public/app-icon-192.png" alt="Mukoko Events" width="96" height="96">
+<img src="./public/icon-192.png" alt="Mukoko Events" width="96" height="96">
 
 # Mukoko Events
 
