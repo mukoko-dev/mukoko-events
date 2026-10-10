@@ -241,12 +241,7 @@ export async function GET(request: NextRequest) {
                 set in the serif heading face) */}
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${origin}/icon-192.png`}
-              width={40}
-              height={40}
-              alt=""
-            />
+            <img src={`${origin}/icon-192.png`} width={40} height={40} alt="" />
             <span
               style={{
                 fontFamily: "Noto Sans",
