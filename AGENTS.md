@@ -60,7 +60,7 @@ npm run test:run   # Vitest, run once (~682 tests)
 ## Conventions
 
 - **Brand:** **"Mukoko Events"** in user-facing copy and docs. "Nhimbe" was retired as a brand on 2026-10-04 (mukoko-dev/nhimbe#155); keep _nhimbe_ only where it names the Shona practice, and leave state-bearing identifiers (`nhimbe-theme` and other storage keys, `.nh-*` classes, iCalendar UIDs) as they are.
-- **Favicon / app icons:** the files in `public/` (`favicon.ico`, `favicon.svg`, `favicon-16/32/48/180.png`, `apple-touch-icon.png`, `icon-192/512.png`, `icon-maskable-192/512.png`) are byte-identical copies of mukoko-news `public/`. mukoko-news is the source of truth, so change them there first and copy them here. `src/__tests__/favicon-parity.test.ts` pins the hashes.
+- **Favicon / app icons:** the files in `public/` (`favicon.ico`, `favicon.svg`, `favicon-16/32.png`, `apple-touch-icon.png`, `icon-192/512.png`, `icon-maskable-192/512.png`) are byte-identical copies of mukoko-news `public/`. mukoko-news is the source of truth, so change them there first and copy them here. `src/__tests__/favicon-parity.test.ts` pins the hashes.
 - **TypeScript strict mode.** WCAG AAA (7:1+ contrast, comfortable touch
   targets). Dark/light via design tokens in `globals.css`.
 - **React Context** for global state (AuthProvider, ThemeProvider) — no
