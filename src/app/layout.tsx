@@ -95,15 +95,20 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    // Mukoko full-colour Seed-of-Life favicon.
-    // SVG with a media-query dark variant first, then PNG fallbacks.
+    // The single Mukoko icon set, copied byte for byte from mukoko-news/public.
+    // mukoko-news is the source of truth. Change it there first, then copy it
+    // here (src/__tests__/favicon-parity.test.ts checks the hashes). Do not add
+    // app-dir icon files (src/app/icon.*, apple-icon.*) because they would
+    // compete with this set.
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.ico", sizes: "48x48" },
     ],
-    apple: "/apple-touch-icon.png",
-    shortcut: "/favicon-32.png",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   manifest: "/manifest.json",
   openGraph: {

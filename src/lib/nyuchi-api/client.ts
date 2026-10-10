@@ -33,8 +33,13 @@ import { createHash } from "node:crypto";
 const DEFAULT_BASE_URL = "https://api.nyuchi.com";
 const TOKEN_EXCHANGE = "urn:ietf:params:oauth:grant-type:token-exchange";
 const ACCESS_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:access_token";
-/** The namespaces a person token from Mukoko Events needs. */
-export const PERSON_SCOPE = "identity circles campfire events";
+/**
+ * The namespaces a person token from Mukoko Events needs. The API grants the
+ * intersection with the key's own scopes, so asking for `analytics` and
+ * `insights` before the key holds them costs nothing (nyuchi/api-gateway#268).
+ */
+export const PERSON_SCOPE =
+  "identity circles campfire events analytics insights";
 /** Seconds shaved off `expires_in` so a cached token is never used stale. */
 const EXPIRY_MARGIN_SECONDS = 30;
 const REQUEST_TIMEOUT_MS = 10_000;
