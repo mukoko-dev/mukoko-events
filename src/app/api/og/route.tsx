@@ -242,7 +242,7 @@ export async function GET(request: NextRequest) {
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`${origin}/app-icon-192.png`}
+              src={`${origin}/icon-192.png`}
               width={40}
               height={40}
               alt=""
