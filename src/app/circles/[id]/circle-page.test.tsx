@@ -186,7 +186,11 @@ describe("CircleDetailPage gate", () => {
     await waitFor(() =>
       expect(actions.getCircleMembers).toHaveBeenCalledWith(ID, 100),
     );
-    expect(screen.getAllByRole("tab").length).toBe(5);
+    // The members request starts as soon as the effect runs, but the tabs only
+    // render once every request has settled and the skeleton is gone. Wait
+    // for the tabs themselves, not for the call, or a slow runner checks the
+    // skeleton.
+    await waitFor(() => expect(screen.getAllByRole("tab")).toHaveLength(5));
   });
 
   it("after joining, re-resolves access on the server and loads member content", async () => {

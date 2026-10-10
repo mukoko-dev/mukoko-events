@@ -60,6 +60,7 @@ npm run test:run   # Vitest, run once (~682 tests)
 ## Conventions
 
 - **Brand:** **"Mukoko Events"** in user-facing copy and docs. "Nhimbe" was retired as a brand on 2026-10-04 (mukoko-dev/nhimbe#155); keep _nhimbe_ only where it names the Shona practice, and leave state-bearing identifiers (`nhimbe-theme` and other storage keys, `.nh-*` classes, iCalendar UIDs) as they are.
+- **Favicon / app icons:** the files in `public/` (`favicon.ico`, `favicon.svg`, `favicon-16/32.png`, `apple-touch-icon.png`, `icon-192/512.png`, `icon-maskable-192/512.png`) are byte-identical copies of mukoko-news `public/`. mukoko-news is the source of truth, so change them there first and copy them here. `src/__tests__/favicon-parity.test.ts` pins the hashes.
 - **TypeScript strict mode.** WCAG AAA (7:1+ contrast, comfortable touch
   targets). Dark/light via design tokens in `globals.css`.
 - **React Context** for global state (AuthProvider, ThemeProvider) — no
@@ -106,3 +107,12 @@ Any substantial build, migration, investigation or multi-step task gets a GitHub
 - Post progress, decisions and a hand-off note (what's done, what's left, branch names) as issue comments — at each merge and before a session or agent finishes.
 - Work spanning repos gets a tracking issue that links the per-repo issues.
 - Never put secrets, credential status or exploitable detail in issues on public repos.
+
+## Dev skills, progress reports and the merge gate
+
+Load the Mzizi **dev skills** before starting work: `mzizi_get_skills category=dev` on the Mzizi MCP (`mcp.mzizi.dev`), or `@nyuchi/mzizi-skills` from npm. They are `digital-hygiene` and `progress-report`.
+
+- **Digital hygiene.** Check free disk before starting, clone only under `$TMPDIR`, share build caches, and audit, then delete, your clones once the work merges (`digital-hygiene` skill).
+- **Clone isolation.** Clone only into a directory unique to you; never touch another agent's.
+- **Progress reports.** All dev work runs on a 10-minute progress-report loop (`progress-report` skill): measured bars, what changed, and a final "Needs you:" line. Report ticks never publish, release, merge or deploy without the owner's approval.
+- **Merge gate.** Merge only when the work is complete, CI is green, it's verified at runtime, and `/code-review` has run with findings resolved.
