@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Users,
-  Eye,
   Share2,
   Check,
   X,
@@ -64,6 +63,7 @@ import {
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { PairKiosk } from "../kiosk/pair-kiosk";
 import { VenueVerifyCta } from "./venue-verify-cta";
+import { EventInsights } from "./event-insights";
 import { EventManageShell, type ManageSectionKey } from "../event-manage-shell";
 import { useAuth } from "@/components/auth/auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -96,7 +96,6 @@ interface Registration {
 }
 
 interface EventStats {
-  views: number;
   registrations: number;
   approved: number;
   pending: number;
@@ -237,7 +236,6 @@ function ManageEventContent() {
   }
 
   const stats: EventStats = {
-    views: 0, // Will be populated by real analytics API when available
     registrations: registrations.length,
     approved: registrations.filter(
       (r) => r.status === "approved" || r.status === "registered",
@@ -1088,96 +1086,7 @@ function ManageEventContent() {
 
         {/* Insights */}
         {activeKey === "insights" && (
-          <div className="space-y-6">
-            {/* Page Views */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Page Views</CardTitle>
-                  <CardDescription>
-                    See recent page views of the event page.
-                  </CardDescription>
-                </div>
-                <Button variant="secondary" size="default">
-                  Past 7 Days
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {/* Empty state - analytics data will come from API */}
-                <div className="py-12 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-elevated rounded-full flex items-center justify-center">
-                    <Eye className="w-8 h-8 text-text-tertiary" />
-                  </div>
-                  <h4 className="font-medium text-text-secondary mb-1">
-                    No Page Views Yet
-                  </h4>
-                  <p className="text-sm text-text-tertiary">
-                    Share your event to start tracking page views.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Sources */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Sources</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-text-secondary">
-                  Start sharing your link and you&apos;ll see traffic here.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Cities */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Cities</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {event.location.addressLocality ? (
-                  <div className="flex items-center justify-between">
-                    <span>
-                      {event.location.addressLocality},{" "}
-                      {event.location.addressCountry}
-                    </span>
-                    <span className="font-medium">100%</span>
-                  </div>
-                ) : (
-                  <p className="text-text-secondary">No location data yet.</p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* UTM Sources */}
-            <Card>
-              <CardHeader>
-                <CardTitle>UTM Sources</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-text-secondary text-sm">
-                  Set up a tracking link by adding{" "}
-                  <code className="bg-elevated px-1 py-0.5 rounded">
-                    ?utm_source=your-link-name
-                  </code>{" "}
-                  to your URL.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Registration Referrals */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Registration Referrals</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-text-secondary">
-                  Track where your registrations are coming from.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <EventInsights eventId={event.id} registrations={registrations} />
         )}
 
         {/* Settings */}

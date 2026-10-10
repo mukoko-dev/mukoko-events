@@ -97,7 +97,7 @@ const HOME_JSON_LD = {
       "@id": `${SITE_URL}/#organization`,
       name: "Mukoko Events",
       url: SITE_URL,
-      logo: `${SITE_URL}/app-icon-512.png`,
+      logo: `${SITE_URL}/icon-512.png`,
       description:
         "Mukoko Events is a community events discovery and management platform connecting communities across Africa. A Mukoko product.",
       parentOrganization: {
