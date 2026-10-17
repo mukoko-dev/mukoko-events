@@ -58,4 +58,15 @@ describe("NyuchiRSVPButton", () => {
     );
     expect(getByText("7 spots remaining")).toBeTruthy();
   });
+
+  it("formats a priced label in the event's own currency", () => {
+    const { getByRole } = render(
+      <NyuchiRSVPButton status="none" price={1500} currency="JPY" />,
+    );
+    const expected = new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: "JPY",
+    }).format(1500);
+    expect(getByRole("button").textContent).toContain(expected);
+  });
 });

@@ -13,8 +13,8 @@
  *      free-form address sub-fields, returning our own catalogued venues first.
  *   2. OSM Nominatim (`https://nominatim.openstreetmap.org/search?format=geojson`)
  *      — public, key-less, attribution-required. Called server-side with a
- *      descriptive `User-Agent` and biased to the app's core markets via
- *      `countrycodes`. Nominatim asks callers to stay under ~1 req/sec; the
+ *      descriptive `User-Agent`, worldwide (no `countrycodes` restriction:
+ *      built for Africa, globally accessible). Nominatim asks callers to stay under ~1 req/sec; the
  *      client debounces keystrokes (the main lever) and we cap `limit`.
  *
  * Both paths return the same `GeocodeSuggestion` shape with a GeoJSON-derived
@@ -71,14 +71,11 @@ function timezoneForCoords(
   }
 }
 
-/** Core markets the app serves — used to bias Nominatim results (ISO 3166-1). */
-const REGION_COUNTRY_CODES = "zw,za,zm,ke,ng,gh,ug,tz,rw,et,mz,bw,sz,na,mw";
-
 const NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org";
 // Nominatim usage policy requires an identifying User-Agent that a maintainer
 // could contact. Kept generic (no PII) but app-specific.
 const NOMINATIM_USER_AGENT =
-  "nhimbe/1.0 (+https://nhimbe.com; events discovery)";
+  "mukoko-events/1.0 (+https://events.mukoko.com; events discovery)";
 
 const OVERPASS_ENDPOINT = "https://overpass-api.de/api/interpreter";
 
@@ -291,7 +288,9 @@ async function searchNominatim(
   url.searchParams.set("q", query);
   url.searchParams.set("limit", String(limit));
   url.searchParams.set("addressdetails", "1");
-  url.searchParams.set("countrycodes", REGION_COUNTRY_CODES);
+  // Global by default: no `countrycodes` filter, so a venue in London or
+  // Tokyo resolves as readily as one in Harare. The places catalogue (tier 1)
+  // already surfaces our own Africa-first venues above OSM hits.
 
   try {
     const res = await fetch(url, {
@@ -476,6 +475,51 @@ export async function resolveCountryTimezone(
   const ll = pointLatLng(doc?.geo);
   if (!ll) return undefined;
   return timezoneForCoords(ll[0], ll[1]);
+}
+
+/**
+ * Resolve a manually entered city's IANA timezone from OSM Nominatim — used by
+ * the free-text city + country fields in the create/edit event forms, so an
+ * event typed in as "Tokyo, Japan" gets Asia/Tokyo rather than the
+ * organiser's browser timezone. The search is scoped to the country the
+ * organiser picked (a precision filter for this one lookup, not a regional
+ * restriction on the app). Read-only: no catalogue write, no ingestion
+ * report. Returns `undefined` when the city can't be found.
+ */
+export async function resolveCityTimezone(
+  city: string,
+  countryCode: string,
+): Promise<string | undefined> {
+  const name = (city ?? "").trim();
+  const cc = (countryCode ?? "").trim().toLowerCase();
+  if (!name || !/^[a-z]{2}$/.test(cc)) return undefined;
+
+  await assertCaller();
+
+  const url = new URL(`${NOMINATIM_ENDPOINT}/search`);
+  url.searchParams.set("format", "geojson");
+  url.searchParams.set("city", name);
+  url.searchParams.set("countrycodes", cc);
+  url.searchParams.set("limit", "1");
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": NOMINATIM_USER_AGENT,
+        Accept: "application/geo+json",
+      },
+      next: { revalidate: 86400 },
+    });
+    if (!res.ok) return undefined;
+    const body = (await res.json()) as { features?: NominatimFeature[] };
+    const coords = body.features?.[0]?.geometry?.coordinates;
+    if (!Array.isArray(coords) || coords.length < 2) return undefined;
+    const lng = Number(coords[0]);
+    const lat = Number(coords[1]);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return undefined;
+    return timezoneForCoords(lat, lng);
+  } catch {
+    return undefined;
+  }
 }
 
 /**

@@ -4,13 +4,20 @@ import * as React from "react";
 import { Minus, Plus, Ticket, Loader2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNyuchiHarness } from "@/components/ui/harness";
+import { formatCurrency } from "@/lib/format-price";
+
+// TODO(mzizi): local change to the registry's `mzizi-registration-card` —
+// adds the `currency` prop (any ISO 4217 code; the registry formats USD
+// only). Upstream: mzizi-dev/mzizi-registry (see the PR linked from this
+// repo's PR). Replace with the registry build once it ships `currency`.
 
 /* ═══════════════════════════════════════════════════════════════
    NYUCHI REGISTRATION CARD — 4.2.0 ticket registration panel.
 
    A labelled header, a selectable ticket-tier list (radio
    semantics), a clamped quantity stepper, and one saturated accent
-   CTA. Prices format as USD (Free for 0); sold-out tiers disable.
+   CTA. Prices format in the event's
+   currency (any ISO 4217 code, default USD; Free for 0); sold-out tiers disable.
    Harness-wired so tier + quantity changes announce through the
    auto-mounted live region (imperative announce()). The CTA fill
    defaults to the event/brand primary and its text uses
@@ -40,6 +47,8 @@ interface NyuchiRegistrationCardProps {
   helper?: string;
   ctaLabel?: string;
   onSubmit?: (payload: { tierId: string | null; quantity: number }) => void;
+  /** ISO 4217 currency for numeric prices (the event's priceCurrency). */
+  currency?: string;
   /** Saturated CTA fill. Defaults to the event/brand primary. */
   accent?: string;
   loading?: boolean;
@@ -47,14 +56,9 @@ interface NyuchiRegistrationCardProps {
   className?: string;
 }
 
-function formatPrice(price: string | number): string {
+function formatPrice(price: string | number, currency?: string): string {
   if (price === 0 || price === "Free" || price === "0") return "Free";
-  return typeof price === "number"
-    ? new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "USD",
-      }).format(price)
-    : price;
+  return typeof price === "number" ? formatCurrency(price, currency) : price;
 }
 
 function NyuchiRegistrationCard({
@@ -69,6 +73,7 @@ function NyuchiRegistrationCard({
   helper,
   ctaLabel,
   onSubmit,
+  currency = "USD",
   accent = "var(--event-primary, var(--primary))",
   loading = false,
   disabled = false,
@@ -119,7 +124,7 @@ function NyuchiRegistrationCard({
   const cta =
     ctaLabel ??
     (totalPrice != null
-      ? `Register — ${formatPrice(totalPrice)}`
+      ? `Register — ${formatPrice(totalPrice, currency)}`
       : isFreeTier
         ? "Register — Free"
         : "Register");
@@ -217,7 +222,7 @@ function NyuchiRegistrationCard({
                   color: tier.soldOut ? "var(--muted-foreground)" : accent,
                 }}
               >
-                {formatPrice(tier.price)}
+                {formatPrice(tier.price, currency)}
               </span>
             </button>
           );

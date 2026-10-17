@@ -48,6 +48,7 @@ import { PublishBar } from "@/components/ui/nyuchi-create-listing";
 import { NyuchiSuccessScreen } from "@/components/ui/nyuchi-success-screen";
 import { WizardStepIndicator } from "./wizard-step-indicator";
 import { HostModePicker, type HostMode } from "./host-mode-picker";
+import { inPersonLocationError, normaliseCity } from "@/lib/event-location";
 
 type WizardStep = 1 | 2 | 3;
 const STEPS: { id: WizardStep; label: string }[] = [
@@ -188,6 +189,8 @@ const DEFAULT_CATEGORIES: Category[] = [
   },
 ];
 
+// Suggested cities only — a shortcut in the location picker, never an
+// allow-list. Any city in any country can be typed in (see ManualCityFields).
 const DEFAULT_CITIES = [
   { addressLocality: "Harare", addressCountry: "Zimbabwe" },
   { addressLocality: "Bulawayo", addressCountry: "Zimbabwe" },
@@ -407,8 +410,10 @@ export default function CreateEventForm() {
       if (target >= 2) {
         if (!eventDate) return "Please select a date and time for your event";
         if (endTime <= startTime) return "End time must be after start time";
-        if (!isOnline && (!venue || !selectedCity))
-          return "Please add a location or mark as online event";
+        if (!isOnline) {
+          const locationError = inPersonLocationError(venue, selectedCity);
+          if (locationError) return locationError;
+        }
         if (isOnline && !meetingUrl.trim())
           return "Please add a meeting URL for your online event";
         if (isOnline && meetingUrl.trim() && !isValidUrl(meetingUrl.trim()))
@@ -513,8 +518,8 @@ export default function CreateEventForm() {
         venue: venue.trim(),
         streetAddress: address.trim(),
         placeId,
-        addressLocality: selectedCity?.addressLocality,
-        addressCountry: selectedCity?.addressCountry,
+        addressLocality: normaliseCity(selectedCity)?.addressLocality,
+        addressCountry: normaliseCity(selectedCity)?.addressCountry,
         timezone: isOnline ? null : selectedTimezone,
         meetingUrl: isOnline ? meetingUrl.trim() : null,
         meetingPlatform: isOnline ? meetingPlatform : null,

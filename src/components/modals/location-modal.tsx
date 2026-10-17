@@ -10,8 +10,28 @@ import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import {
   resolveCountryTimezone,
   ensurePlaceFromOsmSuggestion,
+  resolveCityTimezone,
 } from "@/app/actions/geocode";
+import { countryCodeFor } from "@/lib/countries";
 import { timezoneLabel } from "@/lib/timezone";
+import { ManualCityFields } from "@/components/location/manual-city-fields";
+
+/**
+ * Timezone for a manually entered city: the city's own coordinates when the
+ * geocoder knows it (any country), else the country's primary timezone.
+ */
+async function resolveManualTimezone(
+  city: string,
+  country: string,
+): Promise<string | null> {
+  if (!country.trim()) return null;
+  const code = countryCodeFor(country);
+  if (city.trim() && code) {
+    const tz = await resolveCityTimezone(city, code).catch(() => undefined);
+    if (tz) return tz;
+  }
+  return (await resolveCountryTimezone(country).catch(() => undefined)) ?? null;
+}
 
 function isValidMeetingUrl(value: string): boolean {
   try {
@@ -277,7 +297,7 @@ export function LocationModal({
             </div>
             <div>
               <Label className="block text-sm text-text-secondary mb-2">
-                City
+                Suggested cities
               </Label>
               <div className="grid grid-cols-2 gap-2">
                 {cities.map((c) => (
@@ -292,7 +312,8 @@ export function LocationModal({
                       );
                     }}
                     className={`px-4 py-3 rounded-xl text-left justify-start h-auto ${
-                      selectedCity?.addressLocality === c.addressLocality
+                      selectedCity?.addressLocality === c.addressLocality &&
+                      selectedCity?.addressCountry === c.addressCountry
                         ? "bg-primary text-primary-foreground"
                         : "bg-surface hover:bg-elevated"
                     }`}
@@ -307,6 +328,34 @@ export function LocationModal({
                 ))}
               </div>
             </div>
+            {/* Any city, any country — the suggestions above are a shortcut,
+                never an allow-list. */}
+            <ManualCityFields
+              city={selectedCity?.addressLocality ?? ""}
+              country={selectedCity?.addressCountry ?? ""}
+              onChange={(next) => {
+                const countryChanged =
+                  next.addressCountry !== (selectedCity?.addressCountry ?? "");
+                setSelectedCity(
+                  next.addressLocality || next.addressCountry ? next : null,
+                );
+                setPlaceId(null);
+                if (countryChanged) {
+                  setSelectedTimezone(null);
+                  resolveManualTimezone(
+                    next.addressLocality,
+                    next.addressCountry,
+                  ).then(setSelectedTimezone);
+                }
+              }}
+              onCityBlur={() => {
+                if (!selectedCity) return;
+                resolveManualTimezone(
+                  selectedCity.addressLocality,
+                  selectedCity.addressCountry,
+                ).then((tz) => tz && setSelectedTimezone(tz));
+              }}
+            />
             {selectedTimezone && (
               <p className="flex items-center gap-2 text-xs text-text-tertiary">
                 <Clock className="w-3.5 h-3.5 shrink-0" />
