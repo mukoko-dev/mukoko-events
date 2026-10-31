@@ -74,8 +74,9 @@ npm run test:run   # Vitest, run once (~682 tests)
 - **Target `staging`.** Branch off `staging` as `claude/<topic>-<slug>` (or
   `feat/…`, `fix/…`, `docs/…`) and open every PR into `staging`. Each merge
   into `staging` is tagged as the next patch. `staging` reaches `main`
-  (production) only through the release PR, and a production hotfix goes the
-  same way. **Never delete `staging`.**
+  (production) only through a release branch the owner lands through the merge
+  queue (see "Merging and releases"), and a production hotfix goes the same
+  way. **Never delete `staging`.**
 - **Big PR, focused commits** — the Nyuchi house style. Related work lands in
   **one** pull request as a sequence of independently readable commits. Don't
   open a second PR for "just one more cleanup" — append a commit to the active
@@ -97,6 +98,29 @@ Reusable routines live in [`.claude/skills/`](./.claude/skills/) as
   runtime verification without the Mukoko cluster.
 - `verify` — runtime-verify a change in a sandbox (launch recipe, in-memory
   Mongo, dev auth bypass, gotchas).
+
+## Merging and releases (org rule, 2026-10-21)
+
+The owner set this for every repo in every org on 2026-10-21. It replaces any older
+wording about merge commits, rebase merges, forward-ports or "staging to main" PRs.
+
+- **Squash only, through the merge queue.** `staging` and `main` take squash merges
+  through a GitHub merge queue. Rebase and merge commits are disabled, and history is
+  linear. Land a PR with `gh pr merge <n> --squash --auto`. The queue tests it against
+  the latest base and merges it. Never use `--admin`, and don't loop merge calls: treat a
+  5xx or "merge already in progress" as "wait".
+- **No "require up to date".** The queue keeps PRs current, so that setting is off.
+  "Update branch" is fine.
+- **One writer per branch.** Use `--force-with-lease` only on a branch you own.
+- **Every required check runs on `merge_group:`.** A workflow whose check is required
+  triggers on `merge_group:` as well as `pull_request:`, or queued PRs stall for 60
+  minutes and drop out. Jobs that only make sense on a pull request skip with
+  `if: github.event_name != 'merge_group'` (a skipped required check counts as passing).
+- **Releases.** Cut `release/staging-to-main-<date>` from `main`, give it `staging`'s
+  exact tree, and land it in `main` through the queue. Only the owner releases, or an
+  agent the owner has authorised for that release.
+- **First-party packages** (`@nyuchi/*`, `@bundu/*`, `mzizi-*`) are depended on by
+  minimum version (`>=x.y.z`), with no upper bound.
 
 ## Track big work in GitHub issues
 
