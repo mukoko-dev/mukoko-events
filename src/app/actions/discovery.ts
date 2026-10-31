@@ -20,6 +20,7 @@ import {
   getTrendingEvents,
 } from "@/lib/mongo/events";
 import { headers } from "next/headers";
+import { canManageEventAction } from "@/app/actions/host-registrations";
 import { listCategories, listCities } from "@/lib/mongo/lookups";
 import { loadCommunityStats } from "@/lib/community-stats";
 import { asService, isNyuchiApiConfigured } from "@/lib/nyuchi-api/client";
@@ -50,8 +51,18 @@ export async function getEventsAction(params?: {
   return { events, pagination: { limit, offset, total } };
 }
 
+/**
+ * Public event lookup. A server action is a public endpoint, so the draft /
+ * archived gate lives here and not in the caller: unpublished events come
+ * back only to a signed-in person who hosts them (the manage page, kiosk and
+ * signage setup); everyone else gets `null`, as for a missing event.
+ */
 export async function findEventAction(idOrSlug: string): Promise<Event | null> {
-  return getEventByIdOrSlug(idOrSlug);
+  const visible = await getEventByIdOrSlug(idOrSlug, { publicOnly: true });
+  if (visible) return visible;
+  const any = await getEventByIdOrSlug(idOrSlug);
+  if (!any) return null;
+  return (await canManageEventAction(any.id)) ? any : null;
 }
 
 /** The signed-in person's WorkOS id, or null (signed out, dev bypass, no AuthKit). */

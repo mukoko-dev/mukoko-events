@@ -22,6 +22,18 @@ import type { EventDoc } from "./types";
 /** A publicly-listable event is published or live. */
 export const PUBLISHED_STATUSES = ["published", "live"] as const;
 
+/**
+ * Statuses whose detail page / API record an anonymous visitor may read (by
+ * link). Past and cancelled events stay readable so shared links keep working;
+ * drafts and archived events are host-only.
+ */
+export const PUBLIC_DETAIL_STATUSES = [
+  "published",
+  "live",
+  "ended",
+  "cancelled",
+] as const;
+
 /** Canonical (nested) and legacy (flat) embed paths for the event locality. */
 export const CITY_LOCALITY_PATH = "location.address.addressLocality";
 export const CITY_LOCALITY_PATH_LEGACY = "location.addressLocality";
