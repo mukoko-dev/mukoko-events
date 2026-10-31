@@ -39,7 +39,16 @@ const loadEvent = cache(async (id: string) => {
     // The raw circle id is kept here only so withVisibleCircleLink can
     // decide for this viewer; it is dropped before the client unless they
     // may follow the link.
-    return await getEventByIdOrSlug(id, { keepAllCircleIds: true });
+    const options = { keepAllCircleIds: true };
+    const visible = await getEventByIdOrSlug(id, {
+      ...options,
+      publicOnly: true,
+    });
+    if (visible) return visible;
+    // A draft or archived event is shown to its host only.
+    return (await canManageEventAction(id))
+      ? await getEventByIdOrSlug(id, options)
+      : null;
   } catch {
     return null;
   }

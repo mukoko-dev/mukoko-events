@@ -25,7 +25,11 @@ import {
   placesCollection,
 } from "./databases";
 import { mapEventDocToApi, type EventRelations } from "./mappers";
-import { PUBLISHED_STATUSES, cityLocalityFilter } from "./event-filters";
+import {
+  PUBLISHED_STATUSES,
+  HOST_ONLY_STATUSES,
+  cityLocalityFilter,
+} from "./event-filters";
 import { LISTABLE_CIRCLE_TYPES } from "@/lib/circle-visibility";
 import type { EntityDoc, EventDoc, PersonDoc, PlaceDoc } from "./types";
 import type { Event } from "@/lib/api";
@@ -143,6 +147,14 @@ interface MapEventsOptions {
    * page, through `visibleCircleLinkIdsForViewer`).
    */
   keepAllCircleIds?: boolean;
+  /**
+   * Only return an event an anonymous visitor may see: not a draft or an
+   * archived event. Set this on every public read path (the public API, the
+   * public event page, `findEventAction`); leave it off only where the caller
+   * has already proven the viewer hosts the event (the edit page, or a
+   * fallback after `canManageEventAction`).
+   */
+  publicOnly?: boolean;
 }
 
 async function mapEventsWithRelations(
@@ -239,8 +251,8 @@ export async function getTrendingEvents(limit = 10): Promise<Event[]> {
 
 /**
  * Fetch a single event by `_id` or `slug`, with host + venue resolved. Returns
- * null when not found. Does not enforce publish state — callers (e.g. the
- * host's own manage page) may need drafts; gate visibility at the route.
+ * null when not found. Unrestricted by default (hosts need their drafts): every
+ * public read MUST pass `publicOnly: true`, or prove the viewer hosts the event.
  */
 export async function getEventByIdOrSlug(
   idOrSlug: string,
@@ -255,6 +267,12 @@ export async function getEventByIdOrSlug(
     ],
   });
   if (!doc) return null;
+  if (
+    options.publicOnly &&
+    (HOST_ONLY_STATUSES as readonly string[]).includes(doc.status)
+  ) {
+    return null;
+  }
   const [mapped] = await mapEventsWithRelations([doc], options);
   return mapped ?? null;
 }
