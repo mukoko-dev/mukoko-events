@@ -45,7 +45,7 @@ describe("getEventByIdOrSlug publicOnly", () => {
     expect(await getEventByIdOrSlug("evt-1", { publicOnly: true })).toBeNull();
   });
 
-  it.each(["published", "live", "ended", "cancelled"])(
+  it.each(["published", "live", "ended", "cancelled", "scheduled"])(
     "returns a %s event",
     async (status) => {
       doc = eventDoc(status);

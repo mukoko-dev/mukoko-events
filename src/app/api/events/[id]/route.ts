@@ -15,19 +15,32 @@ import {
   type UpdateEventInput,
 } from "@/app/actions/events";
 import { resolveActorFromBearer, ActorError } from "@/lib/auth/mcp-actor";
+import { requireBearerEventHost } from "@/lib/auth/mcp-host";
 import { readJsonBody } from "@/lib/security/request";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
 
   try {
-    const event = await getEventByIdOrSlug(id, { publicOnly: true });
+    let event = await getEventByIdOrSlug(id, { publicOnly: true });
+    if (!event) {
+      // A draft or archived event is readable by its host (bearer token) only.
+      const authorization = request.headers.get("Authorization");
+      if (authorization) {
+        try {
+          await requireBearerEventHost(authorization, id);
+          event = await getEventByIdOrSlug(id);
+        } catch {
+          // Not a host, or a bad token: same answer as a missing event.
+        }
+      }
+    }
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }

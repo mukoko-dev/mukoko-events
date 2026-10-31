@@ -60,9 +60,9 @@ export async function getEventsAction(params?: {
 export async function findEventAction(idOrSlug: string): Promise<Event | null> {
   const visible = await getEventByIdOrSlug(idOrSlug, { publicOnly: true });
   if (visible) return visible;
-  const any = await getEventByIdOrSlug(idOrSlug);
-  if (!any) return null;
-  return (await canManageEventAction(any.id)) ? any : null;
+  // Authorise before reading or mapping anything for the unpublished event.
+  if (!(await canManageEventAction(idOrSlug))) return null;
+  return getEventByIdOrSlug(idOrSlug);
 }
 
 /** The signed-in person's WorkOS id, or null (signed out, dev bypass, no AuthKit). */

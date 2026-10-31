@@ -32,6 +32,8 @@ describe("findEventAction", () => {
   it("returns null for an unpublished event when the caller is not its host", async () => {
     canManageEventAction.mockResolvedValue(false);
     expect(await findEventAction("evt-1")).toBeNull();
+    // nothing unrestricted is read before the host check passes
+    expect(getEventByIdOrSlug).not.toHaveBeenCalledWith("evt-1");
   });
 
   it("returns the unpublished event to its host", async () => {

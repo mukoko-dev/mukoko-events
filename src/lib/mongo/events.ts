@@ -27,7 +27,7 @@ import {
 import { mapEventDocToApi, type EventRelations } from "./mappers";
 import {
   PUBLISHED_STATUSES,
-  PUBLIC_DETAIL_STATUSES,
+  HOST_ONLY_STATUSES,
   cityLocalityFilter,
 } from "./event-filters";
 import { LISTABLE_CIRCLE_TYPES } from "@/lib/circle-visibility";
@@ -149,9 +149,10 @@ interface MapEventsOptions {
   keepAllCircleIds?: boolean;
   /**
    * Only return an event an anonymous visitor may see: not a draft or an
-   * archived event. Set this on every public read path (the public API and the
-   * public event pages); leave it off only where the caller has already proven
-   * the viewer hosts the event (the manage / edit pages).
+   * archived event. Set this on every public read path (the public API, the
+   * public event page, `findEventAction`); leave it off only where the caller
+   * has already proven the viewer hosts the event (the edit page, or a
+   * fallback after `canManageEventAction`).
    */
   publicOnly?: boolean;
 }
@@ -191,7 +192,9 @@ async function mapEventsWithRelations(
     ),
   ];
   const persons = founderIds.length
-    ? await (await personsCollection())
+    ? await (
+        await personsCollection()
+      )
         .find({ _id: { $in: founderIds } })
         .toArray()
     : ([] as PersonDoc[]);
@@ -248,8 +251,8 @@ export async function getTrendingEvents(limit = 10): Promise<Event[]> {
 
 /**
  * Fetch a single event by `_id` or `slug`, with host + venue resolved. Returns
- * null when not found. Does not enforce publish state — callers (e.g. the
- * host's own manage page) may need drafts; gate visibility at the route.
+ * null when not found. Unrestricted by default (hosts need their drafts): every
+ * public read MUST pass `publicOnly: true`, or prove the viewer hosts the event.
  */
 export async function getEventByIdOrSlug(
   idOrSlug: string,
@@ -266,7 +269,7 @@ export async function getEventByIdOrSlug(
   if (!doc) return null;
   if (
     options.publicOnly &&
-    !(PUBLIC_DETAIL_STATUSES as readonly string[]).includes(doc.status)
+    (HOST_ONLY_STATUSES as readonly string[]).includes(doc.status)
   ) {
     return null;
   }

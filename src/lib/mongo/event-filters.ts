@@ -23,16 +23,11 @@ import type { EventDoc } from "./types";
 export const PUBLISHED_STATUSES = ["published", "live"] as const;
 
 /**
- * Statuses whose detail page / API record an anonymous visitor may read (by
- * link). Past and cancelled events stay readable so shared links keep working;
- * drafts and archived events are host-only.
+ * Statuses only a host may read. Everything else (published, live, ended,
+ * cancelled, and any status the platform adds later) stays readable by link so
+ * shared URLs keep working.
  */
-export const PUBLIC_DETAIL_STATUSES = [
-  "published",
-  "live",
-  "ended",
-  "cancelled",
-] as const;
+export const HOST_ONLY_STATUSES = ["draft", "archived"] as const;
 
 /** Canonical (nested) and legacy (flat) embed paths for the event locality. */
 export const CITY_LOCALITY_PATH = "location.address.addressLocality";
