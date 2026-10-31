@@ -35,6 +35,7 @@ vi.mock(
 // The discovery module also exports Mongo reads; none run here.
 vi.mock("@/lib/mongo/events", () => ({}));
 vi.mock("@/lib/mongo/lookups", () => ({}));
+vi.mock("@/app/actions/host-registrations", () => ({}));
 
 import { __resetTokenCache } from "@/lib/nyuchi-api/client";
 import { trackEventViewAction } from "./discovery";
