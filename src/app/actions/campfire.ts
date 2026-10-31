@@ -211,7 +211,8 @@ function toMessageView(doc: CampfireMessageDoc): CampfireMessage {
  * - an event's chat and announcements: its hosts and attendees;
  * - a calendar's chat: its owner and active followers.
  *
- * A conversation paired to nothing is unaffected. Checked on every read and
+ * A conversation paired to nothing belongs to another Mukoko app (direct
+ * messages, groups) and is never served here. Checked on every read and
  * every write, so a withdrawn RSVP, an unfollow or a lost membership takes
  * effect at once.
  */
@@ -229,13 +230,8 @@ async function canUsePairedChat(
   if (conversation.calendarId) {
     return isCalendarChatMember(conversation.calendarId, personId);
   }
-  return true;
-}
-
-function isPaired(conversation: CampfireConversationDoc): boolean {
-  return Boolean(
-    conversation.circleId || conversation.eventId || conversation.calendarId,
-  );
+  // Paired to nothing: not this app's conversation. Fail closed.
+  return false;
 }
 
 // ── reads ────────────────────────────────────────────────────────────────
@@ -258,7 +254,6 @@ export async function getCampfireThread(
       return EMPTY_THREAD(conversationId);
     }
     if (
-      isPaired(conversation) &&
       !(await canUsePairedChat(conversation, await resolveViewerPersonId()))
     ) {
       return EMPTY_THREAD(conversationId);
