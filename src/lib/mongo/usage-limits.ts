@@ -20,7 +20,7 @@ import { getCollection, DB } from "./databases";
 import { WRITE_SCHEMA_VERSION } from "./ids";
 import type { BaseDoc } from "./types";
 
-export type UsageCounterType = "blast" | "apiWrite";
+export type UsageCounterType = "blast" | "apiWrite" | "kioskProbe";
 
 interface UsageCounterDoc extends BaseDoc {
   subjectId: string;
@@ -47,6 +47,18 @@ export class UsageLimitExceededError extends Error {
     );
     this.name = "UsageLimitExceededError";
   }
+}
+
+/** Today's count for a subject, without incrementing. */
+export async function getDailyUsage(params: {
+  subjectId: string;
+  counterType: UsageCounterType;
+}): Promise<number> {
+  const col = await usageCountersCollection();
+  const doc = await col.findOne({
+    _id: `${params.counterType}:${params.subjectId}:${todayKey()}`,
+  });
+  return doc?.count ?? 0;
 }
 
 /**

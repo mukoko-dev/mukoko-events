@@ -104,6 +104,18 @@ export async function getKioskPairingStatus(
   if (pairing.expiresAt.getTime() < Date.now()) return { status: "expired" };
 
   if (pairing.status === "confirmed" && pairing.eventId) {
+    // Hand the session token out once: retire the code so it cannot be used to
+    // fetch the token again. If the retire write is refused (the collection's
+    // validator is platform-owned) the kiosk must still pair, so log and go on.
+    try {
+      const retired = await pairings.updateOne(
+        { _id: pairing._id, code },
+        { $set: { code: `used:${pairing._id}`, updatedAt: new Date() } },
+      );
+      if (retired.matchedCount === 0) return { status: "expired" };
+    } catch (err) {
+      console.error("[mukoko] kiosk pairing code could not be retired", err);
+    }
     const events = await eventsCollection();
     const event = await events.findOne({ _id: pairing.eventId });
     return {

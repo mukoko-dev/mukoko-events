@@ -25,7 +25,10 @@ import {
   markReviewHelpful,
   submitEventReview,
 } from "@/lib/mongo/engagement";
-import { requireActingPerson } from "@/lib/auth/current-person";
+import {
+  requireActingPerson,
+  resolveViewerPersonId,
+} from "@/lib/auth/current-person";
 import { ensureHostEntityForPerson } from "@/lib/mongo/entities";
 import type {
   EventReviewsResponse,
@@ -69,9 +72,16 @@ export async function getEntityReviewsAction(
   return getEntityReviews(entityId);
 }
 
+/**
+ * A person's own referral code. A server action is a public endpoint, so the
+ * id is checked against the signed-in viewer: anyone else's id (or no session)
+ * gets `null`, as for a person with no code.
+ */
 export async function getUserReferralCodeAction(
   userId: string,
 ): Promise<UserReferralCode | null> {
+  const viewerId = await resolveViewerPersonId();
+  if (!viewerId || viewerId !== userId) return null;
   return getUserReferralCode(userId);
 }
 
@@ -140,6 +150,6 @@ export async function markReviewHelpfulAction(
 export async function generateUserReferralCodeAction(
   userId: string,
 ): Promise<{ code: string }> {
-  const existing = await getUserReferralCode(userId);
+  const existing = await getUserReferralCodeAction(userId);
   return { code: existing?.code ?? "" };
 }
