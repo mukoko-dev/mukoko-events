@@ -30,6 +30,9 @@ import {
   endKioskSession,
   checkinViaKiosk,
 } from "@/lib/mongo/kiosk";
+import { headers } from "next/headers";
+import { trustedClientIp, visitorNetwork } from "@/lib/client-address";
+import { consumeDailyUsage, getDailyUsage } from "@/lib/mongo/usage-limits";
 import type { PersonDoc } from "@/lib/mongo/types";
 import type { KioskPairingStatus, KioskSession, ScreenType } from "@/lib/api";
 
@@ -77,11 +80,42 @@ export async function requestKioskPairingAction(
   return requestKioskPairing(screenType);
 }
 
-/** Poll a pairing code's status (open — the screen has no session yet). */
+/** Wrong or expired codes allowed per network per day before lookups stop. */
+const MAX_PAIRING_MISSES_PER_DAY = 100;
+
+/**
+ * Poll a pairing code's status (open — the screen has no session yet). Guessing
+ * is rate-limited: each unknown or expired code counts against the caller's
+ * network, and past the limit every lookup answers "expired" without reading.
+ * A kiosk polling its own live code never counts.
+ */
 export async function getKioskPairingStatusAction(
   code: string,
 ): Promise<KioskPairingStatus> {
-  return getKioskPairingStatus(code);
+  const trusted = trustedClientIp(await headers());
+  const subject = trusted ? visitorNetwork(trusted) : null;
+  if (subject) {
+    const used = await getDailyUsage({
+      subjectId: subject,
+      counterType: "kioskProbe",
+    });
+    if (used >= MAX_PAIRING_MISSES_PER_DAY) return { status: "expired" };
+  }
+  const status = await getKioskPairingStatus(
+    typeof code === "string" ? code.slice(0, 16) : "",
+  );
+  if (status.status === "expired" && subject) {
+    try {
+      await consumeDailyUsage({
+        subjectId: subject,
+        counterType: "kioskProbe",
+        limit: MAX_PAIRING_MISSES_PER_DAY,
+      });
+    } catch {
+      // Over the limit: the next call is refused up front.
+    }
+  }
+  return status;
 }
 
 /** Host confirms a pairing code, binding the screen to one of their events. */
