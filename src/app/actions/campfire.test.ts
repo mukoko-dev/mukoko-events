@@ -81,6 +81,7 @@ beforeEach(() => {
   persons.findOne.mockResolvedValue(person);
   conversations.findOne.mockResolvedValue({
     _id: "conv-1",
+    eventId: "event-1",
     isActive: true,
     messageCount: 4,
   });
@@ -236,9 +237,30 @@ describe("circle-paired chats are members only", () => {
   });
 
   it("event chats (no circleId) skip the circle check", async () => {
-    conversations.findOne.mockResolvedValue({ _id: "conv-1", isActive: true });
+    conversations.findOne.mockResolvedValue({
+      _id: "conv-1",
+      eventId: "event-1",
+      isActive: true,
+    });
     await postCampfireMessage("conv-1", "hi");
     expect(loadCircleAccess).not.toHaveBeenCalled();
+  });
+});
+
+describe("conversations paired to nothing are never served", () => {
+  it("reads as empty and refuses a post (they belong to other Mukoko apps)", async () => {
+    conversations.findOne.mockResolvedValue({
+      _id: "conv-dm",
+      conversationType: "direct",
+      isActive: true,
+    });
+    const thread = await getCampfireThread("conv-dm");
+    expect(thread.messages).toEqual([]);
+    expect(messages.find).not.toHaveBeenCalled();
+    await expect(postCampfireMessage("conv-dm", "hi")).rejects.toThrow(
+      "This campfire is no longer available.",
+    );
+    expect(messages.insertOne).not.toHaveBeenCalled();
   });
 });
 
