@@ -1,4 +1,24 @@
-const CACHE_VERSION = "nhimbe-v3";
+// Mukoko Events service worker TEMPLATE.
+//
+// scripts/inject-sw-version.mjs generates public/sw.js from this file at
+// build time with the deploy's commit sha in the BUILD constant below. The
+// version lives in the script BYTES, not in its URL, because the page calls
+// registration.update() whenever the PWA becomes visible or focused — and
+// update() re-fetches the registration's existing script URL, so a
+// URL-versioned worker can never observe a new deploy. /sw.js is served
+// `Cache-Control: no-store` (next.config.ts) so every update check
+// byte-compares fresh content. A changed BUILD means a changed script → the
+// browser installs the new worker → skipWaiting activates it → the page
+// reloads once (src/components/pwa/sw-register.tsx) → activate deletes every
+// other version's cache.
+//
+// public/sw.js is generated, gitignored, and never committed; this template
+// is the source of truth.
+
+// Injected at build time: the deploy's commit sha (VERCEL_GIT_COMMIT_SHA /
+// git rev-parse). Empty only in a build without git.
+const BUILD = { sha: "__SW_SHA__" };
+const CACHE_VERSION = `nhimbe-${BUILD.sha || "dev"}`;
 
 self.addEventListener("install", (event) => {
   // Skip waiting to activate immediately
