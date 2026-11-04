@@ -145,6 +145,18 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // The service worker script must never be served stale: the page
+        // calls registration.update() whenever the PWA becomes visible or
+        // focused again, and a cached /sw.js would keep answering with the
+        // old build's bytes until the browser's 24-hour script cache expires
+        // — the exact defect the version-in-script scheme
+        // (scripts/sw.template.js) exists to fix. The deploy identity is IN
+        // the script bytes; comparing it fresh only works if the bytes are
+        // not cached.
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-store, must-revalidate" }],
+      },
+      {
         source: "/:path*",
         headers: [
           { key: "Content-Security-Policy", value: CONTENT_SECURITY_POLICY },
