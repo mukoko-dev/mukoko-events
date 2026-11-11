@@ -341,7 +341,15 @@ export interface EntityDoc extends BaseDoc {
    * WorkOS organization this entity mirrors (`org_…`) — THE join key between
    * WorkOS organizations and `entity.entities` (issue #70). Validator-permitted
    * extra field (v3.1 camelCase); set only on entities provisioned from
-   * `organization_membership.*` webhook events.
+   * `organization_membership.*` webhook events. `workosOrgId` is the standard
+   * name in the platform data model (nyuchi/data-infra#179): every write uses
+   * it. Read through `entityWorkosOrgId()`, which also accepts the legacy name.
+   */
+  workosOrgId?: string | null;
+  /**
+   * @deprecated Legacy name of {@link EntityDoc.workosOrgId}, still present on
+   * documents written before 2026-11. Never written; read only through
+   * `entityWorkosOrgId()` until the data-infra script has copied the field.
    */
   workosOrganizationId?: string | null;
   email?: string | null;

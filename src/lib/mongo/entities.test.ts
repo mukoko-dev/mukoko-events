@@ -34,6 +34,8 @@ import {
   createCommunityEntityForPerson,
   endWorkosOrganizationMembership,
   ensureEntityForWorkosOrg,
+  entityByWorkosOrgFilter,
+  entityWorkosOrgId,
   getPersonHostRoleForEntity,
   listHostEntitiesWithRoleForPerson,
   mirrorWorkosOrganizationMembership,
@@ -109,19 +111,24 @@ describe("workosRoleToMembershipRole", () => {
 });
 
 describe("ensureEntityForWorkosOrg", () => {
-  it("upserts keyed on the workosOrganizationId join key, $setOnInsert only", async () => {
+  it("upserts on the WorkOS org id, $setOnInsert only, inserting workosOrgId", async () => {
     await ensureEntityForWorkosOrg({
       workosOrganizationId: "org_456",
       organizationName: "Harare Makers Collective",
     });
 
     const [filter, update, options] = entities.findOneAndUpdate.mock.calls[0];
-    expect(filter).toEqual({ workosOrganizationId: "org_456" });
+    // Looks the entity up under the standard AND the legacy field name…
+    expect(filter).toEqual({
+      $or: [{ workosOrgId: "org_456" }, { workosOrganizationId: "org_456" }],
+    });
     expect(options).toMatchObject({ upsert: true });
     // No $set — an existing entity's name/slug are never overwritten.
     expect(update.$set).toBeUndefined();
 
-    const doc = { ...filter, ...update.$setOnInsert };
+    // …but an `$or` filter seeds nothing on insert, so the inserted document
+    // is exactly `$setOnInsert`.
+    const doc = { ...update.$setOnInsert };
     for (const field of ENTITY_REQUIRED_FIELDS) {
       expect(doc, `missing required field ${field}`).toHaveProperty(field);
       expect(
@@ -136,11 +143,65 @@ describe("ensureEntityForWorkosOrg", () => {
     expect(update.$setOnInsert.createdAt).toBeInstanceOf(Date);
   });
 
+  it("writes the standard workosOrgId and never the legacy workosOrganizationId", async () => {
+    await ensureEntityForWorkosOrg({ workosOrganizationId: "org_456" });
+    const [, update] = entities.findOneAndUpdate.mock.calls[0];
+    expect(update.$setOnInsert.workosOrgId).toBe("org_456");
+    for (const op of ["$set", "$setOnInsert", "$unset", "$inc"] as const) {
+      expect(update[op] ?? {}).not.toHaveProperty("workosOrganizationId");
+    }
+  });
+
   it("falls back to a generic name when the org name is missing", async () => {
     await ensureEntityForWorkosOrg({ workosOrganizationId: "org_456" });
     const [, update] = entities.findOneAndUpdate.mock.calls[0];
     expect(update.$setOnInsert.name).toBe("Organisation");
     expect(update.$setOnInsert.slug).toBeTruthy();
+  });
+});
+
+describe("entityWorkosOrgId", () => {
+  it("reads the standard workosOrgId", () => {
+    expect(entityWorkosOrgId({ workosOrgId: "org_new" })).toBe("org_new");
+  });
+
+  it("falls back to the legacy workosOrganizationId", () => {
+    expect(entityWorkosOrgId({ workosOrganizationId: "org_old" })).toBe(
+      "org_old",
+    );
+  });
+
+  it("prefers the standard name when a document carries both", () => {
+    expect(
+      entityWorkosOrgId({
+        workosOrgId: "org_new",
+        workosOrganizationId: "org_old",
+      }),
+    ).toBe("org_new");
+  });
+
+  it("falls through a null standard field to the legacy one", () => {
+    expect(
+      entityWorkosOrgId({
+        workosOrgId: null,
+        workosOrganizationId: "org_old",
+      }),
+    ).toBe("org_old");
+  });
+
+  it("is null for an entity that mirrors no WorkOS org", () => {
+    expect(entityWorkosOrgId({})).toBeNull();
+    expect(
+      entityWorkosOrgId({ workosOrgId: null, workosOrganizationId: null }),
+    ).toBeNull();
+  });
+});
+
+describe("entityByWorkosOrgFilter", () => {
+  it("matches either field name", () => {
+    expect(entityByWorkosOrgFilter("org_1")).toEqual({
+      $or: [{ workosOrgId: "org_1" }, { workosOrganizationId: "org_1" }],
+    });
   });
 });
 
@@ -205,9 +266,11 @@ describe("mirrorWorkosOrganizationMembership", () => {
       expect.anything(),
       expect.objectContaining({ upsert: true }),
     );
-    // Entity keyed on the WorkOS org id.
+    // Entity keyed on the WorkOS org id (standard + legacy field name).
     expect(entities.findOneAndUpdate).toHaveBeenCalledWith(
-      { workosOrganizationId: "org_456" },
+      {
+        $or: [{ workosOrgId: "org_456" }, { workosOrganizationId: "org_456" }],
+      },
       expect.anything(),
       expect.objectContaining({ upsert: true }),
     );
