@@ -74,7 +74,8 @@ reconciled across these collections and their screens —
   single idempotent `syncPersonFromWorkos` upsert keyed on `workosUserId` across
   webhook + callback + lazy-sync, so the same user is not written twice.
 - `entity.entities` — host entities; WorkOS org mirroring find-or-creates a
-  single minimal entity keyed on `workosOrganizationId`.
+  single minimal entity keyed on `workosOrgId` (entities written before
+  2026-11 carry the legacy `workosOrganizationId`; the lookup accepts both).
 
 **Still open — needs a follow-up with DB access:** the original
 duplicate-data concern was **never pinpointed to a specific collection or

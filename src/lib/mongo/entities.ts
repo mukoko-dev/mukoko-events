@@ -396,8 +396,38 @@ export async function createCommunityEntityForPerson(params: {
 // WorkOS organization memberships are mirrored into `entity.memberships` so a
 // user added to an org in WorkOS can immediately host through the matching
 // Mukoko entity. The join keys are the validator-permitted extra fields
-// `entity.entities.workosOrganizationId` (org_…) and
+// `entity.entities.workosOrgId` (org_…) and
 // `entity.memberships.workosOrganizationMembershipId` (om_…) — see types.ts.
+//
+// Field-name standard (nyuchi/data-infra#179): the model names the entity-side
+// key `workosOrgId`, and every write here uses that name. Entities written
+// before 2026-11 carry the legacy `workosOrganizationId` instead, so every read
+// accepts BOTH (`workosOrgId ?? workosOrganizationId`) until the data-infra
+// script has copied the field. The membership-side `workosOrganizationId` is
+// the model's own name for that collection and is unchanged.
+
+/**
+ * The WorkOS organization id (`org_…`) an entity mirrors, whichever field name
+ * the document was written under: the standard `workosOrgId`, else the legacy
+ * `workosOrganizationId`. `null` when the entity mirrors no WorkOS org.
+ */
+export function entityWorkosOrgId(
+  entity: Pick<EntityDoc, "workosOrgId" | "workosOrganizationId">,
+): string | null {
+  return entity.workosOrgId ?? entity.workosOrganizationId ?? null;
+}
+
+/**
+ * Filter matching the entity that mirrors a WorkOS organization under either
+ * field name. Both clauses stay until the legacy field is gone from the data.
+ */
+export function entityByWorkosOrgFilter(
+  workosOrgId: string,
+): Filter<EntityDoc> {
+  return {
+    $or: [{ workosOrgId }, { workosOrganizationId: workosOrgId }],
+  };
+}
 
 /** The event fields the mirror needs from a WorkOS `organization_membership.*` payload. */
 export interface WorkosOrgMembershipInput {
@@ -443,8 +473,12 @@ export function workosRoleToMembershipRole(
 /**
  * Resolve the entity mirroring a WorkOS organization, creating a minimal
  * validator-complete organization entity on first sight. `$setOnInsert`-only
- * upsert keyed on the `workosOrganizationId` join key — idempotent, and an
- * existing entity (name, slug, …) is never overwritten.
+ * upsert keyed on the WorkOS org id — idempotent, and an existing entity (name,
+ * slug, …) is never overwritten. The lookup matches the standard `workosOrgId`
+ * and the legacy `workosOrganizationId`, so an entity written under the old
+ * name is found rather than duplicated; a new entity is inserted with
+ * `workosOrgId`. (An `$or` filter seeds nothing on insert, hence the explicit
+ * `workosOrgId` below.)
  */
 export async function ensureEntityForWorkosOrg(params: {
   workosOrganizationId: string;
@@ -453,11 +487,11 @@ export async function ensureEntityForWorkosOrg(params: {
   const entities = await entitiesCollection();
   const name = params.organizationName?.trim() || "Organisation";
   const doc = await entities.findOneAndUpdate(
-    { workosOrganizationId: params.workosOrganizationId },
+    entityByWorkosOrgFilter(params.workosOrganizationId),
     {
       $setOnInsert: {
         ...stampNew(),
-        // workosOrganizationId is supplied by the filter on insert.
+        workosOrgId: params.workosOrganizationId,
         entityType: "organization",
         ecosystemRole: "external",
         schemaOrgType: "Organization",
