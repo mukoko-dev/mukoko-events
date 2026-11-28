@@ -102,9 +102,9 @@ Reusable routines live in [`.claude/skills/`](./.claude/skills/) as
 ## Merging and releases (org rule, 2026-10-21)
 
 The owner set this for every repo in every org on 2026-10-21. It replaces any older
-wording about merge commits, rebase merges, forward-ports or "staging to main" PRs.
+wording about merge commits, rebase merges, forward-ports or staging PRs.
 
-- **Squash only, through the merge queue.** `staging` and `main` take squash merges
+- **Squash only, through the merge queue.** `main` takes squash merges
   through a GitHub merge queue. Rebase and merge commits are disabled, and history is
   linear. Land a PR with `gh pr merge <n> --squash --auto`. The queue tests it against
   the latest base and merges it. Never use `--admin`, and don't loop merge calls: treat a
@@ -116,9 +116,8 @@ wording about merge commits, rebase merges, forward-ports or "staging to main" P
   triggers on `merge_group:` as well as `pull_request:`, or queued PRs stall for 60
   minutes and drop out. Jobs that only make sense on a pull request skip with
   `if: github.event_name != 'merge_group'` (a skipped required check counts as passing).
-- **Releases.** Cut `release/staging-to-main-<date>` from `main`, give it `staging`'s
-  exact tree, and land it in `main` through the queue. Only the owner releases, or an
-  agent the owner has authorised for that release.
+- **Releases.** Every merge to `main` is a release, tagged from its PR title. Only the
+  owner makes a major release.
 - **First-party packages** (`@nyuchi/*`, `@bundu/*`, `mzizi-*`) are depended on by
   minimum version (`>=x.y.z`), with no upper bound.
 
